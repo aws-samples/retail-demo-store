@@ -1,0 +1,438 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys a Retail Demo Store service pipeline.
+
+Parameters:
+  ServiceName:
+    Type: String
+
+  ServicePath:
+    Type: String
+
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+  GitHubRepo:
+    Type: String
+
+  GitHubBranch:
+    Type: String
+    Default: master
+
+  GitHubToken:
+    Type: String
+    NoEcho: true
+
+  GitHubUser:
+    Type: String
+
+  ClusterName:
+    Type: String
+
+  UserPoolId:
+    Type: String
+
+  UserPoolClientId:
+    Type: String
+  
+  IdentityPoolId:
+    Type: String
+  
+  StackBucketName:
+    Type: String
+  
+  FargateServiceName:
+    Type: String
+
+  ProductsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  UsersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  CartsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OrdersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  RecommendationsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  SearchServiceExternalUrl:
+    Type: String
+    Default: none
+
+  PinpointAppId:
+    Type: String
+    Default: none
+
+  ParameterPersonalizeEventTrackerId:
+    Type: String
+
+  ParameterAmplitudeApiKey:
+    Type: String
+    Description: SSM parameter name for the Amplitude API key
+
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+  DeleteRepositoryLambdaArn:
+    Type: String
+    Description: Lambda Arn for deleting ECR repository
+
+  WebRootUrl:
+    Type: String
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
+
+  ImageRootUrl:
+    Type: String
+    Description: URL where Retail Demo Store images such as product images are located
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root path where images are located
+
+Conditions:
+  LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
+  LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+
+Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub retaildemostore/${ServiceName}
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+            {
+              "rulePriority": 1,
+              "description": "Only keep 2 images",
+              "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 2
+              },
+              "action": { "type": "expire" }
+            }]
+          }
+    DeletionPolicy: Delete
+
+  # Deletes repository when stack is deleted
+  DeleteRepository:
+    Type: Custom::DeleteRepository
+    Properties:
+      ServiceToken: !Ref DeleteRepositoryLambdaArn
+      RegistryId: !Ref AWS::AccountId
+      RepositoryName: !Ref Repository      
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole    
+      Policies:
+        - PolicyName: "logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                - 
+                  Effect: "Allow"
+                  Action: 
+                      - logs:CreateLogGroup
+                      - logs:CreateLogStream
+                      - logs:PutLogEvents
+                      - ecr:GetAuthorizationToken
+                      - ssm:GetParameters
+                  Resource: "*"
+        - PolicyName: "ecr"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                - 
+                  Effect: "Allow"
+                  Action: 
+                      - ecr:GetDownloadUrlForLayer
+                      - ecr:BatchGetImage
+                      - ecr:BatchCheckLayerAvailability
+                      - ecr:PutImage
+                      - ecr:InitiateLayerUpload
+                      - ecr:UploadLayerPart
+                      - ecr:CompleteLayerUpload
+                  Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+        - PolicyName: "S3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                - 
+                  Effect: "Allow"
+                  Action: 
+                      - s3:GetObject
+                      - s3:PutObject
+                      - s3:GetObjectVersion
+                  Resource: !Sub arn:aws:s3:::${ArtifactBucket}/* 
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::${ArtifactBucket}
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - iam:PassRole
+              - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+                Effect: Allow
+                Action:
+                  - "codecommit:GetBranch"
+                  - "codecommit:GetCommit"
+                  - "codecommit:UploadArchive"
+                  - "codecommit:GetUploadArchiveStatus"
+                  - "codecommit:CancelUploadArchive"
+              - Resource: '*'
+                Effect: Allow
+                Action:
+                  - ecs:List*
+                  - ecs:Describe*
+                  - ecs:RegisterTaskDefinition
+              - Resource: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${ClusterName}/${FargateServiceName}'
+                Effect: Allow
+                Action:
+                  - ecs:UpdateService
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+
+  # Empties bucket when stack is deleted
+  EmptyArtifactBucket:
+    Type: Custom::EmptyArtifactBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref ArtifactBucket
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Sub ${ServicePath}/buildspec.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/docker:17.09.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+          - Name: SERVICE_PATH
+            Value: !Sub ${ServicePath}
+          - Name: SERVICE_NAME
+            Value: !Sub ${ServiceName}
+          - Name: COGNITO_USER_POOL_ID
+            Value: !Sub ${UserPoolId}
+          - Name: COGNITO_USER_POOL_CLIENT_ID
+            Value: !Sub ${UserPoolClientId}
+          - Name: COGNITO_IDENTITY_POOL_ID
+            Value: !Sub ${IdentityPoolId}
+          - Name: PRODUCTS_SERVICE_URL
+            Value: !Sub ${ProductsServiceExternalUrl}
+          - Name: USERS_SERVICE_URL
+            Value: !Sub ${UsersServiceExternalUrl}
+          - Name: CARTS_SERVICE_URL
+            Value: !Sub ${CartsServiceExternalUrl}
+          - Name: ORDERS_SERVICE_URL
+            Value: !Sub ${OrdersServiceExternalUrl}        
+          - Name: RECOMMENDATIONS_SERVICE_URL
+            Value: !Sub ${RecommendationsServiceExternalUrl}   
+          - Name: SEARCH_SERVICE_URL
+            Value: !Sub ${SearchServiceExternalUrl}
+          - Name: DEPLOYED_REGION
+            Value: !Ref AWS::Region
+          - Name: PINPOINT_APP_ID
+            Value: !Ref PinpointAppId
+          - Name: PERSONALIZE_TRACKING_ID
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterPersonalizeEventTrackerId       
+          - Name: AMPLITUDE_API_KEY
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterAmplitudeApiKey       
+          - Name: WEB_ROOT_URL
+            Value: !Ref WebRootUrl
+          - Name: IMAGE_ROOT_URL
+            Value: !Ref ImageRootUrl
+      Name: !Ref AWS::StackName
+      ServiceRole: !Ref CodeBuildServiceRole
+
+  PipelineGitHub:
+    Condition: LinkToGitHub
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Tags:
+        -
+          Key: RetailDemoStoreServiceName
+          Value: !Ref ServiceName
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: '1'
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: App
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: App
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: ECS
+              Configuration:
+                ClusterName: !Ref ClusterName
+                ServiceName: !Ref FargateServiceName
+                FileName: images.json
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+
+  PipelineCodeCommit:
+    Condition: LinkToCodeCommit
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Tags:
+        -
+          Key: RetailDemoStoreServiceName
+          Value: !Ref ServiceName
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: retaildemostore-src
+                BranchName: master
+                PollForSourceChanges: 'true'
+              OutputArtifacts:
+                - Name: App
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: App
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: ECS
+              Configuration:
+                ClusterName: !Ref ClusterName
+                ServiceName: !Ref FargateServiceName
+                FileName: images.json
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+
+Outputs:
+  PipelineForGitHubUrl:
+    Condition: LinkToGitHub
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineGitHub}
+
+  PipelineForCodeCommitUrl:
+    Condition: LinkToCodeCommit
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineCodeCommit}

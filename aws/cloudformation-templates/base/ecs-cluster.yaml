@@ -1,0 +1,16 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store ECS Cluster.
+
+Resources:
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref AWS::StackName
+
+Outputs:
+  ClusterName:
+      Value: !Ref Cluster

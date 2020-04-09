@@ -1,0 +1,29 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store S3 Buckets.
+
+Parameters:
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+Resources:
+
+  StackBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+
+  # Empties bucket when stack is deleted
+  EmptyStackBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref StackBucket
+
+Outputs:
+
+  StackBucketName:
+    Description: S3 Bucket For Stack.
+    Value: !Ref StackBucket

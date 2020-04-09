@@ -1,0 +1,25 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store Service Discovery Namespace.
+
+Parameters:
+  VpcId:
+    Type: String
+    Description: VpcId
+
+Resources:
+
+  ServiceDiscoveryNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Description: Cloud Map private DNS namespace for resources for the Retail Demo Store
+      Vpc: !Ref VpcId
+      Name: retaildemostore.local
+
+Outputs:
+
+  ServiceDiscoveryNamespace:
+    Description: Service Discovery Namespace.
+    Value: !Ref ServiceDiscoveryNamespace

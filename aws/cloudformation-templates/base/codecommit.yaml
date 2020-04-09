@@ -1,0 +1,77 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store S3 CodeCommit Repo.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+Conditions:
+  LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+
+Resources:
+
+  WorkshopRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: retaildemostore-workshop
+      RepositoryDescription: CodeCommit Repo for the Retail Demo Store workshops
+      Code:
+        S3:
+          Bucket: !Ref ResourceBucket
+          Key: !Sub ${ResourceBucketRelativePath}notebooks/retaildemostore-notebooks.zip
+
+  SourceRepository:
+    Condition: LinkToCodeCommit
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: retaildemostore-src
+      RepositoryDescription: CodeCommit Repo for the Retail Demo Store source code
+      Code:
+        S3:
+          Bucket: !Ref ResourceBucket
+          Key: !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
+
+Outputs:
+
+  WorkshopCloneUrlHttp:
+    Description: Workshop CodeCommit Respository Http Clone Url
+    Value: !GetAtt WorkshopRepository.CloneUrlHttp
+ 
+  WorkshopCloneUrlSsh:
+    Description: Workshop CodeCommit Repository SSH Clone Url
+    Value: !GetAtt WorkshopRepository.CloneUrlSsh
+
+  WorkshopRepositoryArn:
+    Description: Workshop CodeCommit Repository Arn
+    Value: !GetAtt WorkshopRepository.Arn
+
+  SourceCloneUrlHttp:
+    Condition: LinkToCodeCommit
+    Description: Source CodeCommit Respository Http Clone Url
+    Value: !GetAtt SourceRepository.CloneUrlHttp
+ 
+  SourceCloneUrlSsh:
+    Condition: LinkToCodeCommit
+    Description: Source CodeCommit Repository SSH Clone Url
+    Value: !GetAtt SourceRepository.CloneUrlSsh
+
+  SourceRepositoryArn:
+    Condition: LinkToCodeCommit
+    Description: Source CodeCommit Repository Arn
+    Value: !GetAtt SourceRepository.Arn    

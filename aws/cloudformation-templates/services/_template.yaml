@@ -1,0 +1,409 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store Services.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
+  WebRootUrl:
+    Type: String
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
+
+  ImageRootUrl:
+    Type: String
+    Description: URL where Retail Demo Store images such as product images are located
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root path where images are located
+
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+  GitHubRepo:
+    Type: String
+    Default: retaildemostore
+
+  GitHubBranch:
+    Type: String
+    Default: master
+
+  GitHubToken:
+    Type: String
+    NoEcho: true
+
+  GitHubUser:
+    Type: String
+
+  UserPoolId:
+    Type: String
+
+  UserPoolClientId:
+    Type: String
+  
+  IdentityPoolId:
+    Type: String
+
+  StackBucketName:
+    Type: String
+
+  Subnets:
+    Type: String
+
+  VpcId:
+    Type: String
+
+  ClusterName:
+    Type: String
+
+  ServiceDiscoveryNamespace:
+    Type: String
+
+  EnvElasticsearchDomainEndpoint:
+    Type: String
+    Default: none
+
+  PinpointAppId:
+    Type: String
+
+  ProductsTable:
+    Type: String
+    Default: none
+
+  CategoriesTable:
+    Type: String
+    Default: none
+
+  ExperimentStrategyTable:
+    Type: String
+    Default: none
+
+  ParameterPersonalizeEventTrackerId:
+    Type: String
+    Description: SSM parameter name for the Personalize event tracking ID
+
+  ParameterAmplitudeApiKey:
+    Type: String
+    Description: SSM parameter name for the Amplitude API key
+
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+Resources:
+
+  ProductsService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: products
+        ServicePath: src/products
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ProductsTable: !Ref ProductsTable
+        CategoriesTable: !Ref CategoriesTable
+        ExperimentStrategyTable: !Ref ExperimentStrategyTable
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+
+  UsersService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: users
+        ServicePath: src/users
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+
+  CartsService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: carts
+        ServicePath: src/carts
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+
+  OrdersService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: orders
+        ServicePath: src/orders
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+
+  SearchService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: search
+        ServicePath: src/search
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+
+  RecommendationsService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: recommendations
+        ServicePath: src/recommendations
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ProductsTable: !Ref ProductsTable
+        CategoriesTable: !Ref CategoriesTable
+        ExperimentStrategyTable: !Ref ExperimentStrategyTable
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+ 
+  # Pinpoint personalized messaging customization
+  PinpointPersonalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/pinpoint-personalize.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        ProductsServiceDNSName: !GetAtt ProductsService.Outputs.ServiceDNSName
+
+  # Custom resources
+  CustomResources:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/ProductsCustom.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        ProductsTable: !Ref ProductsTable
+        CategoriesTable: !Ref CategoriesTable
+
+  ####################### Delete Repository Custom Resource #######################
+
+  DeleteRepositoryLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that deletes an Amazon ECR repository when the CloudFormation stack is deleted'
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+            print(event)
+            responseData = {}
+            responseStatus = cfnresponse.SUCCESS
+
+            try:
+              registryId = event['ResourceProperties']['RegistryId']
+              repositoryName = event['ResourceProperties']['RepositoryName']
+
+              if event['RequestType'] == 'Create':
+                responseData['Message'] = "Repository creation succeeded"
+              elif event['RequestType'] == 'Update':
+                responseData['Message'] = "Repository update succeeded"
+              elif event['RequestType'] == 'Delete':
+                # Delete the registry
+                ecr = boto3.client('ecr')
+                ecr.delete_repository(
+                    registryId=registryId,
+                    repositoryName=repositoryName,
+                    force=True
+                )
+
+                responseData['Message'] = "Repository deletion succeeded"
+
+            except Exception as e:
+              print("Error: " + str(e))
+              responseStatus = cfnresponse.FAILED
+              responseData['Message'] = "Repository {} failed: {}".format(event['RequestType'], e)
+
+            cfnresponse.send(event, context, responseStatus, responseData)
+
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 30
+      Role: !GetAtt DeleteRepositoryLambdaExecutionRole.Arn
+
+  DeleteRepositoryLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - ecr:DeleteRepository
+                Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/retaildemostore*'
+
+Outputs:
+  ProductsServiceUrl: 
+    Description: Products load balancer URL.
+    Value: !GetAtt ProductsService.Outputs.ServiceUrl
+
+  UsersServiceUrl: 
+    Description: Users load balancer URL.
+    Value: !GetAtt UsersService.Outputs.ServiceUrl
+
+  CartsServiceUrl: 
+    Description: Carts load balancer URL.
+    Value: !GetAtt CartsService.Outputs.ServiceUrl
+
+  OrdersServiceUrl: 
+    Description: Orders load balancer URL.
+    Value: !GetAtt OrdersService.Outputs.ServiceUrl
+
+  RecommendationsServiceUrl: 
+    Description: Recommendations load balancer URL.
+    Value: !GetAtt RecommendationsService.Outputs.ServiceUrl
+
+  SearchServiceUrl: 
+    Description: Search load balancer URL.
+    Value: !GetAtt SearchService.Outputs.ServiceUrl

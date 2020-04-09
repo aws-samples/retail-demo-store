@@ -1,0 +1,258 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys a Retail Demo Store Service.
+
+Parameters:
+
+  ServiceName:
+    Type: String
+
+  ClusterName:
+    Type: String
+
+  DesiredCount:
+    Type: Number
+    Default: 1
+
+  TargetGroup:
+    Type: String
+
+  SourceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+  
+  ContainerPort:
+    Type: String
+    Default: 80
+
+  ContainerImage:
+    Type: String
+    Default: amazon/amazon-ecs-sample
+
+  ServiceDiscoveryNamespace:
+    Type: String
+
+  EnvPersonalizeCampaignArn:
+    Type: String
+    Default: none
+
+  EnvPersonalizeSearchCampaignArn:
+    Type: String
+    Default: none
+
+  EnvProductsServiceInternalUrl:
+    Type: String
+    Default: products.retaildemostore.local
+
+  EnvProductsServiceInternalPort:
+    Type: String
+    Default: 80
+
+  EnvUsersServiceInternalUrl:
+    Type: String
+    Default: users.retaildemostore.local
+
+  EnvUsersServiceInternalPort:
+    Type: String
+    Default: 80
+
+  EnvSearchServiceInternalUrl:
+    Type: String
+    Default: search.retaildemostore.local
+
+  EnvSerchServiceInternalPort:
+    Type: String
+    Default: 80
+
+  EnvElasticsearchDomainEndpoint:
+    Type: String
+    Default: none
+
+  WebRootUrl:
+    Type: String
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
+
+  ImageRootUrl:
+    Type: String
+    Description: URL where Retail Demo Store images such as product images are located
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root path where images are located
+
+  ProductsTable:
+    Type: String
+    Default: none
+
+  CategoriesTable:
+    Type: String
+    Default: none
+
+  ExperimentStrategyTable:
+    Type: String
+    Default: none
+    
+Resources:
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ['-', [RetailDemoStore, !Ref ServiceName, TaskRole]]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: DynamoDB
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource:
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
+        - PolicyName: others
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:*
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - personalize:GetPersonalizedRanking 
+                  - personalize:GetRecommendations 
+                Resource: 
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${AWS::StackName}
+
+  FargateService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ClusterName
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref SourceSecurityGroup
+          Subnets: !Ref Subnets
+      LoadBalancers:
+        - ContainerName: !Ref ServiceName
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref TargetGroup
+      ServiceRegistries:
+        - RegistryArn: !GetAtt ServiceDiscoveryService.Arn
+          ContainerPort: !Ref ContainerPort
+          ContainerName: !Ref ServiceName
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${AWS::StackName}-retaildemostore
+      RequiresCompatibilities:
+        - FARGATE
+      Memory: '512'
+      Cpu: '256'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinitions:
+        - Name: !Ref ServiceName
+          Image: !Ref ContainerImage
+          Essential: true
+          Memory: 256
+          Environment:
+            - Name: PERSONALIZE_CAMPAIGN_ARN
+              Value: !Ref EnvPersonalizeCampaignArn          
+            - Name: SEARCH_CAMPAIGN_ARN
+              Value: !Ref EnvPersonalizeSearchCampaignArn
+            - Name: PRODUCTS_SERVICE_HOST
+              Value: !Ref EnvProductsServiceInternalUrl
+            - Name: PRODUCTS_SERVICE_PORT
+              Value: '80'      
+            - Name: USERS_SERVICE_HOST
+              Value: !Ref EnvUsersServiceInternalUrl
+            - Name: USERS_SERVICE_PORT
+              Value: '80'
+            - Name: SEARCH_SERVICE_HOST
+              Value: !Ref EnvSearchServiceInternalUrl
+            - Name: SEARCH_SERVICE_PORT
+              Value: '80'
+            - Name: STACK_BUCKET
+              Value: none
+            - Name: ES_SEARCH_DOMAIN_HOST
+              Value: !Ref EnvElasticsearchDomainEndpoint
+            - Name: ES_SEARCH_DOMAIN_PORT
+              Value: '443'
+            - Name: DDB_TABLE_PRODUCTS
+              Value: !Ref ProductsTable
+            - Name: DDB_TABLE_CATEGORIES
+              Value: !Ref CategoriesTable
+            - Name: WEB_ROOT_URL
+              Value: !Ref WebRootUrl
+            - Name: IMAGE_ROOT_URL
+              Value: !Ref ImageRootUrl
+          PortMappings:
+            - ContainerPort: 80
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: !Ref AWS::StackName
+
+  ServiceDiscoveryService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: !Ref ServiceName
+      DnsConfig:
+        DnsRecords: [{Type: SRV, TTL: 10}]
+        NamespaceId: !Ref ServiceDiscoveryNamespace
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+
+Outputs:
+  FargateServiceArn:
+    Value: !Ref FargateService
+
+  FargateServiceName:
+    Value: !GetAtt FargateService.Name

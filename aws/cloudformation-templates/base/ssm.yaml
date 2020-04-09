@@ -1,0 +1,109 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store SSM Parameters.
+
+Parameters:
+  StackBucketName:
+    Type: String
+
+  ExperimentStrategyTableName:
+    Type: String
+
+  AmplitudeApiKey:
+    Type: String
+    Description: Amplitude API key for product analytics and A/B testing results (optional).
+    NoEcho: true
+
+Conditions:
+  HasAmplitudeApiKey:
+    !Not [!Equals [!Ref AmplitudeApiKey, ""]]
+
+Resources:
+
+  ParameterStackBucketName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-stack-bucket"
+      Type: "String"
+      Value: !Ref StackBucketName
+      Description: "Retail Demo Store Stack Bucket Parameter"
+
+  ParameterRelatedProductsCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-related-products-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Related Products Campaign Arn Parameter"
+
+  ParameterProductRecommendationCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-product-recommendation-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Product Recommendation Campaign Arn Parameter"
+
+  ParameterPersonalizedRankingCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalized-ranking-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
+
+  ParameterExperimentStrategyTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-experiment-strategy-table-name"
+      Type: "String"
+      Value: !Ref ExperimentStrategyTableName
+      Description: "Retail Demo Store Experiment Strategy DDB Table Name"
+
+  ParameterPersonalizeEventTrackerId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalize-event-tracker-id"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
+      
+  ParameterAmplitudeApiKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-amplitude-api-key"
+      Type: "String"
+      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
+      Description: "Retail Demo Store Amplitude API key"
+
+Outputs:
+
+  ParameterStackBucketName:
+    Description: Stack Bucket Name Parameter
+    Value: !Ref ParameterStackBucketName
+
+  ParameterRelatedProductsCampaignArn:
+    Description: Related Products Campaign Arn Parameter
+    Value: !Ref ParameterRelatedProductsCampaignArn
+    
+  ParameterProductRecommendationCampaignArn:
+    Description: Product Recommendation Campaign Arn Parameter
+    Value: !Ref ParameterProductRecommendationCampaignArn
+
+  ParameterPersonalizedRankingCampaignArn:
+    Description: Personalized Ranking Campaign Arn
+    Value: !Ref ParameterPersonalizedRankingCampaignArn
+  
+  ParameterExperimentStrategyTableName:
+    Description: Experiment Strategy Table Name
+    Value: !Ref ParameterExperimentStrategyTableName
+
+  ParameterPersonalizeEventTrackerId:
+    Description: Personalize Event Tracker ID Parameter
+    Value: !Ref ParameterPersonalizeEventTrackerId
+
+  ParameterAmplitudeApiKey:
+    Description: Amplitude API key
+    Value: !Ref ParameterAmplitudeApiKey

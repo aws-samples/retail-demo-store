@@ -1,0 +1,6 @@
+Hi {{User.UserAttributes.FirstName}}-
+
+We noticed that you recently put some items in your shopping cart but didn't complete your order. If there is anything we can do to help with your decision, please let us know. In addition, we'd like to offer you a $5 coupon for being a valued customer. Just enter ABC123 in the promotion code field at checkout to redeem your coupon. This coupon will exire in one week.
+
+Cheers,
+Retail Demo Store team

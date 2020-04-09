@@ -1,0 +1,399 @@
+- id: 1
+  name: Black Leather Backpack
+  category: accessories
+  style: bag
+  description: Our handmade leather backpack will look great at the office or out on the town.
+  price: 109.99
+  image: "1.jpg"
+  featured: true
+- id: 2
+  name: Striped Shirt
+  category: apparel
+  style: shirt
+  description: A classic look for the summer season.
+  price: 9.99
+  image: "1.jpg"
+  featured: true
+- id: 3
+  name: Beard Oil
+  category: beauty
+  style: grooming
+  description: Lightly scented with a manly robust fragrance perfect for your face grass.
+  price: 9.99
+  image: "1.jpg"
+  featured: true
+- id: 4
+  name: Fitness Tracker
+  category: electronics
+  style: wearable
+  description: Almost as good as the real thing.
+  price: 89.99
+  image: "1.jpg"
+  featured: true
+- id: 5
+  name: Super Knit Sneakers
+  category: footwear
+  style: sneaker
+  description: Modern running shoes with our latest technology.
+  price: 129.99
+  image: "1.jpg"
+  featured: true
+- id: 6
+  name: Coffee Gift Package
+  category: housewares
+  style: consumable
+  description: Mug and Coffee gift set combination package.
+  price: 39.99
+  image: "1.jpg"
+  featured: true
+- id: 7
+  name: Gold Anchor Womens Bracelet
+  category: jewelry
+  style: bracelet
+  description: A fresh accessory that works with almost any outfit.
+  price: 49.99
+  image: "1.jpg"
+- id: 8
+  name: LED Dog Collar
+  category: outdoors
+  style: pet
+  description: Brightly lit collar for your loved pet.
+  price: 29.99
+  image: "1.jpg"
+- id: 9
+  name: Black Leather Shoulder Bag
+  category: accessories
+  style: bag
+  description: Our handmade leather shoulder bag will look great at the office or out on the town.
+  price: 109.99
+  image: "2.jpg"
+- id: 10
+  name: Classic T- Shirt
+  category: apparel
+  style: shirt
+  description: A classic look for the summer season.
+  price: 9.99
+  image: "2.jpg"
+- id: 11
+  name: Odorless Essential Oil
+  category: beauty
+  style: grooming
+  description: This essential oil in liquid and balm forms smooths rough skin without a scent.
+  price: 9.99
+  image: "2.jpg"
+- id: 12
+  name: Lightning Cable
+  category: electronics
+  style: cable
+  description: Charge your phone on the go.
+  price: 89.99
+  image: "2.jpg"
+- id: 13
+  name: LED Leather Hi-Tops
+  category: footwear
+  style: sneaker
+  description: Modern running shoes with our latest technology.
+  price: 129.99
+  image: "2.jpg"
+- id: 14
+  name: Coffee Gift Package
+  category: housewares
+  style: consumable
+  description: Mug and Coffee gift set combination package.
+  price: 39.99
+  image: "2.jpg"
+- id: 15
+  name: Leather Anchor Mens Bracelet
+  category: jewelry
+  style: bracelet
+  description: A fresh accessory that works with almost any outfit.
+  price: 49.99
+  image: "2.jpg"
+- id: 16
+  name: Neon Colored Fishing Lure
+  category: outdoors
+  style: fishing
+  description: This lure will be hard to pass up with its bright neon green and yellow colors.
+  price: 9.99
+  image: "2.jpg"
+- id: 17
+  name: Black Women's Purse
+  category: accessories
+  style: bag
+  description: Spacious and stylish in a single bag.
+  price: 109.99
+  image: "3.jpg"
+- id: 18
+  name: Accent Scarf
+  category: apparel
+  style: scarf
+  description: Add a colorful navy blue and yellow accent to any outfit.
+  price: 9.99
+  image: "3.jpg"
+- id: 19
+  name: Vitamin E Oil
+  category: beauty
+  style: grooming
+  description: Removes scars and blemishes and moisturizes skin.
+  price: 9.99
+  image: "3.jpg"
+- id: 20
+  name: Black Bluetooth Portable Speaker
+  category: electronics
+  style: speaker
+  description: Blast your tunes anywhere with this Bluetooth wireless speaker.
+  price: 89.99
+  image: "3.jpg"
+- id: 21
+  name: Knit Black Sneakers
+  category: footwear
+  style: sneaker
+  description: Look sharp with these black knit sneakers with white soles.
+  price: 129.99
+  image: "3.jpg"
+- id: 22
+  name: Coffee Gift Package
+  category: housewares
+  style: consumable
+  description: Mug and Coffee gift set combination package.
+  price: 39.99
+  image: "3.jpg"
+- id: 23
+  name: Diamond Studded Classic Gold Bracelet
+  category: jewelry
+  style: bracelet
+  description: Dress up any outfit with this gold and diamond bracelet.
+  price: 49.99
+  image: "3.jpg"
+- id: 24
+  name: Classic Fishing Pole
+  category: outdoors
+  style: fishing
+  description: Land a big one with our classic fishing rod and reel.
+  price: 9.99
+  image: "3.jpg"
+- id: 25
+  name: Red Leather Purse
+  category: accessories
+  style: bag
+  description: With stylish gold chain and clasp this bright red purse will set off any outfit.
+  price: 109.99
+  image: "4.jpg"
+- id: 26
+  name: Blue Shirt
+  category: apparel
+  style: shirt
+  description: This solid blue/slate colored mens shirt works in casual settings or under a sport coat.
+  price: 9.99
+  image: "4.jpg"
+- id: 27
+  name: Bath Bomb
+  category: beauty
+  style: bathing
+  description: Invigorate your next batch while moisturizing skin with these amazing bath bombs.
+  price: 9.99
+  image: "10.jpg"
+- id: 28
+  name: Blue Mushroom Wireless Speaker
+  category: electronics
+  style: speaker
+  description: This funky wireless speaker features a suction cup to temporarily mount on any flat surface.
+  price: 89.99
+  image: "4.jpg"
+- id: 29
+  name: LED Leather Hi-Tops
+  category: footwear
+  style: sneaker
+  description: Look sharp and be the life of the party with these LED soles.
+  price: 129.99
+  image: "4.jpg"
+- id: 30
+  name: Nutmeg Grater
+  category: housewares
+  style: kitchen
+  description: Grate fresh nutmeg in your coffee and desserts using this compact grater.
+  price: 39.99
+  image: "4.jpg"
+- id: 31
+  name: Black Bead Womens Bracelet
+  category: jewelry
+  style: bracelet
+  description: A fresh accessory that works with almost any outfit.
+  price: 49.99
+  image: "4.jpg"
+- id: 32
+  name: Classic Fishing Reel
+  category: outdoors
+  style: fishing
+  description: Add this attractive gold and silver fishing reel to an existing pole.
+  price: 29.99
+  image: "4.jpg"
+- id: 33
+  name: Brown Women's Purse
+  category: accessories
+  style: bag
+  description: This brown rich leather purse has a classic style.
+  price: 109.99
+  image: "5.jpg"
+- id: 34
+  name: Classic Bomber Jacket
+  category: apparel
+  style: jacket
+  description: Pull off a classic look while staying warm in this leather bomber jacket.
+  price: 159.99
+  image: "5.jpg"
+- id: 35
+  name: Vitamin E Oil
+  category: beauty
+  style: grooming
+  description: Removes scars and blemishes and moisturizes skin.
+  price: 9.99
+  image: "5.jpg"
+- id: 36
+  name: Exercise Headphones
+  category: electronics
+  style: headphones
+  description: These stylishly red ear buds wrap securely around your ears making them perfect when exercising or on the go.
+  price: 19.99
+  image: "5.jpg"
+- id: 37
+  name: Sporty Deck Shoe
+  category: footwear
+  style: sneaker
+  description: Whether on deck or on the town, these blue deck shoes with brown leather accents will draw a salute.
+  price: 129.99
+  image: "5.jpg"
+- id: 38
+  name: Coffee Gift Package
+  category: housewares
+  style: consumable
+  description: Mug and Coffee gift set combination package.
+  price: 39.99
+  image: "5.jpg"
+- id: 39
+  name: Turquoise Womens Necklace
+  category: jewelry
+  style: necklace
+  description: This attractive turquoise pendant necklace will set off any outfit.
+  price: 49.99
+  image: "5.jpg"
+- id: 40
+  name: Spotted Fishing Lure
+  category: outdoors
+  style: fishing
+  description: Land a big one with this blackspotted lure with green bushy tail.
+  price: 9.99
+  image: "5.jpg"
+- id: 41
+  name: Tan Leather Shoulder Bag
+  category: accessories
+  style: bag
+  description: Clean and simple styling.
+  price: 109.99
+  image: "6.jpg"
+- id: 42
+  name: Multi Color Socks
+  category: apparel
+  style: socks
+  description: Bring some life to your sock game with some multi-color geometric shapes.
+  price: 9.99
+  image: "6.jpg"
+- id: 43
+  name: Beauty Mask
+  category: beauty
+  style: grooming
+  description: Remove dirt and revitalize skin with this black kelp mask.
+  price: 9.99
+  image: "9.jpg"
+- id: 44
+  name: Portable Speaker
+  category: electronics
+  style: speaker
+  description: Take this compact portable speaker with you when you travel or when you're outdoors.
+  price: 89.99
+  image: "6.jpg"
+- id: 45
+  name: Classic Black Leather Hi-Tops
+  category: footwear
+  style: sneaker
+  description: Casual or dressy, this black leather hi-top has you covered.
+  price: 129.99
+  image: "6.jpg"
+- id: 46
+  name: Smoothie Blender
+  category: housewares
+  style: appliance
+  description: Blend up flavorful smoothies using this attractive blender
+  price: 39.99
+  image: "6.jpg"
+- id: 47
+  name: Gold Bracelt with Multi-Color Tassels
+  category: jewelry
+  style: bracelet
+  description: Add some color and style with this unique bracelet.
+  price: 49.99
+  image: "6.jpg"
+- id: 48
+  name: Silver Fishing Lure
+  category: outdoors
+  style: fishing
+  description: Catch your limit in no time with this reflective silver lure with blue and black accents.
+  price: 9.99
+  image: "6.jpg"
+  featured: false
+- id: 49
+  name: Light Brown Leather Lace-Up Boot
+  category: footwear
+  style: boot
+  description: Sturdy enough for the outdoors yet stylish to wear out on the town.
+  price: 89.95
+  image: "11.jpg"
+- id: 50
+  name: Blue Wind Breaker Jacket
+  category: apparel
+  style: jacket
+  description: Stay warm and comfortable on those cool fall evenings.
+  price: 79.95
+  image: "25.jpg"
+- id: 51
+  name: Ceramic Mixing Bowls
+  category: housewares
+  style: bowls
+  description: Add some style to your kitchen with this artistically designed mixing bowls.
+  price: 49.95
+  image: "7.jpg"
+- id: 52
+  name: Turquoise Globe Earrings
+  category: jewelry
+  style: earrings
+  description: Accessorize and set off any outfit with these attractive turquoise earrings.
+  price: 29.99
+  image: "7.jpg"
+- id: 53
+  name: Watermelon Flavored Lip Balm
+  category: beauty
+  style: grooming
+  description: Protect your lips from harshness of winter with this flavorful lip balm.
+  price: 9.99
+  image: "8.jpg"
+- id: 54
+  name: Over-Ear Headphones
+  category: electronics
+  style: headphones
+  description: Immerse youself in listening pleasure with these high-quality over-the-ear headphones.
+  price: 129.99
+  image: "7.jpg"
+- id: 55
+  name: Pink Leather Purse
+  category: accessories
+  style: bag
+  description: Conveniently sized to carry all your essentials in style, pink tassle included.
+  price: 89.99
+  image: "9.jpg"
+- id: 56
+  name: Red Fishing Lure
+  category: outdoors
+  style: fishing
+  description: Every tackle box needs a silver and red reflective fishing lure.
+  price: 9.99
+  image: "12.jpg"

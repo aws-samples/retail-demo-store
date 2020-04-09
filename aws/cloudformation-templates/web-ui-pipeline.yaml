@@ -1,0 +1,445 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store Web UI deployment pipeline.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the deployment Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the deployment Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
+  WebUICDN:
+    Type: String
+    Description: CloudFront distribution ID for the Web UI CDN
+
+  WebUIBucketName:
+    Type: String
+    Description: S3 bucket where Web UI assets stored for serving via CloudFront
+
+  WebRootUrl:
+    Type: String
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
+
+  ImageRootUrl:
+    Type: String
+    Description: URL where Retail Demo Store images such as product images are located
+    AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
+    ConstraintDescription: Must be a valid URL referring to the root path where images are located
+
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+  GitHubRepo:
+    Type: String
+
+  GitHubBranch:
+    Type: String
+    Default: master
+
+  GitHubToken:
+    Type: String
+    NoEcho: true
+
+  GitHubUser:
+    Type: String
+
+  UserPoolId:
+    Type: String
+
+  UserPoolClientId:
+    Type: String
+  
+  IdentityPoolId:
+    Type: String
+  
+  ProductsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  UsersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  CartsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OrdersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  RecommendationsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  SearchServiceExternalUrl:
+    Type: String
+    Default: none
+
+  PinpointAppId:
+    Type: String
+    Default: none
+
+  ParameterPersonalizeEventTrackerId:
+    Type: String
+
+  ParameterAmplitudeApiKey:
+    Type: String
+    Description: SSM parameter name for the Amplitude API key
+
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+Conditions:
+  LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
+  LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+
+Resources:
+  CopyImagesLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that copies catalog images from staging bucket to Web UI bucket'
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+            print(event)
+
+            response_data = {}
+            response_status = cfnresponse.SUCCESS
+
+            try:
+              source_bucket_name = event['ResourceProperties']['SourceBucket']
+              source_path = event['ResourceProperties']['SourceBucketPath']
+              target_bucket_name = event['ResourceProperties']['TargetBucket']
+
+              if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                # Copy from source to target
+                s3 = boto3.resource('s3')
+                source_bucket = s3.Bucket(source_bucket_name)
+                target_bucket = s3.Bucket(target_bucket_name)
+
+                for obj in source_bucket.objects.filter(Prefix=source_path):
+                    source = { 'Bucket': source_bucket_name, 'Key': obj.key }
+                    target = target_bucket.Object(obj.key)
+                    target.copy(source)
+
+                response_data['Message'] = "Resource creation succeeded"
+              elif event['RequestType'] == 'Delete':
+                response_data['Message'] = "Resource deletion succeeded"
+
+            except Exception as e:
+              print("Error: " + str(e))
+              response_status = cfnresponse.FAILED
+              response_data['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
+
+            cfnresponse.send(event, context, response_status, response_data)
+
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 300
+      Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
+
+  CustomCopyImagesLambdaFunction:
+    Type: Custom::CopyImagesToWebUI
+    Properties:
+      ServiceToken: !GetAtt CopyImagesLambdaFunction.Arn
+      SourceBucket: !Ref ResourceBucket
+      SourceBucketPath: !Sub '${ResourceBucketRelativePath}images'
+      TargetBucket: !Ref WebUIBucketName
+
+  CopyImagesLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+        - PolicyName: S3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:List*
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: '*'
+                Resource:
+                  - !Sub arn:aws:s3:::${ResourceBucket}/*
+                  - !Sub arn:aws:s3:::${ResourceBucket}
+                  - !Sub arn:aws:s3:::${WebUIBucketName}
+                  - !Sub arn:aws:s3:::${WebUIBucketName}/*
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole    
+      Policies:
+        - PolicyName: "logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - 
+                Effect: "Allow"
+                Action: 
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ssm:GetParameters
+                  - 'cloudfront:CreateInvalidation'
+                Resource: "*"
+        - PolicyName: "S3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - 
+                Effect: "Allow"
+                Action: 
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                  - 's3:GetBucketVersioning'
+                Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::${WebUIBucketName}/*
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::${ArtifactBucket}
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - iam:PassRole
+              - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+                Effect: Allow
+                Action:
+                  - "codecommit:GetBranch"
+                  - "codecommit:GetCommit"
+                  - "codecommit:UploadArchive"
+                  - "codecommit:GetUploadArchiveStatus"
+                  - "codecommit:CancelUploadArchive"
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+
+  # Empties bucket when stack is deleted
+  EmptyArtifactBucket:
+    Type: Custom::EmptyArtifactBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref ArtifactBucket
+
+  CodeBuildProject:
+    Description: Retail Demo Store CodeBuild project for Web UI
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Name: !Ref AWS::StackName
+      Description: !Sub 'Building stage for ${AWS::StackName}'
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: src/web-ui/buildspec.yml
+      ServiceRole: !Ref CodeBuildServiceRole
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: WEB_BUCKET_NAME
+            Value: !Ref WebUIBucketName
+          - Name: CLOUDFRONT_DIST_ID
+            Value: !Ref WebUICDN
+          - Name: COGNITO_USER_POOL_ID
+            Value: !Sub ${UserPoolId}
+          - Name: COGNITO_USER_POOL_CLIENT_ID
+            Value: !Sub ${UserPoolClientId}
+          - Name: COGNITO_IDENTITY_POOL_ID
+            Value: !Sub ${IdentityPoolId}
+          - Name: PRODUCTS_SERVICE_URL
+            Value: !Sub ${ProductsServiceExternalUrl}
+          - Name: USERS_SERVICE_URL
+            Value: !Sub ${UsersServiceExternalUrl}
+          - Name: CARTS_SERVICE_URL
+            Value: !Sub ${CartsServiceExternalUrl}
+          - Name: ORDERS_SERVICE_URL
+            Value: !Sub ${OrdersServiceExternalUrl}        
+          - Name: RECOMMENDATIONS_SERVICE_URL
+            Value: !Sub ${RecommendationsServiceExternalUrl}   
+          - Name: SEARCH_SERVICE_URL
+            Value: !Sub ${SearchServiceExternalUrl}
+          - Name: DEPLOYED_REGION
+            Value: !Ref AWS::Region
+          - Name: PINPOINT_APP_ID
+            Value: !Ref PinpointAppId
+          - Name: PERSONALIZE_TRACKING_ID
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterPersonalizeEventTrackerId       
+          - Name: AMPLITUDE_API_KEY
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterAmplitudeApiKey       
+          - Name: WEB_ROOT_URL
+            Value: !Ref WebRootUrl
+          - Name: IMAGE_ROOT_URL
+            Value: !Ref ImageRootUrl
+        Image: 'aws/codebuild/standard:2.0'
+        Type: LINUX_CONTAINER
+
+  PipelineGitHub:
+    Condition: LinkToGitHub
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Tags:
+        -
+          Key: RetailDemoStoreServiceName
+          Value: web-ui
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: '1'
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: App
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build-and-Deploy
+              InputArtifacts:
+                - Name: App
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              RunOrder: 1
+
+  PipelineCodeCommit:
+    Condition: LinkToCodeCommit
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      Tags:
+        -
+          Key: RetailDemoStoreServiceName
+          Value: web-ui
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: retaildemostore-src
+                BranchName: master
+                PollForSourceChanges: 'true'
+              OutputArtifacts:
+                - Name: App
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build-and-Deploy
+              InputArtifacts:
+                - Name: App
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              RunOrder: 1
+
+Outputs:
+  PipelineForGitHubUrl:
+    Condition: LinkToGitHub
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineGitHub}
+
+  PipelineForCodeCommitUrl:
+    Condition: LinkToCodeCommit
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineCodeCommit}

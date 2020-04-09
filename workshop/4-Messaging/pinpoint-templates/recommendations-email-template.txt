@@ -1,0 +1,23 @@
+Hi, {{User.UserAttributes.FirstName}}. Greetings from the Retail Demo Store!
+
+Here are a few products inspired by your shopping trends:
+
+{{Recommendations.Name.[0]}}
+{{Recommendations.Description.[0]}}
+{{Recommendations.Price.[0]}}
+
+{{Recommendations.Name.[1]}}
+{{Recommendations.Description.[1]}}
+{{Recommendations.Price.[1]}}
+
+{{Recommendations.Name.[2]}}
+{{Recommendations.Description.[2]}}
+{{Recommendations.Price.[2]}}
+
+{{Recommendations.Name.[3]}}
+{{Recommendations.Description.[3]}}
+{{Recommendations.Price.[3]}}
+
+Stop by our store to checkout these offers and many other great selections! 
+
+-Retail Demo Store

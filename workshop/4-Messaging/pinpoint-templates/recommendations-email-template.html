@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<center>
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td>
+            <h1>Hi, {{User.UserAttributes.FirstName}}. Greetings from the Retail Demo Store!</h1>
+            <p>Here are a few products inspired by your shopping trends</p>
+            <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+        <table border="0" cellpadding="4" cellspacing="0">
+            <tr valign="top">
+                <td style="text-align: left; width: 40%;" width="40%">
+                    <a href="{{Recommendations.URL.[0]}}">
+                        <img src="{{Recommendations.ImageURL.[0]}}" alt="{{Recommendations.Name.[0]}}" style="min-width: 50px; max-width: 300px; border: 0; text-decoration:none; vertical-align: baseline;"/>
+                    </a>
+                </td>
+                <td style="text-align: left;">
+                    <h3>{{Recommendations.Name.[0]}}</h3>
+                    <p>{{Recommendations.Description.[0]}}</p>
+                    <p><strong>{{Recommendations.Price.[0]}}</strong></p>
+                    <p><a href="{{Recommendations.URL.[0]}}"><strong>Buy Now!</strong></a></p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td style="text-align: left; width: 40%;" width="40%">
+                    <a href="{{Recommendations.URL.[1]}}">
+                        <img src="{{Recommendations.ImageURL.[1]}}" alt="{{Recommendations.Name.[1]}}" style="min-width: 50px; max-width: 300px; border: 0; text-decoration:none; vertical-align: baseline;"/>
+                    </a>
+                </td>
+                <td align="left">
+                    <h3>{{Recommendations.Name.[1]}}</h3>
+                    <p>{{Recommendations.Description.[1]}}</p>
+                    <p><strong>{{Recommendations.Price.[1]}}</strong></p>
+                    <p><a href="{{Recommendations.URL.[1]}}"><strong>Buy Now!</strong></a></p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td style="text-align: left; width: 40%;" width="40%">
+                    <a href="{{Recommendations.URL.[2]}}">
+                        <img src="{{Recommendations.ImageURL.[2]}}" alt="{{Recommendations.Name.[2]}}" style="min-width: 50px; max-width: 300px; border: 0; text-decoration:none; vertical-align: baseline;"/>
+                    </a>
+                </td>
+                <td align="left">
+                    <h3>{{Recommendations.Name.[2]}}</h3>
+                    <p>{{Recommendations.Description.[2]}}</p>
+                    <p><strong>{{Recommendations.Price.[2]}}</strong></p>
+                    <p><a href="{{Recommendations.URL.[2]}}"><strong>Buy Now!</strong></a></p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td style="text-align: left; width: 40%;" width="40%">
+                    <a href="{{Recommendations.URL.[3]}}">
+                        <img src="{{Recommendations.ImageURL.[3]}}" alt="{{Recommendations.Name.[3]}}" style="min-width: 50px; max-width: 300px; border: 0; text-decoration:none; vertical-align: baseline;"/>
+                    </a>
+                </td>
+                <td align="left">
+                    <h3>{{Recommendations.Name.[3]}}</h3>
+                    <p>{{Recommendations.Description.[3]}}</p>
+                    <p><strong>{{Recommendations.Price.[3]}}</strong></p>
+                    <p><a href="{{Recommendations.URL.[3]}}"><strong>Buy Now!</strong></a></p>
+                </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: center; padding-top: 20px">
+            <small>Retail Demo Store &copy; 2019-2020</small>
+        </td>
+    </tr>
+    </table>
+</center>
+</body>
+</html>

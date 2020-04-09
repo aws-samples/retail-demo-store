@@ -1,0 +1,100 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store DynamoDB Tables.
+    
+Resources:
+
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "category"
+          AttributeType: "S"
+        - AttributeName: "featured"
+          AttributeType: "S"
+      KeySchema: 
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "category"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+      LocalSecondaryIndexes:
+        - IndexName: id-featured-index
+          KeySchema:
+            - AttributeName: "id"
+              KeyType: "HASH"
+            - AttributeName: "featured"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+      GlobalSecondaryIndexes:
+        - IndexName: category-index
+          KeySchema:
+            - AttributeName: "category"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+
+  CategoriesTable:
+    DependsOn: ProductsTable
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - 
+          AttributeName: "id"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+  ExperimentStrategyTable:
+    Type: AWS::DynamoDB::Table
+    DependsOn: "ProductsTable"
+    Properties: 
+      AttributeDefinitions: 
+        - 
+          AttributeName: "id"
+          AttributeType: "S"
+        - 
+          AttributeName: "feature"
+          AttributeType: "S"
+        - 
+          AttributeName: "name"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes: 
+        - 
+          IndexName: "feature-name-index"
+          KeySchema: 
+            - 
+              AttributeName: "feature"
+              KeyType: "HASH"
+            - 
+              AttributeName: "name"
+              KeyType: "RANGE"
+          Projection: 
+            ProjectionType: "ALL"
+
+Outputs:
+
+  ProductsTable:
+    Description: DynamoDB Table for Products
+    Value: !Ref ProductsTable
+
+  CategoriesTable: 
+    Description: DynamoDB Table for Categories
+    Value: !Ref CategoriesTable
+
+  ExperimentStrategyTable:
+    Description: DynamoDB Table for Experiment Strategies
+    Value: !Ref ExperimentStrategyTable

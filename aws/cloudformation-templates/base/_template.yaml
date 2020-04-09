@@ -1,0 +1,274 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store.
+
+Conditions:
+  CreateElasticsearchServiceLinkedRole: !Equals
+    - !Ref CreateElasticsearchServiceLinkedRole
+    - 'Yes'
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+  CreateElasticsearchServiceLinkedRole:
+    Type: String
+    Description: Whether to create Elasticsearch Service Linked Role
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+  AmplitudeApiKey:
+    Type: String
+    Description: Amplitude API key for product analytics and A/B testing results (optional).
+    NoEcho: true
+
+Resources:
+
+  # Authentication
+  Authentication:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/authentication.yaml
+      Parameters:
+        AuthName: "retaildemostore"
+        PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        
+  # Buckets
+  Buckets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/buckets.yaml
+      Parameters:
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+
+  # Notebook Instance
+  Notebook:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/notebook.yaml
+      Parameters:
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        Subnets: !GetAtt VPC.Outputs.Subnets
+        Subnet1: !GetAtt VPC.Outputs.Subnet1
+        Subnet2: !GetAtt VPC.Outputs.Subnet2
+        DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
+        ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
+        StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
+        
+  # Tables
+  Tables:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/tables.yaml
+
+  # ServiceDiscovery
+  ServiceDiscovery:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/servicediscovery.yaml
+      Parameters:
+        VpcId: !GetAtt VPC.Outputs.VpcId
+
+  # ECS Cluster
+  ECSCluster:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/ecs-cluster.yaml
+
+  # VPC
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ElasticsearchRoleWaitCondition # Ensure role is fully consistent before network and ultimately ES domain is created
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/vpc.yaml
+      Parameters:
+        Name: !Ref AWS::StackName
+        VpcCIDR: 10.215.0.0/16
+        Subnet1CIDR: 10.215.10.0/24
+        Subnet2CIDR: 10.215.20.0/24
+
+  # Elasticsearch
+  # Create role here rather than in ES nested template so role has time to become consistent
+  ElasticsearchServiceLinkedRole:
+    Condition: CreateElasticsearchServiceLinkedRole
+    Type: 'AWS::IAM::ServiceLinkedRole'
+    Properties:
+      AWSServiceName: es.amazonaws.com
+      Description: 'Role for ES to access resources in VPC'
+
+  ElasticsearchRoleWaitHandle: 
+    Condition: CreateElasticsearchServiceLinkedRole
+    DependsOn: ElasticsearchServiceLinkedRole
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  WaitHandle: 
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  ElasticsearchRoleWaitCondition: 
+    Type: AWS::CloudFormation::WaitCondition
+    Properties: 
+      Handle: !If [CreateElasticsearchServiceLinkedRole, !Ref ElasticsearchRoleWaitHandle, !Ref WaitHandle]
+      Timeout: "1"
+      Count: 0
+
+  Elasticsearch:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/elasticsearch.yaml
+      Parameters:
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        Subnets: !GetAtt VPC.Outputs.Subnets
+        Subnet1: !GetAtt VPC.Outputs.Subnet1
+        Subnet2: !GetAtt VPC.Outputs.Subnet2
+
+  # SSM Parameters
+  SSMParameters:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/ssm.yaml
+      Parameters:
+        StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
+        ExperimentStrategyTableName: !GetAtt Tables.Outputs.ExperimentStrategyTable
+        AmplitudeApiKey: !Ref AmplitudeApiKey
+
+  # CodeCommit Repository
+  CodeCommitRepository:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/codecommit.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+
+  # Pinpoint Resources
+  Pinpoint:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/pinpoint.yaml
+
+  # CloudFront CDN
+  CloudFront:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/cloudfront.yaml
+      Parameters:
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+
+Outputs:
+  UserPoolId:
+    Description: Authentication Cognito User Pool Id.
+    Value: !GetAtt Authentication.Outputs.UserPoolId
+  
+  UserPoolClientId:
+    Description: Authentication Cognito User Pool Client Id.
+    Value: !GetAtt Authentication.Outputs.UserPoolClientId
+  
+  IdentityPoolId:
+    Description: Authentication Cognito Identity Pool Id.
+    Value: !GetAtt Authentication.Outputs.IdentityPoolId
+
+  StackBucketName:
+    Description: Notebook Instance Id.
+    Value: !GetAtt Buckets.Outputs.StackBucketName
+
+  NotebookInstanceId:
+    Description: Notebook Instance Id.
+    Value: !GetAtt Notebook.Outputs.NotebookInstanceId
+
+  VpcId:
+    Description: VPC Id.
+    Value: !GetAtt VPC.Outputs.VpcId
+
+  Subnets:
+    Description: Service Subnets.
+    Value: !GetAtt VPC.Outputs.Subnets
+
+  Subnet1:
+    Description: Service Subnet1.
+    Value: !GetAtt VPC.Outputs.Subnet1
+
+  Subnet2:
+    Description: Service Subnet2.
+    Value: !GetAtt VPC.Outputs.Subnet2
+
+  ClusterName:
+    Description: ECS Cluster Name.
+    Value: !GetAtt ECSCluster.Outputs.ClusterName
+
+  ServiceDiscoveryNamespace:
+    Description: Service Discovery Namespace.
+    Value: !GetAtt ServiceDiscovery.Outputs.ServiceDiscoveryNamespace
+
+  ElasticsearchDomainEndpoint:
+    Description: Elasticsearch Domain
+    Value: !GetAtt Elasticsearch.Outputs.DomainEndpoint
+
+  ElasticsearchDomainArn:
+    Description: Elasticsearch Domain
+    Value: !GetAtt Elasticsearch.Outputs.DomainArn
+
+  ElasticsearchSecurityGroupId:
+    Description: Elasticsearch Security Group Id
+    Value: !GetAtt Elasticsearch.Outputs.SecurityGroupId
+
+  PinpointAppId:
+    Description: Pinpoint App Id
+    Value: !GetAtt Pinpoint.Outputs.PinpointAppId
+
+  ProductsTable:
+    Description: DynamoDB Table for Products
+    Value: !GetAtt Tables.Outputs.ProductsTable
+
+  CategoriesTable: 
+    Description: DynamoDB Table for Categories
+    Value: !GetAtt Tables.Outputs.CategoriesTable
+
+  ExperimentStrategyTable: 
+    Description: DynamoDB Table for Experiments
+    Value: !GetAtt Tables.Outputs.ExperimentStrategyTable
+
+  ParameterPersonalizeEventTrackerId:
+    Description: Personalize Event Tracker ID Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterPersonalizeEventTrackerId
+
+  WorkshopRepositoryArn:
+    Description: Workshop CodeCommit Repository Arn
+    Value: !GetAtt CodeCommitRepository.Outputs.WorkshopRepositoryArn
+
+  ParameterAmplitudeApiKey:
+    Description: Amplitude API key Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterAmplitudeApiKey
+
+  WebUIBucketName:
+    Description: S3 bucket for CloudFront distribution.
+    Value: !GetAtt CloudFront.Outputs.WebUIBucketName
+
+  WebUICDN:
+    Description: CloudFront distribution ID for the Web UI CDN
+    Value: !GetAtt CloudFront.Outputs.WebUICDN
+
+  WebUICDNURL:
+    Description: The URL for the web application
+    Value: !GetAtt CloudFront.Outputs.WebUICDNURL

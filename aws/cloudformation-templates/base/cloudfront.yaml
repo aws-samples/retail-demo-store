@@ -1,0 +1,90 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store CloudFront distribution for the Web-UI and static assets.
+
+Parameters:
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+
+Conditions:
+  IADRegion: !Equals [!Ref "AWS::Region", "us-east-1"]
+
+Resources:
+  WebUIBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  # Empties bucket when stack is deleted
+  EmptyStackBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref WebUIBucket
+
+  WebUIBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref WebUIBucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub 'arn:aws:s3:::${WebUIBucket}/*'
+            Principal:
+              AWS: !Sub >-
+                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
+                ${WebUIBucketOriginAccessIdentity}
+
+  WebUIBucketOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OriginAccessIdentity for ${WebUIBucket}'
+
+  WebUICDN:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'Retail Demo Store CDN for ${WebUIBucket}'
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+        Origins:
+          - DomainName: !Join
+              - ''
+              - - !Sub '${WebUIBucket}.s3'
+                - !If [IADRegion, '', !Sub '-${AWS::Region}']
+                - '.amazonaws.com'
+            Id: S3
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub >-
+                origin-access-identity/cloudfront/${WebUIBucketOriginAccessIdentity}
+        DefaultCacheBehavior:
+          TargetOriginId: S3
+          ViewerProtocolPolicy: allow-all
+          ForwardedValues:
+            QueryString: 'true'
+
+Outputs:
+  WebUIBucketName:
+    Description: S3 bucket for CloudFront distribution.
+    Value: !Ref WebUIBucket
+
+  WebUICDN:
+    Description: CloudFront distribution ID for the Web UI CDN
+    Value: !Ref WebUICDN
+
+  # Since the Retail Demo Store web service load balancers are not deployed with SSL, 
+  # the Web UI URL must be http to avoid mixed content errors in the browser.
+  WebUICDNURL:
+    Description: The URL for the web application
+    Value: !Sub 
+      - 'http://${Domain}'
+      - Domain: !GetAtt WebUICDN.DomainName    

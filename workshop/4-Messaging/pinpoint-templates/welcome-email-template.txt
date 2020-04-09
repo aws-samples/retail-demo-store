@@ -1,0 +1,11 @@
+Thank you for joining the Retail Demo Store!
+=======================================
+
+Hi, {{User.UserAttributes.FirstName}}. We just wanted to send you a quick note thanking you for creating an account on the Retail Demo Store. We're excited to serve you. 
+
+We pride ourselves in providing a wide variety of high quality products in our store and delivering exceptional customer service.
+
+Please drop-in and check out our store often to see what's new and for personalized recommendations we think you'll love.
+
+Cheers,
+Retail Demo Store team

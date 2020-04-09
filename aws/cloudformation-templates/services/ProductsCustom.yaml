@@ -1,0 +1,99 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys specific resources for Products for the Retail Demo Store Services.
+    Author: Bastien Leblanc <bastil@amazon.co.uk>
+
+Parameters:
+  ResourceBucket:
+    Type: String
+
+  ResourceBucketRelativePath:
+    Type: String
+
+  ProductsTable:
+    Type: String
+
+  CategoriesTable:
+    Type: String
+
+Resources:
+
+  LoadDataLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: DynamoDB
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeTable
+                  - dynamodb:PutItem
+                Resource:
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
+        - PolicyName: S3
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:                  
+              - Effect: Allow
+                Action:
+                  - s3:GetObject 
+                Resource: 
+                  !Sub 
+                    - 'arn:aws:s3:::${Bucket}/*'
+                    - { Bucket: !Ref ResourceBucket }
+        - PolicyName: CloudWatch
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:                    
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                  - logs:CreateLogStream
+                Resource: "arn:aws:logs:*:*:*"
+
+  LoadDataLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that loads product and category information into DynamoDB tables'
+      Handler: 'main'
+      Role: !GetAtt LoadDataLambdaRole.Arn
+      Runtime: go1.x
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/retaildemostore-lambda-load-products.zip'
+
+  CustomLoadDataProducts:
+    Type: Custom::CustomLoadData
+    Properties:
+      ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
+      Bucket: !Ref ResourceBucket
+      File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
+      Table: !Ref ProductsTable
+      Datatype: "products"
+
+  CustomLoadDataCategories:
+    Type: Custom::CustomLoadData
+    Properties:
+      ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
+      Bucket: !Ref ResourceBucket
+      File: !Join [ '', [ !Ref ResourceBucketRelativePath, 'data/categories.yaml' ] ]
+      Table: !Ref CategoriesTable
+      Datatype: "categories"
+
+Outputs:
+  LoadDataLambdaFunction:
+    Value: !Ref LoadDataLambdaFunction

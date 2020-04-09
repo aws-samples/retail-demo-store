@@ -1,0 +1,124 @@
+# Docker compose file for local development.
+# Initialize your local environment variables either in your shell 
+# or in the ".env" file.
+version: "3.7"
+services:
+  carts:
+    container_name: carts
+    build:
+      context: ./carts
+    networks:
+      - dev-net
+    ports:
+      - "8003:80"
+
+  orders:
+    container_name: orders
+    build:
+      context: ./orders
+    networks:
+      - dev-net
+    ports:
+      - "8004:80"
+
+  products:
+    container_name: products
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - DDB_TABLE_PRODUCTS
+      - DDB_TABLE_CATEGORIES
+      - IMAGE_ROOT_URL
+    build:
+      context: ./products
+    networks:
+      - dev-net
+    ports:
+      - "8001:80"
+
+  recommendations:
+    container_name: recommendations
+    depends_on:
+      - products
+    environment:
+      - AWS_PROFILE
+      - PRODUCT_SERVICE_HOST
+      - PRODUCT_SERVICE_PORT
+    volumes:
+      - ~/.aws/:/root/.aws:ro
+    build:
+      context: ./recommendations
+    networks:
+      - dev-net
+    ports:
+      - "8005:80"
+
+  # Elastisearch required for search service
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ${APPDATA}/elasticsearch/data:/tmp/elasticsearch/data
+    networks:
+      - dev-net
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  search:
+    container_name: search
+    depends_on:
+      - elasticsearch
+    environment:
+      - AWS_PROFILE
+      - ES_SEARCH_DOMAIN_SCHEME
+      - ES_SEARCH_DOMAIN_HOST
+      - ES_SEARCH_DOMAIN_PORT
+    volumes:
+      - ~/.aws/:/root/.aws:ro
+    build:
+      context: ./search
+    networks:
+      - dev-net
+    ports:
+      - "8006:80"
+
+  users:
+    container_name: users
+    build:
+      context: ./users
+    networks:
+      - dev-net
+    ports:
+      - "8002:80"
+
+  # This service has it's own .env file at src/web-ui/.env
+  web-ui:
+    container_name: web-ui
+    build:
+      context: ./web-ui
+      target: production-stage
+    networks:
+      - dev-net
+    ports:
+      - "8080:80"
+    volumes:
+      - ../images:/usr/share/nginx/html/images:ro
+
+networks:
+  dev-net:
+    driver: bridge
