@@ -48,7 +48,7 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 
 #### Deploying for Development
 
-Choose this option if you want to contribute an enhancement/fix back to the Retail Demo Store project. The CodePipeline configuration will be setup to pull from your GitHub fork of this repository so that commits to your fork will be automatically deployed to the Retail Demo Store tasks in your AWS account. Until the Retail Demo Store GitHub repository is published publicly, you must follow these steps to deploy for development purposes.
+Choose this option if you want to contribute an enhancement/fix back to the Retail Demo Store project. The CodePipeline configuration will be setup to pull from your GitHub fork of this repository so that commits to your fork will be automatically deployed to the Retail Demo Store services in your AWS account.
 
 1. If not already done so, fork the Retail Demo Store respository into your own GitHub account.
 2. Create a [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes. Save your access token in a secure location.
@@ -67,7 +67,6 @@ Once you launch the CloudFormation stack using one of the deployment options abo
 You can find the URL for the Retail Demo Store Web UI in the Outputs of your CloudFormation stack. Look for the "WebURL" output.
 
 You can read more detailed instructions on how to use this demo in the [demonstration documentation](documentation).
-
 
 ## Accessing Workshops
 
