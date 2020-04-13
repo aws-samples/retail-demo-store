@@ -353,7 +353,7 @@ func RepoFindALLProduct() Products {
 		log.Println(err.Error())
 	}
 
-	log.Println("RepoFindProductByCategory / items found =  ", len(result.Items))
+	log.Println("RepoFindALLProduct / items found =  ", len(result.Items))
 
 	for _, i := range result.Items {
 		item := Product{}
