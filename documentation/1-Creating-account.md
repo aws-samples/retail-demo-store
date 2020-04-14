@@ -1,6 +1,6 @@
-[Overview](./) > 1 - Creating the Account > [2 - Personalization](2-Personalization.md)
-
 # Creating a Retail Demo Store account
+
+[Overview](./) > 1 - Creating the Account > [2 - Personalization](2-Personalization.md)
 
 > Before getting started, we advise you to use a Private Window (Firefox) or Incognito Window (Chrome) to make sure you don't mix different demo profiles in the same browser session
 
@@ -17,18 +17,21 @@ Complete the “Sign Up Account” form by entering appropriate values in each f
 ![image.png](../workshop/images/retaildemostore-create-acct.png)
 
 Figure 4. Create Account page.
+
 Within a few seconds after pressing the “Create Account” button on the “Sign Up Account” form you should receive an SMS on your mobile phone. The SMS will contain a 6-digit confirmation code. Enter this code on the “Confirm Sign Up” form and press the “Confirm” button. If you don’t receive a confirmation code, you can have it resent or you can manually confirm your user account in the Amazon Cognito User Pool page in the AWS console in the AWS account where the Retail Demo Store instance has been deployed.
 
 ![image.png](../workshop/images/retaildemostore-confirm.png)
 
 Figure 5. Confirm New Account.
+
 Once your user account has been confirmed, you can sign in to your account with your username and password.
 
 ![image.png](../workshop/images/retaildemostore-signin.png)
 
 Figure 6. Sign In to Account.
+
 You can tell if you’re signed in if the “Sign In” button in the top navigation is replaced by your username.
 
-# Next Steps
+## Next Steps
 
 1) [Personalized Experience](2-Personalization.md)
