@@ -21,7 +21,7 @@ const store = new Vuex.Store({
       state.cartID = null
     },
     setUser(state, user) {
-      if (user && user.hasOwnProperty("storage")) {
+      if (user && Object.prototype.hasOwnProperty.call(user, "storage")) {
         // Clear "user.storage" to prevent recursively nested user state
         // from being stored which eventually leads to exhausting local storage.
         user.storage = null

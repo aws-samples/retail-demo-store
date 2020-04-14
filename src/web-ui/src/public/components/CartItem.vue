@@ -31,7 +31,10 @@ export default {
   },
   props: {
       product_id: null,
-      quantity: 0
+      quantity: {
+        type: Number,
+        default: 0
+      }
   },
   data () {
     return {  
