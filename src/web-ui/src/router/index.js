@@ -14,8 +14,7 @@ import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
 
 import { components, AmplifyEventBus } from 'aws-amplify-vue';
-// eslint-disable-next-line
-import Amplify, * as AmplifyModules from 'aws-amplify';
+import { Auth, Logger, I18n, Analytics, Interactions } from 'aws-amplify';
 import { AmplifyPlugin } from 'aws-amplify-vue';
 import AmplifyStore from '@/store/store';
 
@@ -25,7 +24,8 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 const UsersRepository = RepositoryFactory.get('users')
 
 Vue.use(Router);
-Vue.use(AmplifyPlugin, AmplifyModules);
+// Explicitly add only components needed to keep deployment as small as possible
+Vue.use(AmplifyPlugin, { "Auth": Auth, "Logger": Logger, "I18n": I18n, "Interactions": Interactions, "Analytics": Analytics })
 
 let user;
 
