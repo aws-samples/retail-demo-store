@@ -26,6 +26,9 @@
     </div>
 
     <div class="container" v-if="cart">
+      <div class="row justify-content-center" v-if="showCheckout == true">
+        <div class="alert alert-secondary">This storefront is not real. Please do not enter actual billing information. Your order will not be fulfilled.</div>
+      </div>
       <div class="row text-left" v-if="showCheckout == true">
         <div class="col-md-4 order-md-2 mb-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -217,7 +220,7 @@ export default {
         this.order.promo_code = ""
       }
 
-      if (!this.order.hasOwnProperty('billing_address')) {
+      if (!Object.prototype.hasOwnProperty.call(this.order, 'billing_address')) {
         this.order.billing_address = {}
         this.order.billing_address.first_name = ""
         this.order.billing_address.last_name = ""
