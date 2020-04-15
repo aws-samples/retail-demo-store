@@ -6,7 +6,7 @@
  * (event tracker), and partner integrations.
  */
 import Vue from 'vue';
-import Amplify from 'aws-amplify'
+import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
@@ -67,7 +67,7 @@ export const AnalyticsHandler = {
             if (cognitoUser.attributes.email) {
                 endpoint.address = cognitoUser.attributes.email
                 endpoint.channelType = 'EMAIL'
-                promise = Amplify.Analytics.updateEndpoint(endpoint)
+                promise = AmplifyAnalytics.updateEndpoint(endpoint)
             }
             else {
                 promise = Promise.resolve()
@@ -79,7 +79,7 @@ export const AnalyticsHandler = {
             promise = Promise.reject(error)
         }
          
-        Amplify.Analytics.record({
+        AmplifyAnalytics.record({
             eventType: "Identify",
             properties: {
                 "userId": user.id
@@ -118,7 +118,7 @@ export const AnalyticsHandler = {
 
     userSignedUp(user) {
         if (user) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'UserSignedUp', 
                 attributes: { 
                     userId: user.id,
@@ -130,7 +130,7 @@ export const AnalyticsHandler = {
 
     userSignedIn(user) {
         if (user) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'UserSignedIn', 
                 attributes: { 
                     userId: user.id,
@@ -151,7 +151,7 @@ export const AnalyticsHandler = {
 
     productAddedToCart(userId, cart, product, quantity, experimentCorrelationId) {
         if (userId) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'ProductAdded', 
                 attributes: { 
                     userId: userId,
@@ -168,7 +168,7 @@ export const AnalyticsHandler = {
                 }
             })
 
-            Amplify.Analytics.updateEndpoint({
+            AmplifyAnalytics.updateEndpoint({
                 userId: userId,
                 attributes: {
                     HasShoppingCart: ['true']
@@ -179,7 +179,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        Amplify.Analytics.record({
+        AmplifyAnalytics.record({
             eventType: 'ProductAdded',
             userId: userId ? userId : null,
             properties: {
@@ -204,7 +204,7 @@ export const AnalyticsHandler = {
 
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'ProductRemoved', 
                 attributes: { 
                     userId: user.id,
@@ -217,7 +217,7 @@ export const AnalyticsHandler = {
                 }
             })
 
-            Amplify.Analytics.updateEndpoint({
+            AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 attributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false']
@@ -242,7 +242,7 @@ export const AnalyticsHandler = {
 
     productQuantityUpdatedInCart(user, cart, cartItem, change) {
         if (user && user.id) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'ProductQuantityUpdated', 
                 attributes: { 
                     userId: user.id,
@@ -257,7 +257,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        Amplify.Analytics.record({
+        AmplifyAnalytics.record({
             eventType: 'ProductQuantityUpdated',
             userId: user ? user.id : null,
             properties: {
@@ -280,7 +280,7 @@ export const AnalyticsHandler = {
 
     productViewed(userId, product, experimentCorrelationId) {
         if (userId) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'ProductViewed', 
                 attributes: { 
                     userId: userId,
@@ -296,7 +296,7 @@ export const AnalyticsHandler = {
             })
         }
   
-        Amplify.Analytics.record({
+        AmplifyAnalytics.record({
             eventType: 'ProductViewed',
             userId: userId ? userId : null,
             properties: {
@@ -324,7 +324,7 @@ export const AnalyticsHandler = {
 
     cartViewed(user, cart, cartQuantity, cartSubTotal, cartTotal) {
         if (user) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'CartViewed', 
                 attributes: { 
                     userId: user.id,
@@ -339,7 +339,7 @@ export const AnalyticsHandler = {
         }
 
         for (var item in cart.items) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 eventType: 'CartViewed',
                 userId: user ? user.id : null,
                 properties: {
@@ -362,7 +362,7 @@ export const AnalyticsHandler = {
 
     checkoutStarted(user, cart, cartQuantity, cartSubTotal, cartTotal) {
         if (user) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'CheckoutStarted', 
                 attributes: { 
                     userId: user.id,
@@ -377,7 +377,7 @@ export const AnalyticsHandler = {
         }
     
         for (var item in cart.items) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 eventType: 'CheckoutStarted',
                 userId: user ? user.id : null,
                 properties: {
@@ -400,7 +400,7 @@ export const AnalyticsHandler = {
 
     orderCompleted(user, cart, order) {
         if (user) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'OrderCompleted', 
                 attributes: { 
                     userId: user.id,
@@ -417,7 +417,7 @@ export const AnalyticsHandler = {
             let orderItem = order.items[itemIdx]
   
             if (user) {
-                Amplify.Analytics.record({
+                AmplifyAnalytics.record({
                     name: '_monetization.purchase', 
                     attributes: { 
                         userId: user.id,
@@ -433,7 +433,7 @@ export const AnalyticsHandler = {
                 })
             }
   
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 eventType: 'OrderCompleted',
                 userId: user ? user.id : null,
                 properties: {
@@ -452,7 +452,7 @@ export const AnalyticsHandler = {
         }
 
         if (user && user.id) {
-            Amplify.Analytics.updateEndpoint({
+            AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 attributes: {
                     HasShoppingCart: ['false'],
@@ -477,7 +477,7 @@ export const AnalyticsHandler = {
 
     productSearched(user, query, numResults) {
         if (user && user.id) {
-            Amplify.Analytics.record({
+            AmplifyAnalytics.record({
                 name: 'ProductSearched', 
                 attributes: { 
                     userId: user ? user.id : null,
@@ -489,7 +489,7 @@ export const AnalyticsHandler = {
                 }
             })
 
-            Amplify.Analytics.updateEndpoint({
+            AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 attributes: {
                     HashPerformedSearch: ['true']

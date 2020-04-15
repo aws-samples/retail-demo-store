@@ -4,8 +4,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router';
-import Amplify from 'aws-amplify';
-import { Analytics, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
+import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
 import { components } from 'aws-amplify-vue'; 
 import moment from 'moment'
 import Amplitude from 'amplitude-js'
@@ -65,16 +64,18 @@ if (process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_K
 }
 
 // Set the configuration
-Amplify.configure(amplifyConfig);
+Auth.configure(amplifyConfig);
+Analytics.configure(amplifyConfig);
+Interactions.configure(amplifyConfig);
 
 require('dotenv').config()
 
 Vue.config.productionTip = false
 
-Amplify.Logger.LOG_LEVEL = 'DEBUG'
-const logger = new Amplify.Logger('main')
+Logger.LOG_LEVEL = 'DEBUG'
+const logger = new Logger('main')
 
-Amplify.Auth.currentUserInfo()
+Auth.currentUserInfo()
   .then(user => logger.debug(user))
   .catch(err => logger.debug(err))
 

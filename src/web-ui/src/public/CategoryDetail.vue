@@ -54,7 +54,6 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import Product from './components/Product.vue'
-import Category from './components/Category.vue'
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -64,8 +63,7 @@ const ExperimentFeature = 'category_detail_rank'
 export default {
   name: 'Products',
   components: {
-    Product,
-    Category
+    Product
   },
   data() {
     return {
