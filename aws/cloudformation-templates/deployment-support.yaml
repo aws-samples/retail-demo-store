@@ -1,0 +1,356 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store deployment support resources such as custom resources and misc lambda functions.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      notebooks, deployment Lambda code, etc).
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  PreIndexElasticsearch:
+    Type: String
+    Description: >
+      Deploy Lambda function that automatically indexes the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in your deployment as a Jupyter notebook in SageMaker.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  PreCreatePersonalizeCampaign:
+    Type: String
+    Description: >
+      Deploy Lambda function that automatically builds solutions and launches Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in your deployment as a Jupyter notebook 
+      in SageMaker.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  Subnet1:
+    Type: String
+  
+  Subnet2:
+    Type: String
+
+  ElasticsearchSecurityGroupId:
+    Type: String
+
+  ElasticsearchDomainArn:
+    Type: String
+
+  ElasticsearchDomainEndpoint:
+    Type: String
+
+Conditions:
+  DeployPreIndexElasticsearch: !Equals
+    - !Ref PreIndexElasticsearch
+    - 'Yes'
+
+  DeployPreCreateCampaign: !Equals
+    - !Ref PreCreatePersonalizeCampaign
+    - 'Yes'
+
+Resources:
+
+  ####################### Pre-Create Personalize Campaign #######################
+
+  PersonalizePreCreateLambdaFunction:
+    Condition: DeployPreCreateCampaign
+    DependsOn: PersonalizeDeleteLambdaFunction # Ensure PreCreate function is deleted before Delete function so PreCreate is stopped first
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
+      Handler: personalize-pre-create-campaigns.lambda_handler
+      Role: !GetAtt 
+        - PersonalizePreCreateLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-campaigns.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: RetailDemoStorePersonalizePreCreateCampaigns
+      Environment:
+        Variables:
+          csv_bucket: !Ref ResourceBucket
+          csv_path: 'csvs/'
+          lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+
+  PersonalizePreCreateLambdaExecutionRole:
+    Condition: DeployPreCreateCampaign
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns'
+              - Effect: Allow
+                Action:
+                  - ssm:PutParameter
+                  - ssm:GetParameter                
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:ListCampaigns
+                  - personalize:ListDatasetGroups
+                  - personalize:ListSolutions
+                  - personalize:ListSchemas
+                  - personalize:ListSolutionVersions
+                  - personalize:ListDatasetImportJobs
+                  - personalize:ListDatasets
+                  - personalize:ListEventTrackers
+                  - personalize:CreateSchema
+                  - personalize:CreateDatasetGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - personalize:DescribeSolutionVersion
+                  - personalize:CreateSolutionVersion
+                  - personalize:CreateDatasetImportJob
+                  - personalize:CreateSolution
+                  - personalize:DescribeDatasetGroup
+                  - personalize:DescribeDatasetImportJob
+                  - personalize:DescribeSolution
+                  - personalize:DescribeEventTracker
+                  - personalize:CreateCampaign
+                  - personalize:CreateDataset
+                  - personalize:CreateEventTracker
+                Resource: 
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:PassRole
+                  - iam:CreateRole
+                  - iam:AttachRolePolicy
+                Resource: 
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+              - Effect: Allow
+                Action:
+                  - events:ListTargetsByRule
+                  - events:RemoveTargets
+                  - events:DeleteRule
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+              - Effect: Allow
+                Action:
+                  - codepipeline:ListPipelines
+                  - codepipeline:ListTagsForResource
+                Resource: 
+                  - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - codepipeline:StartPipelineExecution
+                Resource: 
+                  - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
+
+  PersonalizePreCreateScheduledRule:
+    Condition: DeployPreCreateCampaign
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+      Description: Calls Personalize pre-create Lambda function every 5 minutes until campaigns are fully created
+      ScheduleExpression: rate(5 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt 
+            - PersonalizePreCreateLambdaFunction
+            - Arn
+          Id: TargetFunctionV1
+
+  PersonalizePreCreatePermissionToInvokeLambda: 
+    Condition: DeployPreCreateCampaign
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "PersonalizePreCreateLambdaFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "PersonalizePreCreateScheduledRule"
+          - "Arn"
+
+  ####################### Personalize Resource Delete Custom Resource #######################
+
+  PersonalizeDeleteLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that deletes Personalize resources created in workshop or by pre-create Lambda'
+      Handler: personalize-delete-resources.lambda_handler
+      Role: !GetAtt 
+        - PersonalizeDeleteLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-delete-resources.zip'
+      Runtime: python3.8
+      Timeout: 60
+      FunctionName: RetailDemoStorePersonalizeDeleteResources
+
+  PersonalizeDeleteLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /service-role/
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: 
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizeDeleteResources*'        
+              - Effect: Allow
+                Action:
+                  - personalize:*
+                  - lambda:AddPermission
+                  - lambda:RemovePermission
+                  - events:PutRule
+                  - events:DeleteRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ssm:PutParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - Effect: Allow
+                Action:
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRole
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+
+  # Custom resource to launch elasticsearch preindex function
+  CustomPersonalizeDeleteLambdaFunction:
+    Type: Custom::CustomPersonalizeDelete
+    Properties:
+      ServiceToken: !GetAtt PersonalizeDeleteLambdaFunction.Arn
+      DatasetGroupName: 'retaildemostore'
+
+  ####################### Pre-Index Elasticsearch #######################
+
+  ElasticsearchPreIndexLambdaFunction:
+    Condition: DeployPreIndexElasticsearch
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon Elasticsearch'
+      Handler: elasticsearch-pre-index.lambda_handler
+      Role: !GetAtt 
+        - ElasticsearchPreIndexLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
+      Runtime: python3.8
+      Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref ElasticsearchSecurityGroupId
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+
+  ElasticsearchPreIndexLambdaExecutionRole:
+    Condition: DeployPreIndexElasticsearch
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /service-role/
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'        
+              - Effect: Allow
+                Action:
+                  - es:ESHttpDelete
+                  - es:ESHttpGet
+                  - es:ESHttpPost
+                  - es:ESHttpPut
+                Resource: !Ref ElasticsearchDomainArn
+
+  # Custom resource to launch elasticsearch preindex function
+  CustomLaunchElasticsearchPreIndexLambdaFunction:
+    Condition: DeployPreIndexElasticsearch
+    Type: Custom::CustomLambdaElasticSearch
+    Properties:
+      ServiceToken: !GetAtt ElasticsearchPreIndexLambdaFunction.Arn
+      ElasticsearchDomainEndpoint: !Ref ElasticsearchDomainEndpoint
+      Bucket: !Ref ResourceBucket
+      File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
+

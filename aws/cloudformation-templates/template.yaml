@@ -138,15 +138,6 @@ Parameters:
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
     NoEcho: true
 
-Conditions:
-  DeployPreIndexElasticsearch: !Equals
-    - !Ref PreIndexElasticsearch
-    - 'Yes'
-
-  DeployPreCreateCampaign: !Equals
-    - !Ref PreCreatePersonalizeCampaign
-    - 'Yes'
-
 Resources:
   # Base Resources
   Base:
@@ -158,7 +149,7 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
-        CleanupBucketLambdaArn: !GetAtt CleanupBucketLambdaFunction.Arn
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
 
   # Services Resources
@@ -189,7 +180,7 @@ Resources:
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        CleanupBucketLambdaArn: !GetAtt CleanupBucketLambdaFunction.Arn
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
@@ -220,7 +211,7 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        CleanupBucketLambdaArn: !GetAtt CleanupBucketLambdaFunction.Arn
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
@@ -228,298 +219,27 @@ Resources:
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
 
-  ####################### Pre-Create Personalize Campaign #######################
-
-  PersonalizePreCreateLambdaFunction:
-    Condition: DeployPreCreateCampaign
-    Type: 'AWS::Lambda::Function'
+  # Deployment support
+  DeploymentSupport:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
-      Handler: personalize-pre-create-campaigns.lambda_handler
-      Role: !GetAtt 
-        - PersonalizePreCreateLambdaExecutionRole
-        - Arn
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-campaigns.zip'
-      Runtime: python3.8
-      Timeout: 900
-      FunctionName: RetailDemoStorePersonalizePreCreateCampaigns
-      Environment:
-        Variables:
-          csv_bucket: !Ref ResourceBucket
-          csv_path: 'csvs/'
-          lambda_event_rule_name: !Sub '${AWS::StackName}-PersonalizePreCreateScheduledRule'
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/deployment-support.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        PreIndexElasticsearch: !Ref PreIndexElasticsearch
+        PreCreatePersonalizeCampaign: !Ref PreCreatePersonalizeCampaign
+        Subnet1: !GetAtt Base.Outputs.Subnet1
+        Subnet2: !GetAtt Base.Outputs.Subnet2
+        ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
+        ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
+        ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
 
-  PersonalizePreCreateLambdaExecutionRole:
-    Condition: DeployPreCreateCampaign
-    Type: 'AWS::IAM::Role'
+  # Cleanup bucket function
+  CleanupBucket:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns'
-              - Effect: Allow
-                Action:
-                  - ssm:PutParameter
-                  - ssm:GetParameter                
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - personalize:ListCampaigns
-                  - personalize:ListDatasetGroups
-                  - personalize:ListSolutions
-                  - personalize:ListSchemas
-                  - personalize:ListSolutionVersions
-                  - personalize:ListDatasetImportJobs
-                  - personalize:ListDatasets
-                  - personalize:ListEventTrackers
-                  - personalize:CreateSchema
-                  - personalize:CreateDatasetGroup
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - personalize:DescribeSolutionVersion
-                  - personalize:CreateSolutionVersion
-                  - personalize:CreateDatasetImportJob
-                  - personalize:CreateSolution
-                  - personalize:DescribeDatasetGroup
-                  - personalize:DescribeDatasetImportJob
-                  - personalize:DescribeSolution
-                  - personalize:DescribeEventTracker
-                  - personalize:CreateCampaign
-                  - personalize:CreateDataset
-                  - personalize:CreateEventTracker
-                Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
-              - Effect: Allow
-                Action:
-                  - iam:GetRole
-                  - iam:PassRole
-                  - iam:CreateRole
-                  - iam:AttachRolePolicy
-                Resource: 
-                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
-              - Effect: Allow
-                Action:
-                  - events:ListTargetsByRule
-                  - events:RemoveTargets
-                  - events:DeleteRule
-                Resource:
-                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${AWS::StackName}-PersonalizePreCreateScheduledRule'
-              - Effect: Allow
-                Action:
-                  - codepipeline:ListPipelines
-                  - codepipeline:ListTagsForResource
-                Resource: 
-                  - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
-              - Effect: Allow
-                Action:
-                  - codepipeline:StartPipelineExecution
-                Resource: 
-                  - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
-                Condition:
-                  StringEquals:
-                    aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
-
-  PersonalizePreCreateScheduledRule:
-    Condition: DeployPreCreateCampaign
-    Type: 'AWS::Events::Rule'
-    Properties:
-      Name: !Sub '${AWS::StackName}-PersonalizePreCreateScheduledRule'
-      Description: PersonalizePreCreateScheduledRule
-      ScheduleExpression: rate(5 minutes)
-      State: ENABLED
-      Targets:
-        - Arn: !GetAtt 
-            - PersonalizePreCreateLambdaFunction
-            - Arn
-          Id: TargetFunctionV1
-
-
-  PersonalizePreCreatePermissionToInvokeLambda: 
-    Condition: DeployPreCreateCampaign
-    Type: AWS::Lambda::Permission
-    Properties: 
-      FunctionName: 
-        Ref: "PersonalizePreCreateLambdaFunction"
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: 
-        Fn::GetAtt: 
-          - "PersonalizePreCreateScheduledRule"
-          - "Arn"
-
-  ####################### Pre-Index Elasticsearch #######################
-
-  ElasticsearchPreIndexLambdaFunction:
-    Condition: DeployPreIndexElasticsearch
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon Elasticsearch'
-      Handler: elasticsearch-pre-index.lambda_handler
-      Role: !GetAtt 
-        - ElasticsearchPreIndexLambdaExecutionRole
-        - Arn
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
-      Runtime: python3.7
-      Timeout: 60
-      VpcConfig:
-        SecurityGroupIds:
-          - !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
-        SubnetIds:
-          - !GetAtt Base.Outputs.Subnet1
-          - !GetAtt Base.Outputs.Subnet2
-
-  ElasticsearchPreIndexLambdaExecutionRole:
-    Condition: DeployPreIndexElasticsearch
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /service-role/
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - ec2:CreateNetworkInterface
-                  - ec2:DeleteNetworkInterface
-                  - ec2:DescribeNetworkInterfaces
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'        
-              - Effect: Allow
-                Action:
-                  - es:ESHttpDelete
-                  - es:ESHttpGet
-                  - es:ESHttpPost
-                  - es:ESHttpPut
-                Resource: !GetAtt Base.Outputs.ElasticsearchDomainArn      
-
-  # Custom resource to launch elasticsearch preindex function
-  CustomLaunchElasticsearchPreIndexLambdaFunction:
-    Condition: DeployPreIndexElasticsearch
-    Type: Custom::CustomLambdaElasticSearch
-    Properties:
-      ServiceToken: !GetAtt ElasticsearchPreIndexLambdaFunction.Arn
-      ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
-      Bucket: !Ref ResourceBucket
-      File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
-      
-  ####################### Cleanup Bucket Custom Resource #######################
-
-  CleanupBucketLambdaFunction:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Description: 'Retail Demo Store deployment utility function that deletes all objects in an S3 bucket when the CloudFormation stack is deleted'
-      Code:
-        ZipFile: |
-          import boto3
-          import cfnresponse
-
-          def handler(event, context):
-            print(event)
-
-            responseData = {}
-            responseStatus = cfnresponse.SUCCESS
-
-            try:
-              bucketName = event['ResourceProperties']['BucketName']
-
-              if event['RequestType'] == 'Create':
-                responseData['Message'] = "Resource creation succeeded"
-              elif event['RequestType'] == 'Update':
-                responseData['Message'] = "Resource update succeeded"
-              elif event['RequestType'] == 'Delete':
-                # Empty the S3 bucket
-                s3 = boto3.resource('s3')
-                bucket = s3.Bucket(bucketName)
-                bucket.objects.all().delete()
-
-                responseData['Message'] = "Resource deletion succeeded"
-
-            except Exception as e:
-              print("Error: " + str(e))
-              responseStatus = cfnresponse.FAILED
-              responseData['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
-
-            cfnresponse.send(event, context, responseStatus, responseData)
-
-      Handler: index.handler
-      Runtime: python3.7
-      Timeout: 300
-      Role: !GetAtt CleanupBucketLambdaExecutionRole.Arn
-
-  CleanupBucketLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: LoggingPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: '*'
-        - PolicyName: S3Policy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:List*
-                  - s3:DeleteObject
-                Resource: '*'
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
 Outputs:
   UserPoolId:
