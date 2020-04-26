@@ -5,6 +5,8 @@ Description: >
     This template deploys A Retail Demo Store Service Load Balancer.
 
 Parameters:
+  ServiceName:
+    Type: String
 
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
@@ -30,6 +32,10 @@ Resources:
       Subnets: !Ref Subnets
       SecurityGroups:
         - !Ref SecurityGroup
+      Tags:
+        -
+          Key: RetailDemoStoreServiceName
+          Value: !Ref ServiceName
 
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener

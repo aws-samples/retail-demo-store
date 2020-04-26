@@ -152,6 +152,8 @@ Resources:
                 Effect: "Allow"
                 Action: 
                   - servicediscovery:DiscoverInstances
+                  - elasticloadbalancing:DescribeLoadBalancers
+                  - elasticloadbalancing:DescribeTags
                 Resource: "*"       
               - 
                 Effect: "Allow"
@@ -175,6 +177,8 @@ Resources:
                 Action: 
                   - mobiletargeting:*
                   - iam:GetRole
+                  - elasticloadbalancing:DescribeLoadBalancers
+                  - elasticloadbalancing:DescribeTags
                 Resource: "*"
               - 
                 Effect: "Allow"
