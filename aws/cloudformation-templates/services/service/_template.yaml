@@ -180,6 +180,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/loadbalancer.yaml
       Parameters:
+        ServiceName: !Ref ServiceName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
 
