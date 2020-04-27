@@ -1,0 +1,7 @@
+external_id, first_name, last_name, email, dob
+12, James, Parish, test+12@amazonx.com, 1979-12-01
+13, Larry, Bird, test+13@amazonx.com, 1980-12-02
+14, Albert, Jarek III, test+14@amazonx.com, 1965-11-01
+15, James, Barker, test+15@amazonx.com, 2001-01-01
+16, Tom, James, test+16@gmailx.com, 2001-01-02
+17, Greg, Browm, test+17@gmailx.com, 2000-04-17
