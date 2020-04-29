@@ -13,8 +13,20 @@
         <p>Support available 24/7/365. For immediate assistance please ask a question using the form below and our virtual assistant will direct your request.
         </p>
         <div class="row">
-          <div class="col-lg-12">
-            <amplify-chatbot v-bind:chatbotConfig="chatbotConfig" class="chatBot"></amplify-chatbot>
+          <div class="col-sm">
+            <amplify-chatbot v-bind:chatbotConfig="chatbotConfig" id="chatBot"></amplify-chatbot>
+          </div>
+          <div class="col-sm">
+            <div class="card-deck">
+              <div class="card card-recommend mb-3" v-for="card in responseCards" v-bind:key="card.title">
+                <img class="card-img-top" :src="card.imageUrl" :alt="card.title">
+                <div class="card-body">
+                  <h6 class="card-title">{{ card.title }}</h6>
+                  <p class="card-text"><small>{{ card.subTitle }}</small></p>
+                  <a class="btn btn-secondary btn-block mt-auto" :href="card.attachmentLinkUrl">Learn more...</a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -35,6 +47,7 @@
 
 <script>
 import { Interactions } from 'aws-amplify';
+import { AmplifyEventBus } from 'aws-amplify-vue';
 
 export default {
   name: 'Help',
@@ -46,18 +59,31 @@ export default {
     return {
       checkingBackend: false,
       backendConfigured: null,
-      error: null
+      error: null,
+      responseCards: null
     }
   },
   created () {
     this.checkBackend()
+  },
+  async mounted() {
+    AmplifyEventBus.$on('chatResponse', async (response) => {
+      var botCtr = document.getElementById('chatBot');
+      botCtr.scrollTop = botCtr.scrollHeight;
+      if (response.responseCard && response.responseCard.genericAttachments) {
+        this.responseCards = response.responseCard.genericAttachments
+      }
+      else {
+        this.responseCards = null
+      }
+    })
   },
   methods: {
     async checkBackend() {
       this.checkingBackend = true
 
       try {
-        await Interactions.send(this.chatbotConfig.bot, 'Hey TGS');
+        await Interactions.send(this.chatbotConfig.bot, 'Hey Retail Demo Store');
         this.backendConfigured = true
       }
       catch(err) {
@@ -73,7 +99,7 @@ export default {
   computed: {
     chatbotConfig: function () {
       let config = {
-        bot: "RetailDemoStore",
+        bot: process.env.VUE_APP_BOT_NAME,
         clearComplete: false,
         botTitle: "Retail Demo Store Support",
         conversationModeOn: false,
@@ -85,3 +111,15 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+  #chatBot {
+    margin-top: 0px;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .card-recommend {
+    min-width: 250px;
+  }
+</style>
