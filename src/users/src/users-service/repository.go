@@ -15,6 +15,7 @@ import (
 var users Users
 var usersById map[string]int
 var usersByUsername map[string]int
+var usersByIdentityId map[string]int
 
 // Init
 func init() {
@@ -32,6 +33,7 @@ func loadUsers(filename string) (Users, error) {
 	var r Users
 	usersById = make(map[string]int)
 	usersByUsername = make(map[string]int)
+	usersByIdentityId = make(map[string]int)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -83,6 +85,15 @@ func RepoFindUserByUsername(username string) User {
 	}
 }
 
+// RepoFindUserByIdentityID Function
+func RepoFindUserByIdentityID(identityID string) User {
+	if idx, ok := usersByIdentityId[identityID]; ok {
+		return users[idx]
+	} else {
+		return User{}
+	}
+}
+
 // RepoUpdateUser Function
 func RepoUpdateUser(t User) User {
 	if idx, ok := usersById[t.ID]; ok {
@@ -93,6 +104,11 @@ func RepoUpdateUser(t User) User {
 		u.Addresses = t.Addresses
 		u.SignUpDate = t.SignUpDate
 		u.LastSignInDate = t.LastSignInDate
+
+		if len(t.IdentityId) > 0 {
+			u.IdentityId = t.IdentityId
+			usersByIdentityId[t.IdentityId] = idx
+		}
 
 		return RepoFindUserByID(t.ID)
 	}
