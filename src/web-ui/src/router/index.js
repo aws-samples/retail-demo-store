@@ -21,6 +21,8 @@ import AmplifyStore from '@/store/store';
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
+import { Credentials } from '@aws-amplify/core';
+
 const UsersRepository = RepositoryFactory.get('users')
 
 Vue.use(Router);
@@ -70,6 +72,12 @@ AmplifyEventBus.$on('authState', async (state) => {
       const { data } = await UsersRepository.createUser(user.username, user.attributes.email)
       storeUser = data
       AmplifyStore.commit('setUserID', storeUser.id);
+    }
+
+    // Sync identityId with user to support reverse lookup.
+    const credentials = await Credentials.get();
+    if (credentials) {
+      storeUser.identity_id = credentials.identityId
     }
 
     // Update last sign in and sign up dates on user.
