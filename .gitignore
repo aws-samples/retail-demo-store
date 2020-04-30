@@ -16,3 +16,4 @@ demo.md
 generators/*.gz
 /csvs/
 .unotes/*
+!workshop/5-Conversational/RetailDemoStore_Lex.zip

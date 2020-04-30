@@ -9,8 +9,9 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"github.com/gorilla/mux"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // Index Handler
@@ -94,6 +95,18 @@ func UserShowByUsername(w http.ResponseWriter, r *http.Request) {
 	username := vars["username"]
 
 	if err := json.NewEncoder(w).Encode(RepoFindUserByUsername(username)); err != nil {
+		panic(err)
+	}
+}
+
+// UserShowByIdentityId handler
+func UserShowByIdentityId(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+
+	vars := mux.Vars(r)
+	identityID := vars["identityID"]
+
+	if err := json.NewEncoder(w).Encode(RepoFindUserByIdentityID(identityID)); err != nil {
 		panic(err)
 	}
 }

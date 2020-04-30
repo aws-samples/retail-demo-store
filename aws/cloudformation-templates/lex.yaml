@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store Lex related resources.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the deployment Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the deployment Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
+  UsersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  RecommendationsServiceExternalUrl:
+    Type: String
+    Default: none
+
+Resources:
+  BotRecommendationsLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store chatbot function that returns product recommendations as ResponseCards'
+      Handler: bot-intent-recommendations.lambda_handler
+      Role: !GetAtt 
+        - BotRecommendationsLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/bot-intent-recommendations.zip'
+      Runtime: python3.8
+      Timeout: 10
+      FunctionName: RetailDemoStore-Chat-Recommendations  # Referenced by name in Conversational AI workshop notebook
+      Environment:
+        Variables:
+          users_service_base_url: !Ref UsersServiceExternalUrl
+          recommendations_service_base_url: !Ref RecommendationsServiceExternalUrl
+
+  BotRecommendationsLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+
+  # Resource policy to allow Lex to call the function
+  BotRecommendationsPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BotRecommendationsLambdaFunction.Arn
+      Principal: lex.amazonaws.com
+      SourceArn: !Sub 'arn:aws:lex:${AWS::Region}:${AWS::AccountId}:intent:RecommendProduct:*'
+
+Outputs:
+  BotRecommendationsLambdaFunctionArn:
+    Description: Lambda function ARN for Lex personalization function
+    Value: !GetAtt BotRecommendationsLambdaFunction.Arn
