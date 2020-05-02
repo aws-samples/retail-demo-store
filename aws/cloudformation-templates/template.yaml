@@ -96,7 +96,7 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: Name of Retail Demo Store GitHub repository in your GitHub account.
-    Default: retaildemostore
+    Default: retail-demo-store
 
   GitHubBranch:
     Type: String
