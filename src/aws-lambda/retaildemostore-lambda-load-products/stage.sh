@@ -36,4 +36,4 @@ echo "packaging..."
 zip retaildemostore-lambda-load-products.zip main
 #echo "uploading..."
 
-aws s3 cp retaildemostore-lambda-load-products.zip s3://$BUCKET/${S3PATH}aws-lambda/
+aws s3 cp retaildemostore-lambda-load-products.zip s3://$BUCKET/${S3PATH}aws-lambda/ $S3PUBLIC
