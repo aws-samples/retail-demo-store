@@ -42,6 +42,12 @@ var routes = Routes{
 		UserShowByUsername,
 	},
 	Route{
+		"UserShowByIdentityId",
+		"GET",
+		"/users/identityid/{identityID}",
+		UserShowByIdentityId,
+	},
+	Route{
 		"UserCreate",
 		"POST",
 		"/users",

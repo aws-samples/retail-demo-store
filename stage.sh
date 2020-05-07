@@ -66,7 +66,7 @@ aws s3 sync s3://theglobalstore-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-sh
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
 
-for function in retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns personalize-delete-resources pinpoint-recommender
+for function in bot-intent-recommendations retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns personalize-delete-resources pinpoint-recommender
 do
     echo "  + Staging $function"
     cd src/aws-lambda/$function

@@ -20,6 +20,7 @@ type User struct {
 	Persona        string     `json:"persona" yaml:"persona"`
 	SignUpDate     *time.Time `json:"sign_up_date,omitempty"`
 	LastSignInDate *time.Time `json:"last_sign_in_date,omitempty"`
+	IdentityId     string     `json:"identity_id,omitempty"`
 }
 
 // Users Array
