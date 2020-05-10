@@ -11,6 +11,9 @@ BUCKET=$1
 #Path with trailing /
 S3PATH=$2
 
+# remove this line if you want to keep the objects private in your S3 bucket
+export S3PUBLIC=" --acl public-read"
+
 if [ ! -d "local" ]; then
     mkdir local
 fi
@@ -35,7 +38,7 @@ find . -name '.DS_Store' -type f -delete
 echo " + Staging to $BUCKET in $S3PATH"
 
 echo " + Uploading CloudFormation Templates"
-aws s3 cp aws/cloudformation-templates/ s3://${BUCKET}/${S3PATH}cloudformation-templates --recursive --quiet
+aws s3 cp aws/cloudformation-templates/ s3://${BUCKET}/${S3PATH}cloudformation-templates --recursive $S3PUBLIC
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
 
 echo " + Packaging Notebooks"
@@ -43,22 +46,22 @@ echo " + Packaging Notebooks"
 zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
 
 echo " + Uploading Notebooks"
-aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip
+aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip $S3PUBLIC
 
 echo " + Packaging Source"
 [ -e "retaildemostore-source.zip" ] && rm retaildemostore-source.zip
 zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip"
 
 echo " + Uploading Source"
-aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip
+aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip $S3PUBLIC
 
 echo " + Upload seed data"
-aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive 
-aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive
+aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
+aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
 
 # Sync CSVs used for Personalize pre-create campaign Lambda function
 echo " + Copying CSVs for Personalize model pre-create training"
-aws s3 sync s3://theglobalstore-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-show-errors
+aws s3 sync s3://retail-demo-store-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-show-errors $S3PUBLIC
 
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
@@ -74,7 +77,7 @@ done
 
 # Sync product images
 echo " + Copying product images"
-aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors
+aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

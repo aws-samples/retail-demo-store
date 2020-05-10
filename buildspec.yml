@@ -1,0 +1,29 @@
+#
+# AWS Codebuild specifications
+# This file is only used for internal deployment of the code on each public commit
+# It is NOT needed if you're demoing or developping locally
+# 
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase...
+      - yum -y install git python3 golang
+      - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      - python3 get-pip.py
+      - python3 -m venv retailstore/env
+      - . retailstore/env/bin/activate
+      - pip install pip --upgrade
+      - go get github.com/aws/aws-lambda-go/lambda
+      - go get github.com/aws/aws-lambda-go/cfn
+      - go get github.com/aws/aws-sdk-go
+      - go get gopkg.in/yaml.v2
+  build:
+    commands:
+      - git clone https://github.com/aws-samples/retail-demo-store
+      - cd retail-demo-store/
+      - ./stage.sh retail-demo-store-us-west-2
+      - ./stage.sh retail-demo-store-us-east-1
+      - ./stage.sh retail-demo-store-eu-west-1
