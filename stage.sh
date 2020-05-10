@@ -61,7 +61,7 @@ aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recur
 
 # Sync CSVs used for Personalize pre-create campaign Lambda function
 echo " + Copying CSVs for Personalize model pre-create training"
-aws s3 sync s3://theglobalstore-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-show-errors $S3PUBLIC
+aws s3 sync s3://retail-demo-store-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-show-errors $S3PUBLIC
 
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
