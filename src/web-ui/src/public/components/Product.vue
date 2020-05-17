@@ -9,7 +9,7 @@
         <router-link class="btn btn-secondary btn-block mt-auto" :to="{name:'ProductDetail', params: {id: product.id}, query: {exp: experimentCorrelationId}}">Details</router-link>  
       </div>
       <div class="card-footer" v-if="experiment">
-        <small class="text-muted"><i class="fa fa-map-signs"></i> {{ experimentDescription }}</small>
+        <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
       </div>
   </div>
 

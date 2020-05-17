@@ -34,6 +34,9 @@
     <!-- Product List -->
     <div class="container mt-3" v-if="products.length">
       <h4>{{ this.display | capitalize }}</h4>
+      <div v-if="explain_recommended" class="text-muted text-center">
+        <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
+      </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
           <Product v-for="product in products" 
@@ -70,7 +73,10 @@ export default {
       products: [],
       categories: [],
       errors: [],
-      display: ''
+      display: '',
+      explain_recommended: '',
+      active_experiment: false,
+      personalized: false
     }
   },
   async created () {
@@ -93,8 +99,20 @@ export default {
       }
 
       if (this.userID && intermediate.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.userID, intermediate, ExperimentFeature)
-        this.products = data
+        const response = await RecommendationsRepository.getRerankedItems(this.userID, intermediate, ExperimentFeature)
+
+        if (response.headers) {
+          if (response.headers['x-personalize-recipe']) {
+            this.personalized = true
+            this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
+          }
+          if (response.headers['x-experiment-name']) {
+            this.active_experiment = true
+            this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
+          }
+        }
+
+        this.products = response.data
 
         if (this.products.length > 0 && 'experiment' in this.products[0]) {
           AnalyticsHandler.identifyExperiment(this.products[0].experiment)
