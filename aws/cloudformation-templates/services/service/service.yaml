@@ -150,9 +150,12 @@ Resources:
                 Resource: '*'
               - Effect: Allow
                 Action:
+                  - personalize:DescribeSolutionVersion
+                  - personalize:DescribeCampaign
                   - personalize:GetPersonalizedRanking 
                   - personalize:GetRecommendations 
                 Resource: 
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess

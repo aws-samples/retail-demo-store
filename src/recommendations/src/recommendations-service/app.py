@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 from flask import request
 from flask_cors import CORS
 from experimentation.experiment_manager import ExperimentManager
@@ -16,10 +16,22 @@ import logging
 import requests
 
 servicediscovery = boto3.client('servicediscovery')
-personalizert = boto3.client('personalize-runtime')
+personalize = boto3.client('personalize')
 ssm = boto3.client('ssm')
 
 # -- Shared Functions
+
+def get_recipe(campaign_arn):
+    """ Returns the Amazon Personalize recipe ARN for the specified campaign ARN """
+    recipe = None
+    response = personalize.describe_campaign(campaignArn = campaign_arn)
+
+    if response.get('campaign'):
+        response = personalize.describe_solution_version(solutionVersionArn = response['campaign']['solutionVersionArn'])
+        if response.get('solutionVersion'):
+            recipe = response['solutionVersion']['recipeArn']
+
+    return recipe
 
 def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
     """ Returns products given a UI feature, user, item/product.
@@ -47,6 +59,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
         products_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
 
     items = []
+    resp_headers = {}
     experiment = None
 
     # Get active experiment if one is setup for feature and we have a user.
@@ -64,6 +77,10 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
             num_results = num_results,
             tracker = tracker
         )
+
+        resp_headers['X-Experiment-Name'] = experiment.name
+        resp_headers['X-Experiment-Type'] = experiment.type
+        resp_headers['X-Experiment-Id'] = experiment.id
     else:
         # Fallback to default behavior of checking for campaign ARN 
         # parameter and then the default product resolver.
@@ -77,6 +94,8 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
                 product_id = current_item_id, 
                 num_results = num_results
             )
+
+            resp_headers['X-Personalize-Recipe'] = get_recipe(response['Parameter']['Value'])
         else:
             resolver = DefaultProductResolver(products_service_host = products_service_host, products_service_port = products_service_port)
 
@@ -108,7 +127,8 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
 
         item.pop('itemId')
 
-    return items
+    resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
+    return resp
 
 # -- Logging
 class LoggingMiddleware(object):
@@ -146,7 +166,7 @@ class BadRequest(Exception):
 # -- Handlers
 
 app = Flask(__name__)
-corps = CORS(app)
+corps = CORS(app, expose_headers=['X-Experiment-Name', 'X-Experiment-Type', 'X-Experiment-Id', 'X-Personalize-Recipe'])
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):
@@ -190,7 +210,7 @@ def related():
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
-        items = get_products(
+        return get_products(
             feature = feature, 
             user_id = user_id, 
             current_item_id = current_item_id, 
@@ -198,8 +218,6 @@ def related():
             campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
-
-        return json.dumps(items, cls=CompatEncoder)
 
     except Exception as e:
         app.logger.exception('Unexpected error generating related items', e)
@@ -235,7 +253,7 @@ def recommendations():
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
-        items = get_products(
+        return get_products(
             feature = feature, 
             user_id = user_id, 
             current_item_id = current_item_id, 
@@ -243,8 +261,6 @@ def recommendations():
             campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
-
-        return json.dumps(items, cls=CompatEncoder)
 
     except Exception as e:
         app.logger.exception('Unexpected error generating recommendations', e)
@@ -284,6 +300,7 @@ def rerank():
             app.logger.info(unranked_items)
 
             ranked_items = []
+            resp_headers = {}
             experiment = None
 
             # Get active experiment if one is setup for feature and we have a user.
@@ -300,6 +317,10 @@ def rerank():
                     item_list = unranked_items,
                     tracker = tracker
                 )
+
+                resp_headers['X-Experiment-Name'] = experiment.name
+                resp_headers['X-Experiment-Type'] = experiment.type
+                resp_headers['X-Experiment-Id'] = experiment.id
             else:
                 # No experiment so check if there's a ranking campaign configured.
                 response = ssm.get_parameter(
@@ -308,6 +329,7 @@ def rerank():
 
                 if response['Parameter']['Value'] != 'NONE':
                     resolver = PersonalizeRankingResolver(campaign_arn = response['Parameter']['Value'])
+                    resp_headers['X-Personalize-Recipe'] = get_recipe(response['Parameter']['Value'])
                 else:
                     resolver = RankingProductsNoOpResolver()
 
@@ -334,7 +356,8 @@ def rerank():
 
                 response_items.append(item)
 
-            return json.dumps(response_items)
+            resp = Response(json.dumps(response_items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
+            return resp
     
         except Exception as e:
             app.logger.exception('Unexpected error reranking items', e)
