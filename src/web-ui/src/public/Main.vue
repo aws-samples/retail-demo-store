@@ -91,6 +91,9 @@
     <!-- Recommended/Featured Product List -->
     <div class="container mt-5 user-recommendations" v-if="userID">
       <h4>{{ this.display | capitalize }}</h4>
+      <div v-if="explain_recommended" class="text-muted text-center">
+        <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
+      </div>
       <div class="container mb-4" v-if="!user_recommended.length">
         <i class="fas fa-spinner fa-spin fa-3x"></i>
       </div>
@@ -147,7 +150,10 @@ export default {
       guest_recommended: [],
       user_recommended: [],
       errors: [],
-      display: ''
+      display: '',
+      explain_recommended: '',
+      active_experiment: false,
+      personalized: false
     }
   },
   async created () {
@@ -167,9 +173,20 @@ export default {
       }
     },
     async getUserRecommendations() {
-      const { data } = await RecommendationsRepository.getRecommendationsForUser(this.userID, '', MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRecommendationsForUser(this.userID, '', MaxRecommendations, ExperimentFeature)
 
-      this.user_recommended = data
+      if (response.headers) {
+        if (response.headers['x-personalize-recipe']) {
+          this.personalized = true
+          this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
+        }
+        if (response.headers['x-experiment-name']) {
+          this.active_experiment = true
+          this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
+        }
+      }
+
+      this.user_recommended = response.data
 
       if (this.user_recommended.length > 0 && 'experiment' in this.user_recommended[0]) {
         AnalyticsHandler.identifyExperiment(this.user_recommended[0].experiment)

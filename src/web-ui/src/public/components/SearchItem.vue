@@ -1,7 +1,7 @@
 <template>
-  <li role="presentation" v-if="product">
-    <img :src="productImageURL" class="ml-2 search-item-img" :alt="product.name">
-    <router-link class="btn btn-link mt-auto" :to="{name:'ProductDetail', params: {id: product.id}}">{{ product.name }}</router-link>  
+  <li class="search-item" role="presentation" v-if="product">
+    <img :src="productImageURL" class="ml-2" :alt="product.name">
+    <router-link class="btn btn-link mt-auto text-left text-truncate" :to="{name:'ProductDetail', params: {id: product.id}}">{{ product.name }}</router-link>  
   </li>
 </template>
 
@@ -30,7 +30,6 @@ export default {
     async getProductByID (product_id){
       const { data } = await ProductsRepository.getProduct(product_id)
       this.product = data
-      console.log(this.product)
     },
   },
   computed: {
@@ -48,9 +47,11 @@ export default {
 </script>
 
 <style scoped>
-
-  .search-item-img {
-    max-width: 40px;
+  .search-item img {
+    width: 40px;
   }
-  
+
+  .search-item a {
+    width: 245px;
+  }
 </style>

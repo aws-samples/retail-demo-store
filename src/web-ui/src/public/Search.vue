@@ -10,12 +10,14 @@
                 <i class="fa fa-times"></i>
               </button>
               <ul class="search-results dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="search">
+                <li class="presentation text-center text-secondary" v-if="searching"><i class="fas fa-spinner fa-spin fa-lg"></i></li>
                 <li class="presentation text-center text-secondary" v-if="!results"> No Results </li>
                 <li class="presentation text-center text-secondary" v-if="results && results.length < 1"> No Results </li>
+                <li class="presentation text-center text-secondary" v-if="reranked"><small><i class="fa fa-user-check"></i> <em>Personalized Ranking</em></small></li>
                 <SearchItem v-for="result in results" 
                   v-bind:key="result.itemId"
                   :product_id="result.itemId"
-                />            
+                />
               </ul>
             </div>
         </form>
@@ -30,6 +32,9 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 const SearchRepository = RepositoryFactory.get('search')
+const RecommendationsRepository = RepositoryFactory.get('recommendations')
+
+const ExperimentFeature = 'search_results_rank'
 
 import SearchItem from './components/SearchItem.vue'
 
@@ -44,18 +49,31 @@ export default {
    return {  
       errors: [],
       results: [],
+      searching: false,
+      reranked: false,
       searchTerm: ''
     }
   },
   methods: {
     async search(val) {
       const { data } = await SearchRepository.searchProducts(val)
-      this.results = data
+      if (this.user && data.length > 0) {
+        this.rerank(this.userID, data)
+      } else {
+        this.reranked = false
+        this.results = data
+      }
 
       AnalyticsHandler.productSearched(this.user, val.toString(), data.length)
     },
     clearSearchTerm() {
       this.searchTerm = "";
+      this.reranked = false
+    },
+    async rerank(userID, items) {
+      const { data } = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
+      this.reranked = JSON.stringify(items) != JSON.stringify(data)
+      this.results = data
     }
   },
   computed: {
@@ -69,9 +87,17 @@ export default {
   watch: {
     searchTerm: function (val) {
       if (val.length > 0) {
-        this.search(val)
+        this.searching = true
+        try {
+          this.search(val)
+        }
+        finally {
+          this.searching = false
+        }
       } else {
+        this.searching = false
         this.results = []
+        this.reranked = false
       }
     },
   }
