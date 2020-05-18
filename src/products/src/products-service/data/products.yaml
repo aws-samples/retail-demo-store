@@ -14,6 +14,7 @@
   price: 9.99
   image: "1.jpg"
   featured: true
+  gender_affinity: F
 - id: 3
   name: Beard Oil
   category: beauty
@@ -22,6 +23,7 @@
   price: 9.99
   image: "1.jpg"
   featured: true
+  gender_affinity: M
 - id: 4
   name: Fitness Tracker
   category: electronics
@@ -38,6 +40,7 @@
   price: 129.99
   image: "1.jpg"
   featured: true
+  gender_affinity: M
 - id: 6
   name: Coffee Gift Package
   category: housewares
@@ -53,6 +56,7 @@
   description: A fresh accessory that works with almost any outfit.
   price: 49.99
   image: "1.jpg"
+  gender_affinity: F
 - id: 8
   name: LED Dog Collar
   category: outdoors
@@ -67,6 +71,7 @@
   description: Our handmade leather shoulder bag will look great at the office or out on the town.
   price: 109.99
   image: "2.jpg"
+  gender_affinity: F
 - id: 10
   name: Classic T- Shirt
   category: apparel
@@ -95,6 +100,7 @@
   description: Modern running shoes with our latest technology.
   price: 129.99
   image: "2.jpg"
+  gender_affinity: M
 - id: 14
   name: Coffee Gift Package
   category: housewares
@@ -109,6 +115,7 @@
   description: A fresh accessory that works with almost any outfit.
   price: 49.99
   image: "2.jpg"
+  gender_affinity: M
 - id: 16
   name: Neon Colored Fishing Lure
   category: outdoors
@@ -123,6 +130,7 @@
   description: Spacious and stylish in a single bag.
   price: 109.99
   image: "3.jpg"
+  gender_affinity: F
 - id: 18
   name: Accent Scarf
   category: apparel
@@ -130,6 +138,7 @@
   description: Add a colorful navy blue and yellow accent to any outfit.
   price: 9.99
   image: "3.jpg"
+  gender_affinity: F
 - id: 19
   name: Vitamin E Oil
   category: beauty
@@ -137,6 +146,7 @@
   description: Removes scars and blemishes and moisturizes skin.
   price: 9.99
   image: "3.jpg"
+  gender_affinity: M
 - id: 20
   name: Black Bluetooth Portable Speaker
   category: electronics
@@ -151,6 +161,7 @@
   description: Look sharp with these black knit sneakers with white soles.
   price: 129.99
   image: "3.jpg"
+  gender_affinity: M
 - id: 22
   name: Coffee Gift Package
   category: housewares
@@ -165,6 +176,7 @@
   description: Dress up any outfit with this gold and diamond bracelet.
   price: 49.99
   image: "3.jpg"
+  gender_affinity: F
 - id: 24
   name: Classic Fishing Pole
   category: outdoors
@@ -179,6 +191,7 @@
   description: With stylish gold chain and clasp this bright red purse will set off any outfit.
   price: 109.99
   image: "4.jpg"
+  gender_affinity: F
 - id: 26
   name: Blue Shirt
   category: apparel
@@ -193,6 +206,7 @@
   description: Invigorate your next batch while moisturizing skin with these amazing bath bombs.
   price: 9.99
   image: "10.jpg"
+  gender_affinity: F
 - id: 28
   name: Blue Mushroom Wireless Speaker
   category: electronics
@@ -207,6 +221,7 @@
   description: Look sharp and be the life of the party with these LED soles.
   price: 129.99
   image: "4.jpg"
+  gender_affinity: M
 - id: 30
   name: Nutmeg Grater
   category: housewares
@@ -221,6 +236,7 @@
   description: A fresh accessory that works with almost any outfit.
   price: 49.99
   image: "4.jpg"
+  gender_affinity: F
 - id: 32
   name: Classic Fishing Reel
   category: outdoors
@@ -235,6 +251,7 @@
   description: This brown rich leather purse has a classic style.
   price: 109.99
   image: "5.jpg"
+  gender_affinity: F
 - id: 34
   name: Classic Bomber Jacket
   category: apparel
@@ -242,6 +259,7 @@
   description: Pull off a classic look while staying warm in this leather bomber jacket.
   price: 159.99
   image: "5.jpg"
+  gender_affinity: M
 - id: 35
   name: Vitamin E Oil
   category: beauty
@@ -277,6 +295,7 @@
   description: This attractive turquoise pendant necklace will set off any outfit.
   price: 49.99
   image: "5.jpg"
+  gender_affinity: F
 - id: 40
   name: Spotted Fishing Lure
   category: outdoors
@@ -291,6 +310,7 @@
   description: Clean and simple styling.
   price: 109.99
   image: "6.jpg"
+  gender_affinity: F
 - id: 42
   name: Multi Color Socks
   category: apparel
@@ -298,6 +318,7 @@
   description: Bring some life to your sock game with some multi-color geometric shapes.
   price: 9.99
   image: "6.jpg"
+  gender_affinity: F
 - id: 43
   name: Beauty Mask
   category: beauty
@@ -333,6 +354,7 @@
   description: Add some color and style with this unique bracelet.
   price: 49.99
   image: "6.jpg"
+  gender_affinity: F
 - id: 48
   name: Silver Fishing Lure
   category: outdoors
@@ -355,6 +377,7 @@
   description: Stay warm and comfortable on those cool fall evenings.
   price: 79.95
   image: "25.jpg"
+  gender_affinity: M
 - id: 51
   name: Ceramic Mixing Bowls
   category: housewares
@@ -369,6 +392,7 @@
   description: Accessorize and set off any outfit with these attractive turquoise earrings.
   price: 29.99
   image: "7.jpg"
+  gender_affinity: F
 - id: 53
   name: Watermelon Flavored Lip Balm
   category: beauty
@@ -376,6 +400,7 @@
   description: Protect your lips from harshness of winter with this flavorful lip balm.
   price: 9.99
   image: "8.jpg"
+  gender_affinity: F
 - id: 54
   name: Over-Ear Headphones
   category: electronics
@@ -390,6 +415,7 @@
   description: Conveniently sized to carry all your essentials in style, pink tassle included.
   price: 89.99
   image: "9.jpg"
+  gender_affinity: F
 - id: 56
   name: Red Fishing Lure
   category: outdoors
