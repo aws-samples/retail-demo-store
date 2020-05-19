@@ -17,6 +17,8 @@
                 <SearchItem v-for="result in results" 
                   v-bind:key="result.itemId"
                   :product_id="result.itemId"
+                  :experiment="result.experiment"
+                  :feature="feature"
                 />
               </ul>
             </div>
@@ -34,7 +36,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 const SearchRepository = RepositoryFactory.get('search')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
-const ExperimentFeature = 'search_results_rank'
+const ExperimentFeature = 'search_results'
 
 import SearchItem from './components/SearchItem.vue'
 
@@ -47,6 +49,7 @@ export default {
   },
   data () {
    return {  
+      feature: ExperimentFeature,
       errors: [],
       results: [],
       searching: false,

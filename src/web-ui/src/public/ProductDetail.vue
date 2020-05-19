@@ -39,6 +39,7 @@
           v-bind:key="recommendation.product.id"
           :product="recommendation.product"
           :experiment="recommendation.experiment"
+          :feature="feature"
         />
       </div>
     </div>
@@ -71,7 +72,8 @@ export default {
   props: {
   },
   data () {
-    return {  
+    return {
+      feature: ExperimentFeature,
       errors: [],
       product: null,
       related_products: [],

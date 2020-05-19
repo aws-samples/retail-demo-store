@@ -42,6 +42,8 @@
           <Product v-for="product in products" 
             v-bind:key="product.id"
             :product="product"
+            :experiment="product.experiment"
+            :feature="feature"
           />
         </div>
       </div>
@@ -70,6 +72,7 @@ export default {
   },
   data() {
     return {
+      feature: ExperimentFeature,
       products: [],
       categories: [],
       errors: [],

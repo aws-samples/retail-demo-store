@@ -1,7 +1,7 @@
 <template>
   <li class="search-item" role="presentation" v-if="product">
     <img :src="productImageURL" class="ml-2" :alt="product.name">
-    <router-link class="btn btn-link mt-auto text-left text-truncate" :to="{name:'ProductDetail', params: {id: product.id}}">{{ product.name }}</router-link>  
+    <router-link class="btn btn-link mt-auto text-left text-truncate" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">{{ product.name }}</router-link>  
   </li>
 </template>
 
@@ -16,6 +16,8 @@ export default {
   },
   props: {
       product_id: null,
+      feature: null,
+      experiment: null
   },
   data () {
     return {  
@@ -41,7 +43,10 @@ export default {
         let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
         return root_url + this.product.category + '/' + this.product.image
       }
-    }
+    },
+    experimentCorrelationId: function() {
+      return this.experiment ? this.experiment.correlationId : ''
+    },
   }
 }
 </script>
