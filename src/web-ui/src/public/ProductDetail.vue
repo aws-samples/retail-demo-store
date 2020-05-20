@@ -115,7 +115,7 @@ export default {
       CartsRepository.updateCart(this.cart)
       this.getCart()
 
-      AnalyticsHandler.productAddedToCart(this.userID, this.cart, this.product, qty, this.$route.query.exp)
+      AnalyticsHandler.productAddedToCart(this.userID, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
 
       swal({
         title: "Added to Cart",
@@ -145,7 +145,7 @@ export default {
     },
     recordProductViewed() {
       if (this.product) {
-        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.exp)
+        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.feature, this.$route.query.exp)
       }
     },
     async getRelatedProducts() {
