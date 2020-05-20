@@ -31,6 +31,14 @@ age_sd = 15
 
 age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_sd, loc=age_mean, scale=age_sd)
 
+# Persona combinations ordered from strongest affinity to latent interest.
+personas = [
+    'apparel_housewares_accessories', 'housewares_apparel_electronics',
+    'footwear_outdoors_apparel', 'outdoors_footwear_housewares',
+    'electronics_beauty_outdoors', 'beauty_electronics_accessories',
+    'jewelry_accessories_beauty', 'accessories_jewelry_apparel'
+]
+
 print('Generating {} random users...'.format(num_users))
 
 for x in range(0, num_users):
@@ -54,7 +62,7 @@ for x in range(0, num_users):
         'email': '{}.{}@example.com'.format(first_name.replace(' ', '').lower(), last_name.replace(' ', '').lower()),
         'username': 'user{}'.format(x),
         'age': int(age_dist.rvs()),
-        'persona': random.choice(["apparel_housewares","footwear_outdoors","electronics_beauty","jewelry_accessories"]),
+        'persona': random.choice(personas),
         'addresses': [
             {
                 'first_name': first_name,

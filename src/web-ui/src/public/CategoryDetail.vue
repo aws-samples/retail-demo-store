@@ -62,6 +62,7 @@ const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
 const ExperimentFeature = 'category_detail_rank'
+const MaxProducts = 9
 
 export default {
   name: 'Products',
@@ -112,14 +113,14 @@ export default {
           }
         }
 
-        this.products = response.data
+        this.products = response.data.slice(0, MaxProducts)
 
         if (this.products.length > 0 && 'experiment' in this.products[0]) {
           AnalyticsHandler.identifyExperiment(this.products[0].experiment)
         }
       }
       else {
-        this.products = intermediate
+        this.products = intermediate.slice(0, MaxProducts)
       }
 
       this.display = categoryName
