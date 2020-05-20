@@ -116,6 +116,7 @@
   price: 49.99
   image: "2.jpg"
   gender_affinity: M
+  featured: true
 - id: 16
   name: Neon Colored Fishing Lure
   category: outdoors
@@ -192,6 +193,7 @@
   price: 109.99
   image: "4.jpg"
   gender_affinity: F
+  featured: true
 - id: 26
   name: Blue Shirt
   category: apparel
@@ -199,6 +201,8 @@
   description: This solid blue/slate colored mens shirt works in casual settings or under a sport coat.
   price: 9.99
   image: "4.jpg"
+  gender_affinity: M
+  featured: true
 - id: 27
   name: Bath Bomb
   category: beauty
@@ -207,6 +211,7 @@
   price: 9.99
   image: "10.jpg"
   gender_affinity: F
+  featured: true
 - id: 28
   name: Blue Mushroom Wireless Speaker
   category: electronics
@@ -274,6 +279,7 @@
   description: These stylishly red ear buds wrap securely around your ears making them perfect when exercising or on the go.
   price: 19.99
   image: "5.jpg"
+  featured: true
 - id: 37
   name: Sporty Deck Shoe
   category: footwear
@@ -362,7 +368,7 @@
   description: Catch your limit in no time with this reflective silver lure with blue and black accents.
   price: 9.99
   image: "6.jpg"
-  featured: false
+  featured: true
 - id: 49
   name: Light Brown Leather Lace-Up Boot
   category: footwear
@@ -385,6 +391,7 @@
   description: Add some style to your kitchen with this artistically designed mixing bowls.
   price: 49.95
   image: "7.jpg"
+  featured: true
 - id: 52
   name: Turquoise Globe Earrings
   category: jewelry
@@ -393,6 +400,7 @@
   price: 29.99
   image: "7.jpg"
   gender_affinity: F
+  featured: true
 - id: 53
   name: Watermelon Flavored Lip Balm
   category: beauty
