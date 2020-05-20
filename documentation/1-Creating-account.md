@@ -34,4 +34,4 @@ You can tell if you’re signed in if the “Sign In” button in the top naviga
 
 ## Next Steps
 
-1) [Personalized Experience](2-Personalization.md)
+- [Personalized Experience](2-Personalization.md)

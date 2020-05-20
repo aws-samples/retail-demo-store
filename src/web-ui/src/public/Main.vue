@@ -172,7 +172,7 @@ export default {
       else {
         this.display = 'featured'
         const { data } = await ProductsRepository.getFeatured()
-        this.guest_recommended = data
+        this.guest_recommended = data.slice(0, MaxRecommendations)
       }
     },
     async getUserRecommendations() {

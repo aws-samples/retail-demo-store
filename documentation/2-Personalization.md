@@ -8,20 +8,26 @@ Personalized user experiences are implemented across several features within the
 
 ## Datasets
 
-The Retail Demo Store uses all three supported dataset types for Amazon Personalize: users, items, and interactions. Additionally, an Amazon Personalize Event Tracker is utilized to capture real-time events in the web user interface which populate the Personalize-managed event interactions dataset. AWS Amplify is used to send events to the Retail Demo Store’s Personalize Event Tracker.
+The Retail Demo Store uses all [three supported dataset types](https://docs.aws.amazon.com/personalize/latest/dg/how-it-works-dataset-schema.html) for Amazon Personalize: users, items, and interactions. Additionally, an Amazon Personalize Event Tracker is utilized to capture real-time events in the web user interface which populate the Personalize-managed event interactions dataset. AWS Amplify is used to send events to the Retail Demo Store’s Personalize Event Tracker.
 
 With the exception of the real-time event data which is created as a result of your browsing behavior in the web user interface, the data in the users, items, and interactions datasets are composed of fictitious, or in the case of interactions history, synthetically generated data.
 
 ## Shopper Personas
 
-To provide a more compelling and intuitive demo experience, each fictitious user in the Retail Demo Store is assigned a shopper persona. The persona is represented by a pair of categories from the Retail Demo Store’s catalog. There are four combinations of categories.
+To provide a more compelling and intuitive demo experience, each fictitious user in the Retail Demo Store is assigned a shopper persona. The persona is represented by three categories from the Retail Demo Store’s catalog which the user has an affinity. The affinity for each category is also weighted such that the first category is is highest weighted and the third category is the lowest. There are eight combinations of categories that represent the personas used across all users.
 
-* apparel_housewares
-* footwear_outdoors
-* electronics_beauty
-* jewelry_accessories
+* accessories_jewelry_apparel
+* apparel_housewares_accessories
+* beauty_electronics_accessories
+* electronics_beauty_outdoors
+* footwear_outdoors_apparel
+* housewares_apparel_electronics
+* jewelry_accessories_beauty
+* outdoors_footwear_housewares
 
-For example, a user assigned with a persona of "footwear_outdoors" indicates that the user is, at least historically, interested in products from the Footwear and Outdoors categories. That initial interest is codified in the generation of the historical interaction dataset which is used to train Solutions in Amazon Personalize. So, for our "footwear_outdoors" user, interaction events are generated across products in both of those categories to create a synthetic history of engaging in products matching that persona. Events for multiple event types are also generated to mimic shopping behavior. For example, most generated event types are 'ProductViewed' to mimic a user browsing the site. Occasional checkouts are simulated with 'ProductAdded' followed by 'OrderCompleted' events. The Personalize solutions/models are trained on the 'ProductViewed' event type.
+For example, a user assigned with a persona of "footwear_outdoors_apparel" indicates that the user, at least historically, has been primarily interested in products from the Footwear category and to decreasing degrees of interest in products from the Outdoors and Apparel categories. That initial weighted interest is codified in the generation of the historical interaction dataset which is used to train Solutions in Amazon Personalize. So, for our "footwear_outdoors_apparel" user, interaction events are generated across products in all three of those categories to create a synthetic history of engaging in products matching that persona. Additionally, some products are tagged with an gender affinity. This is used when generating historical events to filter products against the gender of each user to further add realism to the recommendations.
+
+Events for multiple event types are generated to mimic shopping behavior. For example, most generated event types are 'ProductViewed' to mimic users browsing the site. Occasional checkouts are simulated with 'ProductAdded' followed by 'CartViewed', 'CheckoutStarted', and 'OrderCompleted' events. The Personalize solutions/models are trained on the 'ProductViewed' event type.
 
 ## Emulating Shopper Profiles
 

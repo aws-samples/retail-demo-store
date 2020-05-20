@@ -4,10 +4,10 @@
 package main
 
 import (
-	"os"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -197,7 +197,8 @@ func RepoFindProductByCategory(category string) Products {
 		expression.Name("image"),
 		expression.Name("style"),
 		expression.Name("description"),
-		expression.Name("price"))
+		expression.Name("price"),
+		expression.Name("gender_affinity"))
 	expr, err := expression.NewBuilder().WithKeyCondition(keycond).WithProjection(proj).Build()
 
 	if err != nil {
