@@ -149,7 +149,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productAddedToCart(userId, cart, product, quantity, experimentCorrelationId) {
+    productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId) {
         if (userId) {
             AmplifyAnalytics.record({
                 name: 'ProductAdded', 
@@ -160,6 +160,7 @@ export const AnalyticsHandler = {
                     name: product.name,
                     category: product.category,
                     image: product.image,
+                    feature: feature,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
@@ -195,6 +196,7 @@ export const AnalyticsHandler = {
                 name: product.name,
                 category: product.category,
                 image: product.image,
+                feature: feature,
                 experimentCorrelationId: experimentCorrelationId,
                 quantity: quantity,
                 price: +product.price.toFixed(2)
@@ -278,7 +280,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productViewed(userId, product, experimentCorrelationId) {
+    productViewed(userId, product, feature, experimentCorrelationId) {
         if (userId) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
@@ -288,6 +290,7 @@ export const AnalyticsHandler = {
                     name: product.name,
                     category: product.category,
                     image: product.image,
+                    feature: feature,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
@@ -315,6 +318,7 @@ export const AnalyticsHandler = {
                 name: product.name,
                 category: product.category,
                 image: product.image,
+                feature: feature,
                 experimentCorrelationId: experimentCorrelationId,
                 price: +product.price.toFixed(2)
             };

@@ -6,7 +6,7 @@
         <img :src="productImageURL" class="card-img-top" :alt="product.name">
       </router-link>
       <div class="card-body">
-        <router-link class="btn btn-secondary btn-block mt-auto" :to="{name:'ProductDetail', params: {id: product.id}, query: {exp: experimentCorrelationId}}">Details</router-link>  
+        <router-link class="btn btn-secondary btn-block mt-auto" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">Details</router-link>  
       </div>
       <div class="card-footer" v-if="experiment">
         <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
@@ -23,6 +23,7 @@ export default {
   },
   props: {
       product: null,
+      feature: null,
       experiment: null
   },
   data () {

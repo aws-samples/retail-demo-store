@@ -103,6 +103,7 @@
             v-bind:key="recommendation.product.id"
             :product="recommendation.product"
             :experiment="recommendation.experiment"
+            :feature="feature"
           />
         </div>
       </div>
@@ -117,6 +118,7 @@
           <Product v-for="product in guest_recommended" 
             v-bind:key="product.id"
             :product="product"
+            :feature="feature"
           />
         </div>
       </div>
@@ -146,6 +148,7 @@ export default {
   },
   data() {
     return {
+      feature: ExperimentFeature,
       categories: [],
       guest_recommended: [],
       user_recommended: [],

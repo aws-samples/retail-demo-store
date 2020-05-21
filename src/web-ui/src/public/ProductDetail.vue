@@ -39,6 +39,7 @@
           v-bind:key="recommendation.product.id"
           :product="recommendation.product"
           :experiment="recommendation.experiment"
+          :feature="feature"
         />
       </div>
     </div>
@@ -71,7 +72,8 @@ export default {
   props: {
   },
   data () {
-    return {  
+    return {
+      feature: ExperimentFeature,
       errors: [],
       product: null,
       related_products: [],
@@ -113,7 +115,7 @@ export default {
       CartsRepository.updateCart(this.cart)
       this.getCart()
 
-      AnalyticsHandler.productAddedToCart(this.userID, this.cart, this.product, qty, this.$route.query.exp)
+      AnalyticsHandler.productAddedToCart(this.userID, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
 
       swal({
         title: "Added to Cart",
@@ -143,7 +145,7 @@ export default {
     },
     recordProductViewed() {
       if (this.product) {
-        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.exp)
+        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.feature, this.$route.query.exp)
       }
     },
     async getRelatedProducts() {
