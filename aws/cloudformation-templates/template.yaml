@@ -232,6 +232,7 @@ Resources:
 
   # Deployment support
   DeploymentSupport:
+    DependsOn: Services # Delay towards end of deployment so that ES domain and DNS changes become consistent
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/deployment-support.yaml
