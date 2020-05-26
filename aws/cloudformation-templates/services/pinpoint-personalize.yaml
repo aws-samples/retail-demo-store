@@ -88,7 +88,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt CustomizeRecommendationsFunction.Arn
       Principal: pinpoint.amazonaws.com
-      SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:/*'
+      SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:*'
 
 Outputs:
   CustomizeRecommendationsFunction:
