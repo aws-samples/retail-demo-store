@@ -4,6 +4,8 @@ import uuid
 import json
 import numpy as np
 import pprint
+import gzip
+import codecs
 from faker import Faker
 from faker.providers import internet
 from faker.providers import user_agent
@@ -29,8 +31,9 @@ class UserPool:
     self.users = []
     self.active = []
     self.file = file
-    with open(file) as f:
+    with gzip.open(file, 'rt', encoding='utf-8') as f:
       data = json.load(f)
+      f.close()
     for saved_user in data:
       user = User.from_file(saved_user)
       self.users.append(user)
@@ -61,8 +64,9 @@ class UserPool:
     all_users.extend(self.users)
     all_users.extend(self.active)
     json_data = json.dumps(all_users, default=lambda x: x.__dict__)
-    f = open(file, 'w')
+    f = gzip.open(file, 'wt', encoding='utf-8')
     f.write(json_data)
+    f.close()
 
 class User:
   def __init__(self):
