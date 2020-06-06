@@ -70,7 +70,7 @@ class UserPool:
 
 class User:
   def __init__(self):
-    self.id = random.randint(1000000000, 99999999999)
+    self.id = str(random.randint(1000000000, 99999999999))
     self.gender = random.choice(['M', 'F'])
     if self.gender == 'F':
         self.first_name = fake.first_name_female()
