@@ -1,0 +1,291 @@
+{% connected_content http://< YOUR RECOMMENDATION SERVICE URL GOES HERE >/recommendations?userID={{${user_id}  | remove_first: "test_user_rds_"}}&fullyQualifyImageUrls=1&numResults=4 :save result %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+	<!--[if gte mso 9]>
+	<xml>
+		<o:OfficeDocumentSettings>
+		<o:AllowPNG/>
+		<o:PixelsPerInch>96</o:PixelsPerInch>
+		</o:OfficeDocumentSettings>
+	</xml>
+	<![endif]-->
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="format-detection" content="date=no" />
+	<meta name="format-detection" content="address=no" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="x-apple-disable-message-reformatting" />
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,400i,700,700i" rel="stylesheet" />
+    <!--<![endif]-->
+	<title>Braze Products Template</title>
+	<!--[if gte mso 9]>
+	<style type="text/css" media="all">
+		sup { font-size: 100% !important; }
+	</style>
+	<![endif]-->
+
+
+	<style type="text/css" media="screen">
+		/* Linked Styles */
+		body { padding:0 !important; margin:0 !important; display:block !important; min-width:100% !important; width:100% !important; background:#f4f4f7; -webkit-text-size-adjust:none }
+		a { color:#45abd9; text-decoration:none }
+		p { padding:0 !important; margin:0 !important }
+		img { -ms-interpolation-mode: bicubic; /* Allow smoother rendering of resized image in Internet Explorer */ }
+
+		/* Mobile styles */
+		@media only screen and (max-device-width: 480px), only screen and (max-width: 480px) {
+			.mobile-shell { width: 100% !important; min-width: 100% !important; }
+			.center { margin: 0 auto !important; }
+
+			.td { width: 100% !important; min-width: 100% !important; padding: 15px 15px 0px 15px !important; }
+
+			.mobile-br-5 { height: 5px !important; }
+			.mobile-br-10 { height: 10px !important; }
+			.mobile-br-15 { height: 15px !important; }
+			.mobile-br-25 { height: 25px !important; }
+			.mobile-br-35 { height: 35px !important; }
+
+			.h2 { text-align: center !important; }
+			.h3 { text-align: center !important; }
+			.h6 { text-align: center !important; }
+
+			.text { text-align: center !important; }
+			.text2 { text-align: center !important; }
+
+			.header { padding: 30px 15px 0px 15px !important; }
+			.main { padding: 40px 15px 40px 15px !important; }
+			.content { padding: 0px 15px 40px 15px !important; }
+			.footer { padding: 30px 15px 30px 15px !important; }
+
+			.box,
+			.box2 { padding: 20px 15px 20px 15px !important; }
+
+			.m-td,
+			.hide-for-mobile { display: none !important; width: 0 !important; height: 0 !important; font-size: 0 !important; line-height: 0 !important; min-height: 0 !important; }
+
+			.mobile-block { display: block !important; }
+			.text-footer,
+			.text-footer-r,
+			.img-m-center { text-align: center !important; }
+
+			.fluid-img img { width: 100% !important; max-width: 100% !important; height: auto !important; }
+
+			.column,
+			.column-top,
+			.column-bottom,
+			.column-dir { float: left !important; width: 100% !important; display: block !important; }
+
+			.content-spacing { width: 15px !important; }
+		}
+	</style>
+</head>
+<body class="body" style="padding:0 !important; margin:0 !important; display:block !important; min-width:100% !important; width:100% !important; background:#f4f4f7; -webkit-text-size-adjust:none">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#f4f4f7">
+		<tr>
+			<td align="center" valign="top">
+				<table width="650" border="0" cellspacing="0" cellpadding="0" class="mobile-shell">
+					<tr>
+						<td class="td" style="width:650px; min-width:650px; font-size:0pt; line-height:0pt; padding:40px 0px 40px 0px; margin:0; font-weight:normal; Margin:0">
+
+							<!-- Main -->
+							<!-- Header -->
+							<table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
+								<tr>
+									<td class="header" style="padding:40px 50px 0px 50px">
+										<div class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="#" target="_blank"><img src="https://www.braze.com/docs/assets/img/logo-braze-fa.svg" border="0" width="130" height="80" alt="" /></a></div></div>
+									</td>
+								</tr>
+							</table>
+							<!-- END Header -->
+							<table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
+								<tr>
+									<td class="main" style="padding:40px 50px 40px 20px">
+										<div class="text-footer-r" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:16px; line-height:22px; text-align:left">
+											Hi {{${first_name}}}, <br/> Here are some products that we thought you might like!
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td class="main" style="padding:40px 50px 40px 50px">
+										<!-- Content -->
+
+										<table width="100%" border="0" cellspacing="0" cellpadding="0">
+											<tr>
+												<td style="border-top: 1px solid #f4f4f7; padding-bottom: 40px; "></td>
+											</tr>
+
+											<!-- Two Columns -->
+<tr>
+	<td style="padding-bottom: 30px;">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<!--- Start Product Row --->
+				<th class="column-top" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top; Margin:0" width="260">
+					<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td class="box" style="padding:30px 30px 20px 30px; border:1px solid #ededf2">
+								<table width="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td style="padding-bottom: 16px;">
+											<div class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="{{result[0].product.url}}" target="_blank"><img src="{{result[0].product.image}}" border="0" width="200" height="160" alt="" /></a></div></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<table width="100%" border="0" cellspacing="0" cellpadding="0">
+												<tr>
+													<td width="115" class="text3" style="color:#212123; font-family:'Noto Sans', Arial,sans-serif; font-size:18px; line-height:22px; text-align:left">{{result[0].product.name}}</td>
+													<td class="img" style="font-size:0pt; line-height:0pt; text-align:left" width="10"></td>
+													<td class="text4" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:12px; line-height:22px; text-align:right">{{result[0].product.price}}</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</th>
+				<th class="column" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; Margin:0" width="30"><div style="font-size:0pt; line-height:0pt;" class="mobile-br-15"></div>
+				</th>
+				<th class="column-top" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top; Margin:0" width="260">
+					<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td class="box" style="padding:30px 30px 20px 30px; border:1px solid #ededf2">
+								<table width="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td style="padding-bottom: 16px;"><div class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="{{result[1].product.url}}" target="_blank"><img src="{{result[1].product.image}}" border="0" width="200" height="160" alt="" /></a></div></div></td>
+									</tr>
+									<tr>
+										<td>
+											<table width="100%" border="0" cellspacing="0" cellpadding="0">
+												<tr>
+													<td width="115" class="text3" style="color:#212123; font-family:'Noto Sans', Arial,sans-serif; font-size:18px; line-height:22px; text-align:left">{{result[1].product.name}}</td>
+													<td class="img" style="font-size:0pt; line-height:0pt; text-align:left" width="10"></td>
+													<td class="text4" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:12px; line-height:22px; text-align:right">{{result[1].product.price}}</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</th>
+				<!--- End Produxt Row --->
+			</tr>
+		</table>
+	</td>
+</tr>
+
+											<!-- END Two Columns -->
+											<!-- Two Columns -->
+											<tr>
+												<td style="padding-bottom: 30px;">
+													<table width="100%" border="0" cellspacing="0" cellpadding="0">
+														<tr>
+															<th class="column-top" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top; Margin:0" width="260">
+																<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																	<tr>
+																		<td class="box" style="padding:30px 30px 20px 30px; border:1px solid #ededf2">
+																			<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																				<tr>
+																					<td style="padding-bottom: 16px;"><div class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="{{result[2].product.url}}" target="_blank"><img src="{{result[2].product.image}}" border="0" width="200" height="160" alt="" /></a></div></div></td>
+																				</tr>
+																				<tr>
+																					<td>
+																						<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																							<tr>
+																								<td width="115" class="text3" style="color:#212123; font-family:'Noto Sans', Arial,sans-serif; font-size:18px; line-height:22px; text-align:left">{{result[2].product.name}}</td>
+																								<td class="img" style="font-size:0pt; line-height:0pt; text-align:left" width="10"></td>
+																								<td class="text4" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:12px; line-height:22px; text-align:right">{{result[2].product.price}}</td>
+																							</tr>
+																						</table>
+																					</td>
+																				</tr>
+																			</table>
+																		</td>
+																	</tr>
+																</table>
+															</th>
+															<th class="column" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; Margin:0" width="30"><div style="font-size:0pt; line-height:0pt;" class="mobile-br-15"></div>
+															</th>
+															<th class="column-top" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; vertical-align:top; Margin:0" width="260">
+																<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																	<tr>
+																		<td class="box" style="padding:30px 30px 20px 30px; border:1px solid #ededf2">
+																			<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																				<tr>
+																					<td style="padding-bottom: 16px;"><div class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="{{result[3].product.url}}" target="_blank"><img src="{{result[3].product.image}}" border="0" width="200" height="160" alt="" /></a></div></div></td>
+																				</tr>
+																				<tr>
+																					<td>
+																						<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																							<tr>
+																								<td width="115" class="text3" style="color:#212123; font-family:'Noto Sans', Arial,sans-serif; font-size:18px; line-height:22px; text-align:left">{{result[3].product.name}}</td>
+																								<td class="img" style="font-size:0pt; line-height:0pt; text-align:left" width="10"></td>
+																								<td class="text4" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:12px; line-height:22px; text-align:right">{{result[3].product.price}}</td>
+																							</tr>
+																						</table>
+																					</td>
+																				</tr>
+																			</table>
+																		</td>
+																	</tr>
+																</table>
+															</th>
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<!-- END Two Columns -->
+											<!-- Footer -->
+											<tr>
+												<td style="padding-bottom: 0px;">
+													<table width="100%" border="0" cellspacing="0" cellpadding="0">
+														<tr>
+															<th class="column" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; Margin:0">
+																<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																	<tr>
+																		<td class="img" style="font-size:0pt; line-height:0pt; text-align:left"><div class="img-m-center" style="font-size:0pt; line-height:0pt"><a href="#" target="_blank"><img src="https://www.braze.com/docs/assets/img/logo-braze-fa.svg" border="0" width="130" height="80" alt="" /></a></div><div style="font-size:0pt; line-height:0pt;" class="mobile-br-15"></div>
+																		</td>
+																	</tr>
+																</table>
+															</th>
+															<th class="column" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal; Margin:0" width="150">
+																<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																	<tr>
+																		<td>
+																			<div class="text-footer-r" style="color:#6e6e70; font-family:'Noto Sans', Arial,sans-serif; font-size:12px; line-height:22px; text-align:right">
+																				2017 &copy; All rights reserved.<br />
+																				<a href="#" target="_blank" class="link-grey-u" style="color:#6e6e70; text-decoration:underline"><span class="link-grey-u" style="color:#6e6e70; text-decoration:underline">Unsubscribe.</span></a>
+																			</div>
+																		</td>
+																	</tr>
+																</table>
+															</th>
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<!-- END Footer -->
+										</table>
+										<!-- END Content -->
+									</td>
+								</tr>
+							</table>
+							<div style="font-size:0pt; line-height:0pt;" class="mobile-br-15"></div>
+
+							<!-- END Main -->
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

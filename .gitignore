@@ -1,7 +1,6 @@
 __pycache__/
 .vscode
 build/*
-*.zip
 workshop/*/.ipynb_checkpoints
 workshop/1-Personalization/interactions.csv
 workshop/1-Personalization/items.csv
@@ -17,3 +16,4 @@ generators/*.gz
 /csvs/
 .unotes/*
 !workshop/5-Conversational/RetailDemoStore_Lex.zip
+*.zip
