@@ -51,10 +51,6 @@ cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
 echo " + Packaging Notebooks"
 zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
 
-echo " + Cleaning Up Notebook Dependencies"
-rm -rf ./workshop/data
-rm -rf ./workshop/datagenerator
-
 echo " + Uploading Notebooks"
 aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip $S3PUBLIC
 
