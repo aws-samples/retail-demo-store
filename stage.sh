@@ -44,7 +44,8 @@ echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudfor
 echo " + Copying Notebook Dependencies"
 [ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
 rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
-mkdir ./workshop/data
+
+[ ! -d "./workshop/data" ] && mkdir ./workshop/data
 cp ./src/products/src/products-service/data/products.yaml ./workshop/data
 cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
 
