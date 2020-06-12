@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 class FileEvent:
   def __init__(self, name, timestamp, user, platform, properties):
     self.event = name

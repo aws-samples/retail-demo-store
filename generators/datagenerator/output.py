@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 from datagenerator.segment import SegmentIdentifyEvent, SegmentTrackEvent, SegmentSender
 from datagenerator.amplitude import AmplitudeIdentifyEvent, AmplitudeTrackEvent, AmplitudeSender
 from datagenerator.file import FileEvent
