@@ -9,6 +9,7 @@ import numpy as np
 import pprint
 import gzip
 import codecs
+import bisect
 from faker import Faker
 from faker.providers import internet
 from faker.providers import user_agent
@@ -29,17 +30,20 @@ age_sd = 15
 
 age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_sd, loc=age_mean, scale=age_sd)
 
+# Persona combinations ordered from strongest affinity to latent interest.
+personas = [
+    'apparel_housewares_accessories', 'housewares_apparel_electronics',
+    'footwear_outdoors_apparel', 'outdoors_footwear_housewares',
+    'electronics_beauty_outdoors', 'beauty_electronics_accessories',
+    'jewelry_accessories_beauty', 'accessories_jewelry_apparel'
+]
+
 class UserPool:
-  def __init__(self, file):
+  def __init__(self):
     self.users = []
     self.active = []
-    self.file = file
-    with gzip.open(file, 'rt', encoding='utf-8') as f:
-      data = json.load(f)
-      f.close()
-    for saved_user in data:
-      user = User.from_file(saved_user)
-      self.users.append(user)
+    self.last_id = 0
+    self.file = ''
 
   def size(self):
     return len(self.users) + len(self.active)
@@ -49,6 +53,9 @@ class UserPool:
 
   def grow_pool(self, num_users):
     for i in range(num_users):
+      user = User()
+      self.last_id += 1  # Avoids user ID collisions
+      user.id = str(self.last_id)
       self.users.append(User())
   
   def user(self, select_active=False):
@@ -71,6 +78,29 @@ class UserPool:
     f.write(json_data)
     f.close()
 
+  @classmethod
+  def from_file(cls, filename):
+    user_pool = cls()
+    user_pool.file = filename
+    with gzip.open(filename, 'rt', encoding='utf-8') as f:
+      data = json.load(f)
+      f.close()
+    user_ids = []
+    for saved_user in data:
+      user = User.from_file(saved_user)
+      bisect.insort(user_ids, int(user.id))
+      user_pool.last_id = user_ids[len(user_ids) - 1]
+      user_pool.users.append(user)
+    return user_pool
+
+  @classmethod
+  def new_file(cls, filename, num_users):
+    user_pool = cls()
+    user_pool.file = filename
+    user_pool.grow_pool(num_users)
+    user_pool.save(filename)
+    return user_pool
+
 class User:
   def __init__(self):
     self.id = str(random.randint(1000000000, 99999999999))
@@ -90,7 +120,7 @@ class User:
     self.name = f'{self.first_name} {self.last_name}'
     self.username = f'user{self.id}'
     # These are hard-coded from the AWS samples Retail Demo Store workshop
-    self.persona = random.choice(["apparel_housewares","footwear_outdoors","electronics_beauty","jewelry_accessories"])
+    self.persona = random.choice(personas)
     self.traits = {}
 
     ios_token = fake.ios_platform_token()
