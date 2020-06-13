@@ -19,3 +19,4 @@ generators/*.gz
 *.zip
 workshop/data/*
 workshop/datagenerator/*
+workshop/requirements.txt
