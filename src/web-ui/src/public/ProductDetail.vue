@@ -115,7 +115,7 @@ export default {
       CartsRepository.updateCart(this.cart)
       this.getCart()
 
-      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
+      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp, this.$route.query.recipe)
 
       swal({
         title: "Added to Cart",
