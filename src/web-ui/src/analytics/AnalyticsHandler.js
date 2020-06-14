@@ -159,7 +159,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId) {
+    productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId, recipe) {
         if (userId) {
             AmplifyAnalytics.record({
                 name: 'ProductAdded', 
@@ -207,6 +207,7 @@ export const AnalyticsHandler = {
                 category: product.category,
                 image: product.image,
                 feature: feature,
+                recipe: recipe,
                 experimentCorrelationId: experimentCorrelationId,
                 quantity: quantity,
                 price: +product.price.toFixed(2)
