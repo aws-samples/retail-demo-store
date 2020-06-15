@@ -64,6 +64,7 @@ export default {
       const { data } = await SearchRepository.searchProducts(val)
       if (this.user && data.length > 0) {
         this.rerank(this.userID, data)
+        this.recipe = 'reranked_items'
       } else {
         this.reranked = false
         this.results = data
@@ -78,7 +79,6 @@ export default {
     async rerank(userID, items) {
       const { data } = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
       this.reranked = JSON.stringify(items) != JSON.stringify(data)
-      this.recipe = 'reranked_items'
       this.results = data
     }
   },
