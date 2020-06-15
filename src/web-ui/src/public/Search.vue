@@ -19,6 +19,7 @@
                   :product_id="result.itemId"
                   :experiment="result.experiment"
                   :feature="feature"
+                  :recipe="recipe"
                 />
               </ul>
             </div>
@@ -50,6 +51,7 @@ export default {
   data () {
    return {  
       feature: ExperimentFeature,
+      recipe: '',
       errors: [],
       results: [],
       searching: false,
