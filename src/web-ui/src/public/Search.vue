@@ -19,6 +19,7 @@
                   :product_id="result.itemId"
                   :experiment="result.experiment"
                   :feature="feature"
+                  :recipe="recipe"
                 />
               </ul>
             </div>
@@ -50,6 +51,7 @@ export default {
   data () {
    return {  
       feature: ExperimentFeature,
+      recipe: '',
       errors: [],
       results: [],
       searching: false,
@@ -76,6 +78,7 @@ export default {
     async rerank(userID, items) {
       const { data } = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
       this.reranked = JSON.stringify(items) != JSON.stringify(data)
+      this.recipe = 'reranked_items'
       this.results = data
     }
   },
