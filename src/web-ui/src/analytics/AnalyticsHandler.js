@@ -300,7 +300,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productViewed(userId, product, feature, experimentCorrelationId) {
+    productViewed(userId, product, feature, experimentCorrelationId, recipe) {
         if (userId) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
@@ -339,6 +339,7 @@ export const AnalyticsHandler = {
                 category: product.category,
                 image: product.image,
                 feature: feature,
+                recipe: recipe,
                 experimentCorrelationId: experimentCorrelationId,
                 price: +product.price.toFixed(2)
             };

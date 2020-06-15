@@ -147,7 +147,7 @@ export default {
     },
     recordProductViewed() {
       if (this.product) {
-        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.feature, this.$route.query.exp)
+        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.feature, this.$route.query.exp, this.$route.query.recipe)
       }
     },
     async getRelatedProducts() {
