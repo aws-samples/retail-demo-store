@@ -173,6 +173,9 @@ class PersonalizeRecommendationsResolver(Resolver):
         if not self.campaign_arn:
             raise Exception('campaign_arn required for PersonalizeRecommendationsResolver')
 
+        # Optionally support filter specified at resolver creation.
+        self.filter_arn = params.get('filter_arn')
+
     def get_items(self, **kwargs):
         """ Returns recommendations from an Amazon Personalize campaign trained with a user recommendation recipe such as HRNN
         
@@ -180,6 +183,7 @@ class PersonalizeRecommendationsResolver(Resolver):
             user_id - ID for the user for which to make recommendations (required for user personalization recipes such as HRNN)
             product_id - ID for the item to return similar products (required for related products recipes such as SIMS)
             num_results - maximum number of recommendations to return (optional)
+            filter_arn - ARN for filter to exclude recommended items (overrides ctor filter_arn) (optional)
         """
         params = {
             'campaignArn': self.campaign_arn 
@@ -188,6 +192,7 @@ class PersonalizeRecommendationsResolver(Resolver):
         user_id = kwargs.get('user_id')
         item_id = kwargs.get('product_id')
         num_results = kwargs.get('num_results')
+        filter_arn = kwargs.get('filter_arn')
 
         if user_id is None and item_id is None:
             raise Exception('user_id or product_id is required')
@@ -200,6 +205,11 @@ class PersonalizeRecommendationsResolver(Resolver):
 
         if num_results is not None:
             params['numResults'] = num_results
+
+        if filter_arn is not None:
+            params['filterArn'] = filter_arn
+        elif self.filter_arn is not None:
+            params['filterArn'] = self.filter_arn
 
         log.debug('PersonalizeRecommendationsResolver - getting recommendations ' + str(params))
 

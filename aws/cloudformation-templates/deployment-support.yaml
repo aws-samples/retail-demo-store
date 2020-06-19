@@ -146,6 +146,7 @@ Resources:
                   - personalize:CreateCampaign
                   - personalize:CreateDataset
                   - personalize:CreateEventTracker
+                  - personalize:CreateFilter
                 Resource: 
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
               - Effect: Allow

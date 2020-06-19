@@ -238,6 +238,29 @@ def rebuild_webui_service(region, account_id):
     if not restarted:
         logger.warn('Pipeline with tag "RetailDemoStoreServiceName=web-ui" not restarted; does pipeline and/or tag exist?')
 
+def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
+    ''' Creates Personalize Filter that excludes recommendations for recently purchased products '''
+
+    logger.info('Creating purchased product filter')
+
+    response = personalize.create_filter(
+        name = 'retaildemostore-filter-purchased-products',
+        datasetGroupArn = dataset_group_arn,
+        filterExpression = 'EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")'
+    )
+ 
+    filter_arn = response['filterArn']
+
+    logger.info('Setting purchased product filter ARN as SSM parameter ' + ssm_parameter_name)
+
+    ssm.put_parameter(
+        Name=ssm_parameter_name,
+        Description='Retail Demo Store Personalize Filter Purchased Products Arn Parameter',
+        Value='{}'.format(filter_arn),
+        Type='String',
+        Overwrite=True
+    )    
+
 def lambda_handler(event, context):
     logger.debug('## ENVIRONMENT VARIABLES')
     logger.debug(os.environ)
@@ -262,6 +285,7 @@ def lambda_handler(event, context):
     rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
     role_name = "RetailDemoStorePersonalizeS3Role"
     event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
+    filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
 
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
@@ -271,17 +295,23 @@ def lambda_handler(event, context):
     product_campaign_arn_set = is_ssm_parameter_set(product_campaign_arn_param)
     rerank_campaign_arn_set = is_ssm_parameter_set(rerank_campaign_arn_param)
     event_tracking_id_set = is_ssm_parameter_set(event_tracking_id_param)
+    filter_purchased_arn_set = is_ssm_parameter_set(filter_purchased_arn_param)
 
     # Short-circuit rest of logic of all campaign ARNs are set as parameters. Means there's nothing to do.
-    if related_product_campaign_arn_set and product_campaign_arn_set and rerank_campaign_arn_set and event_tracking_id_set:
-        logger.info('ARNs for related products, user recommendations, reranking campaigns set as SSM parameters; nothing to do')
+    if related_product_campaign_arn_set and 
+            product_campaign_arn_set and 
+            rerank_campaign_arn_set and 
+            event_tracking_id_set and
+            filter_purchased_arn_set:
+
+        logger.info('ARNs for related products, user recommendations, reranking campaigns, recent purchase filter set as SSM parameters; nothing to do')
 
         # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
         delete_event_rule(lambda_event_rule_name)
 
         return {
             'statusCode': 200,
-            'body': json.dumps('SSM parameters for related products, user recommendations, and reranking campaign ARNs already set; nothing to do')
+            'body': json.dumps('SSM parameters for related products, user recommendations, reranking campaign, and recent purchase filter ARNs already set; nothing to do')
         }
 
     if not related_product_campaign_arn_set:
@@ -292,6 +322,9 @@ def lambda_handler(event, context):
 
     if not rerank_campaign_arn_set:
         logger.info(rerank_campaign_arn_param + ' SSM parameter is not set yet; proceeding with step verification/completion process')
+
+    if not filter_purchased_arn_set:
+        logger.info(filter_purchased_arn_param + ' SSM parameter is not set yet; proceeding with step verification/completion process')
 
     # Create personalize role, if necessary.
     role_arn = create_personalize_role(role_name)
@@ -486,6 +519,11 @@ def lambda_handler(event, context):
                     'statusCode': 200,
                     'body': json.dumps('Event tracker CREATE_FAILED; aborting process')
                 }
+
+    # Create recent product purchase filter, if necessary
+    if not filter_purchased_arn_set:
+        create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)
+        filter_purchased_arn_set = True
 
     # Create related product, product recommendation, and rerank solutions if they doesn't exist
     related_recipe_arn = "arn:aws:personalize:::recipe/aws-sims"

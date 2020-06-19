@@ -54,6 +54,14 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
 
+  ParameterPersonalizeFilterPurchasedArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalize-filter-purchased-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Filter Purchased Products Arn Parameter"
+
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -95,6 +103,10 @@ Outputs:
   ParameterPersonalizedRankingCampaignArn:
     Description: Personalized Ranking Campaign Arn
     Value: !Ref ParameterPersonalizedRankingCampaignArn
+
+  ParameterPersonalizeFilterPurchasedArn:
+    Description: Personalize Filter Purchased Products Arn
+    Value: !Ref ParameterPersonalizeFilterPurchasedArn
   
   ParameterExperimentStrategyTableName:
     Description: Experiment Strategy Table Name

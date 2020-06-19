@@ -157,6 +157,7 @@ Resources:
                 Resource: 
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-*'     
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
 
