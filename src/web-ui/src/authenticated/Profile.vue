@@ -70,6 +70,7 @@
 <script>
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import { AmplifyEventBus } from 'aws-amplify-vue';
 
 import AmplifyStore from '@/store/store'
 
@@ -116,10 +117,11 @@ export default {
         const { data } = await UsersRepository.updateUser(this.user)
         this.user = data
 
-        AmplifyStore.commit('setUserID', this.user.id);
         AmplifyStore.commit('setUser', this.user);
 
         AnalyticsHandler.identify(this.user)
+
+        AmplifyEventBus.$emit('authState', 'profileChanged')
 
         swal({
           title: "Information Updated",

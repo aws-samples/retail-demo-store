@@ -27,9 +27,10 @@ const store = new Vuex.Store({
         user.storage = null
       }
       state.user = user
-    },
-    setUserID(state, userID) {
-      state.userID = userID
+      state.userID = user ? user.id : null
+      if (user) {
+        console.log('storing user ' + user.username + ' (' + user.id + ') in local storage')
+      }
     },
     setCartID(state, cartID) {
       state.cartID = cartID

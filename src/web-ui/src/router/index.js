@@ -29,8 +29,6 @@ Vue.use(Router);
 // Explicitly add only components needed to keep deployment as small as possible
 Vue.use(AmplifyPlugin, { "Auth": Auth, "Logger": Logger, "I18n": I18n, "Interactions": Interactions, "Analytics": Analytics })
 
-let user;
-
 // Load User
 // eslint-disable-next-line
 getUser().then((_user, error) => {
@@ -40,43 +38,68 @@ getUser().then((_user, error) => {
   }
 })
 
+function getCognitoUser() {
+  return Vue.prototype.$Amplify.Auth.currentAuthenticatedUser().then((cognitoUser) => {
+    if (cognitoUser && cognitoUser.signInUserSession) {
+      return cognitoUser
+    }
+  }).catch((error) => {
+    // eslint-disable-next-line
+    console.log('Error getting current authd cognito user: ' + error)
+    return null
+  });
+}
+
 // Event Handles for Authentication
 AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
-    user = null;
     AmplifyStore.commit('setLoggedOut');
     AnalyticsHandler.clearUser()
     router.push({path: '/'})
   } 
   else if (state === 'signedIn') {
-    user = await getUser();
-    const { data } = await UsersRepository.getUserByUsername(user.username)
+    const cognitoUser = await getCognitoUser()
+    console.log('Cognito user: ' + JSON.stringify(cognitoUser))
 
-    let storeUser = data
+    let storeUser = null
 
-    if (storeUser.username == user.username) {
-      AmplifyStore.commit('setUserID', storeUser.id);
+    if (Object.prototype.hasOwnProperty.call(cognitoUser, 'attributes') && 
+        Object.prototype.hasOwnProperty.call(cognitoUser.attributes, 'custom:profile_user_id')) {
 
-      console.log('Updating custom user attributes in Cognito')
-      await Vue.prototype.$Amplify.Auth.updateUserAttributes(user, {
-        'custom:profile_user_id': storeUser.id.toString(),
-        'custom:profile_email': storeUser.email,
-        'custom:profile_first_name': storeUser.first_name,
-        'custom:profile_last_name': storeUser.last_name,
-        'custom:profile_gender': storeUser.gender,
-        'custom:profile_age': storeUser.age.toString(),
-        'custom:profile_persona': storeUser.persona
-      })
-    } 
-    else {
-      const { data } = await UsersRepository.createUser(user.username, user.attributes.email)
+      const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
       storeUser = data
-      AmplifyStore.commit('setUserID', storeUser.id);
     }
+    else {
+      const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
+      storeUser = data
+    }
+
+    if (!storeUser.id) {
+      // Store user does not exist. Create one on the fly.
+      console.log('store user does not exist for cognito user... creating on the fly')
+      const { data } = await UsersRepository.createUser(cognitoUser.username, cognitoUser.attributes.email)
+      storeUser = data
+    }
+
+    console.log('Syncing store user state to cognito user custom attributes')
+    // Store user exists. Use this as opportunity to sync store user 
+    // attributes to Cognito custom attributes.
+    await Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
+      'custom:profile_user_id': storeUser.id.toString(),
+      'custom:profile_email': storeUser.email,
+      'custom:profile_first_name': storeUser.first_name,
+      'custom:profile_last_name': storeUser.last_name,
+      'custom:profile_gender': storeUser.gender,
+      'custom:profile_age': storeUser.age.toString(),
+      'custom:profile_persona': storeUser.persona
+    })
+
+    console.log('store user ' + storeUser.id + ' signed in... updating sign in dates')
 
     // Sync identityId with user to support reverse lookup.
     const credentials = await Credentials.get();
-    if (credentials) {
+    if (credentials && storeUser.identity_id != credentials.identityId) {
+      console.log('Syncing credentials identity_id with store user profile')
       storeUser.identity_id = credentials.identityId
     }
 
@@ -92,7 +115,7 @@ AmplifyEventBus.$on('authState', async (state) => {
     }
 
     // Wait for identify to complete before sending sign in/up events 
-    // so that endpoint is created/updated first. Impacts campaign timing.
+    // so that endpoint is created/updated first. Impacts Pinpoint campaign timing.
     await AnalyticsHandler.identify(storeUser)
     
     // Fire sign in and first time sign up events.
@@ -105,27 +128,39 @@ AmplifyEventBus.$on('authState', async (state) => {
     // Finally, update user profile with sign in/up updated dates.
     UsersRepository.updateUser(storeUser)
 
+    AmplifyStore.commit('setUser', storeUser);
+
     router.push({path: '/'})
+  }
+  else if (state === 'profileChanged') {
+    const cognitoUser = await getCognitoUser()
+    const storeUser = AmplifyStore.state.user
+
+    if (cognitoUser && storeUser) {
+      console.log('Syncing store user state to cognito user custom attributes')
+      // Store user exists. Use this as opportunity to sync store user 
+      // attributes to Cognito custom attributes.
+      Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
+        'custom:profile_user_id': storeUser.id.toString(),
+        'custom:profile_email': storeUser.email,
+        'custom:profile_first_name': storeUser.first_name,
+        'custom:profile_last_name': storeUser.last_name,
+        'custom:profile_gender': storeUser.gender,
+        'custom:profile_age': storeUser.age.toString(),
+        'custom:profile_persona': storeUser.persona
+      })
+    }
   }
 });
 
-// Get User From State (Local Storage)
-function getUser() {
-  return Vue.prototype.$Amplify.Auth.currentAuthenticatedUser().then((data) => {
-    if (!user) {
-      if (data && data.signInUserSession) {
-        AmplifyStore.commit('setUser', data);
-        return data;
-      } 
-    } else {
-      return AmplifyStore.state.user
-    }
-  }).catch((error) => {
+// Get store user from local storage, making sure session is authenticated
+async function getUser() {
+  const cognitoUser = await getCognitoUser()
+  if (!cognitoUser) {
     AmplifyStore.commit('setUser', null);
-    // eslint-disable-next-line
-    console.log(error)
-    return null
-  });
+  }
+
+  return AmplifyStore.state.user;
 }
 
 // Routes
@@ -202,8 +237,8 @@ const router = new Router({
 
 // Check For Authentication
 router.beforeResolve(async (to, _from, next) => {
-  user = await getUser();
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    const user = await getUser();
     if (!user) {
       return next({
         path: '/auth',
