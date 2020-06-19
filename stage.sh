@@ -41,8 +41,16 @@ echo " + Uploading CloudFormation Templates"
 aws s3 cp aws/cloudformation-templates/ s3://${BUCKET}/${S3PATH}cloudformation-templates --recursive $S3PUBLIC
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
 
-echo " + Packaging Notebooks"
+echo " + Copying Notebook Dependencies"
 [ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
+rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
+cp ./generators/requirements.txt ./workshop
+
+[ ! -d "./workshop/data" ] && mkdir ./workshop/data
+cp ./src/products/src/products-service/data/products.yaml ./workshop/data
+cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
+
+echo " + Packaging Notebooks"
 zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
 
 echo " + Uploading Notebooks"
