@@ -349,7 +349,7 @@ export const AnalyticsHandler = {
             const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
             if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
                 const userId = user.id.toString();
-                optimizelyClientInstance.track('ProductAdded', userId);
+                optimizelyClientInstance.track('ProductViewed', userId);
             }
         }
     },
@@ -545,7 +545,7 @@ export const AnalyticsHandler = {
     },
 
     optimizelyEnabled() {
-        return !!process.env.OPTIMIZELY_SDK_KEY;
+        return !!process.env.OPTIMIZELY_SDK_KEY && process.env.OPTIMIZELY_SDK_KEY !== 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {
