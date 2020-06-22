@@ -9,6 +9,7 @@ import Vue from 'vue';
 import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
+import optimizelySDK from '@optimizely/optimizely-sdk';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
@@ -147,6 +148,15 @@ export const AnalyticsHandler = {
                 .set(experiment.feature + '.' + experiment.name + '.id', experiment.correlationId);
             Amplitude.getInstance().identify(identify);
         }
+
+        if (this.optimizelyEnabled()) {
+            const optimizelyClientInstance = this.optimizelyClientInstance();
+            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                const userId = user.id.toString();
+                optimizelyClientInstance.activate(experiment.experiment_key, userId);
+            }
+        }
     },
 
     productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId) {
@@ -201,6 +211,15 @@ export const AnalyticsHandler = {
                 quantity: quantity,
                 price: +product.price.toFixed(2)
             })
+        }
+
+        if (this.optimizelyEnabled()) {
+            const optimizelyClientInstance = this.optimizelyClientInstance();
+            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                const userId = user.id.toString();
+                optimizelyClientInstance.track('ProductAdded', userId);
+            }
         }
     },
 
@@ -323,6 +342,15 @@ export const AnalyticsHandler = {
                 price: +product.price.toFixed(2)
             };
             Amplitude.getInstance().logEvent('ProductViewed', eventProperties);
+        }
+
+        if (this.optimizelyEnabled()) {
+            const optimizelyClientInstance = this.optimizelyClientInstance();
+            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                const userId = user.id.toString();
+                optimizelyClientInstance.track('ProductViewed', userId);
+            }
         }
     },
 
@@ -514,5 +542,24 @@ export const AnalyticsHandler = {
 
     amplitudeEnabled() {
         return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE'
-    }
+    },
+
+    optimizelyEnabled() {
+        return !!process.env.OPTIMIZELY_SDK_KEY && process.env.OPTIMIZELY_SDK_KEY !== 'NONE';
+    },
+
+    isOptimizelyDatafileSynced(expectedRevisionNumber) {
+        if (!this.optimizelyEnabled()) {
+            return false;
+        }
+        const optimizelyClientInstance = this.optimizelyClientInstance();
+        return optimizelyClientInstance.configObj.revision !== expectedRevisionNumber;
+    },
+
+    optimizelyClientInstance() {
+        if (!this._optimizelyClientInstance && this.optimizelyEnabled()) {
+            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.OPTIMIZELY_SDK_KEY });
+        }
+        return this._optimizelyClientInstance;
+    },
 }
