@@ -15,10 +15,11 @@
        <h5>{{ product.name }}</h5>
        <p>{{ product.description }}</p>
        <p>${{ product.price }}</p>
+       <p>{{ productStock }}</p>
        <p>
         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
        </p>       
-       <button class="btn btn-outline-primary" v-on:click="addToCart()"> Add to Cart </button>
+       <button class="btn btn-outline-primary" v-on:click="addToCart()" :disabled='addToCartisDisabled'> Add to Cart </button>
     </div>
   </div>
 
@@ -214,6 +215,22 @@ export default {
         let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
         return root_url + this.product.category + '/' + this.product.image
       }
+    },
+    productStock: function () {
+      if (this.product.currentstock > 0 ) {
+        return "Items currently in stock : " + this.product.currentstock 
+      }
+      else {
+        return "Sorry this item is currently out of stock"
+      }
+    },
+    addToCartisDisabled: function () {
+      if (this.product.currentstock > 0 ) {
+        return false
+      }
+      else {
+        return true
+      }      
     }
   },
   watch: {

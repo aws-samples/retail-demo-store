@@ -17,7 +17,14 @@ type Product struct {
 	Image          string  `json:"image" yaml:"image"`
 	Featured       string  `json:"featured,omitempty" yaml:"featured,omitempty"`
 	GenderAffinity string  `json:"gender_affinity,omitempty" yaml:"gender_affinity,omitempty"`
+	CurrentStock   int     `json:"currentstock" yaml:"currentstock"`
 }
 
 // Products Array
 type Products []Product
+
+// Inventory Struct
+type Inventory struct {
+	ID         string `json:"id" yaml:"id"`
+	StockDelta int    `json:"stockdelta" yaml:"stockdelta"`
+}

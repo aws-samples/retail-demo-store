@@ -165,7 +165,7 @@ func RepoFindProduct(id int) Product {
 	result, err := dynamoclient.Query(params)
 
 	if err != nil {
-		log.Println("get item error" + string(err.Error()))
+		log.Println("get item error " + string(err.Error()))
 		return product
 	}
 
@@ -372,4 +372,76 @@ func RepoFindALLProduct() Products {
 	}
 
 	return f
+}
+
+func RepoUpdateProduct(product Product) Product {
+
+	log.Println("UpdateProducts for id, new quantity: ", product)
+
+	av, err := dynamodbattribute.MarshalMap(product)
+
+	if err != nil {
+		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+		fmt.Println(err.Error())
+		return product
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(ddb_table_products),
+	}
+
+	_, err = dynamoclient.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+
+	}
+
+	return product
+
+}
+
+func RepoUpdateInventory(inventory Inventory) Product {
+	//Caveats : for demo purposes it doesn't deal with concurrent update
+	// for a fully fledge product it would require to use versioning
+
+	log.Println("RepoUpdateProduct for id, new quantity: ", inventory)
+
+	var product Product
+	var id int
+
+	id, _ = strconv.Atoi(inventory.ID)
+	// Get the current product and update it's currrent stock with the requested delta
+	product = RepoFindProduct(id)
+	product.CurrentStock = product.CurrentStock + inventory.StockDelta
+
+	if product.CurrentStock < 0 {
+		// ensuring we don't get negative stocks
+		product.CurrentStock = 0
+	}
+	// and put it back on DynamoDB
+	av, err := dynamodbattribute.MarshalMap(product)
+
+	if err != nil {
+		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+		fmt.Println(err.Error())
+		return product
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(ddb_table_products),
+	}
+
+	_, err = dynamoclient.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+
+	}
+
+	// return the updated product
+	return product
+
 }

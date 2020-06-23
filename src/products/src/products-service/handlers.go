@@ -4,11 +4,13 @@
 package main
 
 import (
-	"os"
-	"log"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 
@@ -161,4 +163,66 @@ func ProductFeatured(w http.ResponseWriter, r *http.Request) {
 // enableCors
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
+// Update Stock Quantity for one item Handler
+func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+
+	var product Product
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(body, &product); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+
+	log.Println("UpdateProducts  ", product)
+
+	ret := RepoUpdateProduct(product)
+
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		panic(err)
+	}
+}
+
+// Update Stock Quantity for one item Handler
+func UpdateInventory(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+
+	var inventory Inventory
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	log.Println("UpdateInventory ", body)
+
+	if err := json.Unmarshal(body, &inventory); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+
+	log.Println("UpdateInventory ", inventory)
+
+	ret := RepoUpdateInventory(inventory)
+
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		panic(err)
+	}
 }

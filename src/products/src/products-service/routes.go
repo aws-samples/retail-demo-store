@@ -53,4 +53,16 @@ var routes = Routes{
 		"/products/category/{categoryName}",
 		CategoryShow,
 	},
+	Route{
+		"ProductUpdate",
+		"POST",
+		"/products/",
+		UpdateProduct,
+	},
+	Route{
+		"InventoryUpdate",
+		"POST",
+		"/products/inventory",
+		UpdateInventory,
+	},
 }
