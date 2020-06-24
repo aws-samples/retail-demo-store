@@ -119,7 +119,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
         campaign_arn = values[0]
         filter_arn = values[1]
 
-        if campaign_arn is not None and (user_id or not user_reqd_for_campaign):
+        if campaign_arn and (user_id or not user_reqd_for_campaign):
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
@@ -358,7 +358,7 @@ def rerank():
                 # No experiment so check if there's a ranking campaign configured.
                 campaign_arn = get_parameter_values('retaildemostore-personalized-ranking-campaign-arn')[0]
 
-                if campaign_arn is not None:
+                if campaign_arn:
                     resolver = PersonalizeRankingResolver(campaign_arn = campaign_arn)
                     resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
                 else:
