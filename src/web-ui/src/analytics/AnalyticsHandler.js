@@ -141,30 +141,32 @@ export const AnalyticsHandler = {
         }
     },
 
-    identifyExperiment(experiment) {
-        if (experiment && this.amplitudeEnabled()) {
-            var identify = new Amplitude.Identify()
-                .set(experiment.feature + '.' + experiment.name, experiment.variationIndex)
-                .set(experiment.feature + '.' + experiment.name + '.id', experiment.correlationId);
-            Amplitude.getInstance().identify(identify);
-        }
+    identifyExperiment(user, experiment) {
+        if (experiment) {
+            if (this.amplitudeEnabled()) {
+                var identify = new Amplitude.Identify()
+                    .set(experiment.feature + '.' + experiment.name, experiment.variationIndex)
+                    .set(experiment.feature + '.' + experiment.name + '.id', experiment.correlationId);
+                Amplitude.getInstance().identify(identify);
+            }
 
-        if (this.optimizelyEnabled()) {
-            const optimizelyClientInstance = this.optimizelyClientInstance();
-            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
-            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
-                const userId = user.id.toString();
-                optimizelyClientInstance.activate(experiment.experiment_key, userId);
+            if (user && this.optimizelyEnabled()) {
+                const optimizelyClientInstance = this.optimizelyClientInstance();
+                const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+                if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                    const userId = user.id.toString();
+                    optimizelyClientInstance.activate(experiment.experiment_key, userId);
+                }
             }
         }
     },
 
-    productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId) {
-        if (userId) {
+    productAddedToCart(user, cart, product, quantity, feature, experimentCorrelationId) {
+        if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductAdded', 
                 attributes: { 
-                    userId: userId,
+                    userId: user.id,
                     cartId: cart.id,
                     productId: product.id,
                     name: product.name,
@@ -180,7 +182,7 @@ export const AnalyticsHandler = {
             })
 
             AmplifyAnalytics.updateEndpoint({
-                userId: userId,
+                userId: user.id,
                 attributes: {
                     HasShoppingCart: ['true']
                 },
@@ -192,7 +194,7 @@ export const AnalyticsHandler = {
 
         AmplifyAnalytics.record({
             eventType: 'ProductAdded',
-            userId: userId ? userId : null,
+            userId: user ? user.id : null,
             properties: {
                 itemId: product.id
             }
@@ -200,7 +202,7 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductAdded', {
-                userId: userId ? userId : null,
+                userId: user ? user.id : null,
                 cartId: cart.id,
                 productId: product.id,
                 name: product.name,
@@ -213,7 +215,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (this.optimizelyEnabled()) {
+        if (user && this.optimizelyEnabled()) {
             const optimizelyClientInstance = this.optimizelyClientInstance();
             const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
             if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
@@ -299,12 +301,12 @@ export const AnalyticsHandler = {
         }
     },
 
-    productViewed(userId, product, feature, experimentCorrelationId) {
-        if (userId) {
+    productViewed(user, product, feature, experimentCorrelationId) {
+        if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
                 attributes: { 
-                    userId: userId,
+                    userId: user.id,
                     productId: product.id,
                     name: product.name,
                     category: product.category,
@@ -320,7 +322,7 @@ export const AnalyticsHandler = {
   
         AmplifyAnalytics.record({
             eventType: 'ProductViewed',
-            userId: userId ? userId : null,
+            userId: user ? user.id : null,
             properties: {
                 itemId: product.id
             }
@@ -344,7 +346,7 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().logEvent('ProductViewed', eventProperties);
         }
 
-        if (this.optimizelyEnabled()) {
+        if (user && this.optimizelyEnabled()) {
             const optimizelyClientInstance = this.optimizelyClientInstance();
             const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
             if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {

@@ -11,13 +11,11 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     user: null,
-    userID: null,
     cartID: null
   },
   mutations: {
     setLoggedOut(state) {
       state.user = null
-      state.userID = null
       state.cartID = null
     },
     setUser(state, user) {
@@ -27,9 +25,6 @@ const store = new Vuex.Store({
         user.storage = null
       }
       state.user = user
-    },
-    setUserID(state, userID) {
-      state.userID = userID
     },
     setCartID(state, cartID) {
       state.cartID = cartID

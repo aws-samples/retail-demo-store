@@ -110,3 +110,17 @@ If you are demonstrating the Retail Demo Store to a more technical audience, you
 ![image.png](../workshop/images/Eventinstrumentationcalls.png)
 
 Figure 12. Event instrumentation calls
+
+## Filtering Recommendations
+
+Amazon Personalize supports the ability to create [filters](https://docs.aws.amazon.com/personalize/latest/dg/filter.html) that can be used to filter (or exclude) items from being recommended that match a filter's criteria. The Retail Demo Store uses a filter to exclude products which have been recently purchased by the current user.
+
+As noted in the Event Tracking section above, the Retail Demo Store's web application sends an `OrderCompleted` event for each product purchased by the user. We can use this event type in the following filter expression.
+
+```
+EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")
+```
+
+The filter is created using the [CreateFilter](https://docs.aws.amazon.com/personalize/latest/dg/API_CreateFilter.html) API. When a filter is created, a Filter ARN is generated which can then be used when retrieving recommendations to apply the filter.
+
+To demonstrate this capability, purchase one or more recommended products from the "Inspired by your shopping trends" section of the home page by adding them to your cart and checking out. Then return to the home page. The product(s) you just purchased should no longer be recommended.

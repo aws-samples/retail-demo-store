@@ -60,12 +60,7 @@ export default {
   methods: {
     async search(val) {
       const { data } = await SearchRepository.searchProducts(val)
-      if (this.user && data.length > 0) {
-        this.rerank(this.userID, data)
-      } else {
-        this.reranked = false
-        this.results = data
-      }
+      this.rerank(data)
 
       AnalyticsHandler.productSearched(this.user, val.toString(), data.length)
     },
@@ -73,18 +68,21 @@ export default {
       this.searchTerm = "";
       this.reranked = false
     },
-    async rerank(userID, items) {
-      const { data } = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
-      this.reranked = JSON.stringify(items) != JSON.stringify(data)
-      this.results = data
+    async rerank(items) {
+      if (this.user && items.length > 0) {
+        const { data } = await RecommendationsRepository.getRerankedItems(this.user.id, items, ExperimentFeature)
+        this.reranked = JSON.stringify(items) != JSON.stringify(data)
+        this.results = data
+      }
+      else {
+        this.reranked = false
+        this.results = items
+      }
     }
   },
   computed: {
     user() { 
       return AmplifyStore.state.user
-    },
-    userID() { 
-      return AmplifyStore.state.userID
     }
   },
   watch: {

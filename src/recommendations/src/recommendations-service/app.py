@@ -19,6 +19,9 @@ servicediscovery = boto3.client('servicediscovery')
 personalize = boto3.client('personalize')
 ssm = boto3.client('ssm')
 
+# SSM parameter name for the Personalize filter for purchased items
+filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
+
 # -- Shared Functions
 
 def get_recipe(campaign_arn):
@@ -32,6 +35,33 @@ def get_recipe(campaign_arn):
             recipe = response['solutionVersion']['recipeArn']
 
     return recipe
+
+def get_parameter_values(names):
+    """ Returns values for SSM parameters or None for params that don't exist or that have value equal 'NONE' """
+    if isinstance(names, str):
+        names = [ names ]
+
+    response = ssm.get_parameters(Names = names)
+
+    values = []
+
+    for name in names:
+        found = False
+        for param in response['Parameters']:
+            if param['Name'] == name:
+                found = True
+                if param['Value'] != 'NONE':
+                    values.append(param['Value'])
+                else:
+                    values.append(None)
+                break
+
+        if not found:
+            values.append(None)
+
+    assert len(values) == len(names), 'mismatch in number of values returned for names'
+
+    return values
 
 def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
     """ Returns products given a UI feature, user, item/product.
@@ -82,12 +112,15 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
         resp_headers['X-Experiment-Type'] = experiment.type
         resp_headers['X-Experiment-Id'] = experiment.id
     else:
-        # Fallback to default behavior of checking for campaign ARN 
-        # parameter and then the default product resolver.
-        response = ssm.get_parameter(Name = campaign_arn_param_name)
+        # Fallback to default behavior of checking for campaign ARN parameter and 
+        # then the default product resolver.
+        values = get_parameter_values([ campaign_arn_param_name, filter_purchased_param_name ])
 
-        if response['Parameter']['Value'] != 'NONE' and (user_id or not user_reqd_for_campaign):
-            resolver = PersonalizeRecommendationsResolver(campaign_arn = response['Parameter']['Value'])
+        campaign_arn = values[0]
+        filter_arn = values[1]
+
+        if campaign_arn and (user_id or not user_reqd_for_campaign):
+            resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
                 user_id = user_id, 
@@ -95,7 +128,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
                 num_results = num_results
             )
 
-            resp_headers['X-Personalize-Recipe'] = get_recipe(response['Parameter']['Value'])
+            resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
         else:
             resolver = DefaultProductResolver(products_service_host = products_service_host, products_service_port = products_service_port)
 
@@ -323,13 +356,11 @@ def rerank():
                 resp_headers['X-Experiment-Id'] = experiment.id
             else:
                 # No experiment so check if there's a ranking campaign configured.
-                response = ssm.get_parameter(
-                    Name='retaildemostore-personalized-ranking-campaign-arn'
-                )
+                campaign_arn = get_parameter_values('retaildemostore-personalized-ranking-campaign-arn')[0]
 
-                if response['Parameter']['Value'] != 'NONE':
-                    resolver = PersonalizeRankingResolver(campaign_arn = response['Parameter']['Value'])
-                    resp_headers['X-Personalize-Recipe'] = get_recipe(response['Parameter']['Value'])
+                if campaign_arn:
+                    resolver = PersonalizeRankingResolver(campaign_arn = campaign_arn)
+                    resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
                 else:
                     resolver = RankingProductsNoOpResolver()
 
