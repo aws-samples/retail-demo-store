@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
+from experimentation.experiment_optimizely import OptimizelyFeatureTest
 from experimentation.tracking import KinesisTracker
 
 log = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ class ExperimentManager:
     TYPE_AB = 'ab'
     TYPE_INTERLEAVING = 'interleaving'
     TYPE_MAB = 'mab'
+    TYPE_OPTIMIZELY = 'optimizely'
 
     __table_name = None
     __experiments = {}
@@ -120,3 +122,4 @@ class ExperimentManager:
 ExperimentManager.register_experiment(ExperimentManager.TYPE_AB, ABExperiment)
 ExperimentManager.register_experiment(ExperimentManager.TYPE_INTERLEAVING, InterleavingExperiment)
 ExperimentManager.register_experiment(ExperimentManager.TYPE_MAB, MultiArmedBanditExperiment)
+ExperimentManager.register_experiment(ExperimentManager.TYPE_OPTIMIZELY, OptimizelyFeatureTest)
