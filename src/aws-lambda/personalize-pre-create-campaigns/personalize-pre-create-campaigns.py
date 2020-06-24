@@ -26,14 +26,37 @@ For example, the Experimentation workshop.
 
 import json
 import boto3
+import botocore
 import logging
 import os
 
+from packaging import version
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+min_botocore_version = '1.16.24'
+
+# Check if Lambda runtime needs to be patched with more recent Personalize SDK
+# This must be done before creating Personalize clients from boto3.
+if version.parse(botocore.__version__) < version.parse(min_botocore_version):
+    logger.info('Patching botocore SDK libraries for Personalize')
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    models_path = os.path.join(dir_path, 'models')
+    
+    aws_data_path = set(os.environ.get('AWS_DATA_PATH', '').split(os.pathsep))
+    aws_data_path.add(models_path)
+    
+    os.environ.update({
+        'AWS_DATA_PATH': os.pathsep.join(aws_data_path)
+    })
+
+    logger.info(os.environ)
+else:
+    logger.info('Patching botocore SDK for Personalize not required')    
+    
 iam = boto3.client("iam")
 ssm = boto3.client('ssm')
 sts = boto3.client('sts')
@@ -259,7 +282,7 @@ def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
         Value='{}'.format(filter_arn),
         Type='String',
         Overwrite=True
-    )    
+    )
 
 def lambda_handler(event, context):
     logger.debug('## ENVIRONMENT VARIABLES')
@@ -298,11 +321,11 @@ def lambda_handler(event, context):
     filter_purchased_arn_set = is_ssm_parameter_set(filter_purchased_arn_param)
 
     # Short-circuit rest of logic of all campaign ARNs are set as parameters. Means there's nothing to do.
-    if related_product_campaign_arn_set and 
+    if (related_product_campaign_arn_set and 
             product_campaign_arn_set and 
             rerank_campaign_arn_set and 
             event_tracking_id_set and
-            filter_purchased_arn_set:
+            filter_purchased_arn_set):
 
         logger.info('ARNs for related products, user recommendations, reranking campaigns, recent purchase filter set as SSM parameters; nothing to do')
 
