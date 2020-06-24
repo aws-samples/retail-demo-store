@@ -59,7 +59,6 @@ AmplifyEventBus.$on('authState', async (state) => {
   } 
   else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
-    console.log('Cognito user: ' + JSON.stringify(cognitoUser))
 
     let storeUser = null
 
@@ -93,8 +92,6 @@ AmplifyEventBus.$on('authState', async (state) => {
       'custom:profile_age': storeUser.age.toString(),
       'custom:profile_persona': storeUser.persona
     })
-
-    console.log('store user ' + storeUser.id + ' signed in... updating sign in dates')
 
     // Sync identityId with user to support reverse lookup.
     const credentials = await Credentials.get();
@@ -137,7 +134,6 @@ AmplifyEventBus.$on('authState', async (state) => {
     const storeUser = AmplifyStore.state.user
 
     if (cognitoUser && storeUser) {
-      console.log('Syncing store user state to cognito user custom attributes')
       // Store user exists. Use this as opportunity to sync store user 
       // attributes to Cognito custom attributes.
       Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {

@@ -115,7 +115,7 @@ export default {
       CartsRepository.updateCart(this.cart)
       this.getCart()
 
-      AnalyticsHandler.productAddedToCart(this.userID, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
+      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
 
       swal({
         title: "Added to Cart",
@@ -145,11 +145,11 @@ export default {
     },
     recordProductViewed() {
       if (this.product) {
-        AnalyticsHandler.productViewed(this.userID, this.product, this.$route.query.feature, this.$route.query.exp)
+        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp)
       }
     },
     async getRelatedProducts() {
-      const response = await RecommendationsRepository.getRelatedProducts(this.userID ? this.userID : '', this.product.id, MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRelatedProducts(this.user ? this.user.id : '', this.product.id, MaxRecommendations, ExperimentFeature)
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
@@ -165,7 +165,7 @@ export default {
       this.related_products = response.data
 
       if (this.related_products.length > 0 && 'experiment' in this.related_products[0]) {
-        AnalyticsHandler.identifyExperiment(this.related_products[0].experiment)
+        AnalyticsHandler.identifyExperiment(this.user, this.related_products[0].experiment)
       }
     },
     async getCart () {
@@ -199,9 +199,6 @@ export default {
   computed: {
     user() { 
       return AmplifyStore.state.user
-    },
-    userID() { 
-      return AmplifyStore.state.userID
     },
     cartID() {
       return AmplifyStore.state.cartID

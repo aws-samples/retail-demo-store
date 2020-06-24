@@ -242,8 +242,6 @@ export default {
 
       OrdersRepository.createOrder(this.cart).then(response => {
         
-        console.log(response)
-
         AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
 
         swal({
