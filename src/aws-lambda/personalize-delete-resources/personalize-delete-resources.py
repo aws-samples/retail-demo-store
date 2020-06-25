@@ -6,11 +6,35 @@ import os
 import time
 import logging
 import boto3
+import botocore
+
 from crhelper import CfnResource
+from packaging import version
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+min_botocore_version = '1.16.24'
+
+# Check if Lambda runtime needs to be patched with more recent Personalize SDK
+# This must be done before creating Personalize clients from boto3.
+if version.parse(botocore.__version__) < version.parse(min_botocore_version):
+    logger.info('Patching botocore SDK libraries for Personalize')
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    models_path = os.path.join(dir_path, 'models')
+    
+    aws_data_path = set(os.environ.get('AWS_DATA_PATH', '').split(os.pathsep))
+    aws_data_path.add(models_path)
+    
+    os.environ.update({
+        'AWS_DATA_PATH': os.pathsep.join(aws_data_path)
+    })
+
+    logger.info(os.environ)
+else:
+    logger.info('Patching botocore SDK for Personalize not required')    
 
 helper = CfnResource()
 
@@ -38,6 +62,14 @@ def get_dataset_arn(dataset_group_name):
 
     return dataset_group_arn
 
+def delete_filters(dataset_group_arn):
+    filters_response = personalize.list_filters(datasetGroupArn = dataset_group_arn, maxResults = 100)
+    for filter in filters_response['Filters']:
+        logger.info('Deleting filter: ' + filter['filterArn'])
+        personalize.delete_filter(filterArn = filter['filterArn'])
+
+    return True
+   
 def get_solutions(dataset_group_arn):
     solution_arns = []
 
@@ -214,7 +246,10 @@ def poll_delete(event, _):
     done = dataset_group_arn is None
     
     if dataset_group_arn:
-        # Delete dataset group resources from inside out.
+        # Other than the dataset group, no deps on filters so delete them first.
+        delete_filters(dataset_group_arn)
+
+        # Delete rest of dataset group resources from inside out.
         solution_arns = get_solutions(dataset_group_arn)
 
         if delete_campaigns(solution_arns):
