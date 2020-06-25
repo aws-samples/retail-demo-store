@@ -171,6 +171,7 @@ export const AnalyticsHandler = {
                     category: product.category,
                     image: product.image,
                     feature: feature,
+                    recipe: recipe,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
@@ -311,6 +312,7 @@ export const AnalyticsHandler = {
                     category: product.category,
                     image: product.image,
                     feature: feature,
+                    recipe: recipe,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
