@@ -52,6 +52,8 @@ export default {
    return {  
       feature: ExperimentFeature,
       recipe: '',
+      experiment: '',
+      active_experiment: false,
       errors: [],
       results: [],
       searching: false,

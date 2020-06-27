@@ -82,6 +82,7 @@ export default {
       display: '',
       explain_recommended: '',
       active_experiment: false,
+      experiment,
       personalized: false
     }
   },
