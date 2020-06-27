@@ -52,6 +52,8 @@ export default {
    return {  
       feature: ExperimentFeature,
       recipe: '',
+      experiment: '',
+      active_experiment: false,
       errors: [],
       results: [],
       searching: false,
@@ -64,7 +66,6 @@ export default {
       const { data } = await SearchRepository.searchProducts(val)
       if (this.user && data.length > 0) {
         this.rerank(this.userID, data)
-        this.recipe = 'reranked_items'
       } else {
         this.reranked = false
         this.results = data
@@ -77,9 +78,20 @@ export default {
       this.reranked = false
     },
     async rerank(userID, items) {
-      const { data } = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
-      this.reranked = JSON.stringify(items) != JSON.stringify(data)
-      this.results = data
+      const response = await RecommendationsRepository.getRerankedItems(userID, items, ExperimentFeature)
+
+      if(response.headers) {
+        if (response.headers['x-personalize-recipe']) {
+          this.recipe = response.headers['x-personalize-recipe']
+        }
+        if (response.headers['x-experiment-name']) {
+          this.active_experiment = true
+          this.experiment = response.headers['x-experiment-name']
+        }
+      }
+
+      this.reranked = JSON.stringify(items) != JSON.stringify(response.data)
+      this.results = response.data
     }
   },
   computed: {
