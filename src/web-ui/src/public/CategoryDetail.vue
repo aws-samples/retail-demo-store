@@ -82,7 +82,7 @@ export default {
       display: '',
       explain_recommended: '',
       active_experiment: false,
-      experiment,
+      experiment: '',
       personalized: false
     }
   },
