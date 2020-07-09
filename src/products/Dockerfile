@@ -4,6 +4,8 @@ RUN apk add --no-cache git bash
 RUN go get -u github.com/gorilla/mux
 RUN go get -u gopkg.in/yaml.v2
 RUN go get -u github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
+RUN go get -u github.com/jinzhu/copier
+RUN go get -u github.com/google/uuid
 COPY src/products-service/*.* /src/
 COPY src/products-service/data/*.* /src/data/
 RUN CGO_ENABLED=0 go build -o /bin/products-service

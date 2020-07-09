@@ -15,11 +15,12 @@
        <h5>{{ product.name }}</h5>
        <p>{{ product.description }}</p>
        <p>${{ product.price }}</p>
-       <p>{{ productStock }}</p>
+       <span v-if="product.current_stock > 0">Items currently in stock: {{ product.current_stock }}</span>
+       <span v-else>Sorry, this item is currently out of stock</span>
        <p>
         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
        </p>       
-       <button class="btn btn-outline-primary" v-on:click="addToCart()" :disabled='addToCartisDisabled'> Add to Cart </button>
+       <button class="btn btn-outline-primary" v-on:click="addToCart()" :disabled='addToCartDisabled'> Add to Cart </button>
     </div>
   </div>
 
@@ -216,21 +217,8 @@ export default {
         return root_url + this.product.category + '/' + this.product.image
       }
     },
-    productStock: function () {
-      if (this.product.currentstock > 0 ) {
-        return "Items currently in stock : " + this.product.currentstock 
-      }
-      else {
-        return "Sorry this item is currently out of stock"
-      }
-    },
-    addToCartisDisabled: function () {
-      if (this.product.currentstock > 0 ) {
-        return false
-      }
-      else {
-        return true
-      }      
+    addToCartDisabled: function () {
+      return !this.product.current_stock > 0     
     }
   },
   watch: {
