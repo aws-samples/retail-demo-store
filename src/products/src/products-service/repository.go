@@ -8,14 +8,14 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-
+	guuuid "github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -145,13 +145,13 @@ func SetCategoryURL(c Category) Category {
 }
 
 // RepoFindProduct Function
-func RepoFindProduct(id int) Product {
+func RepoFindProduct(id string) Product {
 
 	var product Product
 
-	log.Println("RepoFindProduct: ", strconv.Itoa(id), ddb_table_products)
+	log.Println("RepoFindProduct: ", id, ddb_table_products)
 
-	keycond := expression.Key("id").Equal(expression.Value(strconv.Itoa(id)))
+	keycond := expression.Key("id").Equal(expression.Value(id))
 	expr, err := expression.NewBuilder().WithKeyCondition(keycond).Build()
 	// Build the query input parameters
 	params := &dynamodb.QueryInput{
@@ -374,16 +374,22 @@ func RepoFindALLProduct() Products {
 	return f
 }
 
-func RepoUpdateProduct(product Product) Product {
+func RepoUpdateProduct(id string, updated_product Product) Product {
 
-	log.Println("UpdateProducts for id, new quantity: ", product)
+	var existing_product Product
+	existing_product = RepoFindProduct(id)
+	updated_product.URL = "" // URL is generated so ignore if specified
+	log.Println("UpdateProducts from", existing_product, updated_product)
 
-	av, err := dynamodbattribute.MarshalMap(product)
+	copier.Copy(&existing_product, &updated_product)
+	log.Println("after Copier", updated_product)
+
+	av, err := dynamodbattribute.MarshalMap(updated_product)
 
 	if err != nil {
 		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
 		fmt.Println(err.Error())
-		return product
+		return existing_product
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -398,23 +404,21 @@ func RepoUpdateProduct(product Product) Product {
 
 	}
 
-	return product
+	return updated_product
 
 }
 
-func RepoUpdateInventory(inventory Inventory) Product {
+func RepoUpdateInventory(id string, StockDelta int) Product {
 	//Caveats : for demo purposes it doesn't deal with concurrent update
 	// for a fully fledge product it would require to use versioning
 
-	log.Println("RepoUpdateProduct for id, new quantity: ", inventory)
+	log.Println("RepoUpdateProduct for id, new quantity: ", id, StockDelta)
 
 	var product Product
-	var id int
 
-	id, _ = strconv.Atoi(inventory.ID)
 	// Get the current product and update it's currrent stock with the requested delta
 	product = RepoFindProduct(id)
-	product.CurrentStock = product.CurrentStock + inventory.StockDelta
+	product.CurrentStock = product.CurrentStock + StockDelta
 
 	if product.CurrentStock < 0 {
 		// ensuring we don't get negative stocks
@@ -444,4 +448,32 @@ func RepoUpdateInventory(inventory Inventory) Product {
 	// return the updated product
 	return product
 
+}
+
+func RepoNewProduct(new_product Product) Product {
+
+	log.Println("RepoNewProduct -->", new_product)
+
+	new_product.ID = guuuid.New().String()
+	av, err := dynamodbattribute.MarshalMap(new_product)
+
+	if err != nil {
+		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+		fmt.Println(err.Error())
+		return new_product
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(ddb_table_products),
+	}
+
+	_, err = dynamoclient.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+
+	}
+
+	return new_product
 }

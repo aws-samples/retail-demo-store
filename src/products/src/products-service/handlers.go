@@ -105,13 +105,8 @@ func ProductShow(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 
 	vars := mux.Vars(r)
-	productID, err := strconv.Atoi(vars["productID"])
 
-	if err != nil {
-		panic(err)
-	}
-
-	ret := RepoFindProduct(productID)
+	ret := RepoFindProduct(vars["productID"])
 
 	fullyQualify, _ := strconv.ParseBool(r.URL.Query().Get("fullyQualifyImageUrls"))
 	if fullyQualify {
@@ -165,8 +160,76 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
-// Update Stock Quantity for one item Handler
+// Update a Product for one item Handler
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+	vars := mux.Vars(r)
+
+	print(vars)
+	var product Product
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(body, &product); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+
+	log.Println("UpdateProducts  ", product)
+
+	ret := RepoUpdateProduct(vars["productID"], product)
+
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		panic(err)
+	}
+}
+
+// Update Stock Quantity for one item Handler
+func UpdateInventory(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+
+	vars := mux.Vars(r)
+
+	var inventory Inventory
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+	log.Println("UpdateInventory Body ", body)
+
+	if err := json.Unmarshal(body, &inventory); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+
+	log.Println("UpdateInventory --> ", inventory)
+
+	ret := RepoUpdateInventory(vars["productID"], inventory.StockDelta)
+
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		panic(err)
+	}
+}
+
+// Create a new Product
+func NewProduct(w http.ResponseWriter, r *http.Request) {
 
 	enableCors(&w)
 
@@ -186,41 +249,9 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Println("UpdateProducts  ", product)
+	log.Println("NewProduct  ", product)
 
-	ret := RepoUpdateProduct(product)
-
-	if err := json.NewEncoder(w).Encode(ret); err != nil {
-		panic(err)
-	}
-}
-
-// Update Stock Quantity for one item Handler
-func UpdateInventory(w http.ResponseWriter, r *http.Request) {
-
-	enableCors(&w)
-
-	var inventory Inventory
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-	if err != nil {
-		panic(err)
-	}
-	if err := r.Body.Close(); err != nil {
-		panic(err)
-	}
-	log.Println("UpdateInventory ", body)
-
-	if err := json.Unmarshal(body, &inventory); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422) // unprocessable entity
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
-	}
-
-	log.Println("UpdateInventory ", inventory)
-
-	ret := RepoUpdateInventory(inventory)
+	ret := RepoNewProduct(product)
 
 	if err := json.NewEncoder(w).Encode(ret); err != nil {
 		panic(err)

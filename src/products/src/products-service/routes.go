@@ -55,14 +55,20 @@ var routes = Routes{
 	},
 	Route{
 		"ProductUpdate",
-		"POST",
-		"/products/",
+		"PUT",
+		"/products/id/{productID}",
 		UpdateProduct,
 	},
 	Route{
-		"InventoryUpdate",
+		"ProductUpdate",
 		"POST",
-		"/products/inventory",
+		"/products/",
+		NewProduct,
+	},
+	Route{
+		"InventoryUpdate",
+		"PUT",
+		"/products/inventory/{productID}",
 		UpdateInventory,
 	},
 }
