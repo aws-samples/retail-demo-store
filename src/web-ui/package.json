@@ -37,6 +37,7 @@
   },
   "resolutions": {
     "acorn": "^6.4.1",
+    "lodash": "^4.17.19",
     "minimist": "^1.2.5",
     "kind-of": "^6.0.3"
   },
