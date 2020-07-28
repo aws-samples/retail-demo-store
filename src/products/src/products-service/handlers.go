@@ -221,7 +221,7 @@ func UpdateInventory(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("UpdateInventory --> ", inventory)
 
-	ret := RepoUpdateInventory(vars["productID"], inventory.StockDelta)
+	ret := RepoUpdateInventoryDelta(vars["productID"], inventory.StockDelta)
 
 	if err := json.NewEncoder(w).Encode(ret); err != nil {
 		panic(err)

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -408,43 +409,50 @@ func RepoUpdateProduct(id string, updated_product Product) Product {
 
 }
 
-func RepoUpdateInventory(id string, StockDelta int) Product {
-	//Caveats : for demo purposes it doesn't deal with concurrent update
-	// for a fully fledge product it would require to use versioning
+func RepoUpdateInventoryDelta(id string, StockDelta int) Product {
 
 	log.Println("RepoUpdateProduct for id, new quantity: ", id, StockDelta)
 
 	var product Product
 
-	// Get the current product and update it's currrent stock with the requested delta
+	// Get the current product
 	product = RepoFindProduct(id)
-	product.CurrentStock = product.CurrentStock + StockDelta
+	log.Println("current product stock : ", product.CurrentStock)
 
-	if product.CurrentStock < 0 {
-		// ensuring we don't get negative stocks
-		product.CurrentStock = 0
-	}
-	// and put it back on DynamoDB
-	av, err := dynamodbattribute.MarshalMap(product)
-
-	if err != nil {
-		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
-		fmt.Println(err.Error())
-		return product
+	if product.CurrentStock+StockDelta < 0 {
+		// ensuring we don't get negative stocks, just down to zero stock
+		StockDelta = -product.CurrentStock
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:      av,
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":stockdelta": {
+				N: aws.String(strconv.Itoa(StockDelta)),
+			},
+			":currstock": {
+				N: aws.String(strconv.Itoa(product.CurrentStock)),
+			},
+		},
 		TableName: aws.String(ddb_table_products),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(id),
+			},
+			"category": {
+				S: aws.String(product.Category),
+			},
+		},
+		ReturnValues:        aws.String("UPDATED_NEW"),
+		UpdateExpression:    aws.String("set current_stock = current_stock + :stockdelta"),
+		ConditionExpression: aws.String("current_stock = :currstock"),
 	}
 
-	_, err = dynamoclient.PutItem(input)
+	_, err = dynamoclient.UpdateItem(input)
 	if err != nil {
-		fmt.Println("Got error calling PutItem:")
+		fmt.Println("Got error calling UpdateItem:")
 		fmt.Println(err.Error())
-
 	}
-
+	product.CurrentStock = product.CurrentStock + StockDelta
 	// return the updated product
 	return product
 
