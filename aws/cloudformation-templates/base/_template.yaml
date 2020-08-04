@@ -43,6 +43,11 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+
 Resources:
 
   # Authentication
@@ -151,6 +156,7 @@ Resources:
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         ExperimentStrategyTableName: !GetAtt Tables.Outputs.ExperimentStrategyTable
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        OptimizelySdkKey: !Ref OptimizelySdkKey
 
   # CodeCommit Repository
   CodeCommitRepository:
@@ -260,6 +266,10 @@ Outputs:
   ParameterAmplitudeApiKey:
     Description: Amplitude API key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterAmplitudeApiKey
+
+  ParameterOptimizelySdkKey:
+    Description: Optimizely SDK key Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterOptimizelySdkKey
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.
