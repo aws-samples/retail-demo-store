@@ -25,6 +25,7 @@ services:
     container_name: products
     environment:
       - AWS_REGION
+      - AWS_DEFAULT_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
@@ -44,6 +45,7 @@ services:
       - products
     environment:
       - AWS_PROFILE
+      - AWS_DEFAULT_REGION
       - PRODUCT_SERVICE_HOST
       - PRODUCT_SERVICE_PORT
     volumes:
