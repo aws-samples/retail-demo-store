@@ -10,6 +10,7 @@ src/web-ui/node_modules
 src/aws-lambda/*/bin/
 src/aws-lambda/*/package
 src/aws-lambda/elasticsearch-pre-index/products.yaml
+src/aws-lambda/personalize-delete-resources/models
 src/aws-lambda/personalize-pre-create-campaigns/models
 local/*
 demo.md
