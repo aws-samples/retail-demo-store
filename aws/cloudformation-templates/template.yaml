@@ -159,7 +159,7 @@ Resources:
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
-        OptimizelySdkKey: !Ref OptimizelyApiKey
+        OptimizelySdkKey: !Ref OptimizelySdkKey
 
   # Services Resources
   Services:
@@ -189,7 +189,7 @@ Resources:
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.OptimizelySdkKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub 
@@ -221,7 +221,7 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.OptimizelySdkKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName

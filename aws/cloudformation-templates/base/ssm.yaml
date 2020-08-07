@@ -24,7 +24,7 @@ Parameters:
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
-  OptimizelySdkKey:
+  HasOptimizelySdkKey:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
 
 Resources:
