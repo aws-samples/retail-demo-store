@@ -30,7 +30,7 @@ class OptimizelyFeatureTest(experiment.Experiment):
         assert self.feature in config.features_map, f'Feature {self.feature} is not set up properly on Optimizely'
         feature = config.features_map[self.feature]
 
-        assert feature.experiments_map.keys() > 0, "No feature tests have been set up for this feature"
+        assert len(feature.experiments_map.keys()) > 0, "No feature tests have been set up for this feature"
         experiment_key = list(feature.experiments_map.keys())[0]
 
         variation_key = optimizely_sdk.get_variation(experiment_key, user_id)
