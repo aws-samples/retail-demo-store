@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
-from experimentation.experiment_optimizely import OptimizelyFeatureTest
+from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk
 from experimentation.tracking import KinesisTracker
 
 log = logging.getLogger(__name__)
@@ -38,6 +38,22 @@ class ExperimentManager:
     def get_active(self, feature):
         """ Returns the active experiment for the given feature """
         experiment = None
+
+        config = optimizely_sdk.get_optimizely_config()
+        if config:
+            if feature in config.features_map:
+                optimizely_feature = config.features_map[feature]
+                experiment_keys = optimizely_feature.experiments_map.keys()
+                if len(experiment_keys) > 0:
+                    experiment_key = list(experiment_keys)[0]
+                    experiment = optimizely_feature.experiments_map[experiment_key]
+                    data = {'id': experiment.id,
+                            'feature': feature,
+                            'name': experiment_key,
+                            'status': 'ACTIVE',
+                            'type': 'optimizely',
+                            'variations': []}
+                    return OptimizelyFeatureTest(None, **data)
 
         table = self.__get_table()
         

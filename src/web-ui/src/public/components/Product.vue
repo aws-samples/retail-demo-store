@@ -60,6 +60,9 @@ export default {
         else if (this.experiment.type == 'mab') {
           tt = 'Experiment: Multi-Armed Bandit'
         }
+        else if (this.experiment.type == 'optimizely') {
+          tt = 'Experiment: Optimizely'
+        }
         else {
           tt = 'Experiment: Unknown'
         }
