@@ -114,7 +114,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-products
+        ServiceName: products
         ServicePath: src/products
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -140,13 +140,14 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   UsersService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-users
+        ServiceName: users
         ServicePath: src/users
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -169,13 +170,14 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   CartsService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-carts
+        ServiceName: carts
         ServicePath: src/carts
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -198,13 +200,14 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-orders
+        ServiceName: orders
         ServicePath: src/orders
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -227,13 +230,14 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   SearchService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-search
+        ServiceName: search
         ServicePath: src/search
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -257,13 +261,14 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: !Sub ${ParentStackName}-${AWS::Region}-recommendations
+        ServiceName: recommendations
         ServicePath: src/recommendations
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
@@ -289,6 +294,7 @@ Resources:
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
  
   # Pinpoint personalized messaging customization
   PinpointPersonalize:

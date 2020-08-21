@@ -95,6 +95,9 @@ Parameters:
   ExperimentStrategyTable:
     Type: String
     Default: none
+
+  Uid:
+    Type: String
     
 Resources:
   TaskExecutionRole:
@@ -114,7 +117,7 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [RetailDemoStore, !Ref ServiceName, TaskRole]]
+      RoleName: !Join ['-', [RetailDemoStore,!Ref Uid ,!Ref ServiceName, TaskRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
