@@ -99,6 +99,10 @@ Parameters:
     Type: String
     Description: SSM parameter name for the Amplitude API key
 
+  ParameterOptimizelySdkKey:
+    Type: String
+    Description: SSM parameter name for the Optimizely SDK key
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -136,6 +140,7 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -166,6 +171,7 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -196,6 +202,7 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -226,6 +233,7 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -257,6 +265,7 @@ Resources:
         EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -290,6 +299,7 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl

@@ -16,9 +16,16 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
+  HasOptimizelySdkKey:
+    !Not [!Equals [!Ref OptimizelySdkKey, ""]]
 
 Resources:
 
@@ -86,6 +93,14 @@ Resources:
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
       Description: "Retail Demo Store Amplitude API key"
 
+  ParameterOptimizelySdkKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-optimizely-sdk-key"
+      Type: "String"
+      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
+      Description: "Retail Demo Store Optimizely SDK key"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -119,3 +134,7 @@ Outputs:
   ParameterAmplitudeApiKey:
     Description: Amplitude API key
     Value: !Ref ParameterAmplitudeApiKey
+
+  ParameterOptimizelySdkKey:
+    Description: Optimizely SDK key
+    Value: !Ref ParameterOptimizelySdkKey
