@@ -44,6 +44,7 @@ services:
       - products
     environment:
       - AWS_PROFILE
+      - AWS_DEFAULT_REGION
       - PRODUCT_SERVICE_HOST
       - PRODUCT_SERVICE_PORT
     volumes:
