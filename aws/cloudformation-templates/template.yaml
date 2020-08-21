@@ -33,6 +33,7 @@ Metadata:
           default: "Miscellaneous"
         Parameters:
           - AmplitudeApiKey
+          - OptimizelySdkKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -56,6 +57,8 @@ Metadata:
         default: "Auto-Build Personalize Campaigns"
       AmplitudeApiKey:
         default: "Amplitude API Key"
+      OptimizelySdkKey:
+        default: "Optimizely SDK Key"
 
 Parameters:
   ResourceBucket:
@@ -138,6 +141,11 @@ Parameters:
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
     NoEcho: true
 
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+
 Resources:
   # Base Resources
   Base:
@@ -151,6 +159,7 @@ Resources:
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        OptimizelySdkKey: !Ref OptimizelySdkKey
 
   # Services Resources
   Services:
@@ -180,6 +189,7 @@ Resources:
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub 
@@ -211,6 +221,7 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
