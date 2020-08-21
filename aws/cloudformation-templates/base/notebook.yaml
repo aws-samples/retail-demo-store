@@ -29,14 +29,14 @@ Parameters:
     Type: String
     Default: none
 
-  NotebookName:
+  Uid:
     Type: String
 
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: !Sub ${NotebookName}-RetailDemoStoreNotebook
+      NotebookInstanceName: !Sub ${Uid}-RetailDemoStoreNotebook
       InstanceType: "ml.t2.medium"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
@@ -46,7 +46,7 @@ Resources:
       Tags:
         -
           Key: "parentName"
-          Value: !Ref NotebookName
+          Value: !Ref Uid
   
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -133,7 +133,7 @@ Resources:
                   - iam:PassRole
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-RetailDemoStorePersonalizeS3Role'
               - 
                 Effect: Allow
                 Action:

@@ -248,6 +248,7 @@ Resources:
         ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
         ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
   # Cleanup bucket function
   CleanupBucket:

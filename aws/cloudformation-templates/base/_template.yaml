@@ -79,7 +79,7 @@ Resources:
         DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
-        NotebookName: !Sub ${ParentStackName}-${AWS::Region}
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
         
   # Tables
   Tables:
