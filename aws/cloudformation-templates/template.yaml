@@ -151,6 +151,7 @@ Resources:
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        ParentStackName: !Ref AWS::StackName
 
   # Services Resources
   Services:
@@ -185,6 +186,7 @@ Resources:
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+        ParentStackName: !Ref AWS::StackName
 
   # Web UI Pipeline
   WebUIPipeline:

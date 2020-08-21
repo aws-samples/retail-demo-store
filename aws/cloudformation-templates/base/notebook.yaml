@@ -29,17 +29,24 @@ Parameters:
     Type: String
     Default: none
 
+  NotebookName:
+    Type: String
+
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: RetailDemoStoreNotebook
+      NotebookInstanceName: !Sub ${NotebookName}-RetailDemoStoreNotebook
       InstanceType: "ml.t2.medium"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
       DefaultCodeRepository: !Ref DefaultCodeRepository
+      Tags:
+        -
+          Key: "parentName"
+          Value: !Ref NotebookName
   
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
