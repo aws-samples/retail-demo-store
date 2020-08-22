@@ -201,7 +201,7 @@ Resources:
                 Effect: "Allow"
                 Action: 
                   - sagemaker:ListTags
-                Resource: !Ref NotebookInstance
+                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/${Uid}-retaildemostorenotebook'
   
 Outputs:
   NotebookInstanceId:
