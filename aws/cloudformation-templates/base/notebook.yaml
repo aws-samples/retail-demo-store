@@ -45,7 +45,7 @@ Resources:
       DefaultCodeRepository: !Ref DefaultCodeRepository
       Tags:
         -
-          Key: "parentName"
+          Key: "Uid"
           Value: !Ref Uid
   
   SecurityGroup:
@@ -192,6 +192,17 @@ Resources:
                 Action: 
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'     
+        - 
+          PolicyName: "5-Uid"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Effect: "Allow"
+                Action: 
+                  - sagemaker:ListTags
+                Resource: !Ref NotebookInstance
+  
 Outputs:
   NotebookInstanceId:
     Value: !Ref NotebookInstance
