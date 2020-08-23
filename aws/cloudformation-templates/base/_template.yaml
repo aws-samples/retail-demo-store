@@ -172,6 +172,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Pinpoint Resources
   Pinpoint:

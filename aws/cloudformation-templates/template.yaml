@@ -231,6 +231,7 @@ Resources:
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
   # Lex personalization function
   ChatbotFunctions:

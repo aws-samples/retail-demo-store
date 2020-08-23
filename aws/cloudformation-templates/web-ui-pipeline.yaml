@@ -106,6 +106,9 @@ Parameters:
     Type: String
     Description: Lambda Arn for cleanup function
 
+  Uid:
+    Type: String
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -275,7 +278,7 @@ Resources:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
                   - iam:PassRole
-              - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+              - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${Uid}-src'
                 Effect: Allow
                 Action:
                   - "codecommit:GetBranch"
@@ -420,7 +423,7 @@ Resources:
                 Version: '1'
                 Provider: CodeCommit
               Configuration:
-                RepositoryName: retaildemostore-src
+                RepositoryName: !Sub '${Uid}-src'
                 BranchName: master
                 PollForSourceChanges: 'true'
               OutputArtifacts:

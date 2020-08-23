@@ -224,6 +224,7 @@ Resources:
         DeleteRepositoryLambdaArn: !Ref DeleteRepositoryLambdaArn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Ref Uid
 
   Service:
     Type: AWS::CloudFormation::Stack

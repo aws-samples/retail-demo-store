@@ -22,3 +22,4 @@ generators/*.gz
 workshop/data/*
 workshop/datagenerator/*
 workshop/requirements.txt
+my-stage.sh
