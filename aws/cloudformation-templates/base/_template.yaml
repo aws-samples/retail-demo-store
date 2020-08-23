@@ -60,7 +60,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/authentication.yaml
       Parameters:
-        AuthName: !Sub ${ParentStackName}-${AWS::Region}-retaildemostore
+        AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         
   # Buckets

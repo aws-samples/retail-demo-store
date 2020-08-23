@@ -36,7 +36,7 @@ Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: !Sub ${Uid}-RetailDemoStoreNotebook
+      NotebookInstanceName: !Sub ${Uid}
       InstanceType: "ml.t2.medium"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
@@ -84,6 +84,11 @@ Resources:
                 Action: 
                   - codecommit:*
                 Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore*'
+              -
+                Effect: "Allow"
+                Action: 
+                  - sagemaker:ListTags
+                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/${Uid}'
         - 
           PolicyName: "0-StartHere"
           PolicyDocument: 
@@ -133,7 +138,7 @@ Resources:
                   - iam:PassRole
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-RetailDemoStorePersonalizeS3Role'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - 
                 Effect: Allow
                 Action:
@@ -192,16 +197,6 @@ Resources:
                 Action: 
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'     
-        - 
-          PolicyName: "5-Uid"
-          PolicyDocument: 
-            Version: "2012-10-17"
-            Statement: 
-              - 
-                Effect: "Allow"
-                Action: 
-                  - sagemaker:ListTags
-                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/${Uid}-retaildemostorenotebook'
   
 Outputs:
   NotebookInstanceId:
