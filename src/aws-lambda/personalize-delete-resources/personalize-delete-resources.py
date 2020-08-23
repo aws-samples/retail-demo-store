@@ -204,7 +204,7 @@ def delete_schemas(schemas_to_delete):
 def delete_role():
     try:
         response = iam.detach_role_policy(
-            RoleName=os.environ.get('Uid')+'-PersonalizeS3',
+            RoleName=os.environ.get('Uid')+'-RetailDemoStorePersonalizeS3Role',
             PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
         )
     except ClientError as e:
@@ -214,7 +214,7 @@ def delete_role():
 
     try:
         response = iam.delete_role(
-            RoleName=os.environ.get('Uid')+'-PersonalizeS3'
+            RoleName=os.environ.get('Uid')+'-RetailDemoStorePersonalizeS3Role'
         )
     except ClientError as e:
         error_code = e.response['Error']['Code']
