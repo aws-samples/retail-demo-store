@@ -117,7 +117,7 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [RetailDemoStore,!Ref Uid ,!Ref ServiceName, TaskRole]]
+      RoleName: !Join ['-', [!Ref Uid ,!Ref ServiceName, TaskRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
