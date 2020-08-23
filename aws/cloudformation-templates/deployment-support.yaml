@@ -160,7 +160,7 @@ Resources:
                   - iam:CreateRole
                   - iam:AttachRolePolicy
                 Resource: 
-                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-RetailDemoStorePersonalizeS3Role'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - Effect: Allow
                 Action:
                   - events:ListTargetsByRule
@@ -277,7 +277,7 @@ Resources:
                 Action:
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-RetailDemoStorePersonalizeS3Role'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
 
   # Custom resource to launch elasticsearch preindex function
   CustomPersonalizeDeleteLambdaFunction:
