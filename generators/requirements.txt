@@ -4,7 +4,6 @@ DateTime==4.3
 Faker==4.1.0
 idna==2.9
 numpy==1.18.5
-pprint==0.1
 python-dateutil==2.8.1
 pytz==2020.1
 PyYAML==5.3.1
