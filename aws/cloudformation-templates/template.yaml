@@ -29,6 +29,7 @@ Metadata:
         Parameters:
           - PreIndexElasticsearch
           - PreCreatePersonalizeCampaign
+          - PreCreatePinpointWorkshop
       - Label:
           default: "Miscellaneous"
         Parameters:
@@ -55,6 +56,8 @@ Metadata:
         default: "Auto-Load Elasticsearch Index"
       PreCreatePersonalizeCampaign:
         default: "Auto-Build Personalize Campaigns"
+      PreCreatePinpointWorkshop:
+        default: "Auto-Configure Pinpoint"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -118,8 +121,9 @@ Parameters:
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Deploy Lambda function that automatically indexes the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Search workshop included in your deployment as a Jupyter notebook in SageMaker.
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -128,14 +132,26 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Deploy Lambda function that automatically builds solutions and launches Personalize campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Personalization workshop included in your deployment as a Jupyter notebook 
-      in SageMaker.
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
       - 'No'
     Default: 'No'
 
+  PreCreatePinpointWorkshop:
+    Type: String
+    Description: >
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
+      in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+  
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
@@ -257,6 +273,7 @@ Resources:
         ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
         ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
 
   # Cleanup bucket function
   CleanupBucket:
