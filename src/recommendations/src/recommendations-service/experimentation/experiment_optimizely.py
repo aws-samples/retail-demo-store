@@ -16,9 +16,9 @@ class OptimizelyFeatureTest(experiment.Experiment):
         assert user_id, "`user_id` is required"
 
         # All the kwargs that are passed to ResolverFactory.get will be stored as a JSON feature variable.
-        resolver_init_kwargs = optimizely_sdk.get_feature_variable_json(self.feature, 'resolver_init_kwargs',
-                                                                        user_id=user_id)
-        resolver = resolvers.ResolverFactory.get(**resolver_init_kwargs)
+        algorithm_type = optimizely_sdk.get_feature_variable_string(self.feature, 'algorithm_type', user_id=user_id)
+        algorithm_config = optimizely_sdk.get_feature_variable_json(self.feature, 'algorithm_config', user_id=user_id)
+        resolver = resolvers.ResolverFactory.get(type=algorithm_type, **algorithm_config)
 
         items = resolver.get_items(user_id=user_id,
                                    product_id=current_item_id,
