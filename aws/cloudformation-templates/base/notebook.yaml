@@ -83,7 +83,7 @@ Resources:
                 Effect: "Allow"
                 Action: 
                   - codecommit:*
-                Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore*'
+                Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${Uid}*'
               -
                 Effect: "Allow"
                 Action: 
@@ -118,7 +118,7 @@ Resources:
                 Action: 
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'
               - 
                 Effect: "Allow"
                 Action: 
@@ -172,7 +172,7 @@ Resources:
                 Action: 
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'     
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'     
               - Effect: Allow
                 Action:
                   - dynamodb:*
@@ -196,7 +196,7 @@ Resources:
                 Effect: "Allow"
                 Action: 
                   - lambda:GetFunction
-                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'     
+                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Uid}-PinpointRecommender'     
   
 Outputs:
   NotebookInstanceId:

@@ -146,7 +146,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:*
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -158,9 +158,9 @@ Resources:
                   - personalize:GetPersonalizedRanking 
                   - personalize:GetRecommendations 
                 Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/${Uid}-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/${Uid}-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/${Uid}-*'     
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
 

@@ -121,7 +121,7 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub retaildemostore/${ServiceName}
+      RepositoryName: !Sub '${Uid}/${ServiceName}'
       LifecyclePolicy:
         LifecyclePolicyText: |
           {

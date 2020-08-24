@@ -243,6 +243,7 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
   # Deployment support
   DeploymentSupport:

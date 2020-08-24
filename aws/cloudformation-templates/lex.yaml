@@ -20,6 +20,9 @@ Parameters:
     Type: String
     Default: none
 
+  Uid:
+    Type: String
+
 Resources:
   BotRecommendationsLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -34,7 +37,7 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/bot-intent-recommendations.zip'
       Runtime: python3.8
       Timeout: 10
-      FunctionName: RetailDemoStore-Chat-Recommendations  # Referenced by name in Conversational AI workshop notebook
+      FunctionName: !Sub '${Uid}-Chat-Recommendations'  # Referenced by name in Conversational AI workshop notebook
       Environment:
         Variables:
           users_service_base_url: !Ref UsersServiceExternalUrl
@@ -63,8 +66,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-Chat-Recommendations:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-Chat-Recommendations'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

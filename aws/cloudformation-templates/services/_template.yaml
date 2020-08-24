@@ -402,7 +402,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ecr:DeleteRepository
-                Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/retaildemostore*'
+                Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ParentStackName}-${AWS::Region}*'
 
 Outputs:
   ProductsServiceUrl: 
