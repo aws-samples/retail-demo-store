@@ -238,6 +238,8 @@ Resources:
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL
               Value: !Ref ImageRootUrl
+            - Name: UID
+              Value: !Ref Uid
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

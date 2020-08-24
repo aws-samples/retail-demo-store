@@ -21,6 +21,9 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  Uid:
+    Type: String
+
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
@@ -72,7 +75,7 @@ Resources:
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-experiment-strategy-table-name"
+      Name: !Sub '${Uid}-experiment-strategy-table-name'
       Type: "String"
       Value: !Ref ExperimentStrategyTableName
       Description: "Retail Demo Store Experiment Strategy DDB Table Name"
@@ -88,7 +91,7 @@ Resources:
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-amplitude-api-key"
+      Name: !Sub '${Uid}-amplitude-api-key"
       Type: "String"
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
       Description: "Retail Demo Store Amplitude API key"
