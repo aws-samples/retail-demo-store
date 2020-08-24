@@ -85,7 +85,7 @@ def get_solutions(dataset_group_arn):
 def delete_campaigns(solution_arns):
     logger.info('Clearing related products campaign arn SSM parameter')
     ssm.put_parameter(
-        Name='retaildemostore-related-products-campaign-arn',
+        Name=os.environ.get('Uid')+'-related-products-campaign',
         Description='Retail Demo Store Related Products Campaign Arn Parameter',
         Value='NONE',
         Type='String',
@@ -93,7 +93,7 @@ def delete_campaigns(solution_arns):
     )
     logger.info('Clearing product recommendation campaign arn SSM parameter')
     ssm.put_parameter(
-        Name='retaildemostore-product-recommendation-campaign-arn',
+        Name=os.environ.get('Uid')+'-product-recommendation-campaign',
         Description='Retail Demo Store Product Recommendation Campaign Arn Parameter',
         Value='NONE',
         Type='String',
@@ -101,7 +101,7 @@ def delete_campaigns(solution_arns):
     )
     logger.info('Clearing personalized ranking campaign arn SSM parameter')
     response = ssm.put_parameter(
-        Name='retaildemostore-personalized-ranking-campaign-arn',
+        Name=os.environ.get('Uid')+'-personalized-ranking-campaign',
         Description='Retail Demo Store Personalized Ranking Campaign Arn Parameter',
         Value='NONE',
         Type='String',
@@ -139,7 +139,7 @@ def delete_solutions(dataset_group_arn):
 
 def delete_event_trackers(dataset_group_arn):
     ssm.put_parameter(
-        Name='retaildemostore-personalize-event-tracker-id',
+        Name=os.environ.get('Uid')+'-personalize-event-tracker-id',
         Description='Retail Demo Store Personalize Event Tracker ID Parameter',
         Value='NONE',
         Type='String',

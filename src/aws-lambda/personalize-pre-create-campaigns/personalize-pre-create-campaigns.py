@@ -267,7 +267,7 @@ def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
     logger.info('Creating purchased product filter')
 
     response = personalize.create_filter(
-        name = 'retaildemostore-filter-purchased-products',
+        name = os.environ.get('Uid')+'-filter-purchased-products',
         datasetGroupArn = dataset_group_arn,
         filterExpression = 'EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")'
     )
@@ -303,12 +303,12 @@ def lambda_handler(event, context):
 
     dataset_group_name = 'retaildemostore'
     
-    related_product_campaign_arn_param = 'retaildemostore-related-products-campaign-arn'
-    product_campaign_arn_param = 'retaildemostore-product-recommendation-campaign-arn'
-    rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
+    related_product_campaign_arn_param = os.environ.get('Uid')+'-related-products-campaign'
+    product_campaign_arn_param = os.environ.get('Uid')+'-product-recommendation-campaign'
+    rerank_campaign_arn_param = os.environ.get('Uid')+'-personalized-ranking-campaign'
     role_name = os.environ.get('Uid')+'-PersonalizeS3'
-    event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
-    filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
+    event_tracking_id_param = os.environ.get('Uid')+'-personalize-event-tracker-id'
+    filter_purchased_arn_param = os.environ.get('Uid')+'-personalize-filter-purchased'
 
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']

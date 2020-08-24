@@ -20,7 +20,7 @@ personalize = boto3.client('personalize')
 ssm = boto3.client('ssm')
 
 # SSM parameter name for the Personalize filter for purchased items
-filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
+filter_purchased_param_name = os.environ.get('UID')+'-personalize-filter-purchased'
 
 # -- Shared Functions
 
@@ -248,7 +248,7 @@ def related():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn', 
+            campaign_arn_param_name = os.environ.get('UID')+'-related-products-campaign', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
@@ -291,7 +291,7 @@ def recommendations():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn', 
+            campaign_arn_param_name = os.environ.get('UID')+'-product-recommendation-campaign', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
@@ -356,7 +356,7 @@ def rerank():
                 resp_headers['X-Experiment-Id'] = experiment.id
             else:
                 # No experiment so check if there's a ranking campaign configured.
-                campaign_arn = get_parameter_values('retaildemostore-personalized-ranking-campaign-arn')[0]
+                campaign_arn = get_parameter_values(os.environ.get('UID')+'-personalized-ranking-campaign')[0]
 
                 if campaign_arn:
                     resolver = PersonalizeRankingResolver(campaign_arn = campaign_arn)
