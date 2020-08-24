@@ -178,6 +178,9 @@ Parameters:
     Type: String
     Description: Lambda Arn for deleting ECR repository
 
+  Uid:
+    Type: String
+
 Resources:
 
   Loadbalancer:
@@ -250,6 +253,7 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Ref Uid
         
 Outputs:
   ServiceDNSName:

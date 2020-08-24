@@ -306,7 +306,7 @@ def lambda_handler(event, context):
     related_product_campaign_arn_param = 'retaildemostore-related-products-campaign-arn'
     product_campaign_arn_param = 'retaildemostore-product-recommendation-campaign-arn'
     rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
-    role_name = "RetailDemoStorePersonalizeS3Role"
+    role_name = os.environ.get('Uid')+'-PersonalizeS3'
     event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
     filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
 

@@ -43,6 +43,10 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  ParentStackName:
+    Type: String
+    Description: Parent stack name
+  
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
@@ -56,7 +60,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/authentication.yaml
       Parameters:
-        AuthName: "retaildemostore"
+        AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         
   # Buckets
@@ -80,6 +84,7 @@ Resources:
         DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
         
   # Tables
   Tables:
