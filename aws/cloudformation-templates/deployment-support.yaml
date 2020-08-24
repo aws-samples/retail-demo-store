@@ -66,6 +66,9 @@ Parameters:
   ElasticsearchDomainEndpoint:
     Type: String
 
+  Uid:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -104,6 +107,7 @@ Resources:
           csv_bucket: !Ref ResourceBucket
           csv_path: 'csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+          Uid: !Ref Uid
 
   PersonalizePreCreateLambdaExecutionRole:
     Condition: DeployPreCreateCampaign
@@ -173,7 +177,7 @@ Resources:
                   - iam:CreateRole
                   - iam:AttachRolePolicy
                 Resource: 
-                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - Effect: Allow
                 Action:
                   - events:ListTargetsByRule
@@ -239,6 +243,9 @@ Resources:
       Runtime: python3.8
       Timeout: 60
       FunctionName: RetailDemoStorePersonalizeDeleteResources
+      Environment:
+        Variables:
+          Uid: !Ref Uid
 
   PersonalizeDeleteLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -287,7 +294,7 @@ Resources:
                 Action:
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
 
   # Custom resource to launch elasticsearch preindex function
   CustomPersonalizeDeleteLambdaFunction:
