@@ -80,7 +80,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
     if not products_service_host:
         # Get product service instance. We'll need it rehydrate product info for recommendations.
         response = servicediscovery.discover_instances(
-            NamespaceName='retaildemostore.local',
+            NamespaceName=os.environ.get('UID')+'.local',
             ServiceName='products',
             MaxResults=1,
             HealthStatus='HEALTHY'

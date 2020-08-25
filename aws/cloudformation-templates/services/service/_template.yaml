@@ -117,7 +117,7 @@ Parameters:
 
   EnvProductsServiceInternalUrl:
     Type: String
-    Default: products.retaildemostore.local
+    Default: products
 
   EnvProductsServiceInternalPort:
     Type: String
@@ -125,7 +125,7 @@ Parameters:
 
   EnvUsersServiceInternalUrl:
     Type: String
-    Default: users.retaildemostore.local
+    Default: users
 
   EnvUsersServiceInternalPort:
     Type: String
@@ -133,7 +133,7 @@ Parameters:
 
   EnvSearchServiceInternalUrl:
     Type: String
-    Default: search.retaildemostore.local
+    Default: search
 
   EnvSerchServiceInternalPort:
     Type: String
@@ -191,6 +191,7 @@ Resources:
         ServiceName: !Ref ServiceName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        Uid: !Ref Uid
 
   Pipeline:
     Type: AWS::CloudFormation::Stack
@@ -242,11 +243,11 @@ Resources:
         ContainerImage: amazon/amazon-ecs-sample
         EnvPersonalizeCampaignArn: !Ref EnvPersonalizeCampaignArn
         EnvPersonalizeSearchCampaignArn: !Ref EnvPersonalizeSearchCampaignArn
-        EnvProductsServiceInternalUrl: !Ref EnvProductsServiceInternalUrl
+        EnvProductsServiceInternalUrl: !Sub '${EnvProductsServiceInternalUrl}.${Uid}.local'
         EnvProductsServiceInternalPort: !Ref EnvProductsServiceInternalPort
-        EnvUsersServiceInternalUrl: !Ref EnvUsersServiceInternalUrl
+        EnvUsersServiceInternalUrl: !Sub '${EnvUsersServiceInternalUrl}.${Uid}.local'
         EnvUsersServiceInternalPort: !Ref EnvUsersServiceInternalPort
-        EnvSearchServiceInternalUrl: !Ref EnvSearchServiceInternalUrl
+        EnvSearchServiceInternalUrl: !Sub '${EnvSearchServiceInternalUrl}.${Uid}.local'
         EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
         EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
         ProductsTable: !Ref ProductsTable

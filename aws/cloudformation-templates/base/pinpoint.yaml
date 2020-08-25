@@ -4,12 +4,16 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
     This template deploys the Retail Demo Store Pinpoint resources.
 
+Parameters:
+  Uid:
+    Type: String
+
 Resources:
 
   PinpointApp:
     Type: AWS::Pinpoint::App
     Properties: 
-        Name: retaildemostore
+        Name: !Ref Uid
 
 Outputs:
   PinpointAppId:

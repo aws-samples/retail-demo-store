@@ -44,10 +44,10 @@ ssm = boto3.client('ssm')
 iam = boto3.client('iam')
 
 schemas_to_delete = [ 
-    'retaildemostore-schema-users', 
-    'retaildemostore-schema-items', 
-    'retaildemostore-schema-interactions', 
-    'retaildemostore-event-schema' 
+    os.environ.get('Uid')+'-schema-users', 
+    os.environ.get('Uid')+'-schema-items', 
+    os.environ.get('Uid')+'-schema-interactions', 
+    os.environ.get('Uid')+'-event-schema' 
 ]
 
 def get_dataset_arn(dataset_group_name):
@@ -238,7 +238,7 @@ def poll_delete(event, _):
     In practice, the delete process occurs pretty quickly, though.
     '''
     # Name of dataset group that was created in the Personalize workshop notebook or by pre-create Lambda.
-    dataset_group_name = event['ResourceProperties'].get('DatasetGroupName', 'retaildemostore')
+    dataset_group_name = event['ResourceProperties'].get('DatasetGroupName', os.environ.get('Uid'))
     logger.info('Deleting resources for Personalize dataset group: ' + dataset_group_name)
 
     dataset_group_arn = get_dataset_arn(dataset_group_name)

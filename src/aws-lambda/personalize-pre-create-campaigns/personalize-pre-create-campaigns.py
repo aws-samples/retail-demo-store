@@ -225,7 +225,7 @@ def delete_event_rule(rule_name):
 def rebuild_webui_service(region, account_id):
     ''' Initiates a build/deploy of the Web UI service so that event tracker is picked up '''
 
-    logger.info('Looking for pipeline with tag "RetailDemoStoreServiceName=web-ui" to initiate execution')
+    logger.info('Looking for pipeline with tag "RetailDemoStoreServiceName=Uid-web-ui" to initiate execution')
 
     restarted = False
     
@@ -240,7 +240,7 @@ def rebuild_webui_service(region, account_id):
             response_tags = codepipeline.list_tags_for_resource(resourceArn=arn)
             
             for tag in response_tags['tags']:
-                if tag['key'] == 'RetailDemoStoreServiceName' and tag['value'] == 'web-ui':
+                if tag['key'] == 'RetailDemoStoreServiceName' and tag['value'] == os.environ.get('Uid')+'-web-ui':
                     logger.info('Found web-ui pipeline; attempting to start execution')
                     
                     response_start = codepipeline.start_pipeline_execution(name=pipeline['name'])
@@ -259,7 +259,7 @@ def rebuild_webui_service(region, account_id):
             break
             
     if not restarted:
-        logger.warn('Pipeline with tag "RetailDemoStoreServiceName=web-ui" not restarted; does pipeline and/or tag exist?')
+        logger.warn('Pipeline with tag "RetailDemoStoreServiceName=Uid-web-ui" not restarted; does pipeline and/or tag exist?')
 
 def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
     ''' Creates Personalize Filter that excludes recommendations for recently purchased products '''
@@ -301,7 +301,7 @@ def lambda_handler(event, context):
     region = session.region_name
     account_id = sts.get_caller_identity().get('Account')
 
-    dataset_group_name = 'retaildemostore'
+    dataset_group_name = os.environ.get('Uid')
     
     related_product_campaign_arn_param = os.environ.get('Uid')+'-related-products-campaign'
     product_campaign_arn_param = os.environ.get('Uid')+'-product-recommendation-campaign'
@@ -428,9 +428,9 @@ def lambda_handler(event, context):
     }
 
     # Conditionally create schemas
-    items_schema_arn = create_schema(items_schema, "retaildemostore-schema-items")
-    users_schema_arn = create_schema(users_schema, "retaildemostore-schema-users")
-    interactions_schema_arn = create_schema(interactions_schema, "retaildemostore-schema-interactions")
+    items_schema_arn = create_schema(items_schema, os.environ.get('Uid')+"-schema-items")
+    users_schema_arn = create_schema(users_schema, os.environ.get('Uid')+"-schema-users")
+    interactions_schema_arn = create_schema(interactions_schema, os.environ.get('Uid')+"-schema-interactions")
     
     # Create dataset group if it doesn't exist
     response=personalize.list_dataset_groups()
@@ -469,14 +469,14 @@ def lambda_handler(event, context):
         }
 
     # Create datasets
-    items_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-items', 'ITEMS', items_schema_arn)
-    users_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-users', 'USERS', users_schema_arn)
-    interactions_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-interactions', 'INTERACTIONS', interactions_schema_arn)
+    items_dataset_arn = create_dataset(dataset_group_arn, os.environ.get('Uid')+'-dataset-items', 'ITEMS', items_schema_arn)
+    users_dataset_arn = create_dataset(dataset_group_arn, os.environ.get('Uid')+'-dataset-users', 'USERS', users_schema_arn)
+    interactions_dataset_arn = create_dataset(dataset_group_arn, os.environ.get('Uid')+'-dataset-interactions', 'INTERACTIONS', interactions_schema_arn)
 
     # Create dataset import jobs
-    items_dataset_import_job_arn = create_import_job('retaildemostore-dataset-items-import-job', items_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, items_filename), role_arn)
-    users_dataset_import_job_arn = create_import_job('retaildemostore-dataset-users-import-job', users_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, users_filename), role_arn)
-    interactions_dataset_import_job_arn = create_import_job('retaildemostore-dataset-interactions-import-job', interactions_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, interactions_filename), role_arn)
+    items_dataset_import_job_arn = create_import_job(os.environ.get('Uid')+'-dataset-items-import-job', items_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, items_filename), role_arn)
+    users_dataset_import_job_arn = create_import_job(os.environ.get('Uid')+'-dataset-users-import-job', users_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, users_filename), role_arn)
+    interactions_dataset_import_job_arn = create_import_job(os.environ.get('Uid')+'-dataset-interactions-import-job', interactions_dataset_arn, account_id, region, "s3://{}/{}".format(bucket, interactions_filename), role_arn)
 
     # Make sure all import jobs are done/active before continuing
     if not is_import_job_active(items_dataset_import_job_arn):
@@ -508,7 +508,7 @@ def lambda_handler(event, context):
             logger.info('Event Tracker does not exist; creating')
             event_tracker = personalize.create_event_tracker(
                 datasetGroupArn=dataset_group_arn,
-                name='retaildemostore-event-tracker'
+                name=os.environ.get('Uid')+'-event-tracker'
             )
 
             if event_tracker.get('trackingId'):
@@ -550,11 +550,11 @@ def lambda_handler(event, context):
 
     # Create related product, product recommendation, and rerank solutions if they doesn't exist
     related_recipe_arn = "arn:aws:personalize:::recipe/aws-sims"
-    related_solution_name = related_campaign_name = "retaildemostore-related-products"
+    related_solution_name = related_campaign_name = os.environ.get('Uid')+"-related-products"
     product_recipe_arn = "arn:aws:personalize:::recipe/aws-hrnn-metadata"
-    product_solution_name = product_campaign_name = "retaildemostore-product-personalization"
+    product_solution_name = product_campaign_name = os.environ.get('Uid')+"-product-personalization"
     rerank_recipe_arn = "arn:aws:personalize:::recipe/aws-personalized-ranking"
-    rerank_solution_name = rerank_campaign_name = "retaildemostore-personalized-ranking"
+    rerank_solution_name = rerank_campaign_name = os.environ.get('Uid')+"-personalized-ranking"
 
     solution_created = False
     list_solutions_response = str(personalize.list_solutions(datasetGroupArn=dataset_group_arn))

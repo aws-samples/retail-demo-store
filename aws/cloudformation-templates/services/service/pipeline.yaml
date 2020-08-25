@@ -327,7 +327,7 @@ Resources:
       Tags:
         -
           Key: RetailDemoStoreServiceName
-          Value: !Ref ServiceName
+          Value: !Sub '${Uid}-${ServiceName}'
       ArtifactStore:
         Type: S3
         Location: !Ref ArtifactBucket
@@ -387,7 +387,7 @@ Resources:
       Tags:
         -
           Key: RetailDemoStoreServiceName
-          Value: !Ref ServiceName
+          Value: !Sub '${Uid}-${ServiceName}'
       ArtifactStore:
         Type: S3
         Location: !Ref ArtifactBucket

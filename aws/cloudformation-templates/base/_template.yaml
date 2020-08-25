@@ -99,6 +99,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/servicediscovery.yaml
       Parameters:
         VpcId: !GetAtt VPC.Outputs.VpcId
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # ECS Cluster
   ECSCluster:
@@ -151,6 +152,7 @@ Resources:
         Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
         Subnet2: !GetAtt VPC.Outputs.Subnet2
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # SSM Parameters
   SSMParameters:
@@ -180,6 +182,8 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/pinpoint.yaml
+      Parameters:
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # CloudFront CDN
   CloudFront:

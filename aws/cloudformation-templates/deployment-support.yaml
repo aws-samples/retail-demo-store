@@ -181,7 +181,7 @@ Resources:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
                 Condition:
                   StringEquals:
-                    aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
+                    aws:ResourceTag/RetailDemoStoreServiceName : !Sub '${Uid}-web-ui'
 
   PersonalizePreCreateScheduledRule:
     Condition: DeployPreCreateCampaign
@@ -284,7 +284,7 @@ Resources:
     Type: Custom::CustomPersonalizeDelete
     Properties:
       ServiceToken: !GetAtt PersonalizeDeleteLambdaFunction.Arn
-      DatasetGroupName: 'retaildemostore'
+      DatasetGroupName: !Sub '${Uid}-retaildemostore'
 
   ####################### Pre-Index Elasticsearch #######################
 

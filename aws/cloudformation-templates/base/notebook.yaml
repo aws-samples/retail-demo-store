@@ -154,7 +154,7 @@ Resources:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
                 Condition:
                   StringEquals:
-                    aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
+                    aws:ResourceTag/RetailDemoStoreServiceName : !Sub '${Uid}-web-ui'
         - 
           PolicyName: "3-Experimentation"
           PolicyDocument: 

@@ -109,7 +109,7 @@ class ExperimentManager:
         tracker = None
 
         try:
-            response = ssm.get_parameter(Name='retaildemostore-kinesis-event-stream-name')
+            response = ssm.get_parameter(Name=os.environ.get('UID')+'-kinesis-event-stream-name')
             if response['Parameter']['Value'] != 'NONE':
                 stream_name = response['Parameter']['Value']
                 tracker = KinesisTracker(

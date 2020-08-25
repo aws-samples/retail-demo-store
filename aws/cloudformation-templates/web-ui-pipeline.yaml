@@ -364,7 +364,7 @@ Resources:
       Tags:
         -
           Key: RetailDemoStoreServiceName
-          Value: web-ui
+          Value: !Sub '${Uid}-web-ui'
       ArtifactStore:
         Type: S3
         Location: !Ref ArtifactBucket
@@ -409,7 +409,7 @@ Resources:
       Tags:
         -
           Key: RetailDemoStoreServiceName
-          Value: web-ui
+          Value: !Sub '${Uid}-web-ui'
       ArtifactStore:
         Type: S3
         Location: !Ref ArtifactBucket

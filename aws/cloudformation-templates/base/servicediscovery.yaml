@@ -9,6 +9,9 @@ Parameters:
     Type: String
     Description: VpcId
 
+  Uid:
+    Type: String
+
 Resources:
 
   ServiceDiscoveryNamespace:
@@ -16,7 +19,7 @@ Resources:
     Properties:
       Description: Cloud Map private DNS namespace for resources for the Retail Demo Store
       Vpc: !Ref VpcId
-      Name: retaildemostore.local
+      Name: !Sub '${Uid}.local'
 
 Outputs:
 
