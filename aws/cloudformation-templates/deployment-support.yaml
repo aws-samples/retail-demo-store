@@ -279,12 +279,12 @@ Resources:
                   - iam:DeleteRole
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
 
-  # Custom resource to launch elasticsearch preindex function
+  # Custom resource to clean Amazon Personalize
   CustomPersonalizeDeleteLambdaFunction:
     Type: Custom::CustomPersonalizeDelete
     Properties:
       ServiceToken: !GetAtt PersonalizeDeleteLambdaFunction.Arn
-      DatasetGroupName: !Sub '${Uid}-retaildemostore'
+      DatasetGroupName: !Sub '${Uid}'
 
   ####################### Pre-Index Elasticsearch #######################
 
