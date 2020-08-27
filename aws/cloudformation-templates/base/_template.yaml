@@ -62,6 +62,7 @@ Resources:
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        ParentStackName: !Ref ParentStackName
         
   # Buckets
   Buckets:

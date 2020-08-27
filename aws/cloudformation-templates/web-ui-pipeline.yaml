@@ -109,6 +109,9 @@ Parameters:
   Uid:
     Type: String
 
+  ParentStackName:
+    Type: String
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -353,6 +356,8 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
+          - Name: BOT_NAME
+            Value: !Ref ParentStackName
         Image: 'aws/codebuild/standard:2.0'
         Type: LINUX_CONTAINER
 

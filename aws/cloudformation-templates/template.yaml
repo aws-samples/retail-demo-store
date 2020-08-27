@@ -232,6 +232,7 @@ Resources:
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        ParentStackName: !Ref AWS::StackName
 
   # Lex personalization function
   ChatbotFunctions:
@@ -244,6 +245,7 @@ Resources:
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        ParentStackName: !Ref AWS::StackName
 
   # Deployment support
   DeploymentSupport:

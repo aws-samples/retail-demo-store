@@ -23,6 +23,9 @@ Parameters:
   Uid:
     Type: String
 
+  ParentStackName:
+    Type: String
+
 Resources:
   BotRecommendationsLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -80,7 +83,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt BotRecommendationsLambdaFunction.Arn
       Principal: lex.amazonaws.com
-      SourceArn: !Sub 'arn:aws:lex:${AWS::Region}:${AWS::AccountId}:intent:RecommendProduct:*'
+      SourceArn: !Sub 'arn:aws:lex:${AWS::Region}:${AWS::AccountId}:intent:${ParentStackName}RecommendProduct:*'
 
 Outputs:
   BotRecommendationsLambdaFunctionArn:

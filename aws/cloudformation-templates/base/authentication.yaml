@@ -13,6 +13,9 @@ Parameters:
     Type: String
     Description: Pinpoint project/application ID
 
+  ParentStackName:
+    Type: String
+
 Resources:
   # Creates a role that allows Cognito to send SNS messages
   SNSRole:
@@ -162,7 +165,7 @@ Resources:
                 Action:
                   - "lex:PostText"
                 Resource:
-                  - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:${AuthName}:*"
+                  - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:${ParentStackName}:*"
 
   # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
   # Only allows users in the previously created Identity Pool
@@ -212,7 +215,7 @@ Resources:
                 Action:
                   - "lex:PostText"
                 Resource:
-                  - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:${AuthName}:*"
+                  - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:${ParentStackName}:*"
   
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:

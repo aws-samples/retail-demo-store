@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "schemaVersion": "1.0",
+    "importType": "LEX",
+    "importFormat": "JSON"
+  },
+  "resource": {
+    "name": "RetailDemoStore",
+    "version": "6",
+    "intents": [
+      {
+        "name": "RecommendProduct",
+        "version": "5",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "Any recommendations",
+          "Can you recommend a product",
+          "Anything in the store you think I'd like",
+          "What should I buy",
+          "What should I check out"
+        ],
+        "slots": [],
+        "conclusionStatement": {
+          "messages": [
+            {
+              "groupNumber": 1,
+              "contentType": "PlainText",
+              "content": "I'd love to recommend some products but I haven't been connected to the Lambda function that makes me smart!"
+            }
+          ]
+        }
+      },
+      {
+        "name": "ReturnPolicy",
+        "version": "2",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "What is your return policy",
+          "Can I return an item"
+        ],
+        "slots": [],
+        "conclusionStatement": {
+          "messages": [
+            {
+              "groupNumber": 1,
+              "contentType": "PlainText",
+              "content": "Unopened items may be returned for a full refund within 30 days of purchase."
+            }
+          ]
+        }
+      },
+      {
+        "name": "Greeting",
+        "version": "6",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "Hi",
+          "Hello",
+          "Howdy",
+          "Hey",
+          "Hey there",
+          "What can you do"
+        ],
+        "slots": [],
+        "conclusionStatement": {
+          "messages": [
+            {
+              "groupNumber": 1,
+              "contentType": "PlainText",
+              "content": "Hi there! I am the Retail Demo Store's virtual assistant. Currently I know about our return policy and can even recommend some products. I am learning new skills all the time so check back often. Ask me a question and I will try to get you an answer."
+            }
+          ]
+        }
+      }
+    ],
+    "voiceId": "0",
+    "childDirected": false,
+    "locale": "en-US",
+    "idleSessionTTLInSeconds": 300,
+    "description": "Retail Demo Store conversational bot",
+    "clarificationPrompt": {
+      "messages": [
+        {
+          "contentType": "PlainText",
+          "content": "Sorry, can you please repeat that?"
+        }
+      ],
+      "maxAttempts": 5
+    },
+    "abortStatement": {
+      "messages": [
+        {
+          "contentType": "PlainText",
+          "content": "Sorry, I could not understand. Goodbye."
+        }
+      ]
+    },
+    "detectSentiment": false
+  }
+}
