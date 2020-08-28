@@ -147,7 +147,7 @@ def dispatch(intent_request):
     intent_name = intent_request['currentIntent']['name']
 
     # Dispatch to bot's intent handlers
-    if intent_name == 'RecommendProduct':
+    if intent_name == os.environ.get('Uid')+'RecommendProduct':
         return recommend_products(intent_request)
 
     raise Exception('Intent with name ' + intent_name + ' not supported')

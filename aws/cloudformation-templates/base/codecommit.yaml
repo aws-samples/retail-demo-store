@@ -21,6 +21,9 @@ Parameters:
       - 'CodeCommit'
     Default: 'CodeCommit'
 
+  Uid:
+    Type: String
+
 Conditions:
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
 
@@ -29,7 +32,7 @@ Resources:
   WorkshopRepository:
     Type: AWS::CodeCommit::Repository
     Properties:
-      RepositoryName: retaildemostore-workshop
+      RepositoryName: !Sub '${Uid}-workshop'
       RepositoryDescription: CodeCommit Repo for the Retail Demo Store workshops
       Code:
         S3:
@@ -40,7 +43,7 @@ Resources:
     Condition: LinkToCodeCommit
     Type: AWS::CodeCommit::Repository
     Properties:
-      RepositoryName: retaildemostore-src
+      RepositoryName: !Sub '${Uid}-src'
       RepositoryDescription: CodeCommit Repo for the Retail Demo Store source code
       Code:
         S3:

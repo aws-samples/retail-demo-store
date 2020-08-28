@@ -62,6 +62,7 @@ Resources:
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        ParentStackName: !Ref ParentStackName
         
   # Buckets
   Buckets:
@@ -99,6 +100,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/servicediscovery.yaml
       Parameters:
         VpcId: !GetAtt VPC.Outputs.VpcId
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # ECS Cluster
   ECSCluster:
@@ -151,6 +153,7 @@ Resources:
         Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
         Subnet2: !GetAtt VPC.Outputs.Subnet2
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # SSM Parameters
   SSMParameters:
@@ -162,6 +165,7 @@ Resources:
         ExperimentStrategyTableName: !GetAtt Tables.Outputs.ExperimentStrategyTable
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # CodeCommit Repository
   CodeCommitRepository:
@@ -172,12 +176,15 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Pinpoint Resources
   Pinpoint:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/pinpoint.yaml
+      Parameters:
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # CloudFront CDN
   CloudFront:

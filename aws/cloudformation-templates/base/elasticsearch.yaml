@@ -18,6 +18,9 @@ Parameters:
   VpcId:
     Type: String
 
+  Uid:
+    Type: String
+
 Resources:
 
   ElasticsearchDomain:
@@ -54,6 +57,9 @@ Resources:
         - 
           Key: "Name"
           Value: "retaildemostore"
+        -
+          Key: "Uid"
+          Value: !Ref Uid
 
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup

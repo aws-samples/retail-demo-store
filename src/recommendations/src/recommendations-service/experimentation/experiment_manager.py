@@ -3,6 +3,7 @@
 
 import boto3
 import logging
+import os
 
 from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
@@ -108,7 +109,7 @@ class ExperimentManager:
         tracker = None
 
         try:
-            response = ssm.get_parameter(Name='retaildemostore-kinesis-event-stream-name')
+            response = ssm.get_parameter(Name=os.environ.get('UID')+'-kinesis-event-stream-name')
             if response['Parameter']['Value'] != 'NONE':
                 stream_name = response['Parameter']['Value']
                 tracker = KinesisTracker(
@@ -124,7 +125,7 @@ class ExperimentManager:
         """ Lazily initializes the DDB table name for experiment strategies """
         if ExperimentManager.__table_name is None:
             log.debug('ExperimentManager - looking up experiment strategy table name from SSM')
-            response = ssm.get_parameter(Name='retaildemostore-experiment-strategy-table-name')
+            response = ssm.get_parameter(Name=os.environ.get('UID')+'-experiment-strategy-table-name')
 
             if response['Parameter']['Value']:
                 ExperimentManager.__table_name = response['Parameter']['Value']

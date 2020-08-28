@@ -46,7 +46,6 @@ Parameters:
 
   EnvProductsServiceInternalUrl:
     Type: String
-    Default: products.retaildemostore.local
 
   EnvProductsServiceInternalPort:
     Type: String
@@ -54,7 +53,6 @@ Parameters:
 
   EnvUsersServiceInternalUrl:
     Type: String
-    Default: users.retaildemostore.local
 
   EnvUsersServiceInternalPort:
     Type: String
@@ -62,7 +60,6 @@ Parameters:
 
   EnvSearchServiceInternalUrl:
     Type: String
-    Default: search.retaildemostore.local
 
   EnvSerchServiceInternalPort:
     Type: String
@@ -146,7 +143,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:*
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -158,9 +155,9 @@ Resources:
                   - personalize:GetPersonalizedRanking 
                   - personalize:GetRecommendations 
                 Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/${Uid}-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/${Uid}-*'     
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/${Uid}-*'     
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
 
@@ -238,6 +235,8 @@ Resources:
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL
               Value: !Ref ImageRootUrl
+            - Name: UID
+              Value: !Ref Uid
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

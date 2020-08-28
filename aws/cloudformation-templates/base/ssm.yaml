@@ -21,6 +21,9 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  Uid:
+    Type: String
+
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
@@ -32,7 +35,7 @@ Resources:
   ParameterStackBucketName:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-stack-bucket"
+      Name: !Sub '${Uid}-stack-bucket'
       Type: "String"
       Value: !Ref StackBucketName
       Description: "Retail Demo Store Stack Bucket Parameter"
@@ -40,7 +43,7 @@ Resources:
   ParameterRelatedProductsCampaignArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-related-products-campaign-arn"
+      Name: !Sub '${Uid}-related-products-campaign'
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Related Products Campaign Arn Parameter"
@@ -48,7 +51,7 @@ Resources:
   ParameterProductRecommendationCampaignArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-product-recommendation-campaign-arn"
+      Name: !Sub '${Uid}-product-recommendation-campaign'
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Product Recommendation Campaign Arn Parameter"
@@ -56,7 +59,7 @@ Resources:
   ParameterPersonalizedRankingCampaignArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalized-ranking-campaign-arn"
+      Name: !Sub '${Uid}-personalized-ranking-campaign'
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
@@ -64,7 +67,7 @@ Resources:
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalize-filter-purchased-arn"
+      Name: !Sub '${Uid}-personalize-filter-purchased'
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Filter Purchased Products Arn Parameter"
@@ -72,7 +75,7 @@ Resources:
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-experiment-strategy-table-name"
+      Name: !Sub '${Uid}-experiment-strategy-table-name'
       Type: "String"
       Value: !Ref ExperimentStrategyTableName
       Description: "Retail Demo Store Experiment Strategy DDB Table Name"
@@ -80,7 +83,7 @@ Resources:
   ParameterPersonalizeEventTrackerId:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalize-event-tracker-id"
+      Name: !Sub '${Uid}-personalize-event-tracker-id'
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
@@ -88,7 +91,7 @@ Resources:
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-amplitude-api-key"
+      Name: !Sub '${Uid}-amplitude-api-key'
       Type: "String"
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
       Description: "Retail Demo Store Amplitude API key"
@@ -96,7 +99,7 @@ Resources:
   ParameterOptimizelySdkKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-optimizely-sdk-key"
+      Name: !Sub '${Uid}-optimizely-sdk-key'
       Type: "String"
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"

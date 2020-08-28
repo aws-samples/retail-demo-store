@@ -84,12 +84,12 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-campaigns.zip'
       Runtime: python3.8
       Timeout: 900
-      FunctionName: RetailDemoStorePersonalizePreCreateCampaigns
+      FunctionName: !Sub '${Uid}-PersonalizePreCreateCampaigns'
       Environment:
         Variables:
           csv_bucket: !Ref ResourceBucket
           csv_path: 'csvs/'
-          lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+          lambda_event_rule_name: !Sub '${Uid}-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
 
   PersonalizePreCreateLambdaExecutionRole:
@@ -116,13 +116,13 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-PersonalizePreCreateCampaigns:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-PersonalizePreCreateCampaigns'
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
                   - ssm:GetParameter                
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -152,7 +152,7 @@ Resources:
                   - personalize:CreateEventTracker
                   - personalize:CreateFilter
                 Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/${Uid}*'
               - Effect: Allow
                 Action:
                   - iam:GetRole
@@ -167,7 +167,7 @@ Resources:
                   - events:RemoveTargets
                   - events:DeleteRule
                 Resource:
-                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${Uid}-PersonalizePreCreateScheduledRule'
               - Effect: Allow
                 Action:
                   - codepipeline:ListPipelines
@@ -181,13 +181,13 @@ Resources:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
                 Condition:
                   StringEquals:
-                    aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
+                    aws:ResourceTag/RetailDemoStoreServiceName : !Sub '${Uid}-web-ui'
 
   PersonalizePreCreateScheduledRule:
     Condition: DeployPreCreateCampaign
     Type: 'AWS::Events::Rule'
     Properties:
-      Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+      Name: !Sub '${Uid}-PersonalizePreCreateScheduledRule'
       Description: Calls Personalize pre-create Lambda function every 5 minutes until campaigns are fully created
       ScheduleExpression: rate(5 minutes)
       State: ENABLED
@@ -225,7 +225,7 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-delete-resources.zip'
       Runtime: python3.8
       Timeout: 60
-      FunctionName: RetailDemoStorePersonalizeDeleteResources
+      FunctionName: !Sub '${Uid}-PersonalizeDeleteResources'
       Environment:
         Variables:
           Uid: !Ref Uid
@@ -258,7 +258,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizeDeleteResources*'        
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-PersonalizeDeleteResources*'        
               - Effect: Allow
                 Action:
                   - personalize:*
@@ -272,19 +272,19 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Uid}-*'
               - Effect: Allow
                 Action:
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
 
-  # Custom resource to launch elasticsearch preindex function
+  # Custom resource to clean Amazon Personalize
   CustomPersonalizeDeleteLambdaFunction:
     Type: Custom::CustomPersonalizeDelete
     Properties:
       ServiceToken: !GetAtt PersonalizeDeleteLambdaFunction.Arn
-      DatasetGroupName: 'retaildemostore'
+      DatasetGroupName: !Sub '${Uid}'
 
   ####################### Pre-Index Elasticsearch #######################
 

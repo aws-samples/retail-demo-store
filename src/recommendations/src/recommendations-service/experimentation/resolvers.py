@@ -8,6 +8,7 @@ import boto3
 import json
 import urllib.parse
 import logging
+import os
 
 log = logging.getLogger(__name__)
 servicediscovery = boto3.client('servicediscovery')
@@ -43,7 +44,7 @@ class DefaultProductResolver(Resolver):
         if not self.products_service_host:
             # host/IP wasn't provided so attempt to discover instance
             response = servicediscovery.discover_instances(
-                NamespaceName='retaildemostore.local',
+                NamespaceName=os.environ.get('UID')+'.local',
                 ServiceName='products',
                 MaxResults=1,
                 HealthStatus='HEALTHY'
@@ -122,7 +123,7 @@ class SearchSimilarProductsResolver(Resolver):
         if not self.search_service_host: 
             # host/IP wasn't provided so attempt to discover instance
             response = servicediscovery.discover_instances( 
-                NamespaceName='retaildemostore.local', 
+                NamespaceName=os.environ.get('UID')+'.local', 
                 ServiceName='search', 
                 MaxResults=1, 
                 HealthStatus='HEALTHY' 
