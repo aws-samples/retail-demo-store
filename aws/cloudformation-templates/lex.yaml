@@ -45,6 +45,7 @@ Resources:
         Variables:
           users_service_base_url: !Ref UsersServiceExternalUrl
           recommendations_service_base_url: !Ref RecommendationsServiceExternalUrl
+          Uid: !Ref ParentStackName
 
   BotRecommendationsLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
