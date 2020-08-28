@@ -32,6 +32,8 @@ To get the Retail Demo Store running in your own AWS account, follow these instr
 
 ### AWS Deployment Options
 
+***IMPORTANT NOTE:** Please use only letters in Cloud Formation Stack name.*
+
 There are two options for deploying the Retail Demo Store in an AWS account. The option you choose depends on whether you just want to deploy it for evaluation or a demo or whether you're actively developing against the Retail Demo Store project.
 
 #### Deploying for Demo or Evaluation
