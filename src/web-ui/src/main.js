@@ -12,6 +12,12 @@ import Amplitude from 'amplitude-js'
 Vue.prototype.moment = moment
 
 // Base configuration for Amplify
+var bot = {};
+bot[process.env.VUE_APP_BOT_NAME] = {
+  'name':process.env.VUE_APP_BOT_NAME,
+  'alias':process.env.VUE_APP_BOT_ALIAS,
+  'region':process.env.VUE_APP_BOT_REGION
+};
 const amplifyConfig = {
   Auth: {
       identityPoolId: process.env.VUE_APP_AWS_IDENTITY_POOL_ID,
@@ -31,13 +37,7 @@ const amplifyConfig = {
     }
   },
   Interactions: {
-    bots: {
-      "RetailDemoStore": {
-        "name": process.env.VUE_APP_BOT_NAME,
-        "alias": process.env.VUE_APP_BOT_ALIAS,
-        "region": process.env.VUE_APP_BOT_REGION,
-      },
-    }
+    bots: bot
   }
 }
 
