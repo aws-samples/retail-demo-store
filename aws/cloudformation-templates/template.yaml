@@ -147,171 +147,74 @@ Parameters:
     NoEcho: true
 
 Resources:
-  # Base Resources
-  Base:
+  # String macro Resource
+  String:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/_template.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/string.yaml
+
+  #Base template
+  App:
+    DependsOn: String
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/_template.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        SourceDeploymentType: !Ref SourceDeploymentType
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
-        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
-        AmplitudeApiKey: !Ref AmplitudeApiKey
-        ParentStackName: !Ref AWS::StackName
-        OptimizelySdkKey: !Ref OptimizelySdkKey
-
-  # Services Resources
-  Services:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/_template.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
         GitHubRepo: !Ref GitHubRepo
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
-        UserPoolId: !GetAtt Base.Outputs.UserPoolId
-        UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
-        IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
-        StackBucketName: !GetAtt Base.Outputs.StackBucketName
-        Subnets: !GetAtt Base.Outputs.Subnets
-        VpcId: !GetAtt Base.Outputs.VpcId
-        ClusterName: !GetAtt Base.Outputs.ClusterName
-        ServiceDiscoveryNamespace: !GetAtt Base.Outputs.ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
-        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
-        ProductsTable: !GetAtt Base.Outputs.ProductsTable
-        CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
-        ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
-        ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
-        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
-        WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
-        ImageRootUrl: !Sub 
-          - '${RootURL}/images/'
-          - RootURL: !GetAtt Base.Outputs.WebUICDNURL
-        ParentStackName: !Ref AWS::StackName
-
-  # Web UI Pipeline
-  WebUIPipeline:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/web-ui-pipeline.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        SourceDeploymentType: !Ref SourceDeploymentType
-        GitHubRepo: !Ref GitHubRepo
-        GitHubBranch: !Ref GitHubBranch
-        GitHubToken: !Ref GitHubToken
-        GitHubUser: !Ref GitHubUser
-        UserPoolId: !GetAtt Base.Outputs.UserPoolId
-        UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
-        IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
-        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
-        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
-        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
-        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
-        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
-        ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
-        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
-        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
-        WebUICDN: !GetAtt Base.Outputs.WebUICDN
-        WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
-        WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
-        ImageRootUrl: !Sub 
-          - '${RootURL}/images/'
-          - RootURL: !GetAtt Base.Outputs.WebUICDNURL
-        Uid: !Sub ${AWS::StackName}-${AWS::Region}
-        ParentStackName: !Ref AWS::StackName
-
-  # Lex personalization function
-  ChatbotFunctions:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/lex.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        Uid: !Sub ${AWS::StackName}-${AWS::Region}
-        ParentStackName: !Ref AWS::StackName
-
-  # Deployment support
-  DeploymentSupport:
-    DependsOn: Services # Delay towards end of deployment so that ES domain and DNS changes become consistent
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/deployment-support.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         PreIndexElasticsearch: !Ref PreIndexElasticsearch
         PreCreatePersonalizeCampaign: !Ref PreCreatePersonalizeCampaign
-        Subnet1: !GetAtt Base.Outputs.Subnet1
-        Subnet2: !GetAtt Base.Outputs.Subnet2
-        ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
-        ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
-        ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
-        Uid: !Sub ${AWS::StackName}-${AWS::Region}
-
-  # Cleanup bucket function
-  CleanupBucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
-
+        AmplitudeApiKey: !Ref AmplitudeApiKey
+        OptimizelySdkKey: !Ref OptimizelySdkKey
+        ParentStackName: !Ref AWS::StackName
+    
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
-    Value: !GetAtt Base.Outputs.UserPoolId
+    Value: !GetAtt App.Outputs.UserPoolId
   
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
-    Value: !GetAtt Base.Outputs.UserPoolClientId
+    Value: !GetAtt App.Outputs.UserPoolClientId
   
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
-    Value: !GetAtt Base.Outputs.IdentityPoolId
+    Value: !GetAtt App.Outputs.IdentityPoolId
 
-  BucketStackBucketName:
+  StackBucketName:
     Description: Stack Bucket Name
-    Value: !GetAtt Base.Outputs.StackBucketName
+    Value: !GetAtt App.Outputs.StackBucketName
 
   NotebookInstanceId:
     Description: Notebook Instance Id.
-    Value: !GetAtt Base.Outputs.NotebookInstanceId
+    Value: !GetAtt App.Outputs.NotebookInstanceId
 
   VpcId:
     Description: VPC Id.
-    Value: !GetAtt Base.Outputs.VpcId
+    Value: !GetAtt App.Outputs.VpcId
 
   Subnets:
     Description: Service Subnets.
-    Value: !GetAtt Base.Outputs.Subnets
+    Value: !GetAtt App.Outputs.Subnets
 
   ClusterName:
     Description: ECS Cluster Name.
-    Value: !GetAtt Base.Outputs.ClusterName
+    Value: !GetAtt App.Outputs.ClusterName
 
-  WebURL:
+  WebUICDNURL:
     Description: Retail Demo Store Web UI URL
-    Value: !GetAtt Base.Outputs.WebUICDNURL
+    Value: !GetAtt App.Outputs.WebUICDNURL
 
   ElasticsearchDomainEndpoint:
     Description: Elasticsearch Endpoint
-    Value: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+    Value: !GetAtt App.Outputs.ElasticsearchDomainEndpoint
 
   PinpointAppId:
     Description: Pinpoint App Id.
-    Value: !GetAtt Base.Outputs.PinpointAppId
+    Value: !GetAtt App.Outputs.PinpointAppId
