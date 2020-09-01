@@ -2,7 +2,18 @@
 # SPDX-License-Identifier: MIT-0
 
 """
-Lambda function designed to be called 
+Lambda function designed to be called when the Personalize campaign ARN is set as an 
+SSM parameter indicating that the campaign has been created (either by the automated 
+deployment process or the Personalize workshop bundled with the Retail Demo Store project).
+A CloudWatch event is setup as part of the Retail Demo Store deployment that watches for 
+the SSM parameter to change and targets this function.
+
+This function will automate the steps in the Messaging workshop for Pinpoint. It is 
+only deployed when the user indicates that they want the Pinpoint workshop automated. 
+Typically this is part of an automated Retail Demo Store deployment/refresh cycle.
+
+This function will delete the CloudWatch rule that triggers it when the function ends 
+successfully. Therefore, under normal conditions, this function will be executed once.
 """
 
 import json
@@ -409,7 +420,7 @@ def lambda_handler(event, context):
     lambda_function_arn = os.environ['pinpoint_recommender_arn']
     pinpoint_personalize_role_arn = os.environ['pinpoint_personalize_role_arn']
     email_from_address = os.environ['email_from_address']
-    email_from_name = os.environ.get('email_from_name')
+    email_from_name = os.environ.get('email_from_name', 'AWS Retail Demo Store')
 
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
