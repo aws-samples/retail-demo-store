@@ -20,8 +20,8 @@ Bundled with the Retail Demo Store deployment are several pre-built [workshops](
 
 * **Search** - adding catalog search powered by Amazon Elasticsearch
 * **Personalization** - personalization powered by Amazon Personalize
-* **Experimentation** - experimentation techniques (A/B testing, interleaving results testing, and multi-armed bandit testing)
-* **Messaging** - customer messaging using Amazon Pinpoint for welcome emails, abandoned cart emails, and personalized product recommendation emails
+* **Experimentation** - experimentation techniques (A/B testing, interleaving results testing, and multi-armed bandit testing) as well as AWS partner solutions
+* **Messaging** - customer messaging using Amazon Pinpoint for welcome emails, abandoned cart emails, and personalized product recommendation emails as well as personalized messaging with Braze
 * **Conversational** - conversational interfaces powered by Amazon Lex
 
 ## Next Steps
