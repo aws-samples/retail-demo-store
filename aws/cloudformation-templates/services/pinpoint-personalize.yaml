@@ -95,5 +95,8 @@ Resources:
       SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:*'
 
 Outputs:
+  PinpointPersonalizeRole:
+    Value: !Ref PinpointPersonalizeRole
+    
   CustomizeRecommendationsFunction:
     Value: !Ref CustomizeRecommendationsFunction

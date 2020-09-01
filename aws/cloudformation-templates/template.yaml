@@ -30,6 +30,8 @@ Metadata:
           - PreIndexElasticsearch
           - PreCreatePersonalizeCampaign
           - PreCreatePinpointWorkshop
+          - PinpointEmailFromAddress
+          - PinpointEmailFromName
       - Label:
           default: "Miscellaneous"
         Parameters:
@@ -58,6 +60,10 @@ Metadata:
         default: "Auto-Build Personalize Campaigns"
       PreCreatePinpointWorkshop:
         default: "Auto-Configure Pinpoint"
+      PinpointEmailFromAddress:
+        default: "Reply-To email address"
+      PinpointEmailFromName:
+        default: "Reply-To name"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -151,6 +157,19 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'No'
+
+  PinpointEmailFromAddress:
+    Type: String
+    Description: >
+      Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+  
+  PinpointEmailFromName:
+    Type: String
+    Description: >
+      Name to use with Reply-To email address when sending emails from Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+    Default: "AWS Retail Demo Store"
   
   AmplitudeApiKey:
     Type: String
@@ -277,6 +296,11 @@ Resources:
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        PinpointPersonalizeRole: !GetAtt Services.Outputs.PinpointPersonalizeRole
+        CustomizeRecommendationsFunction: !GetAtt Services.Outputs.CustomizeRecommendationsFunction
+        PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
+        PinpointEmailFromName: !Ref PinpointEmailFromName
 
   # Cleanup bucket function
   CleanupBucket:

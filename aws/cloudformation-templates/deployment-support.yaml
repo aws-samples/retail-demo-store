@@ -69,6 +69,22 @@ Parameters:
   Uid:
     Type: String
 
+  PinpointAppId:
+    Type: String
+
+  PinpointEmailFromAddress:
+    Type: String
+
+  PinpointEmailFromName:
+    Type: String
+    Default: "AWS Retail Demo Store"
+
+  PinpointPersonalizeRole:
+    Type: String
+
+  CustomizeRecommendationsFunction:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -398,6 +414,11 @@ Resources:
       FunctionName: RetailDemoStorePinpointAutoWorkshop
       Environment:
         Variables:
+          pinpoint_app_id: !Ref PinpointAppId
+          pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunction
+          pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRole
+          email_from_address: !Ref PinpointEmailFromAddress
+          email_from_name: !Ref PinpointEmailFromName
           lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
 
   PinpointPreCreateLambdaExecutionRole:
@@ -460,7 +481,7 @@ Resources:
           - "Parameter Store Change"
         detail: 
           name: 
-            - "/retaildemostore-product-recommendation-campaign-arn"
+            - "retaildemostore-product-recommendation-campaign-arn"
           operation: 
             - "Update"
       State: ENABLED
