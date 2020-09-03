@@ -567,8 +567,7 @@ def lambda_handler(event, context):
             name = related_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = related_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+related_solution_name+" created")
@@ -584,8 +583,7 @@ def lambda_handler(event, context):
             name = product_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = product_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+product_solution_name+" created")
@@ -601,8 +599,7 @@ def lambda_handler(event, context):
             name = rerank_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = rerank_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+rerank_solution_name+" created")

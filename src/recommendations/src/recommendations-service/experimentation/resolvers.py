@@ -288,6 +288,9 @@ class PersonalizeRankingResolver(Resolver):
         if not self.campaign_arn:
             raise Exception('campaign_arn required for PersonalizeRankingResolver')
 
+        # Optionally support filter specified at resolver creation.
+        self.filter_arn = params.get('filter_arn')
+
     def get_items(self, **kwargs):
         """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
         
@@ -309,6 +312,12 @@ class PersonalizeRankingResolver(Resolver):
             'userId': str(user_id),
             'inputList': input_list
         }
+
+        filter_arn = kwargs.get('filter_arn')
+        if filter_arn:
+            params['filterArn'] = filter_arn
+        elif self.filter_arn:
+            params['filterArn'] = self.filter_arn
 
         log.debug('PersonalizeRankingResolver - getting personalized ranking ' + str(params))
 
