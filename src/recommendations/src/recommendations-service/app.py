@@ -336,12 +336,14 @@ def rerank():
             resp_headers = {}
             experiment = None
 
-            # Get active experiment if one is setup for feature and we have a user.
-            if feature and user_id:
+            # Get active experiment if one is setup for feature.
+            if feature:
                 exp_manager = ExperimentManager()
                 experiment = exp_manager.get_active(feature)
 
             if experiment:
+                app.logger.info('Using experiment: ' + experiment.name)
+
                 # Get ranked items from experiment.
                 tracker = exp_manager.default_tracker()
 
@@ -355,11 +357,15 @@ def rerank():
                 resp_headers['X-Experiment-Type'] = experiment.type
                 resp_headers['X-Experiment-Id'] = experiment.id
             else:
-                # No experiment so check if there's a ranking campaign configured.
-                campaign_arn = get_parameter_values('retaildemostore-personalized-ranking-campaign-arn')[0]
+                # Fallback to default behavior of checking for campaign ARN parameter and 
+                # then the default product resolver.
+                values = get_parameter_values([ 'retaildemostore-personalized-ranking-campaign-arn', filter_purchased_param_name ])
+
+                campaign_arn = values[0]
+                filter_arn = values[1]
 
                 if campaign_arn:
-                    resolver = PersonalizeRankingResolver(campaign_arn = campaign_arn)
+                    resolver = PersonalizeRankingResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
                     resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
                 else:
                     resolver = RankingProductsNoOpResolver()
