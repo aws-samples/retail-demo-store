@@ -20,8 +20,9 @@ Parameters:
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Deploy Lambda function that automatically indexes the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Search workshop included in your deployment as a Jupyter notebook in SageMaker.
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -30,8 +31,20 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Deploy Lambda function that automatically builds solutions and launches Personalize campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Personalization workshop included in your deployment as a Jupyter notebook 
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      and can take 2+ hours to complete.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+    
+  PreCreatePinpointWorkshop:
+    Type: String
+    Description: >
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
       in SageMaker.
     AllowedValues:
       - 'Yes'
@@ -56,6 +69,22 @@ Parameters:
   Uid:
     Type: String
 
+  PinpointAppId:
+    Type: String
+
+  PinpointEmailFromAddress:
+    Type: String
+
+  PinpointEmailFromName:
+    Type: String
+    Default: "AWS Retail Demo Store"
+
+  PinpointPersonalizeRole:
+    Type: String
+
+  CustomizeRecommendationsFunction:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -63,6 +92,10 @@ Conditions:
 
   DeployPreCreateCampaign: !Equals
     - !Ref PreCreatePersonalizeCampaign
+    - 'Yes'
+
+  DeployPreCreatePinpointWorkshop: !Equals
+    - !Ref PreCreatePinpointWorkshop
     - 'Yes'
 
 Resources:
@@ -362,3 +395,111 @@ Resources:
       Bucket: !Ref ResourceBucket
       File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
 
+  ####################### Pre-Create Pinpoint Workshop #######################
+
+  PinpointPreCreateLambdaFunction:
+    Condition: DeployPreCreatePinpointWorkshop
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that configures messaging templates, segments, and campaigns in Amazon Pinpoint'
+      Handler: pinpoint-auto-workshop.lambda_handler
+      Role: !GetAtt 
+        - PinpointPreCreateLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-auto-workshop.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: RetailDemoStorePinpointAutoWorkshop
+      Environment:
+        Variables:
+          pinpoint_app_id: !Ref PinpointAppId
+          pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunction
+          pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRole
+          email_from_address: !Ref PinpointEmailFromAddress
+          email_from_name: !Ref PinpointEmailFromName
+          lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
+
+  PinpointPreCreateLambdaExecutionRole:
+    Condition: DeployPreCreatePinpointWorkshop
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePinpointAutoWorkshop:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePinpointAutoWorkshop'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - 
+                Effect: "Allow"
+                Action: 
+                  - mobiletargeting:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - events:ListTargetsByRule
+                  - events:RemoveTargets
+                  - events:DeleteRule
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PinpointPreCreateRule'
+
+  PinpointPreCreateRule:
+    Condition: DeployPreCreatePinpointWorkshop
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Name: 'RetailDemoStore-PinpointPreCreateRule'
+      Description: Calls Pinpoint workshop pre-create Lambda function when the Personalize campaign ARN SSM parameter is updated
+      EventPattern: 
+        source: 
+          - "aws.ssm"
+        detail-type: 
+          - "Parameter Store Change"
+        detail: 
+          name: 
+            - "retaildemostore-product-recommendation-campaign-arn"
+          operation: 
+            - "Update"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt 
+            - PinpointPreCreateLambdaFunction
+            - Arn
+          Id: TargetFunctionV1
+
+  PinpointPreCreatePermissionToInvokeLambda: 
+    Condition: DeployPreCreatePinpointWorkshop
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "PinpointPreCreateLambdaFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "PinpointPreCreateRule"
+          - "Arn"
