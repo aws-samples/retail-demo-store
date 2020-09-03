@@ -12,6 +12,7 @@ src/aws-lambda/*/package
 src/aws-lambda/elasticsearch-pre-index/products.yaml
 src/aws-lambda/personalize-delete-resources/models
 src/aws-lambda/personalize-pre-create-campaigns/models
+src/aws-lambda/pinpoint-auto-workshop/pinpoint-templates
 local/*
 demo.md
 generators/*.gz
