@@ -547,7 +547,7 @@ export const AnalyticsHandler = {
     },
 
     optimizelyEnabled() {
-        return !!process.env.OPTIMIZELY_SDK_KEY && process.env.OPTIMIZELY_SDK_KEY !== 'NONE';
+        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY !== 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {
@@ -560,7 +560,7 @@ export const AnalyticsHandler = {
 
     optimizelyClientInstance() {
         if (!this._optimizelyClientInstance && this.optimizelyEnabled()) {
-            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.OPTIMIZELY_SDK_KEY });
+            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
         }
         return this._optimizelyClientInstance;
     },
