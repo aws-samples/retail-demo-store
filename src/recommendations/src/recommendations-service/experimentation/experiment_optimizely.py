@@ -9,7 +9,8 @@ from . import experiment, resolvers
 
 
 optimizely_sdk = optimizely.Optimizely(sdk_key=os.environ.get('OPTIMIZELY_SDK_KEY'))
-
+print('******************************')
+print(f'OPTIMIZELY_SDK_KEY: {os.environ.get("OPTIMIZELY_SDK_KEY")}')
 
 class OptimizelyFeatureTest(experiment.Experiment):
     def get_items(self, user_id, current_item_id = None, item_list = None, num_results = 10, tracker = None):
