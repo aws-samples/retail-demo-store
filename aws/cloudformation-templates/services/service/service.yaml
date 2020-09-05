@@ -207,6 +207,9 @@ Resources:
           Image: !Ref ContainerImage
           Essential: true
           Memory: 256
+          Secrets:
+            - Name: OPTIMIZELY_SDK_KEY
+              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeCampaignArn          
@@ -263,3 +266,4 @@ Outputs:
 
   FargateServiceName:
     Value: !GetAtt FargateService.Name
+    
