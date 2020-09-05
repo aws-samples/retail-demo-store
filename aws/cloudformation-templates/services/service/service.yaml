@@ -114,7 +114,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
-        - PolicyName: others
+        - PolicyName: ReadRetailDemoStoreSSMParams
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
