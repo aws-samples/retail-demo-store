@@ -1,0 +1,55 @@
+[
+    {
+        "name" : "User Personalization",
+        "title" : "User Personalization",
+        "recipe" : "Amazon Personalize Recipe: TBD",
+        "text": "This use-case is implemented on the bottom half of the Retail Demo Store home view. Product recommendations in the Inspired by your shopping trends section are powered by Amazon Personalize. If you're not signed in, featured products will be displayed here instead.Try using different shoppers to experience the difference in personalized product recommendations.",
+        "italicText": "To change shopper, click on the name of the shopper located in the top right corner."
+    },
+    {
+        "name" : "Similar items",
+        "title" : "Similar items"
+    },
+    {
+        "name" : "Personalized ranking",
+        "title" : "Personalized ranking"
+    },
+    {
+        "name" : "Real time events",
+        "title" : "Real time events"
+    },
+    {
+        "name" : "Welcome Email",
+        "title" : "Welcome Email"
+    },
+    {
+        "name" : "Abandoned cart email",
+        "title" : "Abandoned cart email"
+    },
+    {
+        "name" : "Text alerts(SMS)",
+        "title": "Text alerts(SMS)"
+    },
+    {
+        "name" : "Chatbot conversational interfaces",
+        "title": "Chatbot conversational interfaces"
+    },
+    {
+        "name" : "Is Amazon Personalize the right solution for my business?",
+        "title" : "Find out why Amazon Personalize is right for your business",
+        "orderedlist": [
+            {"item": "Experience from Amazon: Over 20 years of personalization research and experience at <a href=\"https://www.amazon.com/\">Amazon.com</a>"},
+            {"item": "Machine learning  based personalization: Delivers higher quality product and content recommendations, and targeted marketing promotions using machine learning and customer’s data set"},
+            {"item" : "No machine learning experience required: All of the complicated and time consuming steps required to build, train, and deploy a machine learning personalization solution are automated"},
+            {"item" : " Personalization in days, not months: Easily integrates into your existing websites, apps, SMS, and email marketing systems so you can implement a sophisticated and scalable personalization solution in days, rather than months."},
+            {"item": "Proven success in improving customer engagement and conversion: <b>Lotte Mart</b>, a leading South Korean retailer with over 600K coupon mobile app users, has seen a 40% increase in the number of products a consumer has not previously purchased. <b>StockX,</b> a Detroit startup company revolutionizing ecommerce with a unique Bid/Ask marketplace, added a Recommended For You product row to the homepage using <a href=\"https://aws.amazon.com/personalize\">Amazon Personalize </a>, which ultimately became the top-performing homepage row. <b>Mecca,</b> a beauty retailer in Australia and New Zealand, realized a 65% increase in e-mail click-through rates and a corresponding increase in email revenue relating to the products recommended by Amazon Personalize. To personalize their customer experience further, they are now extending the use of Amazon Personalize to additional areas including our website."}
+        ]
+    
+    },
+    {
+        "name": "What data should I provide?",
+        "title": "What data should I provide?",
+        "text": "Amazon Personalize recognizes three types of historical data: <ul> <li> Users - This data is intended to provide information about your users such as age, gender, or loyalty membership, which can be important signals in personalization systems.</li> <li>Items - This data is intended to provide information about your items, such as price, SKU type, or availability. </li><li>Interactions - This data is  historical interactions between users and items. It can also provide information on your user's browsing context, such as their location or device (mobile, tablet, desktop, and so on). </li> <br> <p>The user and item data are metadata types and only used in certain use cases. Please see this documentation for further technical details. <br> Each type of data that Amazon Personalize recognizes has required fields, reserved keywords and datatypes. Please see table below for details.Each type of data that Amazon Personalize recognizes has required fields, reserved keywords and datatypes. Please see table below for details. <br> Amazon Personalize will train and deploy a model based on this data. Developers can then use a simple inference API to get individualized recommendations at run-time and generate a personalized experience for the end users according to the type of personalization model (e.g. user personalization, similar items or personalized rankings). Amazon Personalize works best for large datasets that have over 50 users, 50 items, and 1500 interactions. "
+    }
+
+]

@@ -1,0 +1,19 @@
+[
+    {
+    "name" : "Amazon Personalize",
+    "topics": [
+      {"name" : "Is Amazon Personalize the right solution for my business?"},
+      {"name" : "What data should I provide?"},
+      {"name" : "Use Case for Personalization"},
+      {"name" : "Metrics and understanding impact"},
+      {"name" : "Real time personalization based on real time user activity"},
+      {"name" : "Batch recommendations"},
+      {"name" : "Integrating Personalize with applications and existing tool"}
+    ],
+    "subtopics": [
+        {"name" : "User Personalization"},
+        {"name" : "Similar Items"},
+        {"name" : "Personalized Ranking"}
+    ]
+    }
+]

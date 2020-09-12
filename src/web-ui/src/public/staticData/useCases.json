@@ -1,0 +1,25 @@
+[
+    {
+    "name": "Amazon Personalize",
+    "subsections": [
+      {"name" : "User Personalization"},
+      {"name" : "Similar items"},
+      {"name" : "Personalized ranking"},
+      {"name" : "Real time events"}
+    ]
+    },
+    {
+    "name": "Amazon Pinpoint",
+      "subsections": [
+        {"name" : "Welcome Email"},
+        {"name" : "Abandoned cart email"},
+        {"name" : "Text alerts(SMS)"}
+    ]
+    },
+    {
+    "name": "Amazon Lex",
+      "subsections": [
+        {"name" : "Chatbot conversational interfaces"}
+    ]
+    }
+]

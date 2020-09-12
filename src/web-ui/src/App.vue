@@ -2,6 +2,7 @@
   <div id="app">
     <Navigation/>
     <router-view class="text-center"/>
+    <DemoGuide/>
     <Footer/>
   </div>
 </template>
@@ -9,12 +10,14 @@
 <script>
 import Navigation from './public/Navigation.vue'
 import Footer from './public/Footer.vue'
+import DemoGuide from './public/components/DemoGuide.vue'
 
 export default {
   name: 'app',
   components: {
     Navigation,
-    Footer
+    Footer,
+    DemoGuide
   },
   data () {
     return {
@@ -31,6 +34,8 @@ export default {
 <style>
 body {
   background: #FFF;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Amplify Auth Form Styling */
