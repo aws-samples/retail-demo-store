@@ -139,7 +139,12 @@ Resources:
 
                 for obj in source_bucket.objects.filter(Prefix=source_path):
                     source = { 'Bucket': source_bucket_name, 'Key': obj.key }
-                    target = target_bucket.Object(obj.key)
+                    if source_path != "images":
+                      # need to remove the resource_relative_path for the target images directory
+                      target = target_bucket.Object(obj.key[(obj.key.index('/')+1):])
+                    else:
+                      target = target_bucket.Object(obj.key)
+                    
                     target.copy(source)
 
                 response_data['Message'] = "Resource creation succeeded"
