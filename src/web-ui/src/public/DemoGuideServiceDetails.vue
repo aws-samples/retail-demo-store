@@ -1,17 +1,17 @@
 <template>
-  <div class="demo-guide col-sm-12 col-md-9 col-lg-9 mb-4 about-service" style="padding:0">
-        <div v-for="subsection in subsections" v-bind:key=subsection.name style="padding:1em;" :style="{display: displaysection === subsection.name ? 'block' : 'none' }">
+  <div class="demo-guide col-sm-12 col-md-9 col-lg-9 mb-4 bg-white text-dark no-padding">
+        <div v-for="subsection in subsections" v-bind:key=subsection.name class="p-2" :style="{display: sectionToDisplay === subsection.name ? 'block' : 'none' }">
             <span>
                 <h3>{{subsection.title}}</h3>
                 <p>{{subsection.recipe}}</p>
-                <hr style="color:white">
+                <hr>
                 <ol>
                   <li v-for="items in subsection.orderedlist" v-bind:key="items.name">
                     <span v-html="items.item"></span>
                   </li>
                 </ol>
                 <span v-html="subsection.text"></span>
-                <hr style="color:white">
+                <hr>
                 <em>{{subsection.italicText}}</em>
             </span>
         </div>
@@ -24,7 +24,7 @@ import TopicDetails from './staticData/topicDetails.json';
 export default {
   name: 'DemoGuideServiceDetails',
   props: {
-      displaysection: String
+      sectionToDisplay: String
   },
   data () {
     return {  
@@ -110,11 +110,13 @@ export default {
   margin: 0;
   padding: 0;
 }
-.about-service {
-  background-color: white;
-  color: black;
-}
 .active {
     display: block;
+}
+.no-padding {
+   padding: 0;
+}
+table, th, td {
+  border: 1px solid black;
 }
 </style>

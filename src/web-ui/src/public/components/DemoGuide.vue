@@ -5,50 +5,50 @@
     <div class="container" v-if="!showLevel">
       <nav class="navbar demo-guide-content fixed-bottom">
          <ul class="navbar-nav mx-auto d-none d-md-block demo-guide-level-1-text" v-on:click="showDemoGuideLevel2()">
-          <li class="nav-item" style="font-weight:bold;font-size:x-large">
-            DEMO GUIDE<i class="fas fa-caret-up fa-lg" style="padding-left:2em;"></i>
+          <li class="nav-item font-weight-bold">
+            <h4 class="d-inline"> DEMO GUIDE </h4><i class="fas fa-caret-up fa-lg pl-3"></i>
           </li>        
-          <li class="nav-item" style="color:#e88b01">
+          <li class="nav-item color-amazon-orange">
             Learn more about this demo
           </li>                  
         </ul>                                    
       </nav>  
     </div>
         <!-- Demo guide level2-->
-    <div class="modal" v-if="showguide">
-      <nav class="navbar fixed-bottom" style="padding:0">
+    <div class="modal" v-if="showGuide">
+      <nav class="navbar fixed-bottom no-padding">
          <ul class="navbar-nav mx-auto d-none d-md-block demo-guide-level-2" v-on:click="showDemoGuideLevel2()">
-            <li class="nav-item demo-guide-level-1-text" style="font-weight:bold;font-size:x-large">
-              <i class="fas fa-chevron-down fa-lg" style="padding-left:2em;"></i>
-              DEMO GUIDE <a style="color:#e88b01" >Learn more about this demo</a>
-              <i class="fas fa-chevron-down fa-lg" style="padding-left:2em;"></i>
+            <li class="nav-item demo-guide-level-1-text font-weight-bold">
+              <i class="fas fa-chevron-down fa-lg pl-3 pr-3"></i>
+              <h4 class="d-inline">DEMO GUIDE</h4> <span class="color-amazon-orange" >Learn more about this demo</span>
+              <i class="fas fa-chevron-down fa-lg pl-3"></i>
             </li>                     
         </ul>
           <ul class="navbar-nav mx-auto d-none d-md-block demo-guide-level-2" v-on:click="showDemoGuideLevel3()">
             <li class="nav-item demo-guide-level-2-text row" >
               <div class="demo-guide-use-cases col-sm-12 col-md-3 col-lg-3" v-on:click="showDemoGuideUseCases()">
-                <p style="margin:1rem;font-weight:bold;font-size:x-large">
+                <h4 class="font-weight-bold m-3 d-inline">
                 USE CASES ENABLED IN THIS DEMO
-                </p>
+                </h4>
               <p>Click here to dive deep into the ways Amazon Personalize and other ML Services are used in this demo</p>
               </div>
               <div class="demo-guide-use-cases col-sm-12 col-md-3 col-lg-3" v-on:click="showDemoGuidePersonalizeTopics()">
-                <p style="margin:1rem;font-weight:bold;font-size:x-large">
+                <h4 class="font-weight-bold m-3 d-inline">
                 AMAZON PERSONALIZE USEFUL TOPICS
-                </p>
+                </h4>
               <p>Dive deeper into some popular topics related to Amazon Personalize</p>
               </div>
               <div class="demo-guide-use-cases col-sm-12 col-md-3 col-lg-3">
-                <p style="margin:1rem;font-weight:bold;font-size:x-large">
+                <h4 class="font-weight-bold m-3 d-inline">
                 ABOUT THIS DEMO
-                </p>
+                </h4>
               <p>Provide feedback or learn more about the workshops available</p>
               </div>
             </li>    
           </ul>                                    
       </nav>  
     </div>
-    <DemoGuideLevel3 :showUseCases="showUseCases" :showPersonalizeTopics="showPersonalizeTopics" :showguidedetails="showguidedetails" @toggleUseCases="hideDemoGuideLevel3()"></DemoGuideLevel3>
+    <DemoGuideLevel3 :showUseCases="showUseCases" :showPersonalizeTopics="showPersonalizeTopics" :showGuideDetails="showGuideDetails" @toggleUseCases="hideDemoGuideLevel3()"></DemoGuideLevel3>
   </div>
 </template>
 
@@ -66,8 +66,8 @@ export default {
   data () {
     return {  
       errors: [],
-      showguide: false,
-      showguidedetails: false,
+      showGuide: false,
+      showGuideDetails: false,
       sectionName: 'Amazon Personalize',
       displaySection: 'User Personalization',
       showPersonalizeTopics: false,
@@ -100,22 +100,22 @@ export default {
   },
   computed: {
     showLevel: function() {
-      return this.showguide || this.showguidedetails;
+      return this.showGuide || this.showGuideDetails;
     }
   },
   methods: {
     showDemoGuideLevel2: function() {
-      this.showguide = !this.showguide;
+      this.showGuide = !this.showGuide;
       this.showUseCases = false;
       this.showPersonalizeTopics = false;
     },
     showDemoGuideLevel3: function() {
-      this.showguide = !this.showguide;
-      this.showguidedetails = !this.showguidedetails;
+      this.showGuide = !this.showGuide;
+      this.showGuideDetails = !this.showGuideDetails;
     },
     hideDemoGuideLevel3: function() {
-      this.showguide = !this.showguide;
-      this.showguidedetails = !this.showguidedetails;
+      this.showGuide = !this.showGuide;
+      this.showGuideDetails = !this.showGuideDetails;
       this.showUseCases = false;
       this.showPersonalizeTopics = false;
     },
@@ -203,18 +203,18 @@ export default {
   overflow-x: hidden;
   box-sizing: border-box;
 }
-#sublist {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.about-service {
-  background-color: white;
-  color: black;
-}
 .icon {
   width: 1em;
   height: 1em;
   fill: currentColor;
+}
+.color-amazon-orange {
+  color:#e88b01
+}
+.no-padding {
+   padding: 0;
+}
+.no-margin {
+  margin: 0 ;
 }
 </style>
