@@ -161,7 +161,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productAddedToCart(user, cart, product, quantity, feature, experimentCorrelationId) {
+    productAddedToCart(user, cart, product, quantity, feature, experimentCorrelationId, recipe) {
         if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductAdded', 
@@ -173,6 +173,7 @@ export const AnalyticsHandler = {
                     category: product.category,
                     image: product.image,
                     feature: feature,
+                    recipe: recipe,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
@@ -209,6 +210,7 @@ export const AnalyticsHandler = {
                 category: product.category,
                 image: product.image,
                 feature: feature,
+                recipe: recipe,
                 experimentCorrelationId: experimentCorrelationId,
                 quantity: quantity,
                 price: +product.price.toFixed(2)
@@ -301,7 +303,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productViewed(user, product, feature, experimentCorrelationId) {
+    productViewed(user, product, feature, experimentCorrelationId, recipe) {
         if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
@@ -312,6 +314,7 @@ export const AnalyticsHandler = {
                     category: product.category,
                     image: product.image,
                     feature: feature,
+                    recipe: recipe,
                     experimentCorrelationId: experimentCorrelationId
                 },
                 metrics: {
@@ -340,6 +343,7 @@ export const AnalyticsHandler = {
                 category: product.category,
                 image: product.image,
                 feature: feature,
+                recipe: recipe,
                 experimentCorrelationId: experimentCorrelationId,
                 price: +product.price.toFixed(2)
             };

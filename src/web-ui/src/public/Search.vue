@@ -19,6 +19,7 @@
                   :product_id="result.itemId"
                   :experiment="result.experiment"
                   :feature="feature"
+                  :recipe="recipe"
                 />
               </ul>
             </div>
@@ -50,6 +51,9 @@ export default {
   data () {
    return {  
       feature: ExperimentFeature,
+      recipe: '',
+      experiment: '',
+      active_experiment: false,
       errors: [],
       results: [],
       searching: false,
@@ -70,9 +74,21 @@ export default {
     },
     async rerank(items) {
       if (this.user && items.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.user.id, items, ExperimentFeature)
-        this.reranked = JSON.stringify(items) != JSON.stringify(data)
-        this.results = data
+        const response = await RecommendationsRepository.getRerankedItems(this.user.id, items, ExperimentFeature)
+
+        if (response.headers) {
+          if (response.headers['x-personalize-recipe']) {
+            this.personalized = true
+            this.recipe = response.headers['x-personalize-recipe']
+          }
+          if (response.headers['x-experiment-name']) {
+            this.active_experiment = true
+            this.experiment = response.headers['x-experiment-name']
+          }
+        }
+
+        this.reranked = JSON.stringify(items) != JSON.stringify(response.data)
+        this.results = response.data      
       }
       else {
         this.reranked = false

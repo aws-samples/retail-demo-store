@@ -104,6 +104,7 @@
             :product="recommendation.product"
             :experiment="recommendation.experiment"
             :feature="feature"
+            :recipe="recipe"
           />
         </div>
       </div>
@@ -119,6 +120,7 @@
             v-bind:key="product.id"
             :product="product"
             :feature="feature"
+            :recipe="recipe"
           />
         </div>
       </div>
@@ -149,6 +151,7 @@ export default {
   data() {
     return {
       feature: ExperimentFeature,
+      recipe: '',
       categories: [],
       guest_recommended: [],
       user_recommended: [],
@@ -181,11 +184,13 @@ export default {
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
           this.personalized = true
-          this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
+          this.recipe = response.headers['x-personalize-recipe']
+          this.explain_recommended = 'Personalize recipe: ' + this.recipe
         }
         if (response.headers['x-experiment-name']) {
           this.active_experiment = true
-          this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
+          this.experiment = response.headers['x-experiment-name']
+          this.explain_recommended = 'Active experiment: ' + this.experiment
         }
       }
 
