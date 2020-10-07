@@ -37,6 +37,14 @@ Resources:
       Value: !Ref StackBucketName
       Description: "Retail Demo Store Stack Bucket Parameter"
 
+  ParameterPersonalizeDatasetGroupName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalize-datasetgroup-name"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize dataset group name"
+
   ParameterRelatedProductsCampaignArn:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -60,6 +68,22 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
+
+  ParameterPersonalizedDiscountsCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalized-discount-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalized Discounts Campaign Arn Parameter"
+
+  ParameterPersonalizeTrainConfig:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-training-config"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Train Config"
 
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
@@ -101,6 +125,14 @@ Resources:
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"
 
+  ParameterIVSVideoChannelMap:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-ivs-video-channel-map"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store video file to IVS channel mapping"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -118,6 +150,14 @@ Outputs:
   ParameterPersonalizedRankingCampaignArn:
     Description: Personalized Ranking Campaign Arn
     Value: !Ref ParameterPersonalizedRankingCampaignArn
+
+  ParameterPersonalizedDiscountsCampaignArn:
+    Description: Personalized Discounts Campaign Arn
+    Value: !Ref ParameterPersonalizedDiscountsCampaignArn
+
+  ParameterPersonalizeTrainConfig:
+    Description: Train config
+    Value: !Ref ParameterPersonalizeTrainConfig
 
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn
@@ -138,3 +178,7 @@ Outputs:
   ParameterOptimizelySdkKey:
     Description: Optimizely SDK key
     Value: !Ref ParameterOptimizelySdkKey
+
+  ParameterIVSVideoChannelMap:
+    Description: Retail Demo Store video file to IVS channel mapping
+    Value: !Ref ParameterIVSVideoChannelMap

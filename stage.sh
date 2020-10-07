@@ -44,6 +44,8 @@ echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudfor
 echo " + Copying Notebook Dependencies"
 [ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
 rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
+
+cp ./generators/generate_interactions_personalize.py ./workshop/
 cp ./generators/requirements.txt ./workshop
 
 [ ! -d "./workshop/data" ] && mkdir ./workshop/data
@@ -67,14 +69,13 @@ echo " + Upload seed data"
 aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
 aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
 
-# Sync CSVs used for Personalize pre-create campaign Lambda function
-echo " + Copying CSVs for Personalize model pre-create training"
-aws s3 sync s3://retail-demo-store-code/csvs s3://${BUCKET}/${S3PATH}csvs --only-show-errors $S3PUBLIC
+echo " + Upload IVS videos"
+aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
 
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
 
-for function in bot-intent-recommendations retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns personalize-delete-resources pinpoint-recommender pinpoint-auto-workshop
+for function in ivs-create-channels bot-intent-recommendations retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns pinpoint-recommender pinpoint-auto-workshop
 do
     echo "  + Staging $function"
     cd src/aws-lambda/$function
@@ -86,6 +87,13 @@ done
 # Sync product images
 echo " + Copying product images"
 aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
+
+echo " + Creating CSVs for Personalize model pre-create training"
+PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+
+# Sync CSVs used for Personalize pre-create campaign Lambda function
+echo " + Copying CSVs for Personalize model pre-create training"
+aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

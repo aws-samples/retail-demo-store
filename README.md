@@ -84,15 +84,70 @@ If you are interested in running Retail Demo Store services locally as part of c
 
 ***These instructions only apply if you wish to stage your own Retail Demo Store deployment resources. For example, if you want to test CloudFormation template changes or the deployment of Lambda code. These instructions are not necessary for the typical deployment scenarios described above.***
 
-The launch options described above pull the CloudFormation templates from a shared S3 bucket. If you want to test changes to the templates or launch a custom variation of this project, you can do so by uploading your versions of the templates and other deployment resources to an S3 bucket in your account (i.e. staging), launching your version of the [root template](aws/cloudformation-templates/template.yaml) (i.e. upload the root template or specify an S3 URL pointing to the root template in your bucket), and override the "ResourceBucket" and "ResourceBucketRelativePath" template parameters to refer to your bucket and path. These parameters are used to load the nested templates from your bucket rather than the default shared bucket.
+The launch options described above pull the CloudFormation templates from a shared S3 bucket. If you want to test changes to the templates or launch a custom variation of this project, you can do so by uploading your versions of the templates and other deployment resources to an S3 bucket in your account 
+(i.e. your staging bucket), using CloudFormation to launch your version of the [root template](aws/cloudformation-templates/template.yaml) (i.e. upload the root template or specify an S3 URL pointing to the root template in your bucket), and override the "ResourceBucket" and "ResourceBucketRelativePath" template parameters to refer to your bucket and path. 
+These parameters are used to load the nested templates from your bucket rather than the default shared bucket.
+
+Note that if you are deploying from a Github repo and if the Github repo from which you are deploying is 
+an organization repo, the `GitHubUser` parameter is set to your organization name and you do not need your usrrname.
 
 The [stage.sh](stage.sh) script at the root of the repository can be used to upload the deployment resources to a staging S3 bucket. The shell uses the local AWS credentials to build and push resources to your custom bucket. Once staged, you can follow one of the deployment options above.
+
+#### Option 1: If you choose to build your own development environment:
+
+It is advisable to use a Python 3 virtual environment to do this and the scripts assume that the executable `pip` is
+the Python 3 version of pip so if necessary you may need to install pip into that virtual environment (if your system
+defaults to a Python 2 version of Pip).
+
+`Go` needs the following dependencies:
+```
+go get github.com/aws/aws-lambda-go/lambda
+go get github.com/aws/aws-lambda-go/cfn
+go get github.com/aws/aws-sdk-go
+go get gopkg.in/yaml.v2
+```
 
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 
 ```bash
-./stage.sh mycustombucket path/
+./stage.sh BUCKETNAME path/
 ```
+
+#### Option 2: use a managed build service
+
+You can adapt `buildspec.yml` to push to your own staging buckets for a fully managed build environment (CodeCommit).  
+
+#### Note: If you are using a non-public bucket:
+
+1. You will need to comment out the line in `stage.sh` that says:
+    ```
+    export S3PUBLIC=" --acl public-read"
+    ```
+ 2. You will need to add following bucket policy to your bucket 
+(change the bucket name in the policy (`BUCKETNAME` below)):
+    ```
+    {
+        "Version": "2012-10-17",
+        "Id": "PersonalizeS3BucketAccessPolicy",
+        "Statement": [
+            {
+                "Sid": "PersonalizeS3BucketAccessPolicy",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "personalize.amazonaws.com"
+                },
+                "Action": [
+                    "s3:GetObject",
+                    "s3:ListBucket"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::BUCKETNAME",
+                    "arn:aws:s3:::BUCKETNAME/*"
+                ]
+            }
+        ]
+    }
+    ``` 
 
 ## Known Issues
 

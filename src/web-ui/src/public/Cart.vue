@@ -34,6 +34,7 @@
               v-bind:key="item.product_id"
               :product_id="item.product_id"
               :quantity="item.quantity"
+              :cartPrice="item.price"
               @removeFromCart="removeFromCart"
               @increaseQuantity="increaseQuantity"
               @decreaseQuantity="decreaseQuantity"
@@ -111,7 +112,7 @@ export default {
     async getCart (){
       if (this.cartID) {
         const { data } = await CartsRepository.getCartByID(this.cartID)
-        // Since cart service currently holds carts in memory, they can be lost on restarts. 
+        // Since cart service currently holds carts in memory, they can be lost on restarts.
         // Make sure our cart was returned. Otherwise create a new one.
         if (data.id == this.cartID) {
           this.cart = data

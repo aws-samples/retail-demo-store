@@ -2,32 +2,7 @@
   <div class="content">
 
     <!-- Categories Navigation -->
-    <div class="container mb-4">
-      <div class="container mb-4" v-if="!categories.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-      <div class="row col-sm-12 col-md-12 col-lg-12 d-none d-sm-block">
-        <ul class="nav nav-pills nav-fill mx-auto">
-          <li class="nav-item">
-            <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
-          </li>
-          <li class="nav-item" v-for="category in categories" v-bind:key=category.id>
-          <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">{{ category.name | capitalize }}</router-link> 
-          </li>
-        </ul>
-      </div>
-      <div class="dropdown show d-block d-sm-none">
-        <a class="btn dropdown-toggle btn-primary" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Select Category
-        </a>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <router-link class="dropdown-item" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
-          <router-link class="dropdown-item" v-for="category in categories" v-bind:key="category" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">
-            {{ category.name | capitalize }}
-          </router-link> 
-        </div>
-      </div>
-    </div>
+    <Navigation :display="display" :categories="categories"/>
 
     <!-- Announcements -->
     <div id="featuredProducts" class="carousel slide col-sm-12 col-md-12 col-lg-12 d-none d-md-block mb-5" data-ride="carousel">
@@ -134,6 +109,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import Product from './components/Product.vue'
 import Category from './components/Category.vue'
+import Navigation from "./CategoryNavigation.vue";
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -144,7 +120,8 @@ export default {
   name: 'Main',
   components: {
     Product,
-    Category
+    Category,
+    Navigation
   },
   data() {
     return {

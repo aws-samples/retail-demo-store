@@ -63,6 +63,34 @@
         </div>
 
       </div>
+
+      <h4>Admin</h4>
+      <hr/>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Reset Personalize Campaigns
+      </button>
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Confirm</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body text-left">
+              Resetting Personalize campaigns will remove all Personalize resources & interactions and retrain campaigns from scratch.
+              <br><br>
+              This process takes approximately 3 hours and no campaigns will be available during this time.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-warning" v-on:click="resetRealtime" data-dismiss="modal">Reset Personalize Campaigns</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -77,6 +105,7 @@ import AmplifyStore from '@/store/store'
 import swal from 'sweetalert'
 
 const UsersRepository = RepositoryFactory.get('users')
+const RecommendationsRepository = RepositoryFactory.get('recommendations');
 
 export default {
   name: 'Profile',
@@ -135,6 +164,30 @@ export default {
       finally {
         this.saving = false;
       }
+    },
+    resetRealtime() {
+
+      RecommendationsRepository.resetRealtimeRecommendations().then(function(res) {
+        let title = "";
+        if (res.status === 200) {
+          title = "Product recommendations set for retrain. This takes approximately 3 hours and in the meantime the recommender is not available."
+        } else {
+          title = "Product recommendations retrain may not have worked this time " +
+              "(status=" + res.status + "): More info: " + res.data
+        }
+        swal({
+          title: title,
+          icon: "success",
+          buttons: {
+            cancel: "OK",
+          }
+        }).then((value) => {
+          switch (value) {
+            case "cancel":
+              break;
+          }
+        });
+      });
     }
   },
   watch: { 

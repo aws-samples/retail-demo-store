@@ -14,7 +14,8 @@
     <div class="col-sm-12 col-md-6 col-lg-6">
        <h5>{{ product.name }}</h5>
        <p>{{ product.description }}</p>
-       <p>${{ product.price }}</p>
+       <p v-bind:class="{discount: discount == 'true'}">${{ product.price }}</p>
+       <p v-if="discount == 'true'" class="font-weight-bold">${{ discountedPrice.toFixed(2) }}</p>
        <p>
         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
        </p>       
@@ -58,6 +59,7 @@ const ProductsRepository = RepositoryFactory.get('products')
 const CartsRepository = RepositoryFactory.get('carts')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const MaxRecommendations = 6
+const DiscountAmount = 0.2
 const ExperimentFeature = 'product_detail_related'
 
 import Product from './components/Product.vue'
@@ -70,6 +72,7 @@ export default {
     Product
   },
   props: {
+    discount: null
   },
   data () {
     return {
@@ -107,7 +110,7 @@ export default {
           let newItem = {
             product_id: this.product.id,
             quantity: qty,
-            price: this.product.price
+            price: this.discount == 'true' ? this.discountedPrice : this.product.price
           }
           this.cart.items.push(newItem)
       }
@@ -203,6 +206,9 @@ export default {
     cartID() {
       return AmplifyStore.state.cartID
     },
+    discountedPrice() {
+      return Math.round((this.product.price * (1-DiscountAmount)) * 100) / 100
+    },
     productImageURL: function () {
       if (this.product.image.includes('://')) {
         return this.product.image
@@ -221,5 +227,7 @@ export default {
 </script>
 
 <style scoped>
-  
+.discount {
+  text-decoration: line-through;
+}
 </style>

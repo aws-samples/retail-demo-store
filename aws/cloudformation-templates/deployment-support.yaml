@@ -66,6 +66,9 @@ Parameters:
   ElasticsearchDomainEndpoint:
     Type: String
 
+  ParameterIVSVideoChannelMap:
+    Type: String
+
   Uid:
     Type: String
 
@@ -104,7 +107,6 @@ Resources:
 
   PersonalizePreCreateLambdaFunction:
     Condition: DeployPreCreateCampaign
-    DependsOn: PersonalizeDeleteLambdaFunction # Ensure PreCreate function is deleted before Delete function so PreCreate is stopped first
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
@@ -123,6 +125,7 @@ Resources:
           csv_bucket: !Ref ResourceBucket
           csv_path: 'csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+          num_to_train: '1'
           Uid: !Ref Uid
 
   PersonalizePreCreateLambdaExecutionRole:
@@ -159,48 +162,33 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
-                  - personalize:ListCampaigns
-                  - personalize:ListDatasetGroups
-                  - personalize:ListSolutions
-                  - personalize:ListSchemas
-                  - personalize:ListSolutionVersions
-                  - personalize:ListDatasetImportJobs
-                  - personalize:ListDatasets
-                  - personalize:ListEventTrackers
-                  - personalize:CreateSchema
-                  - personalize:CreateDatasetGroup
                 Resource: '*'
-              - Effect: Allow
-                Action:
-                  - personalize:DescribeSolutionVersion
-                  - personalize:CreateSolutionVersion
-                  - personalize:CreateDatasetImportJob
-                  - personalize:CreateSolution
-                  - personalize:DescribeDatasetGroup
-                  - personalize:DescribeDatasetImportJob
-                  - personalize:DescribeSolution
-                  - personalize:DescribeEventTracker
-                  - personalize:CreateCampaign
-                  - personalize:CreateDataset
-                  - personalize:CreateEventTracker
-                  - personalize:CreateFilter
-                Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
               - Effect: Allow
                 Action:
                   - iam:GetRole
                   - iam:PassRole
                   - iam:CreateRole
                   - iam:AttachRolePolicy
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRole
                 Resource: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - Effect: Allow
                 Action:
+                  - lambda:AddPermission
+                  - lambda:RemovePermission
+                  - events:PutRule
+                  - events:PutTargets
                   - events:ListTargetsByRule
                   - events:RemoveTargets
                   - events:DeleteRule
-                Resource:
-                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+                  - events:DisableRule
+                  - events:EnableRule
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - personalize:*
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - codepipeline:ListPipelines
@@ -221,9 +209,9 @@ Resources:
     Type: 'AWS::Events::Rule'
     Properties:
       Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
-      Description: Calls Personalize pre-create Lambda function every 5 minutes until campaigns are fully created
+      Description: Calls Personalize pre-create Lambda function every 5 minutes until Personalize reaches desired state
       ScheduleExpression: rate(5 minutes)
-      State: ENABLED
+      State: DISABLED
       Targets:
         - Arn: !GetAtt 
             - PersonalizePreCreateLambdaFunction
@@ -243,27 +231,37 @@ Resources:
           - "PersonalizePreCreateScheduledRule"
           - "Arn"
 
-  ####################### Personalize Resource Delete Custom Resource #######################
+  # Custom resource to launch IVS create channels function
+  CustomLaunchPersonalizePreCreateLambdaFunction:
+    Condition: DeployPreCreateCampaign
+    Type: Custom::CustomLambdaPersonalize
+    Properties:
+      ServiceToken: !GetAtt PersonalizePreCreateLambdaFunction.Arn
 
-  PersonalizeDeleteLambdaFunction:
+  ####################### Create IVS Channels #######################
+
+  IVSCreateChannelsLambdaFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Retail Demo Store deployment utility function that deletes Personalize resources created in workshop or by pre-create Lambda'
-      Handler: personalize-delete-resources.lambda_handler
-      Role: !GetAtt 
-        - PersonalizeDeleteLambdaExecutionRole
+      Description: 'Retail Demo Store deployment utility function that creates IVS channels.'
+      Handler: ivs-create-channels.lambda_handler
+      Role: !GetAtt
+        - IVSCreateChannelsLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-delete-resources.zip'
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/ivs-create-channels.zip'
       Runtime: python3.8
-      Timeout: 60
-      FunctionName: RetailDemoStorePersonalizeDeleteResources
+      Timeout: 900
+      FunctionName: RetailDemoStoreIVSCreateChannels
       Environment:
         Variables:
+          bucket: !Ref ResourceBucket
+          videos_path: !Sub '${ResourceBucketRelativePath}videos/'
+          ssm_video_channel_map_param: !Ref ParameterIVSVideoChannelMap
           Uid: !Ref Uid
 
-  PersonalizeDeleteLambdaExecutionRole:
+  IVSCreateChannelsLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -275,7 +273,7 @@ Resources:
                 - lambda.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-      Path: /service-role/
+      Path: /
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -283,41 +281,48 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
-                Resource: 
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-              - Effect: Allow
-                Action:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizeDeleteResources*'        
-              - Effect: Allow
-                Action:
-                  - personalize:*
-                  - lambda:AddPermission
-                  - lambda:RemovePermission
-                  - events:PutRule
-                  - events:DeleteRule
-                  - events:PutTargets
-                  - events:RemoveTargets
-                Resource: '*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStoreIVSCreateChannels:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStoreIVSCreateChannels'
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
+                  - ssm:GetParameter
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
               - Effect: Allow
                 Action:
-                  - iam:DetachRolePolicy
-                  - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
+                  - ivs:CreateChannel
+                  - ivs:CreateStreamKey
+                  - ivs:ListStreamKeys
+                  - ivs:DeleteChannel
+                Resource: !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - ivs:StopStream
+                  - ivs:GetChannel
+                Resource: !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:channel/*'
+              - Effect: Allow
+                Action:
+                  - ivs:DeleteStreamKey
+                Resource: !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:stream-key/*'
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${ResourceBucket}/*"
+                  - !Sub "arn:aws:s3:::${ResourceBucket}"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
 
-  # Custom resource to launch elasticsearch preindex function
-  CustomPersonalizeDeleteLambdaFunction:
-    Type: Custom::CustomPersonalizeDelete
+  # Custom resource to launch IVS create channels function
+  CustomLaunchIVSCreateChannelsLambdaFunction:
+    Type: Custom::CustomLambdaIVS
     Properties:
-      ServiceToken: !GetAtt PersonalizeDeleteLambdaFunction.Arn
-      DatasetGroupName: 'retaildemostore'
+      ServiceToken: !GetAtt IVSCreateChannelsLambdaFunction.Arn
 
   ####################### Pre-Index Elasticsearch #######################
 

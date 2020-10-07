@@ -33,6 +33,10 @@ Metadata:
           - PinpointEmailFromAddress
           - PinpointEmailFromName
       - Label:
+          default: "Use default IVS streams"
+        Parameters:
+          - UseDefaultIvsStreams
+      - Label:
           default: "Miscellaneous"
         Parameters:
           - AmplitudeApiKey
@@ -64,6 +68,8 @@ Metadata:
         default: "Reply-To email address"
       PinpointEmailFromName:
         default: "Reply-To name"
+      UseDefaultIvsStreams:
+        default: "Use default IVS streams"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -170,6 +176,16 @@ Parameters:
       Name to use with Reply-To email address when sending emails from Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
       is set to 'Yes'.
     Default: "AWS Retail Demo Store"
+
+  UseDefaultIvsStreams:
+    Type: String
+    Description: >
+      Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
+      created based on any videos places in the CloudFormation resource bucket.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
   
   AmplitudeApiKey:
     Type: String
@@ -227,7 +243,9 @@ Resources:
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+        ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
+        UseDefaultIvsStreams: !Ref UseDefaultIvsStreams
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
@@ -255,6 +273,7 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
+        VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
@@ -280,7 +299,7 @@ Resources:
 
   # Deployment support
   DeploymentSupport:
-    DependsOn: Services # Delay towards end of deployment so that ES domain and DNS changes become consistent
+    DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/deployment-support.yaml
@@ -294,6 +313,7 @@ Resources:
         ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
         ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
@@ -348,6 +368,10 @@ Outputs:
   ElasticsearchDomainEndpoint:
     Description: Elasticsearch Endpoint
     Value: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+
+  ParameterIVSVideoChannelMap:
+    Description: Retail Demo Store video file to IVS channel mapping parameter
+    Value: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
 
   PinpointAppId:
     Description: Pinpoint App Id.

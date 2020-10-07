@@ -9,8 +9,13 @@
         <td class="px-1">
             <i class="fas fa-plus text-black-50" v-on:click="increaseQuantity(product_id)"></i> <div class="mr-1 ml-1 font-weight-bold"> {{ quantity }} </div> <i class="fas fa-minus text-black-50" v-on:click="decreaseQuantity(product_id)"></i>
         </td>
-        <td class="px-1">
+        <td class="px-1" >
+          <span class="mr-2" v-bind:class="{discount: cartPrice < product.price}">
             ${{ product.price }}
+          </span>
+          <span class="font-weight-heavy">
+            ${{ cartPrice.toFixed(2) }}
+          </span>
         </td>
         <td class="pr-0 pl-1">
           <a href="#" v-on:click="removeFromCart(product_id)"><i class="fas fa-times text-muted"></i></a>
@@ -34,7 +39,8 @@ export default {
       quantity: {
         type: Number,
         default: 0
-      }
+      },
+      cartPrice: null
   },
   data () {
     return {  
@@ -80,5 +86,9 @@ export default {
 <style scoped>
 .cart-item-img {
     max-height: 50px;
+}
+
+.discount {
+  text-decoration: line-through;
 }
 </style>

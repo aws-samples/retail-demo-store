@@ -15,3 +15,8 @@ The datagenerator library is a Python library that provides the following functi
 * The ability to specify a set of user behavior funnels and to then generate events that can be sent to Amazon Personalize, Segment, or Amplitude (see [./datagenerator/file.py](./datagenerator/file.py), [./datagenerator/amplitude.py](./datagenerator/amplitude.py), and [./datagenerator/segment.py](./datagenerator/segment.py)).
 
 For a working example of the event generator features, see [3.5-Amplitude-Performance-Metrics.ipynb](../workshop/3-Experimentation/3.5-Amplitude-Performance-Metrics.ipynb)
+
+# Interaction events
+
+The `generate_interactions_personalize.py` script is a standalone script that reads in the users data and products
+data direct from file and generates sample interactions. 

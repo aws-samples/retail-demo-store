@@ -332,6 +332,10 @@ class RankingProductsNoOpResolver(Resolver):
     use-cases. In other words, if you want the default behavior. The returned items 
     are formatted the same as Personalize to support consistent handling for clients.
     """
+    def __init__(self, **params):
+        """The resolver factory expects arguments in the constructor"""
+        pass
+
     def get_items(self, **kwargs):
         """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
         
