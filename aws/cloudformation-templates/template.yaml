@@ -33,10 +33,11 @@ Metadata:
           - PinpointEmailFromAddress
           - PinpointEmailFromName
       - Label:
-          default: "Miscellaneous"
+          default: "AWS Partner Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
+          - SegmentWriteKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"

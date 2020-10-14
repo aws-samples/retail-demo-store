@@ -52,6 +52,11 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  SegmentWriteKey:
+    Type: String
+    Description: Segment source write key (optional).
+    NoEcho: true
+
 Resources:
 
   # Authentication
