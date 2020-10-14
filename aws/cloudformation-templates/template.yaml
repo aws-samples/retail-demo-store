@@ -68,6 +68,8 @@ Metadata:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      SegmentWriteKey:
+        default: "Segment Write Key"
 
 Parameters:
   ResourceBucket:
@@ -181,6 +183,11 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  SegmentWriteKey:
+    Type: String
+    Description: Segment write key for real-time data collection (optional).
+    NoEcho: true
+
 Resources:
   # Base Resources
   Base:
@@ -196,6 +203,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
 
   # Services Resources
   Services:
@@ -308,7 +316,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
-  # Segment Lambda Fucntion
+  # Segment Lambda Function
   SegmentPersonalize:
     Type: AWS::CloudFormation::Stack
     Properties:
