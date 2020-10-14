@@ -108,7 +108,7 @@ Resources:
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"
 
-    ParameterSegmentWriteKey:
+  ParameterSegmentWriteKey:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-segment-write-key"
