@@ -20,12 +20,19 @@ Parameters:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
+  
+  SegmentWriteKey:
+    Type: String
+    Description: Write key for the Segment source used to gather real-time events (optional).
+    NoEcho: true
 
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
   HasOptimizelySdkKey:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
+  HasSegmentWriteKey:
+    !Not [!Equals [!Ref SegmentWriteKey, ""]]
 
 Resources:
 
