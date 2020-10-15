@@ -599,7 +599,7 @@ export const AnalyticsHandler = {
     },
 
     optimizelyEnabled() {
-        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY !== 'NONE';
+        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY != 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {
