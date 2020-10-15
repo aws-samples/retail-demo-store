@@ -282,6 +282,10 @@ Outputs:
     Description: Optimizely SDK key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterOptimizelySdkKey
 
+  ParameterSegmentWriteKey:
+    Description: Segment write key Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
+
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.
     Value: !GetAtt CloudFront.Outputs.WebUIBucketName
