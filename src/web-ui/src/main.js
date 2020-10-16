@@ -6,10 +6,7 @@ import App from './App.vue';
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
 import { components } from 'aws-amplify-vue';
-import moment from 'moment';
 import Amplitude from 'amplitude-js';
-
-Vue.prototype.moment = moment;
 
 // Base configuration for Amplify
 const amplifyConfig = {

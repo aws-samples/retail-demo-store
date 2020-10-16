@@ -1,5 +1,3 @@
-var webpack = require('webpack');
-
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 /*
@@ -19,8 +17,6 @@ module.exports = {
         analyzerPort: 9090,
         analyzerMode: 'disabled',
       }),
-      // Exclude the moment locale bits to reduce bundle size
-      new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     ],
   },
 };
