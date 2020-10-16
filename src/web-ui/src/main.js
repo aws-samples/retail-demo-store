@@ -1,25 +1,25 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from 'vue';
+import App from './App.vue';
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
-import { components } from 'aws-amplify-vue'; 
-import moment from 'moment'
-import Amplitude from 'amplitude-js'
+import { components } from 'aws-amplify-vue';
+import moment from 'moment';
+import Amplitude from 'amplitude-js';
 
-Vue.prototype.moment = moment
+Vue.prototype.moment = moment;
 
 // Base configuration for Amplify
 const amplifyConfig = {
   Auth: {
-      identityPoolId: process.env.VUE_APP_AWS_IDENTITY_POOL_ID,
-      region: process.env.VUE_APP_AWS_REGION,
-      identityPoolRegion: process.env.VUE_APP_AWS_REGION,
-      userPoolId: process.env.VUE_APP_AWS_USER_POOL_ID,
-      userPoolWebClientId: process.env.VUE_APP_AWS_USER_POOL_CLIENT_ID,
-      mandatorySignIn: false,
+    identityPoolId: process.env.VUE_APP_AWS_IDENTITY_POOL_ID,
+    region: process.env.VUE_APP_AWS_REGION,
+    identityPoolRegion: process.env.VUE_APP_AWS_REGION,
+    userPoolId: process.env.VUE_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.VUE_APP_AWS_USER_POOL_CLIENT_ID,
+    mandatorySignIn: false,
   },
   Analytics: {
     disabled: false,
@@ -28,18 +28,18 @@ const amplifyConfig = {
       appId: process.env.VUE_APP_PINPOINT_APP_ID,
       region: process.env.VUE_APP_PINPOINT_REGION,
       mandatorySignIn: false,
-    }
+    },
   },
   Interactions: {
     bots: {
-      "RetailDemoStore": {
-        "name": process.env.VUE_APP_BOT_NAME,
-        "alias": process.env.VUE_APP_BOT_ALIAS,
-        "region": process.env.VUE_APP_BOT_REGION,
+      RetailDemoStore: {
+        name: process.env.VUE_APP_BOT_NAME,
+        alias: process.env.VUE_APP_BOT_ALIAS,
+        region: process.env.VUE_APP_BOT_REGION,
       },
-    }
-  }
-}
+    },
+  },
+};
 
 Analytics.addPluggable(new AWSPinpointProvider());
 
@@ -55,12 +55,12 @@ if (process.env.VUE_APP_PERSONALIZE_TRACKING_ID && process.env.VUE_APP_PERSONALI
     flushSize: 5,
     // OPTIONAL - The interval in milliseconds to perform a buffer check and flush if necessary.
     flushInterval: 2000, // 2s
-  }
+  };
 }
 
 // Initialize Amplitude if a valid API key is specified.
 if (process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE') {
-  Amplitude.getInstance().init(process.env.VUE_APP_AMPLITUDE_API_KEY)
+  Amplitude.getInstance().init(process.env.VUE_APP_AMPLITUDE_API_KEY);
 }
 
 // Set the configuration
@@ -68,24 +68,24 @@ Auth.configure(amplifyConfig);
 Analytics.configure(amplifyConfig);
 Interactions.configure(amplifyConfig);
 
-require('dotenv').config()
+require('dotenv').config();
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
-Logger.LOG_LEVEL = 'DEBUG'
-const logger = new Logger('main')
+Logger.LOG_LEVEL = 'DEBUG';
+const logger = new Logger('main');
 
 Auth.currentUserInfo()
-  .then(user => logger.debug(user))
-  .catch(err => logger.debug(err))
+  .then((user) => logger.debug(user))
+  .catch((err) => logger.debug(err));
 
-new Vue({  
+new Vue({
   el: '#app',
   router: router,
   template: '<App/>',
-  components: { 
+  components: {
     App,
-    ...components
+    ...components,
   },
-  render: h => h(App)
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount('#app');
