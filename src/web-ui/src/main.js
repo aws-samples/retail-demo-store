@@ -68,8 +68,6 @@ Auth.configure(amplifyConfig);
 Analytics.configure(amplifyConfig);
 Interactions.configure(amplifyConfig);
 
-require('dotenv').config();
-
 Vue.config.productionTip = false;
 
 Logger.LOG_LEVEL = 'DEBUG';

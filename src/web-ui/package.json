@@ -15,7 +15,6 @@
     "aws-amplify-vue": "^2.1.2",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
-    "dotenv": "^8.2.0",
     "moment": "^2.24.0",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
