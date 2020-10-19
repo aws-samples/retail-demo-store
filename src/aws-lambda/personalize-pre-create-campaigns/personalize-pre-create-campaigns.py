@@ -551,7 +551,7 @@ def lambda_handler(event, context):
     # Create related product, product recommendation, and rerank solutions if they doesn't exist
     related_recipe_arn = "arn:aws:personalize:::recipe/aws-sims"
     related_solution_name = related_campaign_name = "retaildemostore-related-products"
-    product_recipe_arn = "arn:aws:personalize:::recipe/aws-hrnn-metadata"
+    product_recipe_arn = "arn:aws:personalize:::recipe/aws-user-personalization"
     product_solution_name = product_campaign_name = "retaildemostore-product-personalization"
     rerank_recipe_arn = "arn:aws:personalize:::recipe/aws-personalized-ranking"
     rerank_solution_name = rerank_campaign_name = "retaildemostore-personalized-ranking"
