@@ -1,2 +1,2 @@
 packaging==20.4
-requests
+analytics-python
