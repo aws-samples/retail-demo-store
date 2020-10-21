@@ -1,2 +1,1 @@
-packaging==20.4
 analytics-python
