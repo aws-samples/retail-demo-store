@@ -45,8 +45,8 @@ def lambda_handler(event, context):
             if response.ok:
                 recommendations = response.json()
                 logger.debug(recommendations)
-                # Send the user recommendations to the CDP
-                #analytics.identify(user_id, { personalized_recommendations: **recommendations })
+                # Send the user recommendations to Segment
+                analytics.identify(user_id, { 'personalized_recommendations': recommendations })
     except ValueError as ve:
         logger.error("Invalid JSON format received, check your event sources.")
     except KeyError as ke:
