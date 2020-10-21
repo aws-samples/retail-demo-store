@@ -3,14 +3,15 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
     This template deploys two Lambda functions that can be used with the Segment Amazon Personalize destination 
-    in the Personalize and CDP workshops.
+    in the Personalize and CDP workshops, along with the execution roles required to run the Lambda and for Segment
+    to be able to access the Lambda from the Personalize destination.
 
 Parameters:
   ResourceBucket:
     Type: String
     Description: >
       S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
-      notebooks, deployment Lambda code, etc).
+      notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
 
   ResourceBucketRelativePath:
     Type: String
@@ -59,6 +60,7 @@ Resources:
   SegmentCrossAccountLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
+     Description: 'Required role for Segment to execute a Lambda from the Segment Personalize destination.'
      AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -86,6 +88,7 @@ Resources:
   SegmentPersonalizeDestinationLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
+      Description: 'Execution role for the two Lambdas provided with the Segment workshop.'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
