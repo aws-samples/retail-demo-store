@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store reference architecture and workshop notebooks in the Event Engine
+    This template deploys the Retail Demo Store infra and workshop notebooks in the Event Engine
     for those of you that need to run customer workshops in that framework.
 
 Parameters:
