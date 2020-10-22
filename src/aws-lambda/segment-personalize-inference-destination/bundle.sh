@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e 
 
-LAMBDA_SOURCE=segment-personalize-destination.py
-PACKAGE_FILE=segment-personalize-destination.zip
+LAMBDA_SOURCE=segment-personalize-inference-destination.py
+PACKAGE_FILE=segment-personalize-inference-destination.zip
 
 echo "Cleaning up intermediate files"
 [ -e ${PACKAGE_FILE} ] && rm ${PACKAGE_FILE}
