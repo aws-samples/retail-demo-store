@@ -38,7 +38,7 @@ Resources:
         Variables:
           personalize_tracking_id:  ''
 
-   SegmentPersonalizeInferenceDestinationLambda:
+  SegmentPersonalizeInferenceDestinationLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Handles events passed from Segment to Personalize for inference.'
