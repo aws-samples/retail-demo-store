@@ -1,0 +1,149 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store reference architecture and workshop notebooks in the Event Engine
+    for those of you that need to run customer workshops in that framework.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      notebooks, deployment Lambda code, etc).
+    Default: 'retail-demo-store-staging-mbs-east-1'
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+    Default: ''
+
+  CreateElasticsearchServiceLinkedRole:
+    Type: String
+    Description: >
+      If your account already has an IAM Role named 'AWSServiceRoleForAmazonElasticsearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  SourceDeploymentType:
+    Type: String
+    Description: >
+      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store 
+      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline 
+      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing 
+      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for 
+      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own 
+      source repositories provisioned.
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+
+  GitHubRepo:
+    Type: String
+    Description: Name of Retail Demo Store GitHub repository in your GitHub account.
+    Default: retail-demo-store
+
+  GitHubBranch:
+    Type: String
+    Description: Name of GitHub branch to link to this Retail Demo Store deployment.
+    Default: master
+
+  GitHubToken:
+    Type: String
+    Description: GitHub Personal Access Token for your GitHub account. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
+    NoEcho: true
+    Default: 'dummy'
+
+  GitHubUser:
+    Type: String
+    Description: Your GitHub username.
+    Default: 'dummy'
+
+  PreIndexElasticsearch:
+    Type: String
+    Description: >
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      as a Jupyter notebook in SageMaker.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  PreCreatePersonalizeCampaign:
+    Type: String
+    Description: >
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      and can take 2+ hours to complete.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  PreCreatePinpointWorkshop:
+    Type: String
+    Description: >
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
+      in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  PinpointEmailFromAddress:
+    Type: String
+    Description: >
+      Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+    Default: 'dummy@dummy.com'
+  
+  PinpointEmailFromName:
+    Type: String
+    Description: >
+      Name to use with Reply-To email address when sending emails from Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+    Default: "AWS Retail Demo Store"
+  
+  AmplitudeApiKey:
+    Type: String
+    Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
+    NoEcho: true
+    Default: NONE
+
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+    Default: NONE
+
+  SegmentWriteKey:
+    Type: String
+    Description: Segment write key for real-time data collection (optional).
+    NoEcho: true
+    Default: NONE
+
+Resources:
+  # This references the base template.yaml file that comes with the Retail Demo Store.  Set the default values
+  # for the properties above to whatever you need to set up your environment in the Event Engine.  Happy Eventing. 
+  EventEngineRetailDemoStore:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/template.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+        AmplitudeApiKey: !Ref AmplitudeApiKey
+        ParentStackName: !Ref AWS::StackName
+        OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
