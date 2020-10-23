@@ -1,51 +1,52 @@
 <template>
-<div class="container">
+  <Layout>
+    <div class="container">
 
-  <!-- Loading Indicator -->
-  <div class="container mb-4" v-if="!product">
-    <i class="fas fa-spinner fa-spin fa-3x"></i>
-  </div>
-
-  <!-- Product Detail-->
-  <div class="row" v-if="product">
-    <div class="col-sm-12 col-md-6 col-lg-6">
-      <img :src="productImageURL" class="card-img-top" alt="...">
-    </div>
-    <div class="col-sm-12 col-md-6 col-lg-6">
-       <h5>{{ product.name }}</h5>
-       <p>{{ product.description }}</p>
-       <p>${{ product.price }}</p>
-       <p>
-        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-       </p>       
-       <button class="btn btn-outline-primary" v-on:click="addToCart()"> Add to Cart </button>
-    </div>
-  </div>
-
-  <!-- Recommendations -->
-  <hr/>
-  <h5>What other items do customers view related to this product?</h5>
-  <div v-if="explain_recommended" class="text-muted text-center">
-    <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
-  </div>
-
-  <div class="container related-products">
-    <div class="container mb-4" v-if="!related_products.length">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-    <div class="row">
-      <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-        <Product v-for="recommendation in related_products" 
-          v-bind:key="recommendation.product.id"
-          :product="recommendation.product"
-          :experiment="recommendation.experiment"
-          :feature="feature"
-        />
+      <!-- Loading Indicator -->
+      <div class="container mb-4" v-if="!product">
+        <i class="fas fa-spinner fa-spin fa-3x"></i>
       </div>
+
+      <!-- Product Detail-->
+      <div class="row" v-if="product">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <img :src="productImageURL" class="card-img-top" alt="...">
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <h5>{{ product.name }}</h5>
+          <p>{{ product.description }}</p>
+          <p>${{ product.price }}</p>
+          <p>
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </p>       
+          <button class="btn btn-outline-primary" v-on:click="addToCart()"> Add to Cart </button>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <hr/>
+      <h5>What other items do customers view related to this product?</h5>
+      <div v-if="explain_recommended" class="text-muted text-center">
+        <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
+      </div>
+
+      <div class="container related-products">
+        <div class="container mb-4" v-if="!related_products.length">
+          <i class="fas fa-spinner fa-spin fa-3x"></i>
+        </div>
+        <div class="row">
+          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
+            <Product v-for="recommendation in related_products" 
+              v-bind:key="recommendation.product.id"
+              :product="recommendation.product"
+              :experiment="recommendation.experiment"
+              :feature="feature"
+            />
+          </div>
+        </div>
+      </div>    
     </div>
-  </div>
-    
-</div>
+  </Layout>
 </template>
 
 <script>
@@ -61,13 +62,15 @@ const MaxRecommendations = 6
 const ExperimentFeature = 'product_detail_related'
 
 import Product from './components/Product.vue'
+import Layout from './components/Layout'
 
 import swal from 'sweetalert';
 
 export default {
   name: 'ProductDetail',
   components: {
-    Product
+    Product,
+    Layout,
   },
   props: {
   },
