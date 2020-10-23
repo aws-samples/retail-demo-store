@@ -1,7 +1,7 @@
 <template>
   <Layout :showNav="false" :showFooter="false" :backgroundColor="'var(--aws-squid-ink)'">
     <div class="container mb-2 text-left">
-      <div class="px-3 px-md-5">
+      <header class="px-3 px-md-5">
         <h1 class="heading my-5 text-center">Welcome to the Retail Demo Store!</h1>
 
         <p>
@@ -32,9 +32,9 @@
           </div>
           <router-link to="/auth" class="create-account btn btn-primary">Create an account</router-link>
         </div>
-      </div>
+      </header>
 
-      <div class="info py-3 px-3 py-md-4 px-md-5">
+      <section class="info py-3 px-3 py-md-4 px-md-5">
         <p>
           *To keep the click-through data fresh, this demo resets every day at 11 pm EST. Accounts created more than 24
           hours prior would be deleted as well. If your account has been deleted, go ahead and create a new one.
@@ -52,7 +52,7 @@
             >workshop welcome notebook page</a
           >.
         </p>
-      </div>
+      </section>
     </div>
   </Layout>
 </template>
