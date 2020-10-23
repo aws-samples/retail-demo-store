@@ -15,13 +15,15 @@
           behavior.
         </p>
 
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center">
-          <div>AWS Services Included:</div>
+        <div class="mt-2 d-flex flex-column flex-lg-row align-items-lg-center">
+          <div class="mb-2 mb-lg-0">AWS Services Included:</div>
 
-          <ul class="service-list mb-0 pl-0 flex-grow-1 d-flex flex-column flex-lg-row justify-content-lg-around font-weight-bold">
-            <li>Amazon Personalize</li>
-            <li>Amazon Pinpoint</li>
-            <li>Amazon Lex</li>
+          <ul
+            class="service-list mb-0 pl-0 flex-grow-1 d-flex flex-column flex-lg-row justify-content-lg-around font-weight-bold"
+          >
+            <li v-for="service in services" :key="service.text" class="mb-2 mb-lg-0">
+              <ServiceBadge :text="service.text" :src="service.src"></ServiceBadge>
+            </li>
           </ul>
         </div>
 
@@ -59,11 +61,31 @@
 
 <script>
 import Layout from './components/Layout';
+import ServiceBadge from './components/ServiceBadge';
 
 export default {
   name: 'Welcome',
   components: {
     Layout,
+    ServiceBadge,
+  },
+  data() {
+    return {
+      services: [
+        {
+          text: 'Amazon Personalize',
+          src: '/personalize.svg',
+        },
+        {
+          text: 'Amazon Pinpoint',
+          src: '/pinpoint.svg',
+        },
+        {
+          text: 'Amazon Lex',
+          src: '/lex.svg',
+        },
+      ],
+    };
   },
 };
 </script>
@@ -93,7 +115,8 @@ export default {
   background: var(--amazon-orange);
 }
 
-.create-account:hover, .create-account:focus {
+.create-account:hover,
+.create-account:focus {
   background: var(--amazon-orange-light);
   border-color: var(--amazon-orange-light);
 }
