@@ -83,7 +83,7 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !GetAtt SegmentPersonalizeDestinationLambdaFunction.Arn
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SegmentPersonalizeDestination*'
 
   SegmentPersonalizeDestinationLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -109,8 +109,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalizeDestinationLambdaFunction:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalizeDestinationLambdaFunction'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*'
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                
@@ -124,6 +124,9 @@ Resources:
                 Resource: '*'
 
 Outputs:
-  LambdaFunctionArn:
+  SegmentPersonalizeEventsLambdaFunctionArn:
     Description: Lambda function ARN for the Segment Personalize destination Lambda function.
-    Value: !GetAtt SegmentPersonalizeDestinationLambdaFunction.Arn
+    Value: !GetAtt SegmentPersonalizeEventsDestinationLambda.Arn
+  SegmentPersonalizeInferenceLambdaFunctionArn:
+    Description: Lambda function ARN for the Segment Personalize destination Lambda function.
+    Value: !GetAtt SegmentPersonalizeInferenceDestinationLambda.Arn
