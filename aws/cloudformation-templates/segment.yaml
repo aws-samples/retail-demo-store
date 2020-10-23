@@ -83,7 +83,7 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SegmentPersonalizeDestination*'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SegmentPersonalize*'
 
   SegmentPersonalizeDestinationLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
