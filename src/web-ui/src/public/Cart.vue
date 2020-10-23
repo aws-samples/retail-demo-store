@@ -1,77 +1,79 @@
 <template>
-  <div class="content">
+  <Layout>
+    <div class="content">
 
-    <!-- Loading Indicator -->
-    <div class="container" v-if="!cart">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div v-if="cart.items">
-        <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
+      <!-- Loading Indicator -->
+      <div class="container" v-if="!cart">
+        <i class="fas fa-spinner fa-spin fa-3x"></i>
       </div>
-    </div>    
 
-    <div class="container" v-if="cart">
-      <div class="row" v-if="cart.items && cart.items.length > 0">
-        <div class="col-md-8 mb-4">
-         <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Items</span>
-          </h4>
-          <table class="table">
-            <tr>
-              <th class="pl-0 pr-1 d-none d-sm-table-cell"></th>
-              <th class="px-1">Item</th>
-              <th class="px-1"><span class="d-none d-sm-inline">Quantity</span><span class="d-xs-inline d-sm-none">Qty</span></th>
-              <th class="px-1">Price</th>
-              <th class="pr-0 pl-1"></th>          
-            </tr>
-            <CartItem v-for="item in cart.items" 
-              v-bind:key="item.product_id"
-              :product_id="item.product_id"
-              :quantity="item.quantity"
-              @removeFromCart="removeFromCart"
-              @increaseQuantity="increaseQuantity"
-              @decreaseQuantity="decreaseQuantity"
-            />
-          </table>
+      <div class="container" v-if="cart">
+        <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
+      </div>
+
+      <div class="container" v-if="cart">
+        <div v-if="cart.items">
+          <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
         </div>
-        <div class="col-md-4">
+      </div>    
+
+      <div class="container" v-if="cart">
+        <div class="row" v-if="cart.items && cart.items.length > 0">
+          <div class="col-md-8 mb-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Summary</span>
-            <span class="badge badge-secondary badge-pill">{{ this.cartQuantity }}</span>
-          </h4>
-          <div class="text-dark">
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Sub Total (USD)</span>
-              <strong>${{ this.cartSubTotal.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tax (USD)</span>
-              <strong>${{ this.cartTaxRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Shipping (USD)</span>
-              <strong>${{ this.cartShippingRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
-              <strong>${{ this.cartTotal.toFixed(2) }}</strong>
-            </li>            
-          </ul>
-            <button class="btn btn-primary mb-4 btn-block" v-on:click="checkout()"> Checkout </button>
-            <button class="btn btn-secondary mb-4 btn-block" v-on:click="triggerAbandonedCartEmail()"> Trigger Abaondoned Cart Email </button>
+              <span class="text-muted">Items</span>
+            </h4>
+            <table class="table">
+              <tr>
+                <th class="pl-0 pr-1 d-none d-sm-table-cell"></th>
+                <th class="px-1">Item</th>
+                <th class="px-1"><span class="d-none d-sm-inline">Quantity</span><span class="d-xs-inline d-sm-none">Qty</span></th>
+                <th class="px-1">Price</th>
+                <th class="pr-0 pl-1"></th>          
+              </tr>
+              <CartItem v-for="item in cart.items" 
+                v-bind:key="item.product_id"
+                :product_id="item.product_id"
+                :quantity="item.quantity"
+                @removeFromCart="removeFromCart"
+                @increaseQuantity="increaseQuantity"
+                @decreaseQuantity="decreaseQuantity"
+              />
+            </table>
+          </div>
+          <div class="col-md-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">Summary</span>
+              <span class="badge badge-secondary badge-pill">{{ this.cartQuantity }}</span>
+            </h4>
+            <div class="text-dark">
+            <ul class="list-group mb-3">
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Sub Total (USD)</span>
+                <strong>${{ this.cartSubTotal.toFixed(2) }}</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Tax (USD)</span>
+                <strong>${{ this.cartTaxRate.toFixed(2) }}</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Shipping (USD)</span>
+                <strong>${{ this.cartShippingRate.toFixed(2) }}</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Total (USD)</span>
+                <strong>${{ this.cartTotal.toFixed(2) }}</strong>
+              </li>            
+            </ul>
+              <button class="btn btn-primary mb-4 btn-block" v-on:click="checkout()"> Checkout </button>
+              <button class="btn btn-secondary mb-4 btn-block" v-on:click="triggerAbandonedCartEmail()"> Trigger Abaondoned Cart Email </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
+    </div>
+  </Layout>
 </template>
 
 <script>
@@ -81,6 +83,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import CartItem from './components/CartItem.vue'
+import Layout from './components/Layout'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const ProductsRepository = RepositoryFactory.get('products')
@@ -88,9 +91,8 @@ const ProductsRepository = RepositoryFactory.get('products')
 export default {
   name: 'Cart',
   components: {
-    CartItem
-  },
-  props: {
+    Layout,
+    CartItem,
   },
   data () {
     return {  

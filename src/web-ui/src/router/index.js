@@ -9,6 +9,7 @@ import CategoryDetail from '@/public/CategoryDetail.vue'
 import Help from '@/public/Help.vue'
 import Cart from '@/public/Cart.vue'
 import Checkout from '@/public/Checkout.vue'
+import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
 import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
@@ -22,6 +23,8 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
+
+import {getWelcomePageVisited, setWelcomePageVisited} from '@/config/localStorage/keys/welcomePageVisited'
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -163,6 +166,12 @@ async function getUser() {
 const router = new Router({
   routes: [
     {
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome,
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/',
       name: 'Main',
       component: Main,
@@ -259,8 +268,18 @@ const router = new Router({
   }
 });
 
+// Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
 router.beforeResolve(async (to, _from, next) => {
+  if (!getWelcomePageVisited()) {
+    const user = await getUser();
+
+    if (!user) {
+      setWelcomePageVisited(true);
+      return next('/welcome');
+    }
+  }     
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await getUser();
     if (!user) {
