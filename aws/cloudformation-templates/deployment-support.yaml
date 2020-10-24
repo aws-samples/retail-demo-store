@@ -121,7 +121,7 @@ Resources:
       Environment:
         Variables:
           csv_bucket: !Ref ResourceBucket
-          csv_path: 'csvs/'
+          csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
 
