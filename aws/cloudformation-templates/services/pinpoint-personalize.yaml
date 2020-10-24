@@ -24,7 +24,7 @@ Resources:
   PinpointPersonalizeRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${Uid}-PinpointPersonalize # Referenced by name in messaging notebook
+      RoleName: !Sub ${Uid}-PinptP9e # Referenced by name in messaging notebook
       Path: /
       AssumeRolePolicyDocument: 
         Version: 2012-10-17
