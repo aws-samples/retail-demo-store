@@ -14,7 +14,7 @@
 
       <!-- Product Detail-->
       <main v-if="product" class="product-container text-left">
-        <div class="title-and-rating">
+        <div class="title-and-rating mb-md-3">
           <h1 class="product-name">{{ product.name }}</h1>
           <div>
             <i v-for="i in 5" :key="i" class="fas fa-star"></i>
@@ -26,7 +26,7 @@
             Price <b>${{ product.price }}</b>
           </div>
 
-          <div class="add-to-cart-row mb-5 d-flex">
+          <div class="add-to-cart-row mb-5 mb-md-4 d-flex">
             <button
               class="quantity-dropdown btn btn-outline-secondary dropdown-toggle"
               type="button"
