@@ -245,8 +245,6 @@ export default {
         const { data } = await CartsRepository.getCartByID(this.cartID);
         // Since cart service holds carts in memory, they can be lost on restarts.
         // Make sure our cart was returned. Otherwise create a new one.
-        console.log(data.id, this.cardID);
-
         if (data.id == this.cartID) {
           this.cart = data;
         } else {
