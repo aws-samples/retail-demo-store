@@ -35,14 +35,14 @@ class ExperimentManager:
         """ Returns True if this environment is setup for running experiments """
         return self.__get_table()
 
-    def is_optimizey_configured(self):
+    def is_optimizely_configured(self):
         return optimizely_configured
 
     def get_active(self, feature):
         """ Returns the active experiment for the given feature """
         experiment = None
 
-        if self.is_optimizey_configured():
+        if self.is_optimizely_configured():
             config = optimizely_sdk.get_optimizely_config()
             if config:
                 if feature in config.features_map:
