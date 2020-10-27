@@ -30,9 +30,9 @@
         <!-- make both links to go /auth until we have dedicated sign in and create account pages -->
         <div class="auth-cta my-5 d-flex flex-column flex-sm-row justify-content-end align-items-center">
           <div class="login-cta d-flex align-items-center">
-            *Have an account?<router-link to="/auth" class="sign-in btn btn-link">Sign in</router-link>
+            *Have an account?<router-link to="/auth" class="sign-in ml-3 btn btn-link">Sign in</router-link>
           </div>
-          <router-link to="/auth" class="create-account btn btn-primary">Create an account</router-link>
+          <router-link to="/auth" class="create-account mt-3 mt-sm-0 ml-sm-3 btn btn-primary">Create an account</router-link>
         </div>
       </header>
 
@@ -98,11 +98,6 @@ export default {
 
 .service-list {
   list-style-type: none;
-}
-
-.auth-cta,
-.login-cta {
-  gap: 20px;
 }
 
 .sign-in {
