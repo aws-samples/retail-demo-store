@@ -87,6 +87,19 @@ export const AnalyticsHandler = {
             }
         }, 'AmazonPersonalize')
 
+        if (this.segmentEnabled()) {
+            let userProperties = {
+                username: user.username,
+                email: user.email,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                gender: user.gender,
+                age: user.age,
+                persona: user.persona
+            };
+            window.analytics.identify(user.id, userProperties);
+        }
+
         if (this.amplitudeEnabled()) {
             // Amplitude identify call
             Amplitude.getInstance().setUserId(user.id);
@@ -200,19 +213,25 @@ export const AnalyticsHandler = {
             }
         }, 'AmazonPersonalize')
 
+        let eventProperties = {
+            userId: user ? user.id : null,
+            cartId: cart.id,
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            feature: feature,
+            experimentCorrelationId: experimentCorrelationId,
+            quantity: quantity,
+            price: +product.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductAdded', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            Amplitude.getInstance().logEvent('ProductAdded', {
-                userId: user ? user.id : null,
-                cartId: cart.id,
-                productId: product.id,
-                name: product.name,
-                category: product.category,
-                image: product.image,
-                feature: feature,
-                experimentCorrelationId: experimentCorrelationId,
-                quantity: quantity,
-                price: +product.price.toFixed(2)
-            })
+            Amplitude.getInstance().logEvent('ProductAdded', eventProperties);
         }
 
         if (user && this.optimizelyEnabled()) {
@@ -251,14 +270,18 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            productId: cartItem.product_id,
+            quantity: origQuantity,
+            price: +cartItem.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductRemoved', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                productId: cartItem.product_id,
-                quantity: origQuantity,
-                price: +cartItem.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductRemoved', eventProperties);      
         }
     },
@@ -288,15 +311,19 @@ export const AnalyticsHandler = {
             }
         }, 'AmazonPersonalize')
 
+        let eventProperties = {
+            cartId: cart.id,
+            productId: cartItem.product_id,
+            quantity: cartItem.quantity,
+            change: change,
+            price: +cartItem.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductQuantityUpdated', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                productId: cartItem.product_id,
-                quantity: cartItem.quantity,
-                change: change,
-                price: +cartItem.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductQuantityUpdated', eventProperties);
         }
     },
@@ -332,17 +359,21 @@ export const AnalyticsHandler = {
             RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
         }
 
+        let eventProperties = {
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            feature: feature,
+            experimentCorrelationId: experimentCorrelationId,
+            price: +product.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductViewed', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                productId: product.id,
-                name: product.name,
-                category: product.category,
-                image: product.image,
-                feature: feature,
-                experimentCorrelationId: experimentCorrelationId,
-                price: +product.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductViewed', eventProperties);
         }
 
@@ -382,14 +413,19 @@ export const AnalyticsHandler = {
             }, 'AmazonPersonalize')
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            cartSubTotal: +cartSubTotal.toFixed(2),
+            cartTotal: +cartTotal.toFixed(2),
+            cartQuantity: cartQuantity
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('CartViewed', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
             // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                cartSubTotal: +cartSubTotal.toFixed(2),
-                cartTotal: +cartTotal.toFixed(2),
-                cartQuantity: cartQuantity
-            };
             Amplitude.getInstance().logEvent('CartViewed', eventProperties);      
         }
     },
@@ -420,14 +456,18 @@ export const AnalyticsHandler = {
             }, 'AmazonPersonalize')
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            cartSubTotal: +cartSubTotal.toFixed(2),
+            cartTotal: +cartTotal.toFixed(2),
+            cartQuantity: cartQuantity
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('CheckoutStarted', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                cartSubTotal: +cartSubTotal.toFixed(2),
-                cartTotal: +cartTotal.toFixed(2),
-                cartQuantity: cartQuantity
-            };
             Amplitude.getInstance().logEvent('CheckoutStarted', eventProperties);      
         }
     },
@@ -477,7 +517,7 @@ export const AnalyticsHandler = {
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue
-                var revenue = new Amplitude.Revenue()
+                let revenue = new Amplitude.Revenue()
                     .setProductId(orderItem.product_id.toString())
                     .setPrice(+orderItem.price.toFixed(2))
                     .setQuantity(orderItem.quantity);
@@ -498,13 +538,17 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            orderId: order.id,
+            orderTotal: +order.total.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('OrderCompleted', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                orderId: order.id,
-                orderTotal: +order.total.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('OrderCompleted', eventProperties);
         }
     },
@@ -531,23 +575,31 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            query: query,
+            reranked: (user ? 'true' : 'false'),
+            resultCount: numResults
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductSearched', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                query: query,
-                reranked: (user ? 'true' : 'false'),
-                resultCount: numResults
-            };
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
     },
 
+    segmentEnabled() {
+        return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
+    },
+
     amplitudeEnabled() {
-        return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE'
+        return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE';
     },
 
     optimizelyEnabled() {
-        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY !== 'NONE';
+        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY != 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {

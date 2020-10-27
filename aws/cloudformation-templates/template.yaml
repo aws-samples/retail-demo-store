@@ -33,10 +33,11 @@ Metadata:
           - PinpointEmailFromAddress
           - PinpointEmailFromName
       - Label:
-          default: "Miscellaneous"
+          default: "AWS Partner Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
+          - SegmentWriteKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -68,6 +69,8 @@ Metadata:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      SegmentWriteKey:
+        default: "Segment Write Key"
 
 Parameters:
   ResourceBucket:
@@ -181,6 +184,11 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  SegmentWriteKey:
+    Type: String
+    Description: Segment write key for real-time data collection (optional).
+    NoEcho: true
+
 Resources:
   # Base Resources
   Base:
@@ -196,6 +204,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
 
   # Services Resources
   Services:
@@ -259,6 +268,7 @@ Resources:
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
+        ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
@@ -308,6 +318,15 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
+  # Segment Lambda Function
+  SegmentPersonalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
