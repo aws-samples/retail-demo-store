@@ -26,9 +26,9 @@
             Price <b>${{ product.price }}</b>
           </div>
 
-          <div class="add-to-cart-row mb-5 mb-md-4 d-flex">
+          <div class="mb-5 mb-md-4 d-flex">
             <button
-              class="quantity-dropdown btn btn-outline-secondary dropdown-toggle"
+              class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
               type="button"
               id="quantity-dropdown"
               data-toggle="dropdown"
@@ -314,10 +314,6 @@ export default {
 
 .add-to-cart-and-description {
   grid-area: AddToCardAndDescription;
-}
-
-.add-to-cart-row {
-  gap: 10px;
 }
 
 .quantity-dropdown {
