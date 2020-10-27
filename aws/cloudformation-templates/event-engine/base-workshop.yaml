@@ -51,6 +51,7 @@ Resources:
         PinpointEmailFromName: 'AWS Retail Demo Store'
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
+        SegmentWriteKey: 'NONE'
 
 Outputs:
   WebURL:
