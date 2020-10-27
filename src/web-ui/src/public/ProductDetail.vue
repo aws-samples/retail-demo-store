@@ -326,7 +326,8 @@ export default {
 
 .quantity-dropdown:hover,
 .quantity-dropdown:focus {
-  background: var(--grey-600);
+  background: var(--grey-900);
+  border-color: var(--grey-900);
 }
 
 .add-to-cart-btn {
