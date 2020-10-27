@@ -2,6 +2,7 @@
   <div>
     <Navigation v-if="showNav"></Navigation>
     <slot></slot>
+    <TextAlerts v-if="showTextAlerts"></TextAlerts>
     <Footer v-if="showFooter"></Footer>
   </div>
 </template>
@@ -9,11 +10,16 @@
 <script>
 import Navigation from '../Navigation';
 import Footer from '../Footer';
+import TextAlerts from './TextAlerts';
 
 export default {
   name: 'Layout',
   props: {
     showNav: {
+      type: Boolean,
+      default: true,
+    },
+    showTextAlerts: {
       type: Boolean,
       default: true,
     },
@@ -37,6 +43,7 @@ export default {
   components: {
     Navigation,
     Footer,
+    TextAlerts,
   },
 };
 </script>
