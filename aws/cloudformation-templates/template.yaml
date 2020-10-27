@@ -307,8 +307,8 @@ Resources:
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
-        PinpointPersonalizeRole: !GetAtt Services.Outputs.PinpointPersonalizeRole
-        CustomizeRecommendationsFunction: !GetAtt Services.Outputs.CustomizeRecommendationsFunction
+        PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
+        CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
 
