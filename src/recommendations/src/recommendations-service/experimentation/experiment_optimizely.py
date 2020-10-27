@@ -7,7 +7,7 @@ from optimizely import optimizely
 
 from . import experiment, resolvers
 
-
+optimizely_configured = os.environ.get('OPTIMIZELY_SDK_KEY', 'NONE') != 'NONE'
 optimizely_sdk = optimizely.Optimizely(sdk_key=os.environ.get('OPTIMIZELY_SDK_KEY'))
 
 class OptimizelyFeatureTest(experiment.Experiment):
