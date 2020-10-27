@@ -23,7 +23,7 @@ Resources:
   SegmentPersonalizeEventsDestinationLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Handles training events passed from Segment to the Personalize tracker for user-item interactions.'
+      Description: 'Handles sending events passed from Segment to the Personalize tracker for user-item interactions.'
       Handler: segment-personalize-events-destination.lambda_handler
       Role: !GetAtt 
         - SegmentPersonalizeDestinationLambdaExecutionRole
@@ -119,7 +119,6 @@ Resources:
                 Action:
                   - logs:CreateLogGroup
                   - personalize:GetRecommendations
-                  - personalize:Record
                   - personalize:PutEvents
                 Resource: '*'
 
