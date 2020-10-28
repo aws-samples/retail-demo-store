@@ -18,9 +18,9 @@ This project is designed to provide you with an environment in which you can lea
 
 ### AWS Services
 
-Service | Workshops | Overview
+Service | Overview | Workshop Links
 --- | --- | ---
-![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) | FOO | BAR
+![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) | The Retail Demo Store uses Amazon Personalize to provide similar item recommendations, search re-ranking based, and product recommendations based on user behavior. | [Personalize Setup](./workshop/1-Personalization/1.1-Personalize.ipynb)
 ![Amazon Lex](./workshop/images/Amazon-Lex_64.png) | |
 ![Amazon Forecast](./workshop/images/Amazon-Forecast_64.png) | |
 ![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) | |
@@ -30,7 +30,7 @@ Service | Workshops | Overview
 
 AWS partners have developed workshop content that enables you to learn how to integrate their solutions with the AWS services that the Retail Demo Store uses.
 
-Service | Workshops | Overview
+Service | Overview | Workshop Links
 --- | --- | ---
 <img src="./workshop/images/amplitude.svg" height="64px"/> | FOO | BAR
 <img src="./workshop/images/braze.svg" height="64px"/> | FOO | BAR
