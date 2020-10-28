@@ -32,9 +32,9 @@ AWS partners have developed workshop content that enables you to learn how to in
 
 Service | Workshops | Overview
 --- | --- | ---
-![Amplitude](./workshop/images/amplitude.svg){:height="64px"} | FOO | BAR
-![Braze](./workshop/images/braze.svg){:height="64px"} | FOO | BAR
-![Optimizely](./workshop/images/optimizely.svg){:height="64px"} | FOO | BAR
+<img src="./workshop/images/amplitude.svg" height="64px"/> | FOO | BAR
+<img src="./workshop/images/braze.svg" height="64px"/> | FOO | BAR
+<img src="./workshop/images/optimizely.svg" height="64px"/> | FOO | BAR
 <img src="./workshop/images/segment.svg" height="64px"/> | FOO | BAR
 
 For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
