@@ -24,7 +24,7 @@ Service | Workshops | Overview
 ![Amazon Lex](./workshop/images/Amazon-Lex_64.png) | |
 ![Amazon Forecast](./workshop/images/Amazon-Forecast_64.png) | |
 ![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) | |
-![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch_64.png) | | 
+![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch-Service_64.png) | | 
 
 ### AWS Partner Services
 
