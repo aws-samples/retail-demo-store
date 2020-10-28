@@ -30,7 +30,7 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 
 If you are a developer looking to contribute to the Retail Demo Store, please see the Developer section below.
 
-To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you.
+To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you already.  Check with your event administrators.
 
 ## Step 1 - Get an AWS Account
 
@@ -58,11 +58,11 @@ The CloudFormation deployment will take 20-30 minutes to complete. If you chose 
 
 ## Using the Retail Demo Store Web Application
 
-Once you launch the CloudFormation stack using, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. 
+Once you launch the CloudFormation stack, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. 
 
 Compiling and deploying the web UI application and the services it uses can take some time. You can monitor progress in CodePipeline. Until this completes, you may see a Sample Application when accessing the public WebUI URL.
 
-You can find the URL for the Retail Demo Store Web UI in the Outputs of your CloudFormation stack. 
+You can find the URL for the Retail Demo Store Web UI in the Outputs of your main CloudFormation stack (called `retaildemostore` unless you changed that option in the steps above). 
 
 Look for the "WebURL" output parameter.
 
