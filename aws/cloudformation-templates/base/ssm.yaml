@@ -116,6 +116,7 @@ Resources:
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"
 
+<<<<<<< HEAD
   ParameterIVSVideoChannelMap:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -124,6 +125,12 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store video file to IVS channel mapping"
 
+=======
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Resolving conflicts
   ParameterSegmentWriteKey:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -131,6 +138,38 @@ Resources:
       Type: "String"
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
+=======
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+  ParameterPinpointSMSLongCode:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-pinpoint-sms-longcode"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Pinpoint SMS long code"
+  
+  ParameterPinpointIncomingMessageSNSTopic:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-pinpoint-message-sns-topic"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Pinpoint Incoming Message SNS topic"
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 Outputs:
 
