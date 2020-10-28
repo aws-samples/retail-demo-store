@@ -35,6 +35,7 @@ cw_events = boto3.client('events')
 welcome_template_name = 'RetailDemoStore-Welcome'
 abandoned_cart_template_name = 'RetailDemoStore-AbandonedCart'
 recommendations_template_name = 'RetailDemoStore-Recommendations'
+sms_recommendation_template_name = 'RetailDemoStore-SMSRecommendations'
 
 recommender_name = 'retaildemostore-recommender'
 
@@ -122,6 +123,35 @@ def create_recommendations_email_template(recommender_id):
                 })
             },
             TemplateName=recommendations_template_name
+        )
+
+        return response['CreateTemplateMessageBody']
+
+def create_recommendation_sms_template(recommender_id):
+    # template body to be finalized yet
+    try:
+        response = pinpoint.get_sms_template(TemplateName=sms_recommendation_template_name)
+        logger.info('Recommendations SMS template already exists')
+        return response['SMSTemplateResponse']
+    except pinpoint.exceptions.NotFoundException:
+        logger.info('Recommendations SMS template does not exist; creating')
+
+        # with open('pinpoint-templates/recommendations-email-template.html', 'r') as html_file:
+        #     html_template = html_file.read()
+
+        # with open('pinpoint-templates/recommendations-email-template.txt', 'r') as text_file:
+        #     text_template = text_file.read()
+
+        response = pinpoint.create_sms_template(
+            SMSTemplateRequest={
+                'Body': 'Retail Demo Store - Products Just for You - content TBD',
+                'TemplateDescription': 'Personalized recommendations email template',
+                'RecommenderId': recommender_id,
+                'DefaultSubstitutions': json.dumps({
+                    'User.UserAttributes.FirstName': 'there'
+                })
+            },
+            TemplateName=sms_recommendation_template_name
         )
 
         return response['CreateTemplateMessageBody']
@@ -262,6 +292,57 @@ def create_users_with_cart_segment(application_id, all_email_users_segment_id):
         segment_config = response['SegmentResponse']
     else:
         logger.info('UsersWithCart segment already exists')
+        
+    return segment_config
+
+def create_users_with_verified_sms_segment(application_id):
+    segment_name = 'UsersWithSMSVerified'
+    segment_config = get_segment(application_id, segment_name)
+    
+    if not segment_config:
+        logger.info('UsersWithSMSVerified segment does not; creating')
+
+        response = pinpoint.create_segment(
+            ApplicationId = application_id,
+            WriteSegmentRequest = {
+                'Name': 'UsersWithSMSVerified',
+                'SegmentGroups': {
+                    'Groups': [
+                        {
+                            'Dimensions': [
+                                {
+                                    'Attributes': {
+                                        'HasVerifiedSMS': {
+                                            'AttributeType': 'INCLUSIVE',
+                                            'Values': [ 'true' ]
+                                        }
+                                    },
+                                    'Behavior': {
+                                        'Recency': {
+                                            'Duration': 'DAY_30',
+                                            'RecencyType': 'ACTIVE'
+                                        }
+                                    },
+                                    'Demographic': {
+                                        'Channel': {
+                                            'DimensionType': 'INCLUSIVE',
+                                            'Values': [ 'SMS' ]
+                                        }
+                                    }
+                                }
+                            ],
+                            'SourceType': 'ANY',
+                            'Type': 'ALL'
+                        }
+                    ],
+                    'Include': 'ALL'
+                }
+            }
+        )
+        
+        segment_config = response['SegmentResponse']
+    else:
+        logger.info('UsersWithSMSVerified segment already exists')
         
     return segment_config
 
@@ -476,6 +557,26 @@ def lambda_handler(event, context):
     # Create Abandoned Cart campaign
     campaign_config = create_abandoned_cart_campaign(pinpoint_app_id, email_from, users_with_cart_segment_id, users_with_cart_segment_version)
     logger.debug(json.dumps(campaign_config, indent = 2, default = str))
+
+    # Create SMS template and enable SMS channel
+    response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
+    pinpoint_sms_long_code = response['Parameter']['Value']
+
+    assert pinpoint_sms_long_code != 'NONE', 'Pinpoint SMS long code value not set'
+
+    logger.info('Creating SMS recommendation template template')
+    create_recommendation_sms_template(recommender_id)
+    logger.info('Enabling SMS channel for Pinpoint project')
+    update_sms_channel_response = pinpoint.update_sms_channel(
+        ApplicationId = pinpoint_app_id,
+        SMSChannelRequest={
+            'Enabled': True,
+            'ShortCode': pinpoint_sms_long_code
+        }
+    )
+    logger.debug(json.dumps(update_sms_channel_response, indent = 2, default = str))
+    # create UsersWithVerifiedSMS segment
+    segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
 
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)

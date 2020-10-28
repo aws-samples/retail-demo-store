@@ -278,6 +278,7 @@ Resources:
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
+        PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
