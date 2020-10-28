@@ -122,7 +122,9 @@ The CloudFormation deployment will take 20-30 minutes to complete. If you chose 
 
 ## Developing Services Locally
 
-The Retail Demo Store supports running its services locally in Docker.  As part of contributing a fix or enhancement, we have [detailed instructions](./src) on how to get up and going quickly.
+The Retail Demo Store supports running the web user interface and backend services in a local container on your machine.  This may be a handy option while testing a fix or enhancement.
+
+[Detailed instructions](./src) are available on how to get going with local development.  Note that you will still need to set up one of the development options described above, and have a working deployment in your AWS account as some of the services will need to access cloud-based services as part of deployment.
 
 # Known Issues
 
