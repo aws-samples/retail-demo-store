@@ -6,17 +6,19 @@ A sample retail web application and workshop platform intended as an educational
 
 ![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
 
-The core of the Retail Demo Store is a polyglot microservice architecture deployed as a collection of RESTful web services in [Amazon Elastic Container Service](https://aws.amazon.com/ecs/) (ECS). Several AWS managed services are leveraged to provide build, deployment, authentication, messaging, search, and personalization capabilities. The web user interface is a [single page application](https://en.wikipedia.org/wiki/Single-page_application) built using [responsive web design](https://en.wikipedia.org/wiki/Responsive_web_design) frameworks and techniques, producing a native app-like experience tailored to the user's device. See the [workshops](./workshop/Welcome.ipynb) page for details.
+The core of the Retail Demo Store is a polyglot microservice architecture deployed as a collection of RESTful web services in [Amazon Elastic Container Service](https://aws.amazon.com/ecs/) (ECS). Several AWS managed services are leveraged to provide build, deployment, authentication, messaging, search, and personalization capabilities. 
+
+The web user interface is a [single page application](https://en.wikipedia.org/wiki/Single-page_application) built using [responsive web design](https://en.wikipedia.org/wiki/Responsive_web_design) frameworks and techniques, producing a native app-like experience tailored to the user's device. See the [workshops](./workshop/Welcome.ipynb) page for details.
 
 ![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
 
 ## Workshops
 
-This project also comes with a collection of workshops that are designed to walk a technical audience, either in a group setting or self-paced as an individual, through adding enhanced functionality to the Retail Demo Store. There are workshops for adding search, personalization, an experimentation framework, user messaging, and more. 
+This project is designed to provide you with an environment in which you can learn to modify the behavior of the Retail Demo Store using self-paced workshops.  This can be done in a group setting or as an individual. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, CDPs, messaging, and more. 
+
+AWS partners have developed workshop content that enables you to learn how to integrate their solutions with the AWS services that the Retail Demo Store uses.
 
 For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
-
-If you are a developer who plans to contribute to the project, please see the Developer Instructions section below.
 
 ## Supported Regions
 
@@ -25,6 +27,8 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 ## Getting Started
 
 ***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid mobile phone number and email address to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.*
+
+If you are a developer looking to contribute to the Retail Demo Store, please see the Developer section below.
 
 To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you.
 
@@ -82,7 +86,7 @@ To submit changes for review, you will need to create a fork of the Retail Demo 
 
 ## Step 2: Create a GitHub Personal Access Token
 
-A [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account. 
+Create a [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account. 
 
 Make sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
 
