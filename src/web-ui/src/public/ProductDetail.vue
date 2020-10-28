@@ -8,7 +8,7 @@
 
       <div v-if="product" class="text-left mb-2">
         <router-link :to="`/category/${product.category}`" class="category-link">
-        <i class="fa fa-chevron-left" aria-hidden></i> {{ readableProductCategory }}</router-link
+          <i class="fa fa-chevron-left" aria-hidden></i> {{ readableProductCategory }}</router-link
         >
       </div>
 
@@ -26,9 +26,9 @@
             Price <b>${{ product.price }}</b>
           </div>
 
-          <div class="add-to-cart-row mb-5 mb-md-4 d-flex">
+          <div class="mb-5 mb-md-4 d-flex">
             <button
-              class="quantity-dropdown btn btn-outline-secondary dropdown-toggle"
+              class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
               type="button"
               id="quantity-dropdown"
               data-toggle="dropdown"
@@ -145,44 +145,37 @@ export default {
     this.fetchData();
   },
   methods: {
-    addToCart: function() {
-      if (this.cart.items == null) {
-        this.cart.items = new Array();
-      }
+    async addToCart() {
+      if (this.cart.items === null) this.cart.items = [];
 
-      var exists = false;
-      var qty = this.quantity;
+      const existingProduct = this.cart.items.find((item) => item.product_id === this.product.id);
 
-      this.resetQuantity();
-
-      for (var item in this.cart.items) {
-        if (this.cart.items[item].product_id == this.product.id) {
-          exists = true;
-          qty = this.cart.items[item].quantity + 1;
-          this.cart.items[item].quantity = this.cart.items[item].quantity + 1;
-        }
-      }
-
-      if (exists == false) {
-        let newItem = {
+      if (existingProduct) {
+        existingProduct.quantity += this.quantity;
+      } else {
+        const newItem = {
           product_id: this.product.id,
-          quantity: qty,
+          quantity: this.quantity,
           price: this.product.price,
         };
+
         this.cart.items.push(newItem);
       }
 
-      CartsRepository.updateCart(this.cart);
-      this.getCart();
+      await CartsRepository.updateCart(this.cart);
+
+      await this.getCart();
 
       AnalyticsHandler.productAddedToCart(
         this.user,
         this.cart,
         this.product,
-        qty,
+        existingProduct?.quantity ?? this.quantity,
         this.$route.query.feature,
         this.$route.query.exp,
       );
+
+      this.resetQuantity();
 
       swal({
         title: 'Added to Cart',
@@ -217,7 +210,7 @@ export default {
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(
-        this.user ? this.user.id : '',
+        this.user?.id ?? '',
         this.product.id,
         MaxRecommendations,
         ExperimentFeature,
@@ -226,11 +219,11 @@ export default {
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
           this.personalized = true;
-          this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe'];
+          this.explain_recommended = `Personalize recipe: ${response.headers['x-personalize-recipe']}`;
         }
         if (response.headers['x-experiment-name']) {
           this.active_experiment = true;
-          this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name'];
+          this.explain_recommended = `Active experiment: ${response.headers['x-experiment-name']}`;
         }
       }
 
@@ -243,17 +236,18 @@ export default {
     async getCart() {
       if (this.cartID) {
         const { data } = await CartsRepository.getCartByID(this.cartID);
+
         // Since cart service holds carts in memory, they can be lost on restarts.
         // Make sure our cart was returned. Otherwise create a new one.
-        if (data.id == this.cartID) {
+        if (data.id === this.cartID) {
           this.cart = data;
+          return;
         } else {
           console.warn(`Cart ${this.cartID} not found. Creating new cart. Was cart service restarted?`);
-          this.createCart();
         }
-      } else {
-        this.createCart();
       }
+
+      this.createCart();
     },
     async createCart() {
       const username = this.user?.username ?? 'guest';
@@ -314,10 +308,6 @@ export default {
 
 .add-to-cart-and-description {
   grid-area: AddToCardAndDescription;
-}
-
-.add-to-cart-row {
-  gap: 10px;
 }
 
 .quantity-dropdown {
