@@ -12,7 +12,11 @@ The core of the Retail Demo Store is a polyglot microservice architecture deploy
 
 ## Workshops
 
-This project also comes with a collection of workshops that are designed to walk a technical audience, either in a group setting or self-paced as an individual, through adding enhanced functionality to the Retail Demo Store. There are workshops for adding search, personalization, an experimentation framework, user messaging, and more. For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
+This project also comes with a collection of workshops that are designed to walk a technical audience, either in a group setting or self-paced as an individual, through adding enhanced functionality to the Retail Demo Store. There are workshops for adding search, personalization, an experimentation framework, user messaging, and more. 
+
+For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
+
+If you are a developer who plans to contribute to the project, please see the Developer Instructions section below.
 
 ## Supported Regions
 
@@ -30,13 +34,11 @@ To get the Retail Demo Store running in your own AWS account, follow these instr
 
 3. Complete the instructions for the desired deployment option below.
 
-### AWS Deployment Options
+### Deploying to your AWS Account
 
-There are two options for deploying the Retail Demo Store in an AWS account. The option you choose depends on whether you just want to deploy it for evaluation or a demo or whether you're actively developing against the Retail Demo Store project.
+**Choose this option if you just want to deploy the Retail Demo Store into your AWS account to try it out or for demonstration purposes.** 
 
-#### Deploying for Demo or Evaluation
-
-Choose this option if you just want to deploy the Retail Demo Store into your AWS account to try it out or for demonstration purposes. With this deployment option, the CloudFormation template will import the Retail Demo Store source code into a CodeCommit repository in your account and setup CodePipeline to build and deploy into ECS from that respository.
+With this deployment option, the CloudFormation template will import the Retail Demo Store source code into a CodeCommit repository in your account and setup CodePipeline to build and deploy into ECS from that respository.
 
 The following CloudFormation launch options will set the deployment approach to "CodeCommit". You can ignore the GitHub related template parameters. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template.
 
@@ -48,39 +50,49 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 
 The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
 
-#### Deploying for Development
+### Using the Retail Demo Store Web Application
 
-Choose this option if you want to contribute an enhancement/fix back to the Retail Demo Store project. The CodePipeline configuration will be setup to pull from your GitHub fork of this repository so that commits to your fork will be automatically deployed to the Retail Demo Store services in your AWS account.
+Once you launch the CloudFormation stack using, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. 
 
-1. If not already done so, fork the Retail Demo Store respository into your own GitHub account.
-2. Create a [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes. Save your access token in a secure location.
-3. Select one of the CloudFormation launch options below. The deployment approach will be set to "GitHub". **All GitHub related template parameters are required.** After clicking one of the Launch Stack buttons below, follow the procedures to launch the template.
+Compiling and deploying the web UI application and the services it uses can take some time. You can monitor progress in CodePipeline. Until this completes, you may see a Sample Application when accessing the public WebUI URL.
 
-Region name | Region code | Launch
---- | --- | ---
-US East (N. Virginia) | us-east-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-us-east-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-east-1&param_SourceDeploymentType=GitHub)
-US West (Oregon) | us-west-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://s3-us-west-2.amazonaws.com/retail-demo-store-us-west-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-west-2&param_SourceDeploymentType=GitHub)
-Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?templateURL=https://s3-eu-west-1.amazonaws.com/retail-demo-store-eu-west-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-eu-west-1&param_SourceDeploymentType=GitHub)
+You can find the URL for the Retail Demo Store Web UI in the Outputs of your CloudFormation stack. 
 
-The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
-
-## Accessing Web UI
-
-Once you launch the CloudFormation stack using one of the deployment options above, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. This can take a few minutes and you can monitor progress in CodePipeline. Until this completes, you may see a Sample Application when accessing the public WebUI URL.
-
-You can find the URL for the Retail Demo Store Web UI in the Outputs of your CloudFormation stack. Look for the "WebURL" output parameter.
+Look for the "WebURL" output parameter.
 
 You can read more detailed instructions on how to use this demo in the [demonstration documentation](documentation).
 
-## Accessing Workshops
+### Accessing Workshops
 
-To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker and then Notebook instances in the AWS console in your AWS account. You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance. You will find several workshops in a directory structure in the notebook instance. See the [workshops](./workshop/Welcome.ipynb) page for details.
+The Retail Demo Store environment is designed to provide an series of interactive workshops that progressively add functionality to the Retail Demo Store application environment.
 
-## Developing Locally
+The workshops are deployed in a SageMaker Jupyter environment that is deployed in your CloudFormation stack.  To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker and then Notebook instances in the AWS console in your AWS account. 
 
-If you are interested in running Retail Demo Store services locally as part of contributing a fix or enhancement, we have [detailed instructions](./src) on how to get up and going quickly.
+You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance. 
 
-### Working with CloudFormation Templates
+Here you will find several workshops in a directory structure in the notebook instance. See the [workshops](./workshop/Welcome.ipynb) page for details.
+
+# Developer Instructions
+
+If you would like to contribute enhancements or features to the Retail Demo Store, please read on.  Thanks for considering working with this project.
+
+## Step 1: Fork this Repo
+
+To submit changes for review, you will need to create a fork of the Retail Demo Store respository in your own GitHub account.
+
+## Step 2: Create a GitHub Personal Access Token
+
+A [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account. 
+
+Make sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
+
+Save your access token in a secure location.
+
+## Step 3: Decide on Deployment Options
+
+If you want to modify deployment templates and manage the whole deployment process yourself, you will need to configure an S3 bucket for staging Retail Demo Store deployment templates and resources prior to deployment in your own AWS account.  This bucket must be in the region in which you plan to deploy.  
+
+This is optional, but also recommended if you want to test modifications to the deployment templates and the deployment process.
 
 ***These instructions only apply if you wish to stage your own Retail Demo Store deployment resources. For example, if you want to test CloudFormation template changes or the deployment of Lambda code. These instructions are not necessary for the typical deployment scenarios described above.***
 
@@ -94,17 +106,35 @@ Example on how to stage your project to a custom bucket and path (note the path 
 ./stage.sh mycustombucket path/
 ```
 
-## Known Issues
+If you only want to modify the web user interface, or the Retail Demo Store backend services, you can deploy Retail Demo Store using the options below, and issue commits in your own fork via Github to trigger a re-deploy.  This will allow you to push changes to the Retail Demo Store services and web user interface using a CodeDeploy pipeline.
+
+To do that, select one of the CloudFormation launch options below. The deployment approach will be set to "GitHub". 
+
+**All GitHub related template parameters are required.** Enter your GitHub username and deployment key from Step 2 in the CloudFormation UI after clicking one of the Launch Stack buttons below, and follow the procedures to launch the template.
+
+Region name | Region code | Launch
+--- | --- | ---
+US East (N. Virginia) | us-east-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-us-east-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-east-1&param_SourceDeploymentType=GitHub)
+US West (Oregon) | us-west-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://s3-us-west-2.amazonaws.com/retail-demo-store-us-west-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-west-2&param_SourceDeploymentType=GitHub)
+Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?templateURL=https://s3-eu-west-1.amazonaws.com/retail-demo-store-eu-west-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-eu-west-1&param_SourceDeploymentType=GitHub)
+
+The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
+
+## Developing Services Locally
+
+The Retail Demo Store supports running its services locally in Docker.  As part of contributing a fix or enhancement, we have [detailed instructions](./src) on how to get up and going quickly.
+
+# Known Issues
 
 * The application was written for demonstration purposes and not for production use.
 * You currently cannot deploy this project multiple times in the same AWS account and the same region. However, you can deploy the project into separate regions within the same AWS account.
 * Make sure your CloudFormation stack name uses all lowercase letters.
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
 
-## Reporting Bugs
+# Reporting Bugs
 
 If you encounter a bug, please create a new issue with as much detail as possible and steps for reproducing the bug. See the [Contributing Guidelines](./CONTRIBUTING.md) for more details.
 
-## License Summary
+# License
 
 This sample code is made available under a modified MIT license. See the LICENSE file.
