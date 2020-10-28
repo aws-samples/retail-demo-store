@@ -18,7 +18,9 @@ This project is designed to provide you with an environment in which you can lea
 
 ### AWS Services
 
-[TODO: Link to AWS Workshops + logos here ]
+Service | Workshops | Overview
+--- | --- | ---
+![Amazon Personalize](./workshop/images/Amazon-Personalize_32.png) | FOO | BAR
 
 ### AWS Partner Services
 
