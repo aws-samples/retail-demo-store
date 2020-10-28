@@ -14,19 +14,28 @@ The web user interface is a [single page application](https://en.wikipedia.org/w
 
 ## Workshops
 
-This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of the Retail Demo Store.  This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, CDPs, messaging, and more. 
+This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of an ecommerce application, based on business requirements. This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, CDPs, messaging, and more. 
 
 ### AWS Services
 
 Service | Workshops | Overview
 --- | --- | ---
-![Amazon Personalize](./workshop/images/Amazon-Personalize_32.png) | FOO | BAR
+![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) | FOO | BAR
+![Amazon Lex](./workshop/images/Amazon-Lex_64.png) | |
+![Amazon Forecast](./workshop/images/Amazon-Forecast_64.png) | |
+![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) | |
+![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch_64.png) | | 
 
 ### AWS Partner Services
 
 AWS partners have developed workshop content that enables you to learn how to integrate their solutions with the AWS services that the Retail Demo Store uses.
 
-[TODO: Partner workshops + logos here ]
+Service | Workshops | Overview
+--- | --- | ---
+![Amplitude](./workshop/images/amplitude.svg) | FOO | BAR
+![Braze](./workshop/images/braze.svg) | FOO | BAR
+![Optimizely](./workshop/images/optimizely.svg) | FOO | BAR
+![Segment](./workshop/images/segment.svg) | FOO | BAR
 
 For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
 
