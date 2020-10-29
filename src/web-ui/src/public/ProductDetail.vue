@@ -30,7 +30,7 @@
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
                 <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
               </div>
-              <button class="add-to-cart-btn btn" v-on:click="addToCart()">Add to Cart</button>
+              <button class="add-to-cart-btn btn" @click="addProductToCart">Add to Cart</button>
             </div>
 
             <p>{{ product.description }}</p>
@@ -75,24 +75,20 @@
 </template>
 
 <script>
-import AmplifyStore from '@/store/store';
-
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-const ProductsRepository = RepositoryFactory.get('products');
-const CartsRepository = RepositoryFactory.get('carts');
+import { user } from '@/mixins/user';
+import { product } from '@/mixins/product';
+import { cart } from '@/mixins/cart';
+
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
-const MaxRecommendations = 6;
+const MAX_RECOMMENDATIONS = 6;
 const ExperimentFeature = 'product_detail_related';
 
 import Product from './components/Product.vue';
 import Layout from '@/components/Layout/Layout';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-
-import { capitalize } from '@/util/capitalize';
-
-import swal from 'sweetalert';
 
 export default {
   name: 'ProductDetail',
@@ -101,11 +97,11 @@ export default {
     LoadingFallback,
     Product,
   },
+  mixins: [user, product, cart],
   data() {
     return {
-      feature: ExperimentFeature,
-      product: null,
       quantity: 1,
+      feature: ExperimentFeature,
       related_products: [],
       explain_recommended: '',
       active_experiment: false,
@@ -113,12 +109,6 @@ export default {
     };
   },
   computed: {
-    user() {
-      return AmplifyStore.state.user;
-    },
-    cartID() {
-      return AmplifyStore.state.cartID;
-    },
     isLoading() {
       return !this.product;
     },
@@ -127,91 +117,38 @@ export default {
 
       return {
         to: `/category/${this.product.category}`,
-        text: capitalize(this.product.category),
+        text: this.readableProductCategory,
       };
-    },
-    productImageUrl() {
-      if (this.product.image.includes('://')) return this.product.image;
-
-      return `${process.env.VUE_APP_IMAGE_ROOT_URL}${this.product.category}/${this.product.image}`;
     },
   },
   watch: {
     // call again the method if the route changes
-    $route: 'fetchData',
-  },
-  created() {
-    this.fetchData();
+    $route: {
+      immediate: true,
+      handler() {
+        this.fetchData();
+      },
+    },
   },
   methods: {
-    async addToCart() {
-      if (this.cart.items === null) this.cart.items = [];
-
-      const existingProduct = this.cart.items.find((item) => item.product_id === this.product.id);
-
-      if (existingProduct) {
-        existingProduct.quantity += this.quantity;
-      } else {
-        const newItem = {
-          product_id: this.product.id,
-          quantity: this.quantity,
-          price: this.product.price,
-        };
-
-        this.cart.items.push(newItem);
-      }
-
-      await CartsRepository.updateCart(this.cart);
-
-      await this.getCart();
-
-      AnalyticsHandler.productAddedToCart(
-        this.user,
-        this.cart,
-        this.product,
-        existingProduct?.quantity ?? this.quantity,
-        this.$route.query.feature,
-        this.$route.query.exp,
-      );
-
-      this.resetQuantity();
-
-      swal({
-        title: 'Added to Cart',
-        icon: 'success',
-        buttons: {
-          cancel: 'Continue Shopping',
-          cart: 'View Cart',
-        },
-      }).then((value) => {
-        switch (value) {
-          case 'cancel':
-            break;
-          case 'cart':
-            this.$router.push('/cart');
-        }
-      });
+    resetQuantity() {
+      this.quantity = 1;
     },
-    async getProductByID(product_id) {
-      const { data } = await ProductsRepository.getProduct(product_id);
-      this.product = data;
-      this.getRelatedProducts();
+    async addProductToCart() {
+      await this.addToCart(this.user, this.product, this.quantity, this.$route.query.feature, this.$route.query.exp);
+      this.resetQuantity();
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
-      this.getCart();
-      this.recordProductViewed();
-    },
-    recordProductViewed() {
-      if (this.product) {
-        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp);
-      }
+      this.getRelatedProducts();
+      this.getCart(this.user?.username ?? 'guest');
+      this.recordProductViewed(this.user, this.$route.query.feature, this.$route.query.exp);
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(
         this.user?.id ?? '',
         this.product.id,
-        MaxRecommendations,
+        MAX_RECOMMENDATIONS,
         ExperimentFeature,
       );
 
@@ -231,34 +168,6 @@ export default {
       if (this.related_products.length > 0 && 'experiment' in this.related_products[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.related_products[0].experiment);
       }
-    },
-    async getCart() {
-      if (this.cartID) {
-        const { data } = await CartsRepository.getCartByID(this.cartID);
-
-        // Since cart service holds carts in memory, they can be lost on restarts.
-        // Make sure our cart was returned. Otherwise create a new one.
-        if (data.id === this.cartID) {
-          this.cart = data;
-          return;
-        } else {
-          console.warn(`Cart ${this.cartID} not found. Creating new cart. Was cart service restarted?`);
-        }
-      }
-
-      this.createCart();
-    },
-    async createCart() {
-      const username = this.user?.username ?? 'guest';
-
-      const { data } = await CartsRepository.createCart(username);
-
-      this.cart = data;
-
-      AmplifyStore.commit('setCartID', this.cart.id);
-    },
-    resetQuantity() {
-      this.quantity = 1;
     },
   },
 };
