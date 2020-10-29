@@ -8,8 +8,6 @@ A sample retail web application and workshop platform intended as an educational
 
 The Retail Demo Store is an eCommerce reference implementation designed to showcase how AWS services can be used to build compelling shopping experiences using modern architecture and design patterns.
 
-![image.png](../workshop/images/retaildemostore-home-devices.png)
-
 At the heart of the Retail Demo Store is a collection of polyglot microservices hosted in Amazon Elastic Container Service (AWS Fargate) that represent domain constructs such as [products](../src/products), [carts](../src/carts), [orders](../src/orders), and [users](../src/users) as well as services for [search](../src/search) and [recommendations](../src/recommendations). While the [web user interface](../src/web-ui) is served by Amazon CloudFront and Amazon S3.
 
 The architecture is supported by several managed services including Amazon Cognito, Amazon Pinpoint, Amazon Personalize, and Amazon Elasticsearch. The [web user interface](../src/web-ui]) is built using the Vue.js framework with AWS Amplify to provide integrations with Cognito for registration/authentication and event streaming to Pinpoint and Personalize (Event Tracker). Finally, AWS CodePipeline is leveraged to demonstrate how AWS development services can be used to orchestrate the build and deployment process with the Retail Demo Store. Figure 2 depicts the system architecture.
