@@ -23,19 +23,19 @@ In order to use the workshops, you will need to deploy the Retail Demo Store int
 AWS Service | Workshops Overview | Workshop Links
 --- | --- | ---
 ![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) | The Retail Demo Store uses Amazon Personalize to provide similar item recommendations, search re-ranking based on user preferences, and product recommendations based on user item interactions.  The attached workshop is a throrough walk through of the major features of Amazon Personalize, and how it can be deployed in an ecommerce application like the Retail Demo Store. | [Personalize Setup](./workshop/1-Personalization/1.1-Personalize.ipynb)
+![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) | In this workshop we will use Amazon Pinpoint to add the ability to dynamically send welcome messages, abandoned cart messages, and messages with personalized product recommendations to the customers of the Retail Demo Store. | [Email Campaigns](./workshop/4-Messaging/4.1-Pinpoint.ipynb)
 ![Amazon Lex](./workshop/images/Amazon-Lex_64.png) |  In this module we're going to implement a conversational chatbot using Amazon Lex and integrate it into the Retail Demo Store's web UI. We'll provide some basic functionality to our chatbot such as being able to provide a return policy to users as well as wiring up the chatbot to the Amazon Personalize ML models we created in the Personalization workshop to provide personalized product recommendations to our users. | [Lex Chatbot](./workshop/5-Conversational/5.1-LexChatbot.ipynb)
-![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) | In this workshop we will use Amazon Pinpoint to add the ability to dynamically send personalized messages to the customers of the Retail Demo Store. | [Email Campaigns](./workshop/4-Messaging/4.1-Pinpoint.ipynb)
 ![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch-Service_64.png) | In this workshop, you will create a new Elasticsearch Index and index the Retail Demo Store product data so that users can search for products.| [Product Search](./workshop/0-StartHere/Search.ipynb)
 
-## AWS Partner Services
+## Partner Integrations
 
-Additionally, AWS partners have developed workshop content that enables you to learn how to integrate their solutions with the Retail Demo Store and the AWS services that it relies on, such as Amazon Personalize.
+Additionally, AWS partners have developed workshop content that enable you to learn how to integrate their solutions with the Retail Demo Store and the AWS services that it relies on, such as Amazon Personalize.
 
 AWS Partner | Workshops Overview | Workshop Links
 --- | --- | ---
 <img src="./workshop/images/amplitude.svg" height=64px/> | In this workshop, you will set up tracking for Amplitude events, analyze user behavior prior to peronalization being deployed, and then measure the effects of personalization on user behavior after Personalize is deployed in the Retail Demo Store. | [Evaluating Personalization Performance](./workshop/3-Experimentation/3.5-Amplitude-Performance-Metrics.ipynb)
 <img src="./workshop/images/braze.svg" height=64px/> | In this workshop we will use Braze to add the ability to personalize marketing messages to customers of the Retail Demo Store using customer behavioral data and the Personalize models you trained when setting up Amazon Personalize. | [Personalized Email Campaigns](./workshop/4-Messaging/4.2-Braze.ipynb)
-<img src="./workshop/images/optimizely.svg" height=64px/> | In this exercise we will define, launch, and evaluate the results of an A/B experiment using Optimizely. | [AB Experiments for Personalization](./workshop/3-Experimentation/3.6-Optimizely-AB-Experiment.ipynb)
+<img src="./workshop/images/optimizely.svg" height=64px/> | In this exercise we will define, launch, and evaluate the results of an A/B experiment of a personalized user experience using Optimizely. | [AB Experiments for Personalization](./workshop/3-Experimentation/3.6-Optimizely-AB-Experiment.ipynb)
 <img src="./workshop/images/segment.svg"/> | Segment is a real-time events pipeline for customer data, as well as a customer data platform.  In the Retail Demo Store, Segment is used to deliver real-time events from the web user interface to Amazon Personalize.  These real-time events are also used to create customer profile with Amazon Personalize recommendations appended, which can then be used via the CDP to push data to marketing tools. | [Real Time Personalization Events](./workshop/1-Personalization/1.2-Real-Time-Events-Segment.ipynb) <br/><br/> [Customer Data Platforms and Personalize](./workshop/6-CustomerDataPlatforms/6.1-Segment.ipynb)
 
 ## Supported Regions
