@@ -24,7 +24,7 @@ import Navigation from '@/public/Navigation';
 import LoadingFallback from '../LoadingFallback/LoadingFallback';
 import PreviousPageLink from './PreviousPageLink';
 import Footer from '@/public/Footer';
-import TextAlerts from '@public/components/TextAlerts';
+import TextAlerts from '@/public/components/TextAlerts';
 
 export default {
   name: 'Layout',
