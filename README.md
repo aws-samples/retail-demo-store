@@ -38,10 +38,6 @@ AWS Partner | Workshops Overview | Workshop Links
 <img src="./workshop/images/optimizely.svg" height=64px/> | In this exercise we will define, launch, and evaluate the results of an A/B experiment using Optimizely. | [AB Experiments for Personalization](./workshop/3-Experimentation/3.6-Optimizely-AB-Experiment.ipynb)
 <img src="./workshop/images/segment.svg"/> | Segment is a real-time events pipeline for customer data, as well as a customer data platform.  In the Retail Demo Store, Segment is used to deliver real-time events from the web user interface to Amazon Personalize.  These real-time events are also used to create customer profile with Amazon Personalize recommendations appended, which can then be used via the CDP to push data to marketing tools. | [Real Time Personalization Events](./workshop/1-Personalization/1.2-Real-Time-Events-Segment.ipynb) <br/><br/> [Customer Data Platforms and Personalize](./workshop/6-CustomerDataPlatforms/6.1-Segment.ipynb)
 
-## Architecture
-
-For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
-
 ## Supported Regions
 
 The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below. Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.
