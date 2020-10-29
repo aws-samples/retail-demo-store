@@ -2,17 +2,21 @@
 
 A sample retail web application and workshop platform intended as an educational tool for demonstrating how AWS infrastructure and services can be used to build compelling customer experiences for eCommerce, retail, and digital marketing use-cases.
 
-**This project is intended for education purposes only and not for production usage.**
+**This project is intended for educational purposes only and not for production use.**
 
 ![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
 
-The core of the Retail Demo Store is a polyglot microservice architecture deployed as a collection of RESTful web services in [Amazon Elastic Container Service](https://aws.amazon.com/ecs/) (ECS). Several AWS managed services are leveraged to provide build, deployment, authentication, messaging, search, and personalization capabilities. 
+The Retail Demo Store is an eCommerce reference implementation designed to showcase how AWS services can be used to build compelling shopping experiences using modern architecture and design patterns.
 
-The web user interface is a [single page application](https://en.wikipedia.org/wiki/Single-page_application) built using [responsive web design](https://en.wikipedia.org/wiki/Responsive_web_design) frameworks and techniques, producing a native app-like experience tailored to the user's device. See the [workshops](./workshop/Welcome.ipynb) page for details.
+![image.png](../workshop/images/retaildemostore-home-devices.png)
+
+At the heart of the Retail Demo Store is a collection of polyglot microservices hosted in Amazon Elastic Container Service (AWS Fargate) that represent domain constructs such as [products](../src/products), [carts](../src/carts), [orders](../src/orders), and [users](../src/users) as well as services for [search](../src/search) and [recommendations](../src/recommendations). While the [web user interface](../src/web-ui) is served by Amazon CloudFront and Amazon S3.
+
+The architecture is supported by several managed services including Amazon Cognito, Amazon Pinpoint, Amazon Personalize, and Amazon Elasticsearch. The [web user interface](../src/web-ui]) is built using the Vue.js framework with AWS Amplify to provide integrations with Cognito for registration/authentication and event streaming to Pinpoint and Personalize (Event Tracker). Finally, AWS CodePipeline is leveraged to demonstrate how AWS development services can be used to orchestrate the build and deployment process with the Retail Demo Store. Figure 2 depicts the system architecture.
 
 ![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
 
-## Workshops
+## Hands-On Workshops
 
 This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of an ecommerce application, based on business requirements. This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, CDPs, messaging, and more. 
 
@@ -76,7 +80,7 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 
 The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
 
-## Using the Retail Demo Store Web Application
+## Step 4 - Using the Retail Demo Store Web Application
 
 Once you launch the CloudFormation stack, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. 
 
@@ -86,13 +90,13 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your mai
 
 Look for the "WebURL" output parameter.
 
-You can read more detailed instructions on how to use this demo in the [demonstration documentation](documentation).
+You can read more detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document.
 
-## Accessing Workshops
+# Accessing Workshops
 
-The Retail Demo Store environment is designed to provide an series of interactive workshops that progressively add functionality to the Retail Demo Store application environment.
+The Retail Demo Store environment is designed to provide a series of interactive workshops that progressively add functionality to the Retail Demo Store application.
 
-The workshops are deployed in a SageMaker Jupyter environment that is deployed in your CloudFormation stack.  To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker and then Notebook instances in the AWS console in your AWS account. 
+The workshops are deployed in a SageMaker Jupyter environment that is deployed in your CloudFormation stack.  To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker in your AWS console, and then select Notebook Instances in the AWS console in your AWS account. 
 
 You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance. 
 
@@ -193,6 +197,15 @@ The CloudFormation deployment will take 20-30 minutes to complete. If you chose 
 The Retail Demo Store also supports running the web user interface and backend services in a local container on your machine.  This may be a handy option while testing a fix or enhancement.
 
 [Detailed instructions](./src) are available on how to get going with local development.  Note that you will still need to set up one of the development options described above, and have a working deployment in your AWS account as some of the services will need to access cloud-based services as part of deployment.
+
+# Delivering a Demo of the Retail Demo Store
+
+Once you have deployed the Retail Demo Store, you may want to walk through the demonstration guide to learn how to show the features the Retail Demo Store provides.
+
+The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the capabilities of key AWS services for retail, eCommerce, and digital marketing use-cases and 2) provide a platform for individual AWS customers to step through workshops and AWS internal teams to deliver customer-facing workshops, Immersion Days, hackathons, and similar types of events.
+
+1) [Creating a Retail Demo Store account](1-Creating-account.md)
+2) [Personalized Experience](2-Personalization.md)
 
 # Known Issues
 
