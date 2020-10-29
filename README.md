@@ -32,10 +32,10 @@ AWS partners have developed workshop content that enables you to learn how to in
 
 Service | Overview | Workshop Links
 --- | --- | ---
-<img src="./workshop/images/amplitude.svg" height="64px"/> | FOO | BAR
-<img src="./workshop/images/braze.svg" height="64px"/> | FOO | BAR
-<img src="./workshop/images/optimizely.svg" height="64px"/> | FOO | BAR
-<img src="./workshop/images/segment.svg" height="64px"/> | FOO | BAR
+<img src="./workshop/images/amplitude.svg" height="64px"/> | FOO | [Evaluating Personalization Performance](./workshop/3-Experimentation/3.5-Amplitude-Performance-Metrics.ipynb)
+<img src="./workshop/images/braze.svg" height="64px"/> | FOO | [Personalized Email Campaigns](./workshop/4-Messaging/4.2-Braze.ipynb)
+<img src="./workshop/images/optimizely.svg" height="64px"/> | FOO | [AB Experiments for Personalization](./workshop/3-Experimentation/3.6-Optimizely-AB-Experiment.ipynb)
+<img src="./workshop/images/segment.svg" height="64px"/> | FOO | - [Real Time Personalization Events](./workshop/1-Personalization/1.2-Real-Time-Events-Segment.ipynb) - [Customer Data Platforms and Personalize](./workshop/6-CustomerDataPlatforms/6.1-Segment.ipynb)
 
 For an overview of the Retail Demo Store, its architecture, and workshops, please see the [workshop welcome notebook](./workshop/Welcome.ipynb) page.
 
