@@ -1,85 +1,76 @@
 <template>
-  <Layout>
-    <div class="container">
-      <!-- Loading Indicator -->
-      <div class="container mb-4" v-if="!product">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-
-      <div v-if="product" class="text-left mb-2">
-        <router-link :to="`/category/${product.category}`" class="category-link">
-          <i class="fa fa-chevron-left" aria-hidden></i> {{ readableProductCategory }}</router-link
-        >
-      </div>
-
-      <!-- Product Detail-->
-      <main v-if="product" class="product-container text-left">
-        <div class="title-and-rating mb-md-3">
-          <h1 class="product-name">{{ product.name }}</h1>
-          <div>
-            <i v-for="i in 5" :key="i" class="fas fa-star"></i>
-          </div>
-        </div>
-
-        <div class="add-to-cart-and-description">
-          <div class="mb-1">
-            Price <b>${{ product.price }}</b>
-          </div>
-
-          <div class="mb-5 mb-md-4 d-flex">
-            <button
-              class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
-              type="button"
-              id="quantity-dropdown"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Qty: {{ quantity }}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
-              <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
+    <template #default>
+      <div class="container">
+        <!-- Product Detail-->
+        <main class="product-container text-left">
+          <div class="title-and-rating mb-md-3">
+            <h1 class="product-name">{{ product.name }}</h1>
+            <div>
+              <i v-for="i in 5" :key="i" class="fas fa-star"></i>
             </div>
-            <button class="add-to-cart-btn btn" v-on:click="addToCart()">Add to Cart</button>
           </div>
 
-          <p>{{ product.description }}</p>
+          <div class="add-to-cart-and-description">
+            <div class="mb-1">
+              Price <b>${{ product.price }}</b>
+            </div>
+
+            <div class="mb-5 mb-md-4 d-flex">
+              <button
+                class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="quantity-dropdown"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Qty: {{ quantity }}
+              </button>
+              <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
+                <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+              </div>
+              <button class="add-to-cart-btn btn" v-on:click="addToCart()">Add to Cart</button>
+            </div>
+
+            <p>{{ product.description }}</p>
+          </div>
+
+          <div class="product-img">
+            <img :src="productImageUrl" class="img-fluid" :alt="product.name" />
+          </div>
+        </main>
+
+        <!-- Recommendations -->
+        <hr />
+
+        <h5>What other items do customers view related to this product?</h5>
+        <div v-if="explain_recommended" class="text-muted text-center">
+          <small>
+            <em>
+              <i v-if="active_experiment" class="fa fa-balance-scale"></i>
+              <i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}
+            </em>
+          </small>
         </div>
 
-        <div class="product-img">
-          <img :src="productImageUrl" class="img-fluid" :alt="product.name" />
-        </div>
-      </main>
+        <div class="related-products">
+          <LoadingFallback v-if="!related_products.length" class="row my-4"></LoadingFallback>
 
-      <!-- Recommendations -->
-      <hr />
-      <h5>What other items do customers view related to this product?</h5>
-      <div v-if="explain_recommended" class="text-muted text-center">
-        <small
-          ><em
-            ><i v-if="active_experiment" class="fa fa-balance-scale"></i
-            ><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em
-          ></small
-        >
-      </div>
-
-      <div class="container related-products">
-        <div class="container mb-4" v-if="!related_products.length">
-          <i class="fas fa-spinner fa-spin fa-3x"></i>
-        </div>
-        <div class="row">
-          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-            <Product
-              v-for="recommendation in related_products"
-              v-bind:key="recommendation.product.id"
-              :product="recommendation.product"
-              :experiment="recommendation.experiment"
-              :feature="feature"
-            />
+          <div class="row">
+            <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
+              <Product
+                v-for="recommendation in related_products"
+                v-bind:key="recommendation.product.id"
+                :product="recommendation.product"
+                :experiment="recommendation.experiment"
+                :feature="feature"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </Layout>
 </template>
 
@@ -96,7 +87,8 @@ const MaxRecommendations = 6;
 const ExperimentFeature = 'product_detail_related';
 
 import Product from './components/Product.vue';
-import Layout from './components/Layout';
+import Layout from '@/components/Layout/Layout';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
 import { capitalize } from '@/util/capitalize';
 
@@ -105,8 +97,9 @@ import swal from 'sweetalert';
 export default {
   name: 'ProductDetail',
   components: {
-    Product,
     Layout,
+    LoadingFallback,
+    Product,
   },
   data() {
     return {
@@ -126,15 +119,21 @@ export default {
     cartID() {
       return AmplifyStore.state.cartID;
     },
+    isLoading() {
+      return !this.product;
+    },
+    previousPageLinkProps() {
+      if (!this.product) return null;
+
+      return {
+        to: `/category/${this.product.category}`,
+        text: capitalize(this.product.category),
+      };
+    },
     productImageUrl() {
       if (this.product.image.includes('://')) return this.product.image;
 
       return `${process.env.VUE_APP_IMAGE_ROOT_URL}${this.product.category}/${this.product.image}`;
-    },
-    readableProductCategory() {
-      if (!this.product) return null;
-
-      return capitalize(this.product.category);
     },
   },
   watch: {
@@ -266,10 +265,6 @@ export default {
 </script>
 
 <style scoped>
-.category-link {
-  color: inherit;
-}
-
 .product-container {
   display: grid;
   grid-gap: 15px;

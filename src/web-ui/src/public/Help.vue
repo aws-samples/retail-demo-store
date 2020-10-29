@@ -51,7 +51,7 @@
 import { Interactions } from 'aws-amplify';
 import { AmplifyEventBus } from 'aws-amplify-vue';
 
-import Layout from './components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 export default {
   name: 'Help',
