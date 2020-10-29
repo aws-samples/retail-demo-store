@@ -84,7 +84,7 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your mai
 
 Look for the "WebURL" output parameter.
 
-You can read more [detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document](#demo-instructions).
+You can read more [detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document](#delivering-a-demo-of-the-retail-demo-store).
 
 # Accessing Workshops
 
