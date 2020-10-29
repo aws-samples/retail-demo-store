@@ -1,5 +1,5 @@
 <template>
-  <section class="section container p-4">
+  <section v-if="user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
     <form @submit.prevent="onSubmit" class="form d-flex justify-content-center align-items-stretch">
@@ -18,9 +18,14 @@
 
 <script>
 import { mask } from 'vue-the-mask';
+import {user} from '@/mixins/user'
 
 export default {
   name: 'TextAlerts',
+    directives: {
+      mask,
+    },
+    mixins: [user],
   data() {
     return {
       phoneNumber: '',
@@ -30,9 +35,6 @@ export default {
     onSubmit() {
       console.log(`Text alerts form submitted with phone number: ${this.phoneNumber}`);
     },
-  },
-  directives: {
-    mask,
   },
 };
 </script>
