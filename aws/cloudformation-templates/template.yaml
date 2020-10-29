@@ -181,7 +181,7 @@ Parameters:
     Type: String
     Description: >
       Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
-      created based on any videos places in the CloudFormation resource bucket.
+      created based on any videos placed in the CloudFormation resource bucket.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -317,8 +317,8 @@ Resources:
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
-        PinpointPersonalizeRole: !GetAtt Services.Outputs.PinpointPersonalizeRole
-        CustomizeRecommendationsFunction: !GetAtt Services.Outputs.CustomizeRecommendationsFunction
+        PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
+        CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
 

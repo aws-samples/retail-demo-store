@@ -365,7 +365,8 @@ def ranking_request_params():
 
 
 def get_ranking(user_id, items, feature,
-                default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn'):
+                default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn',
+                top_n=None):
     """
     Re-ranks a list of items using personalized reranking.
     Or delegates to experiment manager if there is an active experiment.
@@ -376,6 +377,7 @@ def get_ranking(user_id, items, feature,
                                   {"itemId":"22", "url":"path_to_product22"}]
         feature: Used to lookup the currently active experiment.
         default_campaign_arn_param_name: For discounts this would be different.
+        top_n (Optional[int]): Only return the top N ranked if not None.
 
     Returns:
         Items as passed in, but ordered according to reranker - also might have experimentation metadata added.
@@ -443,21 +445,18 @@ def get_ranking(user_id, items, feature,
         )
 
     response_items = []
-    for ranked_item in ranked_items:
+    if top_n is not None:
+        # We may not want to return them all - for example in a "pick the top N" scenario.
+        ranked_items = ranked_items[:top_n]
 
+    for ranked_item in ranked_items:
         # Unlike with /recommendations and /related we are not hitting the products API to get product info back
-        # One would hope the caller would have it since the products are coming from there
+        # The caller may have left that info in there so in case they have we want to leave it in.
         item = item_map.get(ranked_item.get('itemId'))
 
         if 'experiment' in ranked_item:
 
-            # We do not want to override an experiment if info already there
-            # e.g. if client is pulling recommendations then reranking them for example
-            # - this should not happen as the first recommendation pull would already be ranked
-            if 'experiment' not in item:
-                # The client may just use the correlation ID but here
-                # we give full information about the experiment to the client anyway
-                item['experiment'] = ranked_item['experiment']
+            item['experiment'] = ranked_item['experiment']
 
             if 'url' in item:
                 # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
@@ -469,7 +468,6 @@ def get_ranking(user_id, items, feature,
 
                 product_url += 'exp=' + ranked_item['experiment']['correlationId']
 
-                item['old_url'] = item['url']
                 item['url'] = product_url
 
         response_items.append(item)
@@ -488,9 +486,6 @@ def rerank():
         print('ITEMS', items)
         response_items, resp_headers = get_ranking(user_id, items, feature)
         app.logger.debug(f"Response items for reranking: {response_items}")
-        for item in response_items:
-            if 'old_url' in item:
-                del item['old_url']  # clean up some stuff
         resp = Response(json.dumps(response_items, cls=CompatEncoder), content_type='application/json',
                         headers=resp_headers)
         return resp
@@ -502,27 +497,39 @@ def rerank():
 @app.route('/choose_discounted', methods=['POST'])
 def choose_discounted():
     """
-    Gets user ID, items list and feature and chooses which one to discount according to the discount reranking
+    Gets user ID, items list and feature and chooses which items to discount according to the discount reranking
     campaign.
+    The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
+    The items that are chosen for discount will have the "discounted" key set to True.
+    If there is an experiment active for this feature the request for ranking for choosing discounts will have been
+    routed through the experiment resolver and discounts chosen according to whichever approach is active. The
+    items will have experiment information recorded against them and if URLs were provided for products these will be
+    suffixed with an experiment tracking correlation ID. That way, different approaches to discounting can be compared,
+    as with different approaches to recommendations and reranking in other campaigns.
     """
     items = []
     try:
         user_id, items, feature = ranking_request_params()
         response_items, resp_headers = get_ranking(
             user_id, items, feature,
-            default_campaign_arn_param_name='retaildemostore-personalized-discount-campaign-arn')
-        discount_inds = [item['itemId'] for item in response_items[:NUM_DISCOUNTS]]
+            default_campaign_arn_param_name='retaildemostore-personalized-discount-campaign-arn',
+            top_n=NUM_DISCOUNTS)
+        discount_item_map = {item['itemId']:item for item in response_items}
+
+        return_items = []
         for item in items:
-            if item['itemId'] in discount_inds:
-                item['discounted'] = True
-                if 'old_url' in item:
-                    del item['old_url']  # clean up some stuff
+            item_id = item['itemId']
+            if item_id in discount_item_map:
+                # This was picked for discount so we flag it as a discounted item. It may also have experiment
+                # information recorded against it by get_ranking() if an experiment is active.
+                discounted_item = discount_item_map[item_id]
+                discounted_item['discounted'] = True
+                return_items.append(discounted_item)
             else:
+                # This was not picked for discount, so is not participating in any experiment comparing
+                # discount approaches and we also do not flag it as a discounted item
                 item['discounted'] = False
-                if 'experiment' in item: del item['experiment']  # do not track as it was not recommended (no discount)
-                if 'old_url' in item:
-                    item['url'] = item['old_url']  # do not track as it was not recommended (no discount)
-                    del item['old_url']  # clean up
+                return_items.append(item)
 
         resp = Response(json.dumps(items, cls=CompatEncoder), content_type='application/json',
                         headers=resp_headers)
