@@ -172,7 +172,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import swal from 'sweetalert';
 
-import Layout from './components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')

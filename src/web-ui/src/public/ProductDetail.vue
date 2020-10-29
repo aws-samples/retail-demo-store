@@ -1,118 +1,107 @@
 <template>
-  <Layout>
-    <div class="container">
-      <!-- Loading Indicator -->
-      <div class="container mb-4" v-if="!product">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-
-      <div v-if="product" class="text-left mb-2">
-        <router-link :to="`/category/${product.category}`" class="category-link">
-          <i class="fa fa-chevron-left" aria-hidden></i> {{ readableProductCategory }}</router-link
-        >
-      </div>
-
-      <!-- Product Detail-->
-      <main v-if="product" class="product-container text-left">
-        <div class="title-and-rating mb-md-3">
-          <h1 class="product-name">{{ product.name }}</h1>
-          <div>
-            <i v-for="i in 5" :key="i" class="fas fa-star"></i>
-          </div>
-        </div>
-
-        <div class="add-to-cart-and-description">
-          <div class="mb-1">
-            Price <b>${{ product.price }}</b>
-          </div>
-
-          <div class="mb-5 mb-md-4 d-flex">
-            <button
-              class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
-              type="button"
-              id="quantity-dropdown"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Qty: {{ quantity }}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
-              <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
+    <template #default>
+      <div class="container">
+        <!-- Product Detail-->
+        <main class="product-container text-left">
+          <div class="title-and-rating mb-md-3">
+            <h1 class="product-name">{{ product.name }}</h1>
+            <div>
+              <i v-for="i in 5" :key="i" class="fas fa-star"></i>
             </div>
-            <button class="add-to-cart-btn btn" v-on:click="addToCart()">Add to Cart</button>
           </div>
 
-          <p>{{ product.description }}</p>
+          <div class="add-to-cart-and-description">
+            <div class="mb-1">
+              Price <b>${{ product.price }}</b>
+            </div>
+
+            <div class="mb-5 mb-md-4 d-flex">
+              <button
+                class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="quantity-dropdown"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Qty: {{ quantity }}
+              </button>
+              <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
+                <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+              </div>
+              <button class="add-to-cart-btn btn" @click="addProductToCart">Add to Cart</button>
+            </div>
+
+            <p>{{ product.description }}</p>
+          </div>
+
+          <div class="product-img">
+            <img :src="productImageUrl" class="img-fluid" :alt="product.name" />
+          </div>
+        </main>
+
+        <!-- Recommendations -->
+        <hr />
+
+        <h5>What other items do customers view related to this product?</h5>
+        <div v-if="explain_recommended" class="text-muted text-center">
+          <small>
+            <em>
+              <i v-if="active_experiment" class="fa fa-balance-scale"></i>
+              <i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}
+            </em>
+          </small>
         </div>
 
-        <div class="product-img">
-          <img :src="productImageUrl" class="img-fluid" :alt="product.name" />
-        </div>
-      </main>
+        <div class="related-products">
+          <LoadingFallback v-if="!related_products.length" class="row my-4"></LoadingFallback>
 
-      <!-- Recommendations -->
-      <hr />
-      <h5>What other items do customers view related to this product?</h5>
-      <div v-if="explain_recommended" class="text-muted text-center">
-        <small
-          ><em
-            ><i v-if="active_experiment" class="fa fa-balance-scale"></i
-            ><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em
-          ></small
-        >
-      </div>
-
-      <div class="container related-products">
-        <div class="container mb-4" v-if="!related_products.length">
-          <i class="fas fa-spinner fa-spin fa-3x"></i>
-        </div>
-        <div class="row">
-          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-            <Product
-              v-for="recommendation in related_products"
-              v-bind:key="recommendation.product.id"
-              :product="recommendation.product"
-              :experiment="recommendation.experiment"
-              :feature="feature"
-            />
+          <div class="row">
+            <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
+              <Product
+                v-for="recommendation in related_products"
+                v-bind:key="recommendation.product.id"
+                :product="recommendation.product"
+                :experiment="recommendation.experiment"
+                :feature="feature"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </Layout>
 </template>
 
 <script>
-import AmplifyStore from '@/store/store';
-
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-const ProductsRepository = RepositoryFactory.get('products');
-const CartsRepository = RepositoryFactory.get('carts');
+import { user } from '@/mixins/user';
+import { product } from '@/mixins/product';
+import { cart } from '@/mixins/cart';
+
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
-const MaxRecommendations = 6;
+const MAX_RECOMMENDATIONS = 6;
 const ExperimentFeature = 'product_detail_related';
 
 import Product from './components/Product.vue';
-import Layout from './components/Layout';
-
-import { capitalize } from '@/util/capitalize';
-
-import swal from 'sweetalert';
+import Layout from '@/components/Layout/Layout';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
 export default {
   name: 'ProductDetail',
   components: {
-    Product,
     Layout,
+    LoadingFallback,
+    Product,
   },
+  mixins: [user, product, cart],
   data() {
     return {
-      feature: ExperimentFeature,
-      product: null,
       quantity: 1,
+      feature: ExperimentFeature,
       related_products: [],
       explain_recommended: '',
       active_experiment: false,
@@ -120,99 +109,46 @@ export default {
     };
   },
   computed: {
-    user() {
-      return AmplifyStore.state.user;
+    isLoading() {
+      return !this.product;
     },
-    cartID() {
-      return AmplifyStore.state.cartID;
-    },
-    productImageUrl() {
-      if (this.product.image.includes('://')) return this.product.image;
-
-      return `${process.env.VUE_APP_IMAGE_ROOT_URL}${this.product.category}/${this.product.image}`;
-    },
-    readableProductCategory() {
+    previousPageLinkProps() {
       if (!this.product) return null;
 
-      return capitalize(this.product.category);
+      return {
+        to: `/category/${this.product.category}`,
+        text: this.readableProductCategory,
+      };
     },
   },
   watch: {
     // call again the method if the route changes
-    $route: 'fetchData',
-  },
-  created() {
-    this.fetchData();
+    $route: {
+      immediate: true,
+      handler() {
+        this.fetchData();
+      },
+    },
   },
   methods: {
-    async addToCart() {
-      if (this.cart.items === null) this.cart.items = [];
-
-      const existingProduct = this.cart.items.find((item) => item.product_id === this.product.id);
-
-      if (existingProduct) {
-        existingProduct.quantity += this.quantity;
-      } else {
-        const newItem = {
-          product_id: this.product.id,
-          quantity: this.quantity,
-          price: this.product.price,
-        };
-
-        this.cart.items.push(newItem);
-      }
-
-      await CartsRepository.updateCart(this.cart);
-
-      await this.getCart();
-
-      AnalyticsHandler.productAddedToCart(
-        this.user,
-        this.cart,
-        this.product,
-        existingProduct?.quantity ?? this.quantity,
-        this.$route.query.feature,
-        this.$route.query.exp,
-      );
-
-      this.resetQuantity();
-
-      swal({
-        title: 'Added to Cart',
-        icon: 'success',
-        buttons: {
-          cancel: 'Continue Shopping',
-          cart: 'View Cart',
-        },
-      }).then((value) => {
-        switch (value) {
-          case 'cancel':
-            break;
-          case 'cart':
-            this.$router.push('/cart');
-        }
-      });
+    resetQuantity() {
+      this.quantity = 1;
     },
-    async getProductByID(product_id) {
-      const { data } = await ProductsRepository.getProduct(product_id);
-      this.product = data;
-      this.getRelatedProducts();
+    async addProductToCart() {
+      await this.addToCart(this.user, this.product, this.quantity, this.$route.query.feature, this.$route.query.exp);
+      this.resetQuantity();
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
-      this.getCart();
-      this.recordProductViewed();
-    },
-    recordProductViewed() {
-      if (this.product) {
-        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp);
-      }
+      this.getRelatedProducts();
+      this.getCart(this.user?.username ?? 'guest');
+      this.recordProductViewed(this.user, this.$route.query.feature, this.$route.query.exp);
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(
         this.user?.id ?? '',
         this.product.id,
-        MaxRecommendations,
+        MAX_RECOMMENDATIONS,
         ExperimentFeature,
       );
 
@@ -233,43 +169,11 @@ export default {
         AnalyticsHandler.identifyExperiment(this.user, this.related_products[0].experiment);
       }
     },
-    async getCart() {
-      if (this.cartID) {
-        const { data } = await CartsRepository.getCartByID(this.cartID);
-
-        // Since cart service holds carts in memory, they can be lost on restarts.
-        // Make sure our cart was returned. Otherwise create a new one.
-        if (data.id === this.cartID) {
-          this.cart = data;
-          return;
-        } else {
-          console.warn(`Cart ${this.cartID} not found. Creating new cart. Was cart service restarted?`);
-        }
-      }
-
-      this.createCart();
-    },
-    async createCart() {
-      const username = this.user?.username ?? 'guest';
-
-      const { data } = await CartsRepository.createCart(username);
-
-      this.cart = data;
-
-      AmplifyStore.commit('setCartID', this.cart.id);
-    },
-    resetQuantity() {
-      this.quantity = 1;
-    },
   },
 };
 </script>
 
 <style scoped>
-.category-link {
-  color: inherit;
-}
-
 .product-container {
   display: grid;
   grid-gap: 15px;

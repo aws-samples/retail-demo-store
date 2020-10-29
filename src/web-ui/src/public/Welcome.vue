@@ -1,5 +1,5 @@
 <template>
-  <Layout :showNav="false" :showFooter="false" :showTextAlerts="false" :backgroundColor="'var(--aws-squid-ink)'">
+  <Layout :showNav="false" :showFooter="false" :showTextAlerts="false" backgroundColor="var(--aws-squid-ink)">
     <div class="container mb-2 text-left">
       <header class="px-3 px-md-5">
         <h1 class="heading my-5 text-center">Welcome to the Retail Demo Store!</h1>
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import Layout from './components/Layout';
+import Layout from '@/components/Layout/Layout'
 import ServiceBadge from './components/ServiceBadge';
 
 export default {
