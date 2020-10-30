@@ -1,6 +1,6 @@
 # Creating a Retail Demo Store account
 
-[Overview](./) > 1 - Creating the Account > [2 - Personalization](2-Personalization.md)
+1 - Creating the Account > [2 - Personalization](2-Personalization.md)
 
 > Before getting started, we advise you to use a Private Window (Firefox) or Incognito Window (Chrome) to make sure you don't mix different demo profiles in the same browser session
 
