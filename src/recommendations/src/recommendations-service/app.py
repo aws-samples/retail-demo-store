@@ -9,6 +9,7 @@ from experimentation.experiment_manager import ExperimentManager
 from experimentation.resolvers import DefaultProductResolver, PersonalizeRecommendationsResolver, \
     PersonalizeRankingResolver, RankingProductsNoOpResolver
 from experimentation.utils import CompatEncoder
+from expiring_dict import ExpiringDict
 
 import json
 import os
@@ -22,6 +23,11 @@ NUM_DISCOUNTS = 2
 
 EXPERIMENTATION_LOGGING = True
 DEBUG_LOGGING = True
+
+# Since the DescribeCampaign API easily throttles and we just need
+# the recipe from the campaign and it won't change often (if at all), 
+# use a cache to help smooth out periods where we get throttled.
+personalize_meta_cache = ExpiringDict(2 * 60 * 60)
 
 servicediscovery = boto3.client('servicediscovery')
 personalize = boto3.client('personalize')
@@ -57,12 +63,25 @@ CAMPAIGN_ARN_PARAMS = [related_product_campaign_arn_param, product_campaign_arn_
 def get_recipe(campaign_arn):
     """ Returns the Amazon Personalize recipe ARN for the specified campaign ARN """
     recipe = None
-    response = personalize.describe_campaign(campaignArn = campaign_arn)
 
-    if response.get('campaign'):
-        response = personalize.describe_solution_version(solutionVersionArn = response['campaign']['solutionVersionArn'])
-        if response.get('solutionVersion'):
-            recipe = response['solutionVersion']['recipeArn']
+    campaign = personalize_meta_cache.get(campaign_arn)
+    if not campaign:
+        response = personalize.describe_campaign(campaignArn = campaign_arn)
+        if response.get('campaign'):
+            campaign = response['campaign']
+            personalize_meta_cache[campaign_arn] = campaign
+
+    if campaign:
+        solution_version = personalize_meta_cache.get(campaign['solutionVersionArn'])
+
+        if not solution_version:
+            response = personalize.describe_solution_version(solutionVersionArn = campaign['solutionVersionArn'])
+            if response.get('solutionVersion'):
+                solution_version = response['solutionVersion']
+                personalize_meta_cache[campaign['solutionVersionArn']] = solution_version
+
+        if solution_version:
+            recipe = solution_version['recipeArn']
 
     return recipe
 

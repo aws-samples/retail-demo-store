@@ -110,7 +110,7 @@ campaign_type_to_event_type = {
 
 campaign_type_to_recipe_arn = {
     "retaildemostore-related-products": "arn:aws:personalize:::recipe/aws-sims",
-    "retaildemostore-product-personalization": "arn:aws:personalize:::recipe/aws-hrnn-metadata",
+    "retaildemostore-product-personalization": "arn:aws:personalize:::recipe/aws-user-personalization",
     "retaildemostore-personalized-ranking": "arn:aws:personalize:::recipe/aws-personalized-ranking",
     "retaildemostore-personalized-discounting": "arn:aws:personalize:::recipe/aws-personalized-ranking",
 }
