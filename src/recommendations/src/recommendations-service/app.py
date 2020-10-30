@@ -38,25 +38,9 @@ cw_events = boto3.client('events')
 
 # SSM parameter name for the Personalize filter for purchased items
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
-event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
-
-related_product_campaign_arn_param = 'retaildemostore-related-products-campaign-arn'
-product_campaign_arn_param = 'retaildemostore-product-recommendation-campaign-arn'
-rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
-discount_campaign_arn_param = 'retaildemostore-personalized-discount-campaign-arn'
-
-campaign_type_to_ssm_param = {
-    "retaildemostore-related-products": "retaildemostore-related-products-campaign-arn",
-    "retaildemostore-product-personalization": "retaildemostore-product-recommendation-campaign-arn",
-    "retaildemostore-personalized-ranking": "retaildemostore-personalized-ranking-campaign-arn",
-    "retaildemostore-personalized-discounting": "retaildemostore-personalized-discount-campaign-arn",
-}
 
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 dataset_group_name_root = 'retaildemostore-'
-
-CAMPAIGN_ARN_PARAMS = [related_product_campaign_arn_param, product_campaign_arn_param,
-                       rerank_campaign_arn_param, discount_campaign_arn_param]
 
 # -- Shared Functions
 
