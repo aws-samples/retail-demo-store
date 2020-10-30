@@ -3,6 +3,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import AmplifyStore from '@/store/store';
 import swal from 'sweetalert';
+import {user} from './user'
 
 const CartsRepository = RepositoryFactory.get('carts');
 
@@ -15,6 +16,7 @@ const parseCart = (cart) =>
       };
 
 export const cart = {
+  mixnins: [user],
   data() {
     return {
       cart: null,
@@ -24,8 +26,8 @@ export const cart = {
     ...mapState(['cartID']),
   },
   methods: {
-    async createCart(username) {
-      const { data } = await CartsRepository.createCart(username);
+    async createCart() {
+      const { data } = await CartsRepository.createCart(this.username);
 
       const cart = parseCart(data);
 
@@ -33,21 +35,21 @@ export const cart = {
 
       AmplifyStore.commit('setCartID', cart.id);
     },
-    async getCart(username) {
+    async getCart() {
       // Since cart service holds carts in memory, they can be lost on restarts.
       // Make sure our cart was returned. Otherwise create a new one.
-      if (this.cartID === null) return this.createCart(username);
+      if (this.cartID === null) return this.createCart();
 
       const { data } = await CartsRepository.getCartByID(this.cartID);
 
       if (data.id !== this.cartID) {
         console.warn(`Cart ${this.cartID} not found. Creating new cart. Was cart service restarted?`);
-        return this.createCart(username);
+        return this.createCart();
       }
 
       this.cart = parseCart(data);
     },
-    async addToCart(user, product, quantity, feature, exp) {
+    async addToCart(product, quantity, feature, exp) {
       const existingProduct = this.cart.items.find((item) => item.product_id === product.id);
 
       if (existingProduct) {
@@ -60,12 +62,12 @@ export const cart = {
 
       this.cart = parseCart(data);
 
-      this.recordAddedToCart(user, product, existingProduct?.quantity ?? quantity, feature, exp);
+      this.recordAddedToCart(product, existingProduct?.quantity ?? quantity, feature, exp);
 
       this.renderAddedToCartConfirmation();
     },
-    recordAddedToCart(user, product, quantity, feature, exp) {
-      AnalyticsHandler.productAddedToCart(user, this.cart, product, quantity, feature, exp);
+    recordAddedToCart(product, quantity, feature, exp) {
+      AnalyticsHandler.productAddedToCart(this.user, this.cart, product, quantity, feature, exp);
     },
     renderAddedToCartConfirmation() {
       swal({
