@@ -54,19 +54,17 @@
           </small>
         </div>
 
-        <div class="related-products">
-          <LoadingFallback v-if="!related_products.length" class="row my-4"></LoadingFallback>
+        <div class="related-products row">
+          <LoadingFallback v-if="!related_products.length" class="col my-4 text-center"></LoadingFallback>
 
-          <div class="row">
-            <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-              <Product
-                v-for="recommendation in related_products"
-                v-bind:key="recommendation.product.id"
-                :product="recommendation.product"
-                :experiment="recommendation.experiment"
-                :feature="feature"
-              />
-            </div>
+          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
+            <Product
+              v-for="recommendation in related_products"
+              v-bind:key="recommendation.product.id"
+              :product="recommendation.product"
+              :experiment="recommendation.experiment"
+              :feature="feature"
+            />
           </div>
         </div>
       </div>
@@ -135,14 +133,14 @@ export default {
       this.quantity = 1;
     },
     async addProductToCart() {
-      await this.addToCart(this.user, this.product, this.quantity, this.$route.query.feature, this.$route.query.exp);
+      await this.addToCart(this.product, this.quantity, this.$route.query.feature, this.$route.query.exp);
       this.resetQuantity();
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
       this.getRelatedProducts();
-      this.getCart(this.user?.username ?? 'guest');
-      this.recordProductViewed(this.user, this.$route.query.feature, this.$route.query.exp);
+      this.getCart();
+      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(
