@@ -16,9 +16,6 @@ const parseCart = (cart) =>
         items: [],
       };
 
-const TAX_RATE = 0.05;
-const SHIPPING_RATE = 10;
-
 export const cart = {
   mixnins: [user],
   data() {
@@ -28,25 +25,10 @@ export const cart = {
   },
   computed: {
     ...mapState(['cartID']),
-    cartSubTotal() {
-      if (!this.cart) return null;
-
-      return this.cart.items.reduce((subtotal, item) => subtotal + item.quantity * item.price, 0);
-    },
-    cartTaxRate() {
-      if (!this.cart) return null;
-
-      return this.cartSubTotal * TAX_RATE;
-    },
-    cartShippingRate() {
-      if (!this.cart) return null;
-
-      return this.cartSubtotal > 100 ? 0 : SHIPPING_RATE;
-    },
     cartTotal() {
       if (!this.cart) return null;
 
-      return this.cartSubTotal + this.cartTaxRate + this.cartShippingRate;
+      return this.cart.items.reduce((subtotal, item) => subtotal + item.quantity * item.price, 0);
     },
     cartQuantity() {
       if (!this.cart) return null;
