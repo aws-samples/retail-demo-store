@@ -24,7 +24,7 @@
             </ul>
           </div>
 
-          <div v-if="cart.quantity > 0" class="col-lg-auto">
+          <div v-if="cart.items.length > 0" class="col-lg-auto">
             <div class="summary p-4">
               <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
               <div class="summary-total mb-2 font-weight-bold">Your Total: {{ formattedCartTotal }}</div>
