@@ -12,9 +12,7 @@
           </div>
 
           <div class="add-to-cart-and-description">
-            <div class="mb-1">
-              Price <b>${{ product.price }}</b>
-            </div>
+            <ProductPrice :price="product.price" class="mb-1"></ProductPrice>
 
             <div class="mb-5 mb-md-4 d-flex">
               <button
@@ -87,6 +85,7 @@ const ExperimentFeature = 'product_detail_related';
 import Product from './components/Product.vue';
 import Layout from '@/components/Layout/Layout';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import ProductPrice from '@/components/ProductPrice/ProductPrice';
 
 export default {
   name: 'ProductDetail',
@@ -94,6 +93,7 @@ export default {
     Layout,
     LoadingFallback,
     Product,
+    ProductPrice,
   },
   mixins: [user, product, cart],
   data() {
@@ -183,7 +183,7 @@ export default {
     'AddToCardAndDescription';
 }
 
-@media screen and (min-width: 768px) {
+@media (min-width: 768px) {
   .product-container {
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 30px;
