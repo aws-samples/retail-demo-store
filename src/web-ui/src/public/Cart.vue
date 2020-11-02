@@ -13,7 +13,7 @@
             <ul class="cart-items">
               <CartItem
                 v-for="item in cart.items"
-                :key="item.id"
+                :key="item.product_id"
                 :product_id="item.product_id"
                 :quantity="item.quantity"
                 @removeFromCart="removeFromCart"
