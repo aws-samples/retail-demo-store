@@ -34,7 +34,7 @@ RANDOM_SEED = 0
 
 # Without checking the contents, skip making any output files. Since this script is deterministic,
 # this will usually give the correct behaviour.
-SKIP_EXISTING = True
+SKIP_EXISTING = False
 
 # Where to put the generated data so that it is picked up by stage.sh
 GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-campaigns/data"
