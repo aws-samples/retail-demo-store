@@ -52,13 +52,12 @@ export const cart = {
       if (!this.cart) return null;
 
       return this.cart.items.reduce((total, item) => total + item.quantity, 0);
-    },  
+    },
     formattedCartTotal() {
-      if (!this.cart) return null
+      if (!this.cart) return null;
 
-      return formatPrice(this.cartTotal)
-    }
-    
+      return formatPrice(this.cartTotal);
+    },
   },
   methods: {
     // CRUD
