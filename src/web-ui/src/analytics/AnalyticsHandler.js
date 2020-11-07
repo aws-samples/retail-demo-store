@@ -225,6 +225,16 @@ export const AnalyticsHandler = {
         }
     },
 
+    recordAbanonedCartEvent(user,cart) {
+        if (user && cart) {
+            AmplifyAnalytics.record({
+                name: '_session.stop',
+                attributes: {
+                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                }
+            })
+        }
+    },
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
             AmplifyAnalytics.record({
