@@ -65,6 +65,7 @@
             </li>            
           </ul>
             <button class="btn btn-primary mb-4 btn-block" v-on:click="checkout()"> Checkout </button>
+            <button class="btn btn-secondary mb-4 btn-block" v-on:click="triggerAbandonedCartEmail()"> Trigger Abaondoned Cart Email </button>
           </div>
         </div>
       </div>
@@ -142,6 +143,10 @@ export default {
     },       
     checkout: function () {
       this.$router.push('/checkout');
+    },
+    triggerAbandonedCartEmail : function () {
+      console.log("Xo:0")
+      AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart)
     },    
     removeFromCart (value) {
       for (var item in this.cart.items) {
