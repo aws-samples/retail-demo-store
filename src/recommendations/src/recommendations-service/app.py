@@ -7,7 +7,7 @@ from flask import request
 from flask_cors import CORS
 from experimentation.experiment_manager import ExperimentManager
 from experimentation.resolvers import DefaultProductResolver, PersonalizeRecommendationsResolver, \
-    PersonalizeRankingResolver, RankingProductsNoOpResolver
+    PersonalizeRankingResolver, RankingProductsNoOpResolver, PersonalizeContextComparePickResolver, RandomPickResolver
 from experimentation.utils import CompatEncoder
 from expiring_dict import ExpiringDict
 
@@ -369,7 +369,7 @@ def ranking_request_params():
 
 def get_ranking(user_id, items, feature,
                 default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn',
-                top_n=None):
+                top_n=None, context=None):
     """
     Re-ranks a list of items using personalized reranking.
     Or delegates to experiment manager if there is an active experiment.
@@ -381,6 +381,7 @@ def get_ranking(user_id, items, feature,
         feature: Used to lookup the currently active experiment.
         default_campaign_arn_param_name: For discounts this would be different.
         top_n (Optional[int]): Only return the top N ranked if not None.
+        context (Optional[dict]): If available, passed to the reranking Personalization recipe.
 
     Returns:
         Items as passed in, but ordered according to reranker - also might have experimentation metadata added.
@@ -418,7 +419,8 @@ def get_ranking(user_id, items, feature,
         ranked_items = experiment.get_items(
             user_id=user_id,
             item_list=unranked_items,
-            tracker=tracker
+            tracker=tracker,
+            context=context
         )
 
         app.logger.debug(f"Experiment ranking resolver gave us this ranking: {ranked_items}")
@@ -444,7 +446,8 @@ def get_ranking(user_id, items, feature,
 
         ranked_items = resolver.get_items(
             user_id=user_id,
-            product_list=unranked_items
+            product_list=unranked_items,
+            context=context
         )
 
     response_items = []
@@ -497,13 +500,132 @@ def rerank():
         return json.dumps(items)
 
 
+def get_top_n(user_id, items, feature, top_n,
+            default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn'):
+    """
+    Gets Top N items using provided campaign.
+    Or delegates to experiment manager if there is an active experiment.
+
+    Args:
+        user_id (int): User to get the topN for
+        items (list[dict]): e.g. [{"itemId":"33", "url":"path_to_product33"},
+                                  {"itemId":"22", "url":"path_to_product22"}]
+        feature: Used to lookup the currently active experiment.
+        top_n (int): Only return the top N ranked if not None.
+        default_campaign_arn_param_name: Change this to use a different campaign.
+
+    Returns:
+        Items as passed in, but truncated according to picker - also might have experimentation metadata added.
+    """
+
+    app.logger.info(f"Items given for top-n: {items}")
+
+    # Extract item IDs from items supplied by caller. Note that unranked items
+    # can be specified as a list of objects with just an 'itemId' key or as a
+    # list of fully defined items/products (i.e. with an 'id' key).
+    item_map = {}
+    unranked_items = []
+    for item in items:
+        item_id = item.get('itemId') if item.get('itemId') else item.get('id')
+        item_map[item_id] = item
+        unranked_items.append(item_id)
+
+    app.logger.info(f"Pre-selection items: {unranked_items}")
+
+    resp_headers = {}
+    experiment = None
+    exp_manager = None
+
+    # Get active experiment if one is setup for feature.
+    if feature:
+        exp_manager = ExperimentManager()
+        experiment = exp_manager.get_active(feature)
+
+    if experiment:
+        app.logger.info('Using experiment: ' + experiment.name)
+
+        # Get ranked items from experiment.
+        tracker = exp_manager.default_tracker()
+
+        topn_items = experiment.get_items(
+            user_id=user_id,
+            item_list=unranked_items,
+            tracker=tracker,
+            num_results=top_n
+        )
+
+        app.logger.debug(f"Experiment ranking resolver gave us this ranking: {topn_items}")
+
+        resp_headers['X-Experiment-Name'] = experiment.name
+        resp_headers['X-Experiment-Type'] = experiment.type
+        resp_headers['X-Experiment-Id'] = experiment.id
+    else:
+        # Fallback to default behavior of checking for campaign ARN parameter and
+        # then the default product resolver.
+        values = get_parameter_values([default_campaign_arn_param_name, filter_purchased_param_name])
+        app.logger.info(f'Falling back to Personalize: {values}')
+
+        campaign_arn = values[0]
+        filter_arn = values[1]
+
+        if campaign_arn:
+            resolver = PersonalizeContextComparePickResolver(campaign_arn=campaign_arn, filter_arn=filter_arn,
+                                                             with_context={'Discount': 'Yes'},
+                                                             without_context={})
+            resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+        else:
+            app.logger.info(f'Falling back to No-op: {values}')
+            resolver = RandomPickResolver()
+
+        topn_items = resolver.get_items(
+            user_id=user_id,
+            product_list=unranked_items,
+            num_results=top_n
+        )
+
+    logger.info(f"Sorted items: returned from resolver: {topn_items}")
+
+    response_items = []
+
+    for top_item in topn_items:
+        # Unlike with /recommendations and /related we are not hitting the products API to get product info back
+        # The caller may have left that info in there so in case they have we want to leave it in.
+        item_id = top_item['itemId']
+        item = item_map[item_id]
+
+        if 'experiment' in top_item:
+
+            item['experiment'] = top_item['experiment']
+
+            if 'url' in item:
+                # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
+                product_url = item.get('url')
+                if '?' in product_url:
+                    product_url += '&'
+                else:
+                    product_url += '?'
+
+                product_url += 'exp=' + top_item['experiment']['correlationId']
+
+                item['url'] = product_url
+
+        response_items.append(item)
+
+    logger.info(f"Top-N response: with details added back in: {topn_items}")
+
+    return response_items, resp_headers
+
+
 @app.route('/choose_discounted', methods=['POST'])
 def choose_discounted():
     """
     Gets user ID, items list and feature and chooses which items to discount according to the discount reranking
-    campaign.
+    campaign. Gets a ranking with discount applied and without and looks at the difference. The products
+    are ordered according to how the response is expected to improve after applying discount.
+
     The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
     The items that are chosen for discount will have the "discounted" key set to True.
+
     If there is an experiment active for this feature the request for ranking for choosing discounts will have been
     routed through the experiment resolver and discounts chosen according to whichever approach is active. The
     items will have experiment information recorded against them and if URLs were provided for products these will be
@@ -513,11 +635,8 @@ def choose_discounted():
     items = []
     try:
         user_id, items, feature = ranking_request_params()
-        response_items, resp_headers = get_ranking(
-            user_id, items, feature,
-            default_campaign_arn_param_name='retaildemostore-personalized-discount-campaign-arn',
-            top_n=NUM_DISCOUNTS)
-        discount_item_map = {item['itemId']:item for item in response_items}
+        response_items, resp_headers = get_top_n(user_id, items, feature, NUM_DISCOUNTS)
+        discount_item_map = {item['itemId']: item for item in response_items}
 
         return_items = []
         for item in items:

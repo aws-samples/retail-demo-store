@@ -98,28 +98,24 @@ datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
 
 all_campaign_types = ['retaildemostore-related-products',
                       'retaildemostore-product-personalization',
-                      'retaildemostore-personalized-ranking',
-                      'retaildemostore-personalized-discounting']
+                      'retaildemostore-personalized-ranking']
 
 campaign_type_to_event_type = {
     "retaildemostore-related-products": "ProductViewed",
     "retaildemostore-product-personalization": "ProductViewed",
-    "retaildemostore-personalized-ranking": "ProductViewed",
-    "retaildemostore-personalized-discounting": "DiscountedProductViewed",
+    "retaildemostore-personalized-ranking": "ProductViewed"
 }
 
 campaign_type_to_recipe_arn = {
     "retaildemostore-related-products": "arn:aws:personalize:::recipe/aws-sims",
     "retaildemostore-product-personalization": "arn:aws:personalize:::recipe/aws-user-personalization",
-    "retaildemostore-personalized-ranking": "arn:aws:personalize:::recipe/aws-personalized-ranking",
-    "retaildemostore-personalized-discounting": "arn:aws:personalize:::recipe/aws-personalized-ranking",
+    "retaildemostore-personalized-ranking": "arn:aws:personalize:::recipe/aws-personalized-ranking"
 }
 
 campaign_type_to_ssm_param = {
     "retaildemostore-related-products": "retaildemostore-related-products-campaign-arn",
     "retaildemostore-product-personalization": "retaildemostore-product-recommendation-campaign-arn",
-    "retaildemostore-personalized-ranking": "retaildemostore-personalized-ranking-campaign-arn",
-    "retaildemostore-personalized-discounting": "retaildemostore-personalized-discount-campaign-arn",
+    "retaildemostore-personalized-ranking": "retaildemostore-personalized-ranking-campaign-arn"
 }
 
 # Info on CloudWatch event rule used to repeatedely call this function.
@@ -197,6 +193,11 @@ interactions_schema = {
         {
             "name": "TIMESTAMP",
             "type": "long"
+        },
+        {
+            "name": "DISCOUNT",  # This is the contextual metadata - "Yes" or "No".
+            "type": "string",
+            "categorical": True
         }
     ],
     "version": "1.0"
@@ -746,7 +747,7 @@ def update():
         - Each step Personalize config dictionary has a set of keys as the name of dataset group
           to create and the value the config for that dataset group.
         - Each dataset group config consists of a single key: "campaigns" with its value a dictionary
-          with key campaign type (there are 4 campaign types: user-item, item-item, rerankin and discounts)
+          with key campaign type (there are 4 campaign types: user-item, item-item, reranking)
           and value campaign config for that campaign type.
         - The campaign config consists of a dictionary with 3 keys:
             - "desired_campaign_suffixes" - a list of numerical version numbers of solutions and campaigns to create.
@@ -885,7 +886,7 @@ def update():
         if len(list_filters_response['Filters']) == 0:
             create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)  # Adds the SSM param
 
-        # Create related product, product recommendation, discount, and rerank solutions if they doesn't exist
+        # Create related product, product recommendation, and rerank solutions if they doesn't exist
 
         # Start by calculating what recipes, with what names, event types, and whether we want activated first.
         campaigns_config = trainstep_config['dataset_groups'][dataset_group_name]['campaigns']
@@ -1011,7 +1012,7 @@ def update():
         # No need for this lambda function to be called anymore so disable CW event rule that has been calling us.
         # If somethihng wants this functionality, they just enable the rule.
         msg = ('Related product, Product recommendation, Personalized reranking, '
-               'and Discount campaigns fully provisioned '
+               'fully provisioned '
                'and unwanted campaigns removed.')
         logger.info(msg)
         if len(train_configs['steps'])>1:
@@ -1047,7 +1048,7 @@ def poll_create(event, context):
     Called on creation by CloudFormation. Polled till creation is done.
     Sets up the default training configuration and calls update() which tries to pull everything in shape to match the
     training config. By default we train up one version of each of thge campaign types (user-item, item-item,
-    reranking and discounts).
+    reranking).
     How the config is generated can be examined below but there is more documentation in update()
     Args:
         event: We ignore this - we know what we want to build

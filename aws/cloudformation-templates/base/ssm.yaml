@@ -76,14 +76,6 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
 
-  ParameterPersonalizedDiscountsCampaignArn:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-personalized-discount-campaign-arn"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Personalized Discounts Campaign Arn Parameter"
-
   ParameterPersonalizeTrainConfig:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -165,10 +157,6 @@ Outputs:
   ParameterPersonalizedRankingCampaignArn:
     Description: Personalized Ranking Campaign Arn
     Value: !Ref ParameterPersonalizedRankingCampaignArn
-
-  ParameterPersonalizedDiscountsCampaignArn:
-    Description: Personalized Discounts Campaign Arn
-    Value: !Ref ParameterPersonalizedDiscountsCampaignArn
 
   ParameterPersonalizeTrainConfig:
     Description: Train config
