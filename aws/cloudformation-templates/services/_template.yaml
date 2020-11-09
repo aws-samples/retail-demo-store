@@ -429,9 +429,9 @@ Outputs:
     Description: Search load balancer URL.
     Value: !GetAtt SearchService.Outputs.ServiceUrl
 
-  PinpointPersonalizeRole:
-      Value: !GetAtt PinpointPersonalize.Outputs.PinpointPersonalizeRole
+  PinpointPersonalizeRoleArn:
+      Value: !GetAtt PinpointPersonalize.Outputs.PinpointPersonalizeRoleArn
 
-  CustomizeRecommendationsFunction:
-      Value: !GetAtt PinpointPersonalize.Outputs.CustomizeRecommendationsFunction
+  CustomizeRecommendationsFunctionArn:
+      Value: !GetAtt PinpointPersonalize.Outputs.CustomizeRecommendationsFunctionArn
     

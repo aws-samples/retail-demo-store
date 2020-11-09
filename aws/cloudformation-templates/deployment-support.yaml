@@ -79,10 +79,10 @@ Parameters:
     Type: String
     Default: "AWS Retail Demo Store"
 
-  PinpointPersonalizeRole:
+  PinpointPersonalizeRoleArn:
     Type: String
 
-  CustomizeRecommendationsFunction:
+  CustomizeRecommendationsFunctionArn:
     Type: String
 
 Conditions:
@@ -121,7 +121,7 @@ Resources:
       Environment:
         Variables:
           csv_bucket: !Ref ResourceBucket
-          csv_path: 'csvs/'
+          csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
 
@@ -415,8 +415,8 @@ Resources:
       Environment:
         Variables:
           pinpoint_app_id: !Ref PinpointAppId
-          pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunction
-          pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRole
+          pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunctionArn
+          pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRoleArn
           email_from_address: !Ref PinpointEmailFromAddress
           email_from_name: !Ref PinpointEmailFromName
           lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
