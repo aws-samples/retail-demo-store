@@ -2,7 +2,7 @@
   <div class="col-sm-12 col-md-4 col-lg-4 mb-4">
     <!-- Card -->
     <div class="card mx-auto h-100 product-card">
-      <router-link :to="{name:'ProductDetail', params: {id: product.id}, query: {exp: experimentCorrelationId}}">
+      <router-link :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
         <img :src="productImageURL" class="card-img-top" :alt="product.name">
       </router-link>
       <div class="card-body">
