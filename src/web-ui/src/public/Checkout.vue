@@ -165,6 +165,8 @@
 </template>
 
 <script>
+import {mapState} from 'vuex';
+
 import AmplifyStore from '@/store/store'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
@@ -255,24 +257,15 @@ export default {
           buttons: {
             cancel: "OK",
           }
-        // eslint-disable-next-line no-unused-vars
-        }).then((value) => {
-          AmplifyStore.commit('setCartID', null)
-          // Add Delete Cart From Service Below
-
-          // End
+        }).then(() => {
+          AmplifyStore.dispatch('getNewCart')
           this.$router.push('/');
         });
      })
     }
   },
   computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },
-    cartID() {
-      return AmplifyStore.state.cartID
-    },
+    ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
     cartSubTotal() {
       var subtotal = 0.00
 

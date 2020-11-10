@@ -49,12 +49,13 @@
 </template>
 
 <script>
+import swal from 'sweetalert';
+import {mapState,mapActions} from 'vuex';
+
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-import { user } from '@/mixins/user';
 import { product } from '@/mixins/product';
-import { cart } from '@/mixins/cart';
 
 import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
@@ -73,7 +74,7 @@ export default {
     FiveStars,
     RecommendedProductsSection,
   },
-  mixins: [user, product, cart],
+  mixins: [product],
   data() {
     return {
       quantity: 1,
@@ -83,6 +84,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(['user']),
     isLoading() {
       return !this.product;
     },
@@ -104,11 +106,20 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['addToCart']),
     resetQuantity() {
       this.quantity = 1;
     },
     async addProductToCart() {
-      await this.addToCart(this.product, this.quantity, this.$route.query.feature, this.$route.query.exp);
+      await this.addToCart({
+        product: this.product,
+        quantity: this.quantity,
+        feature: this.$route.query.feature,
+        exp: this.$route.query.exp,
+      });
+
+      this.renderAddedToCartConfirmation()
+
       this.resetQuantity();
     },
     async fetchData() {
@@ -118,7 +129,6 @@ export default {
       this.relatedProducts = null;
       this.getRelatedProducts();
 
-      this.getCart();
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
     },
     async getRelatedProducts() {
@@ -151,6 +161,23 @@ export default {
       if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);
       }
+    },
+    renderAddedToCartConfirmation() {
+      swal({
+        title: 'Added to Cart',
+        icon: 'success',
+        buttons: {
+          cancel: 'Continue Shopping',
+          cart: 'View Cart',
+        },
+      }).then((value) => {
+        switch (value) {
+          case 'cancel':
+            break;
+          case 'cart':
+            this.$router.push('/cart');
+        }
+      });
     },
   },
 };

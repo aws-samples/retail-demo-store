@@ -54,9 +54,10 @@ function getCognitoUser() {
 // Event Handles for Authentication
 AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
-    AmplifyStore.commit('setLoggedOut');
+    AmplifyStore.dispatch('logout');
     AnalyticsHandler.clearUser()
-    router.push({path: '/'})
+    
+    if (router.currentRoute.path !== '/') router.push({ path: '/' })
   } 
   else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()

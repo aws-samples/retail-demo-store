@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="layout">
     <Navigation v-if="showNav"></Navigation>
 
     <LoadingFallback v-if="isLoading" class="container mb-4"></LoadingFallback>
@@ -13,18 +13,18 @@
 
     <slot v-if="!isLoading"></slot>
 
-    <TextAlerts v-if="showTextAlerts"></TextAlerts>
+    <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
     <Footer v-if="showFooter"></Footer>
   </div>
 </template>
 
 <script>
-import Navigation from '@/public/Navigation';
 import LoadingFallback from '../LoadingFallback/LoadingFallback';
 import PreviousPageLink from './PreviousPageLink';
 import Footer from '@/public/Footer';
-import TextAlerts from '@/public/components/TextAlerts';
+import TextAlerts from '@/partials/TextAlerts/TextAlerts';
+import Navigation from '@/partials/Navigation/Navigation';
 
 export default {
   name: 'Layout',
@@ -71,6 +71,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.layout {
+  padding-top: 200px;
+}
+
+@media (min-width: 992px) {
+  .layout {
+    padding-top: 150px;
+  }
+}
+</style>
 
 <style>
 body {
