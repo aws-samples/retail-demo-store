@@ -1,26 +1,48 @@
 <template>
-  <div class="footer">
-    <div class="container">
-      <hr/>
-      <div class="row">
-        <div class="copyright text-muted mt-2 mb-2 mx-auto col-12 text-center">
-          Retail Demo Store &copy; 2019-2020
-        </div>
-      </div>
+  <footer class="my-4">
+    <div class="container justify-content-center d-flex align-items-center">
+      <div class="rds">Retail Demo Store</div>
+      <div class="separator mx-2" aria-hidden></div>
+      <img src="/powered-by-logo.svg" alt="powered by AWS" class="img" />
     </div>
-  </div>
+  </footer>
 </template>
 
 <script>
 export default {
   name: 'Footer',
-  props: {
-  }
-}
+};
 </script>
 
 <style scoped>
-.content {
-  padding-top: 5rem;
+.rds {
+  font-weight: 500;
+}
+
+.separator {
+  height: 30px;
+  width: 2px;
+  background: var(--grey-600);
+}
+
+.img {
+  /* fine-tuning to match other copy in footer */
+  margin-top: 10px;
+  height: 30px;
+}
+
+@media (min-width: 576px) {
+  .rds {
+    font-size: 1.4rem;
+  }
+
+  .separator {
+    height: 40px;
+  }
+
+  .img {
+    margin-top: 14px;
+    height: 40px;
+  }
 }
 </style>
