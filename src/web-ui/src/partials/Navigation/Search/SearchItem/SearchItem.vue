@@ -1,14 +1,15 @@
 <template>
-  <li class="search-item dropdown-item p-2" role="presentation" v-if="product">
+  <li class="search-item dropdown-item p-2" v-if="product">
     <router-link
-      class="product-link d-flex align-items-center text-left text-truncate"
+      class="product-link d-flex align-items-center text-left"
       :to="{
         name: 'ProductDetail',
         params: { id: product.id },
         query: { feature, exp: experimentCorrelationId },
       }"
-      ><img :src="productImageUrl" class="product-img mr-2" alt="" />{{ product.name }}</router-link
-    >
+      ><img :src="productImageUrl" class="product-img mr-2" alt="" />
+      <span class="text-truncate">{{ product.name }}</span>
+    </router-link>
   </li>
 </template>
 
