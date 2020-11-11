@@ -2,10 +2,6 @@
 
 A sample retail web application and workshop platform intended as an educational tool for demonstrating how AWS infrastructure and services can be used to build compelling customer experiences for eCommerce, retail, and digital marketing use-cases.
 
-# XDN
-
-For XDN guide, see [web-ui](./src/web-ui#xdn)
-
 **This project is intended for educational purposes only and not for production use.**
 
 ![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
@@ -17,6 +13,10 @@ At the heart of the Retail Demo Store is a collection of polyglot microservices 
 The architecture is supported by several managed services including [Amazon Cognito](https://aws.amazon.com/cognito/), [Amazon Pinpoint](https://aws.amazon.com/pinpoint/), [Amazon Personalize](https://aws.amazon.com/personalize/), and [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/). The [web user interface](../src/web-ui]) is built using the [Vue.js](https://vuejs.org/) framework with [AWS Amplify](https://aws.amazon.com/amplify/) to provide integrations with Cognito for registration/authentication and event streaming to Pinpoint and Personalize (Event Tracker). Finally, [AWS CodePipeline](https://aws.amazon.com/codepipeline/) is leveraged to demonstrate how AWS development services can be used to orchestrate the build and deployment process with the Retail Demo Store.
 
 ![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
+
+## XDN
+
+For XDN guide, see [web-ui](./src/web-ui#xdn)
 
 ## Hands-On Workshops
 
