@@ -15,7 +15,7 @@
 
     <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
-    <Footer v-if="showFooter"></Footer>
+    <Footer v-if="showFooter" class="my-4"></Footer>
   </div>
 </template>
 

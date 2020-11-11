@@ -1,5 +1,5 @@
 <template>
-  <footer class="my-4">
+  <footer>
     <div class="container justify-content-center d-flex align-items-center">
       <div class="rds">Retail Demo Store</div>
       <div class="separator mx-2" aria-hidden></div>
