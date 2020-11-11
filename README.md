@@ -2,6 +2,10 @@
 
 A sample retail web application and workshop platform intended as an educational tool for demonstrating how AWS infrastructure and services can be used to build compelling customer experiences for eCommerce, retail, and digital marketing use-cases.
 
+# XDN
+
+For XDN guide, see [web-ui](./src/web-ui#xdn)
+
 **This project is intended for educational purposes only and not for production use.**
 
 ![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
