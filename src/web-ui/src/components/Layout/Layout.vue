@@ -22,7 +22,7 @@
 <script>
 import LoadingFallback from '../LoadingFallback/LoadingFallback';
 import PreviousPageLink from './PreviousPageLink';
-import Footer from '@/public/Footer';
+import Footer from '@/partials/Footer/Footer';
 import TextAlerts from '@/partials/TextAlerts/TextAlerts';
 import Navigation from '@/partials/Navigation/Navigation';
 
