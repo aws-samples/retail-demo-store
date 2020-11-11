@@ -76,12 +76,6 @@ export default {
 .layout--has-nav {
   padding-top: 200px;
 }
-
-@media (min-width: 992px) {
-  .layout {
-    padding-top: 150px;
-  }
-}
 </style>
 
 <style>
