@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div :class="{'layout--has-nav': showNav}">
     <Navigation v-if="showNav"></Navigation>
 
     <LoadingFallback v-if="isLoading" class="container mb-4"></LoadingFallback>
@@ -73,7 +73,7 @@ export default {
 </script>
 
 <style scoped>
-.layout {
+.layout--has-nav {
   padding-top: 200px;
 }
 
