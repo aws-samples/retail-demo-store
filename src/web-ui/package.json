@@ -6,10 +6,19 @@
     "preinstall": "npx npm-force-resolutions",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "xdn:start": "concurrently \"npx webpack --watch --config xdn/webpack.xdn.config.js\" \"npx xdn run\"",
+    "xdn:start:cache": "concurrently \"npx webpack --watch --config xdn/webpack.xdn.config.js\" \"npx xdn run --cache\"",
+    "xdn:start:prod": "npx xdn run --production",
+    "xdn:build": "npx webpack --progress --config xdn/webpack.xdn.config.js && npx xdn build",
+    "xdn:deploy": "npm run xdn:build && npx xdn deploy --team=moovweb-demos --skip-build --site=aws-rds",
+    "xdn:update": "npm i -D @xdn/cli@latest && npm i @xdn/core@latest @xdn/prefetch@latest @xdn/devtools@latest"
   },
   "dependencies": {
     "@optimizely/optimizely-sdk": "4.0.0",
+    "@xdn/core": "^2.29.0",
+    "@xdn/devtools": "^2.29.0",
+    "@xdn/prefetch": "^2.29.0",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
@@ -27,14 +36,18 @@
     "@vue/cli-plugin-babel": "^4.5.2",
     "@vue/cli-plugin-eslint": "^4.5.2",
     "@vue/cli-service": "^4.5.2",
+    "@xdn/cli": "^2.29.0",
     "babel-eslint": "^10.1.0",
+    "concurrently": "^5.3.0",
     "eslint": "^6.8.0",
     "eslint-loader": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.19",
     "vue-template-compiler": "^2.6.11",
-    "webpack-bundle-analyzer": "^3.8.0"
+    "webpack": "^4.44.2",
+    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack-cli": "^4.2.0"
   },
   "resolutions": {
     "acorn": "^6.4.1",
