@@ -1,7 +1,7 @@
 <template>
   <Carousel :settings="carouselSettings">
     <div
-      v-for="(recommendation, i) in recommendedProducts"
+      v-for="recommendation in recommendedProducts"
       :key="recommendation.product.id"
       class="px-1 text-left align-self-stretch d-flex align-items-stretch text-decoration-none"
     >
@@ -20,7 +20,7 @@
           </div>
 
           <FiveStars class="my-1"></FiveStars>
-          <div>{{ formatPrice(recommendation.product.price) }} {{ i }}</div>
+          <div>{{ formatPrice(recommendation.product.price) }}</div>
         </div>
         <div v-if="recommendation.experiment" class="experiment mt-1 d-flex align-items-center text-muted">
           <i class="fa fa-balance-scale mr-2"></i> {{ getExperimentDescription(recommendation.experiment) }}
