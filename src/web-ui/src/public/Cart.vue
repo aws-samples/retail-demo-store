@@ -144,10 +144,13 @@ export default {
     checkout: function () {
       this.$router.push('/checkout');
     },
-    triggerAbandonedCartEmail : function () {
-      if (this.cart && this.cart.items.length >0){
-        cartProduct = this.cart.items[0]
-        AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart)
+    async triggerAbandonedCartEmail () {
+      if (this.cart && this.cart.items.length > 0 ){
+      const cartItem = await this.getProductByID(this.cart.items[0].product_id)
+      AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart,cartItem)
+      }
+      else{
+        console.error("No items to export")
       }
     },    
     removeFromCart (value) {

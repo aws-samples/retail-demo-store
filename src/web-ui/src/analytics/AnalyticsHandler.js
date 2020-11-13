@@ -238,7 +238,7 @@ export const AnalyticsHandler = {
                 attributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
                     WebsiteURL : [process.env.VUE_APP_WEB_ROOT_URL],
-                    ShoppingCartItemImageUrl:  [process.env.VUE_APP_IMAGE_ROOT_URL + cartProduct.category + '/' + cartProduct.image],
+                    ShoppingCartItemImageURL:  [process.env.VUE_APP_IMAGE_ROOT_URL + cartProduct.category + '/' + cartProduct.image],
                     ShoppingCartItemTitle :  [cartProduct.name],
                     ShoppingCartItemURL : [cartProduct.url],     
                 },
