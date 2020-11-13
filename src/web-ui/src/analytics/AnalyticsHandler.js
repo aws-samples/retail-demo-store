@@ -225,15 +225,25 @@ export const AnalyticsHandler = {
         }
     },
 
-    recordAbanonedCartEvent(user,cart) {
-        if (user && cart) {
+    recordAbanonedCartEvent(user,cart,cartProduct) {
+        if (user && cart && cartProduct) {
             AmplifyAnalytics.record({
                 name: '_session.stop',
                 attributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
                 }
             })
-        }
+            AmplifyAnalytics.updateEndpoint({
+                userId: user.id,
+                attributes: {
+                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                    WebsiteURL : [process.env.VUE_APP_WEB_ROOT_URL],
+                    ShoppingCartItemImageUrl:  [process.env.VUE_APP_IMAGE_ROOT_URL + cartProduct.category + '/' + cartProduct.image],
+                    ShoppingCartItemTitle :  [cartProduct.name],
+                    ShoppingCartItemURL : [cartProduct.url],     
+                },
+            })
+        }   
     },
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {

@@ -145,8 +145,10 @@ export default {
       this.$router.push('/checkout');
     },
     triggerAbandonedCartEmail : function () {
-      console.log("Xo:0")
-      AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart)
+      if (this.cart && this.cart.items.length >0){
+        cartProduct = this.cart.items[0]
+        AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart)
+      }
     },    
     removeFromCart (value) {
       for (var item in this.cart.items) {
