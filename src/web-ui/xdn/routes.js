@@ -31,6 +31,10 @@ router.get('/js/:path*', ({ serveStatic, cache }) => {
   cache(CACHE_ASSETS);
   serveStatic(`${DIST_APP}/js/:path*`);
 });
+router.get('/images/:path*', ({ serveStatic, cache }) => {
+  cache(CACHE_ASSETS);
+  serveStatic(`${DIST_APP}/images/:path*`);
+});
 router.get('/android-chrome-192x192.png', ({ serveStatic, cache }) => {
   cache(CACHE_ASSETS);
   serveStatic(`${DIST_APP}/android-chrome-192x192.png`);
