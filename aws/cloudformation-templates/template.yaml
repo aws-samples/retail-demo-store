@@ -29,10 +29,15 @@ Metadata:
         Parameters:
           - PreIndexElasticsearch
           - PreCreatePersonalizeCampaign
+          - PreCreatePinpointWorkshop
+          - PinpointEmailFromAddress
+          - PinpointEmailFromName
       - Label:
-          default: "Miscellaneous"
+          default: "AWS Partner Integrations"
         Parameters:
           - AmplitudeApiKey
+          - OptimizelySdkKey
+          - SegmentWriteKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -54,8 +59,18 @@ Metadata:
         default: "Auto-Load Elasticsearch Index"
       PreCreatePersonalizeCampaign:
         default: "Auto-Build Personalize Campaigns"
+      PreCreatePinpointWorkshop:
+        default: "Auto-Configure Pinpoint"
+      PinpointEmailFromAddress:
+        default: "Reply-To email address"
+      PinpointEmailFromName:
+        default: "Reply-To name"
       AmplitudeApiKey:
         default: "Amplitude API Key"
+      OptimizelySdkKey:
+        default: "Optimizely SDK Key"
+      SegmentWriteKey:
+        default: "Segment Write Key"
 
 Parameters:
   ResourceBucket:
@@ -115,8 +130,9 @@ Parameters:
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Deploy Lambda function that automatically indexes the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Search workshop included in your deployment as a Jupyter notebook in SageMaker.
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -125,17 +141,52 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Deploy Lambda function that automatically builds solutions and launches Personalize campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Personalization workshop included in your deployment as a Jupyter notebook 
-      in SageMaker.
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
       - 'No'
     Default: 'No'
 
+  PreCreatePinpointWorkshop:
+    Type: String
+    Description: >
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
+      in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  PinpointEmailFromAddress:
+    Type: String
+    Description: >
+      Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+  
+  PinpointEmailFromName:
+    Type: String
+    Description: >
+      Name to use with Reply-To email address when sending emails from Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+    Default: "AWS Retail Demo Store"
+  
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
+    NoEcho: true
+
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+
+  SegmentWriteKey:
+    Type: String
+    Description: Segment write key for real-time data collection (optional).
     NoEcho: true
 
 Resources:
@@ -151,6 +202,9 @@ Resources:
         CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        ParentStackName: !Ref AWS::StackName
+        OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
 
   # Services Resources
   Services:
@@ -180,11 +234,13 @@ Resources:
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+        ParentStackName: !Ref AWS::StackName
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -211,6 +267,8 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
+        ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
@@ -246,6 +304,13 @@ Resources:
         ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
         ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
+        CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
+        PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
+        PinpointEmailFromName: !Ref PinpointEmailFromName
 
   # Cleanup bucket function
   CleanupBucket:
@@ -253,6 +318,15 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
+  # Segment Lambda Function
+  SegmentPersonalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.

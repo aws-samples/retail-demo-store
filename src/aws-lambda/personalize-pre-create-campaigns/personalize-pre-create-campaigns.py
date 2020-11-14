@@ -26,14 +26,37 @@ For example, the Experimentation workshop.
 
 import json
 import boto3
+import botocore
 import logging
 import os
 
+from packaging import version
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+min_botocore_version = '1.16.24'
+
+# Check if Lambda runtime needs to be patched with more recent Personalize SDK
+# This must be done before creating Personalize clients from boto3.
+if version.parse(botocore.__version__) < version.parse(min_botocore_version):
+    logger.info('Patching botocore SDK libraries for Personalize')
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    models_path = os.path.join(dir_path, 'models')
+    
+    aws_data_path = set(os.environ.get('AWS_DATA_PATH', '').split(os.pathsep))
+    aws_data_path.add(models_path)
+    
+    os.environ.update({
+        'AWS_DATA_PATH': os.pathsep.join(aws_data_path)
+    })
+
+    logger.info(os.environ)
+else:
+    logger.info('Patching botocore SDK for Personalize not required')    
+    
 iam = boto3.client("iam")
 ssm = boto3.client('ssm')
 sts = boto3.client('sts')
@@ -238,6 +261,29 @@ def rebuild_webui_service(region, account_id):
     if not restarted:
         logger.warn('Pipeline with tag "RetailDemoStoreServiceName=web-ui" not restarted; does pipeline and/or tag exist?')
 
+def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
+    ''' Creates Personalize Filter that excludes recommendations for recently purchased products '''
+
+    logger.info('Creating purchased product filter')
+
+    response = personalize.create_filter(
+        name = 'retaildemostore-filter-purchased-products',
+        datasetGroupArn = dataset_group_arn,
+        filterExpression = 'EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")'
+    )
+ 
+    filter_arn = response['filterArn']
+
+    logger.info('Setting purchased product filter ARN as SSM parameter ' + ssm_parameter_name)
+
+    ssm.put_parameter(
+        Name=ssm_parameter_name,
+        Description='Retail Demo Store Personalize Filter Purchased Products Arn Parameter',
+        Value='{}'.format(filter_arn),
+        Type='String',
+        Overwrite=True
+    )
+
 def lambda_handler(event, context):
     logger.debug('## ENVIRONMENT VARIABLES')
     logger.debug(os.environ)
@@ -260,8 +306,9 @@ def lambda_handler(event, context):
     related_product_campaign_arn_param = 'retaildemostore-related-products-campaign-arn'
     product_campaign_arn_param = 'retaildemostore-product-recommendation-campaign-arn'
     rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
-    role_name = "RetailDemoStorePersonalizeS3Role"
+    role_name = os.environ.get('Uid')+'-PersonalizeS3'
     event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
+    filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
 
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
@@ -271,17 +318,23 @@ def lambda_handler(event, context):
     product_campaign_arn_set = is_ssm_parameter_set(product_campaign_arn_param)
     rerank_campaign_arn_set = is_ssm_parameter_set(rerank_campaign_arn_param)
     event_tracking_id_set = is_ssm_parameter_set(event_tracking_id_param)
+    filter_purchased_arn_set = is_ssm_parameter_set(filter_purchased_arn_param)
 
     # Short-circuit rest of logic of all campaign ARNs are set as parameters. Means there's nothing to do.
-    if related_product_campaign_arn_set and product_campaign_arn_set and rerank_campaign_arn_set and event_tracking_id_set:
-        logger.info('ARNs for related products, user recommendations, reranking campaigns set as SSM parameters; nothing to do')
+    if (related_product_campaign_arn_set and 
+            product_campaign_arn_set and 
+            rerank_campaign_arn_set and 
+            event_tracking_id_set and
+            filter_purchased_arn_set):
+
+        logger.info('ARNs for related products, user recommendations, reranking campaigns, recent purchase filter set as SSM parameters; nothing to do')
 
         # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
         delete_event_rule(lambda_event_rule_name)
 
         return {
             'statusCode': 200,
-            'body': json.dumps('SSM parameters for related products, user recommendations, and reranking campaign ARNs already set; nothing to do')
+            'body': json.dumps('SSM parameters for related products, user recommendations, reranking campaign, and recent purchase filter ARNs already set; nothing to do')
         }
 
     if not related_product_campaign_arn_set:
@@ -292,6 +345,9 @@ def lambda_handler(event, context):
 
     if not rerank_campaign_arn_set:
         logger.info(rerank_campaign_arn_param + ' SSM parameter is not set yet; proceeding with step verification/completion process')
+
+    if not filter_purchased_arn_set:
+        logger.info(filter_purchased_arn_param + ' SSM parameter is not set yet; proceeding with step verification/completion process')
 
     # Create personalize role, if necessary.
     role_arn = create_personalize_role(role_name)
@@ -487,10 +543,15 @@ def lambda_handler(event, context):
                     'body': json.dumps('Event tracker CREATE_FAILED; aborting process')
                 }
 
+    # Create recent product purchase filter, if necessary
+    if not filter_purchased_arn_set:
+        create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)
+        filter_purchased_arn_set = True
+
     # Create related product, product recommendation, and rerank solutions if they doesn't exist
     related_recipe_arn = "arn:aws:personalize:::recipe/aws-sims"
     related_solution_name = related_campaign_name = "retaildemostore-related-products"
-    product_recipe_arn = "arn:aws:personalize:::recipe/aws-hrnn-metadata"
+    product_recipe_arn = "arn:aws:personalize:::recipe/aws-user-personalization"
     product_solution_name = product_campaign_name = "retaildemostore-product-personalization"
     rerank_recipe_arn = "arn:aws:personalize:::recipe/aws-personalized-ranking"
     rerank_solution_name = rerank_campaign_name = "retaildemostore-personalized-ranking"
@@ -506,8 +567,7 @@ def lambda_handler(event, context):
             name = related_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = related_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+related_solution_name+" created")
@@ -523,8 +583,7 @@ def lambda_handler(event, context):
             name = product_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = product_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+product_solution_name+" created")
@@ -540,8 +599,7 @@ def lambda_handler(event, context):
             name = rerank_solution_name,
             datasetGroupArn = dataset_group_arn,
             recipeArn = rerank_recipe_arn,
-            performHPO = True,
-            eventType = "ProductViewed"
+            performHPO = True
         )
 
         logger.info("Product solution "+rerank_solution_name+" created")

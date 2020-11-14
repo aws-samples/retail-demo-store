@@ -86,6 +86,10 @@ Parameters:
     Type: String
     Description: SSM parameter name for the Amplitude API key
 
+  ParameterOptimizelySdkKey:
+    Type: String
+    Description: SSM parameter name for the Optimizely SDK key
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -302,6 +306,9 @@ Resources:
           - Name: AMPLITUDE_API_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterAmplitudeApiKey       
+          - Name: OPTIMIZELY_SDK_KEY
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterOptimizelySdkKey
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL

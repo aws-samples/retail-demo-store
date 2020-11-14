@@ -102,8 +102,8 @@ export default {
         intermediate = data
       }
 
-      if (this.userID && intermediate.length > 0) {
-        const response = await RecommendationsRepository.getRerankedItems(this.userID, intermediate, ExperimentFeature)
+      if (this.user && intermediate.length > 0) {
+        const response = await RecommendationsRepository.getRerankedItems(this.user.id, intermediate, ExperimentFeature)
 
         if (response.headers) {
           if (response.headers['x-personalize-recipe']) {
@@ -119,7 +119,7 @@ export default {
         this.products = response.data.slice(0, MaxProducts)
 
         if (this.products.length > 0 && 'experiment' in this.products[0]) {
-          AnalyticsHandler.identifyExperiment(this.products[0].experiment)
+          AnalyticsHandler.identifyExperiment(this.user, this.products[0].experiment)
         }
       }
       else {
@@ -136,9 +136,6 @@ export default {
   computed: {
     user() { 
       return AmplifyStore.state.user
-    },
-    userID() { 
-      return AmplifyStore.state.userID
     }
   },
   filters: {

@@ -173,6 +173,9 @@ class PersonalizeRecommendationsResolver(Resolver):
         if not self.campaign_arn:
             raise Exception('campaign_arn required for PersonalizeRecommendationsResolver')
 
+        # Optionally support filter specified at resolver creation.
+        self.filter_arn = params.get('filter_arn')
+
     def get_items(self, **kwargs):
         """ Returns recommendations from an Amazon Personalize campaign trained with a user recommendation recipe such as HRNN
         
@@ -180,6 +183,7 @@ class PersonalizeRecommendationsResolver(Resolver):
             user_id - ID for the user for which to make recommendations (required for user personalization recipes such as HRNN)
             product_id - ID for the item to return similar products (required for related products recipes such as SIMS)
             num_results - maximum number of recommendations to return (optional)
+            filter_arn - ARN for filter to exclude recommended items (overrides ctor filter_arn) (optional)
         """
         params = {
             'campaignArn': self.campaign_arn 
@@ -188,17 +192,23 @@ class PersonalizeRecommendationsResolver(Resolver):
         user_id = kwargs.get('user_id')
         item_id = kwargs.get('product_id')
         num_results = kwargs.get('num_results')
+        filter_arn = kwargs.get('filter_arn')
 
-        if user_id is None and item_id is None:
+        if not user_id and not item_id:
             raise Exception('user_id or product_id is required')
 
-        if user_id is not None:
+        if user_id:
             params['userId'] = user_id
 
-        if item_id is not None:
+            if filter_arn:
+                params['filterArn'] = filter_arn
+            elif self.filter_arn:
+                params['filterArn'] = self.filter_arn
+
+        if item_id:
             params['itemId'] = item_id
 
-        if num_results is not None:
+        if num_results:
             params['numResults'] = num_results
 
         log.debug('PersonalizeRecommendationsResolver - getting recommendations ' + str(params))
@@ -231,11 +241,11 @@ class HttpResolver(Resolver):
 
         params = {}
 
-        if user_id is not None:
+        if user_id:
             params[self.user_id_parameter_name] = user_id
-        if item_id is not None:
+        if item_id:
             params[self.item_id_parameter_name] = item_id
-        if num_results is not None:
+        if num_results:
             params[self.num_results_parameter_name] = num_results
 
         url = self.base_url
@@ -278,6 +288,9 @@ class PersonalizeRankingResolver(Resolver):
         if not self.campaign_arn:
             raise Exception('campaign_arn required for PersonalizeRankingResolver')
 
+        # Optionally support filter specified at resolver creation.
+        self.filter_arn = params.get('filter_arn')
+
     def get_items(self, **kwargs):
         """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
         
@@ -288,10 +301,10 @@ class PersonalizeRankingResolver(Resolver):
         user_id = kwargs.get('user_id')
         input_list = kwargs.get('product_list')
 
-        if user_id is None:
+        if not user_id:
             raise Exception('user_id is required')
 
-        if input_list is None:
+        if not input_list:
             raise Exception('product_list is required')
 
         params = {
@@ -299,6 +312,12 @@ class PersonalizeRankingResolver(Resolver):
             'userId': str(user_id),
             'inputList': input_list
         }
+
+        filter_arn = kwargs.get('filter_arn')
+        if filter_arn:
+            params['filterArn'] = filter_arn
+        elif self.filter_arn:
+            params['filterArn'] = self.filter_arn
 
         log.debug('PersonalizeRankingResolver - getting personalized ranking ' + str(params))
 
@@ -322,7 +341,7 @@ class RankingProductsNoOpResolver(Resolver):
         """
         input_list = kwargs.get('product_list')
 
-        if input_list is None:
+        if not input_list:
             raise Exception('product_list is required')
 
         # Reformat response as an array of dict with 'itemId' key to match what Personalize would return.

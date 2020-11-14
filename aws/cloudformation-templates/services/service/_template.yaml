@@ -165,6 +165,11 @@ Parameters:
     Description: SSM parameter name for the Amplitude API key
     Default: none
 
+  ParameterOptimizelySdkKey:
+    Type: String
+    Description: SSM parameter name for the Optimizely SDK key
+    Default: none
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -172,6 +177,9 @@ Parameters:
   DeleteRepositoryLambdaArn:
     Type: String
     Description: Lambda Arn for deleting ECR repository
+
+  Uid:
+    Type: String
 
 Resources:
 
@@ -211,6 +219,7 @@ Resources:
         PinpointAppId: !Ref PinpointAppId
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !Ref DeleteRepositoryLambdaArn
         WebRootUrl: !Ref WebRootUrl
@@ -244,6 +253,7 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Ref Uid
         
 Outputs:
   ServiceDNSName:

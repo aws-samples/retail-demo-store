@@ -1,6 +1,6 @@
 # Personalization
 
-[Overview](./) > [1 - Creating the Account](1-Creating-account.md) > 2 - Personalization
+[1 - Creating the Account](1-Creating-account.md) > 2 - Personalization
 
 Personalized user experiences are implemented across several features within the Retail Demo Store web user interface that demonstrate three core use-cases of Amazon Personalize as well as real-time recommendations.
 
@@ -49,11 +49,11 @@ Once you’ve saved a profile connection, you can return to the Retail Demo Stor
 
 ## Use-Case 1: Personalized Product Recommendations
 
-**Amazon Personalize Recipe:** [HRNN-Metadata](https://docs.aws.amazon.com/personalize/latest/dg/native-recipe-hrnn-metadata.html)
+**Amazon Personalize Recipe:** [User-Personalization](https://docs.aws.amazon.com/personalize/latest/dg/native-recipe-new-item-USER_PERSONALIZATION.html)
 
 The user personalization use-case is implemented on the bottom half of the Retail Demo Store home view **when you are signed in to a Retail Demo Store user** account. Be sure to emulate a shopper profile as described above so that a persona is linked to your session. Product recommendations in the “Inspired by your shopping trends” section are being powered by Amazon Personalize. If you’re not signed in, featured products will be displayed here instead.
 
-> Since the Retail Demo Store is using a Personalize Event Tracker to record real-time interaction events, it is important to keep in mind that recommendations will change as a result of your clicking and browsing activity in the web application. Therefore, the recommendations may not match up to the original shopper persona used to train the model. This is a powerful demo feature, though, since it shows how Personalize adapts to evolving user intent.
+> Since the Retail Demo Store is using a Personalize Event Tracker to record real-time interaction events, it is important to keep in mind that recommendations will change as a result of your clicking and browsing activity in the web application. Therefore, the recommendations may not match up to the original shopper persona used to train the model. This is a powerful demo feature, though, since it shows how Personalize adapts to evolving user intent. It can also show how recommendations adapt for new users (i.e. cold starting users).
 
 ![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.png)
 
@@ -110,3 +110,17 @@ If you are demonstrating the Retail Demo Store to a more technical audience, you
 ![image.png](../workshop/images/Eventinstrumentationcalls.png)
 
 Figure 12. Event instrumentation calls
+
+## Filtering Recommendations
+
+Amazon Personalize supports the ability to create [filters](https://docs.aws.amazon.com/personalize/latest/dg/filter.html) that can be used to filter (or exclude) items from being recommended that match a filter's criteria. The Retail Demo Store uses a filter to exclude products which have been recently purchased by the current user.
+
+As noted in the Event Tracking section above, the Retail Demo Store's web application sends an `OrderCompleted` event for each product purchased by the user. We can use this event type in the following filter expression.
+
+```
+EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")
+```
+
+The filter is created using the [CreateFilter](https://docs.aws.amazon.com/personalize/latest/dg/API_CreateFilter.html) API. When a filter is created, a Filter ARN is generated which can then be used when retrieving recommendations to apply the filter.
+
+To demonstrate this capability, purchase one or more recommended products from the "Inspired by your shopping trends" section of the home page by adding them to your cart and checking out. Then return to the home page. The product(s) you just purchased should no longer be recommended.

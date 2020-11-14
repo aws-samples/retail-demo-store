@@ -29,17 +29,24 @@ Parameters:
     Type: String
     Default: none
 
+  Uid:
+    Type: String
+
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: RetailDemoStoreNotebook
+      NotebookInstanceName: !Sub ${Uid}
       InstanceType: "ml.t2.medium"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
       DefaultCodeRepository: !Ref DefaultCodeRepository
+      Tags:
+        -
+          Key: "Uid"
+          Value: !Ref Uid
   
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -77,6 +84,11 @@ Resources:
                 Action: 
                   - codecommit:*
                 Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore*'
+              -
+                Effect: "Allow"
+                Action: 
+                  - sagemaker:ListTags
+                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/*'
         - 
           PolicyName: "0-StartHere"
           PolicyDocument: 
@@ -126,7 +138,7 @@ Resources:
                   - iam:PassRole
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/RetailDemoStorePersonalizeS3Role'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - 
                 Effect: Allow
                 Action:
@@ -185,6 +197,7 @@ Resources:
                 Action: 
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'     
+  
 Outputs:
   NotebookInstanceId:
     Value: !Ref NotebookInstance

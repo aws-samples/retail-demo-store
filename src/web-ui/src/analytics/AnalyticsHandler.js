@@ -9,6 +9,7 @@ import Vue from 'vue';
 import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
+import optimizelySDK from '@optimizely/optimizely-sdk';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
@@ -86,6 +87,19 @@ export const AnalyticsHandler = {
             }
         }, 'AmazonPersonalize')
 
+        if (this.segmentEnabled()) {
+            let userProperties = {
+                username: user.username,
+                email: user.email,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                gender: user.gender,
+                age: user.age,
+                persona: user.persona
+            };
+            window.analytics.identify(user.id, userProperties);
+        }
+
         if (this.amplitudeEnabled()) {
             // Amplitude identify call
             Amplitude.getInstance().setUserId(user.id);
@@ -140,21 +154,32 @@ export const AnalyticsHandler = {
         }
     },
 
-    identifyExperiment(experiment) {
-        if (experiment && this.amplitudeEnabled()) {
-            var identify = new Amplitude.Identify()
-                .set(experiment.feature + '.' + experiment.name, experiment.variationIndex)
-                .set(experiment.feature + '.' + experiment.name + '.id', experiment.correlationId);
-            Amplitude.getInstance().identify(identify);
+    identifyExperiment(user, experiment) {
+        if (experiment) {
+            if (this.amplitudeEnabled()) {
+                var identify = new Amplitude.Identify()
+                    .set(experiment.feature + '.' + experiment.name, experiment.variationIndex)
+                    .set(experiment.feature + '.' + experiment.name + '.id', experiment.correlationId);
+                Amplitude.getInstance().identify(identify);
+            }
+
+            if (user && this.optimizelyEnabled()) {
+                const optimizelyClientInstance = this.optimizelyClientInstance();
+                const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+                if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                    const userId = user.id.toString();
+                    optimizelyClientInstance.activate(experiment.experiment_key, userId);
+                }
+            }
         }
     },
 
-    productAddedToCart(userId, cart, product, quantity, feature, experimentCorrelationId) {
-        if (userId) {
+    productAddedToCart(user, cart, product, quantity, feature, experimentCorrelationId) {
+        if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductAdded', 
                 attributes: { 
-                    userId: userId,
+                    userId: user.id,
                     cartId: cart.id,
                     productId: product.id,
                     name: product.name,
@@ -170,7 +195,7 @@ export const AnalyticsHandler = {
             })
 
             AmplifyAnalytics.updateEndpoint({
-                userId: userId,
+                userId: user.id,
                 attributes: {
                     HasShoppingCart: ['true']
                 },
@@ -182,25 +207,40 @@ export const AnalyticsHandler = {
 
         AmplifyAnalytics.record({
             eventType: 'ProductAdded',
-            userId: userId ? userId : null,
+            userId: user ? user.id : null,
             properties: {
                 itemId: product.id
             }
         }, 'AmazonPersonalize')
 
+        let eventProperties = {
+            userId: user ? user.id : null,
+            cartId: cart.id,
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            feature: feature,
+            experimentCorrelationId: experimentCorrelationId,
+            quantity: quantity,
+            price: +product.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductAdded', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            Amplitude.getInstance().logEvent('ProductAdded', {
-                userId: userId ? userId : null,
-                cartId: cart.id,
-                productId: product.id,
-                name: product.name,
-                category: product.category,
-                image: product.image,
-                feature: feature,
-                experimentCorrelationId: experimentCorrelationId,
-                quantity: quantity,
-                price: +product.price.toFixed(2)
-            })
+            Amplitude.getInstance().logEvent('ProductAdded', eventProperties);
+        }
+
+        if (user && this.optimizelyEnabled()) {
+            const optimizelyClientInstance = this.optimizelyClientInstance();
+            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                const userId = user.id.toString();
+                optimizelyClientInstance.track('ProductAdded', userId);
+            }
         }
     },
 
@@ -230,14 +270,18 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            productId: cartItem.product_id,
+            quantity: origQuantity,
+            price: +cartItem.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductRemoved', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                productId: cartItem.product_id,
-                quantity: origQuantity,
-                price: +cartItem.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductRemoved', eventProperties);      
         }
     },
@@ -267,25 +311,29 @@ export const AnalyticsHandler = {
             }
         }, 'AmazonPersonalize')
 
+        let eventProperties = {
+            cartId: cart.id,
+            productId: cartItem.product_id,
+            quantity: cartItem.quantity,
+            change: change,
+            price: +cartItem.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductQuantityUpdated', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                productId: cartItem.product_id,
-                quantity: cartItem.quantity,
-                change: change,
-                price: +cartItem.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductQuantityUpdated', eventProperties);
         }
     },
 
-    productViewed(userId, product, feature, experimentCorrelationId) {
-        if (userId) {
+    productViewed(user, product, feature, experimentCorrelationId) {
+        if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
                 attributes: { 
-                    userId: userId,
+                    userId: user.id,
                     productId: product.id,
                     name: product.name,
                     category: product.category,
@@ -301,7 +349,7 @@ export const AnalyticsHandler = {
   
         AmplifyAnalytics.record({
             eventType: 'ProductViewed',
-            userId: userId ? userId : null,
+            userId: user ? user.id : null,
             properties: {
                 itemId: product.id
             }
@@ -311,18 +359,31 @@ export const AnalyticsHandler = {
             RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
         }
 
+        let eventProperties = {
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            feature: feature,
+            experimentCorrelationId: experimentCorrelationId,
+            price: +product.price.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductViewed', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                productId: product.id,
-                name: product.name,
-                category: product.category,
-                image: product.image,
-                feature: feature,
-                experimentCorrelationId: experimentCorrelationId,
-                price: +product.price.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('ProductViewed', eventProperties);
+        }
+
+        if (user && this.optimizelyEnabled()) {
+            const optimizelyClientInstance = this.optimizelyClientInstance();
+            const expectedRevisionNumber = optimizelyClientInstance.configObj.revision;
+            if (this.isOptimizelyDatafileSynced(expectedRevisionNumber)) {
+                const userId = user.id.toString();
+                optimizelyClientInstance.track('ProductViewed', userId);
+            }
         }
     },
 
@@ -352,14 +413,19 @@ export const AnalyticsHandler = {
             }, 'AmazonPersonalize')
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            cartSubTotal: +cartSubTotal.toFixed(2),
+            cartTotal: +cartTotal.toFixed(2),
+            cartQuantity: cartQuantity
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('CartViewed', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
             // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                cartSubTotal: +cartSubTotal.toFixed(2),
-                cartTotal: +cartTotal.toFixed(2),
-                cartQuantity: cartQuantity
-            };
             Amplitude.getInstance().logEvent('CartViewed', eventProperties);      
         }
     },
@@ -390,14 +456,18 @@ export const AnalyticsHandler = {
             }, 'AmazonPersonalize')
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            cartSubTotal: +cartSubTotal.toFixed(2),
+            cartTotal: +cartTotal.toFixed(2),
+            cartQuantity: cartQuantity
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('CheckoutStarted', eventProperties);      
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                cartSubTotal: +cartSubTotal.toFixed(2),
-                cartTotal: +cartTotal.toFixed(2),
-                cartQuantity: cartQuantity
-            };
             Amplitude.getInstance().logEvent('CheckoutStarted', eventProperties);      
         }
     },
@@ -447,7 +517,7 @@ export const AnalyticsHandler = {
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue
-                var revenue = new Amplitude.Revenue()
+                let revenue = new Amplitude.Revenue()
                     .setProductId(orderItem.product_id.toString())
                     .setPrice(+orderItem.price.toFixed(2))
                     .setQuantity(orderItem.quantity);
@@ -468,13 +538,17 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            orderId: order.id,
+            orderTotal: +order.total.toFixed(2)
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('OrderCompleted', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                cartId: cart.id,
-                orderId: order.id,
-                orderTotal: +order.total.toFixed(2)
-            };
             Amplitude.getInstance().logEvent('OrderCompleted', eventProperties);
         }
     },
@@ -501,18 +575,45 @@ export const AnalyticsHandler = {
             })
         }
 
+        let eventProperties = {
+            query: query,
+            reranked: (user ? 'true' : 'false'),
+            resultCount: numResults
+        };
+
+        if (this.segmentEnabled()) {
+            window.analytics.track('ProductSearched', eventProperties);
+        }
+
         if (this.amplitudeEnabled()) {
-            // Amplitude event
-            var eventProperties = {
-                query: query,
-                reranked: (user ? 'true' : 'false'),
-                resultCount: numResults
-            };
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
     },
 
+    segmentEnabled() {
+        return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
+    },
+
     amplitudeEnabled() {
-        return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE'
-    }
+        return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE';
+    },
+
+    optimizelyEnabled() {
+        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY != 'NONE';
+    },
+
+    isOptimizelyDatafileSynced(expectedRevisionNumber) {
+        if (!this.optimizelyEnabled()) {
+            return false;
+        }
+        const optimizelyClientInstance = this.optimizelyClientInstance();
+        return optimizelyClientInstance.configObj.revision !== expectedRevisionNumber;
+    },
+
+    optimizelyClientInstance() {
+        if (!this._optimizelyClientInstance && this.optimizelyEnabled()) {
+            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
+        }
+        return this._optimizelyClientInstance;
+    },
 }

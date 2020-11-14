@@ -6,7 +6,6 @@ import datetime
 import uuid
 import json
 import numpy as np
-import pprint
 import gzip
 import codecs
 import bisect
@@ -53,10 +52,9 @@ class UserPool:
 
   def grow_pool(self, num_users):
     for i in range(num_users):
-      user = User()
-      self.last_id += 1  # Avoids user ID collisions
-      user.id = str(self.last_id)
-      self.users.append(User())
+      self.last_id += 1
+      user = User(str(self.last_id))
+      self.users.append(user)
   
   def user(self, select_active=False):
     if len(self.users) == 0:
@@ -102,8 +100,11 @@ class UserPool:
     return user_pool
 
 class User:
-  def __init__(self):
-    self.id = str(random.randint(1000000000, 99999999999))
+  def __init__(self, id_string=None):
+    if(id_string != None):
+      self.id = id_string
+    else:
+      self.id = str(random.randint(1000000000, 99999999999))
     self.gender = random.choice(['M', 'F'])
     if self.gender == 'F':
         self.first_name = fake.first_name_female()

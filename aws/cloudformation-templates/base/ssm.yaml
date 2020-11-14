@@ -16,9 +16,23 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  OptimizelySdkKey:
+    Type: String
+    Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+  
+  SegmentWriteKey:
+    Type: String
+    Description: Write key for the Segment source used to gather real-time events (optional).
+    NoEcho: true
+
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
+  HasOptimizelySdkKey:
+    !Not [!Equals [!Ref OptimizelySdkKey, ""]]
+  HasSegmentWriteKey:
+    !Not [!Equals [!Ref SegmentWriteKey, ""]]
 
 Resources:
 
@@ -54,6 +68,14 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
 
+  ParameterPersonalizeFilterPurchasedArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalize-filter-purchased-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Filter Purchased Products Arn Parameter"
+
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -78,6 +100,22 @@ Resources:
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
       Description: "Retail Demo Store Amplitude API key"
 
+  ParameterOptimizelySdkKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-optimizely-sdk-key"
+      Type: "String"
+      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
+      Description: "Retail Demo Store Optimizely SDK key"
+
+  ParameterSegmentWriteKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-segment-write-key"
+      Type: "String"
+      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
+      Description: "Retail Demo Store Segment source write key"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -95,6 +133,10 @@ Outputs:
   ParameterPersonalizedRankingCampaignArn:
     Description: Personalized Ranking Campaign Arn
     Value: !Ref ParameterPersonalizedRankingCampaignArn
+
+  ParameterPersonalizeFilterPurchasedArn:
+    Description: Personalize Filter Purchased Products Arn
+    Value: !Ref ParameterPersonalizeFilterPurchasedArn
   
   ParameterExperimentStrategyTableName:
     Description: Experiment Strategy Table Name
@@ -107,3 +149,11 @@ Outputs:
   ParameterAmplitudeApiKey:
     Description: Amplitude API key
     Value: !Ref ParameterAmplitudeApiKey
+
+  ParameterOptimizelySdkKey:
+    Description: Optimizely SDK key
+    Value: !Ref ParameterOptimizelySdkKey
+
+  ParameterSegmentWriteKey:
+    Description: Segment write key
+    Value: !Ref ParameterSegmentWriteKey 

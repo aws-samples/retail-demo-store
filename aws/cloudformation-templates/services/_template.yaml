@@ -99,9 +99,17 @@ Parameters:
     Type: String
     Description: SSM parameter name for the Amplitude API key
 
+  ParameterOptimizelySdkKey:
+    Type: String
+    Description: SSM parameter name for the Optimizely SDK key
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
+  
+  ParentStackName:
+    Type: String
+    Description: Parent stack name
 
 Resources:
 
@@ -132,10 +140,12 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -161,10 +171,12 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   CartsService:
     Type: AWS::CloudFormation::Stack
@@ -190,10 +202,12 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
@@ -219,10 +233,12 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   SearchService:
     Type: AWS::CloudFormation::Stack
@@ -249,10 +265,12 @@ Resources:
         EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -281,10 +299,12 @@ Resources:
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
  
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
@@ -295,6 +315,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsServiceDNSName: !GetAtt ProductsService.Outputs.ServiceDNSName
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Custom resources
   CustomResources:
@@ -407,3 +428,10 @@ Outputs:
   SearchServiceUrl: 
     Description: Search load balancer URL.
     Value: !GetAtt SearchService.Outputs.ServiceUrl
+
+  PinpointPersonalizeRoleArn:
+      Value: !GetAtt PinpointPersonalize.Outputs.PinpointPersonalizeRoleArn
+
+  CustomizeRecommendationsFunctionArn:
+      Value: !GetAtt PinpointPersonalize.Outputs.CustomizeRecommendationsFunctionArn
+    

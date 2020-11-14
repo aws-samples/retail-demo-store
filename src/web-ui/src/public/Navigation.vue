@@ -41,9 +41,13 @@
           </li>
           <li class="nav-item dropdown" v-if="user">
             <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{ user.username }}
+              <span v-if="user.first_name">{{ user.first_name }}</span>
+              <span v-if="!user.first_name">{{ user.username }}</span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" id="profileDropdown" aria-labelledby="navbarDropdown">
+              <span class="dropdown-item-text small" v-if="user.first_name && user.last_name">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</span>
+              <span class="dropdown-item-text small text-muted" v-if="user.persona">{{ user.persona }}</span>
+              <div class="dropdown-divider" v-if="user.persona"></div>
               <router-link class="dropdown-item" :to="{name:'Orders'}">Orders</router-link>  
               <router-link class="dropdown-item" :to="{name:'Profile'}">Profile</router-link>  
               <div class="dropdown-divider"></div>
