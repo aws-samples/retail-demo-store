@@ -19,6 +19,7 @@ import (
 )
 
 var imageRootURL = os.Getenv("IMAGE_ROOT_URL")
+var missingImageFile = "product_image_coming_soon.png"
 
 // initResponse
 func initResponse(w *http.ResponseWriter) {
@@ -38,45 +39,43 @@ func fullyQualifyImageURLs(r *http.Request) bool {
 
 // fullyQualifyCategoryImageURL - fully qualifies image URL for a category
 func fullyQualifyCategoryImageURL(r *http.Request, c *Category) {
-	if len(c.Image) > 0 && fullyQualifyImageURLs(r) {
-		log.Println("Fully qualifying category image URL")
-		c.Image = imageRootURL + c.Name + "/" + c.Image
+	if fullyQualifyImageURLs(r) {
+		if len(c.Image) > 0 && c.Image != missingImageFile {
+			c.Image = imageRootURL + c.Name + "/" + c.Image
+		} else {
+			c.Image = imageRootURL + missingImageFile
+		}
+	} else if len(c.Image) == 0 || c.Image == missingImageFile {
+		c.Image = missingImageFile
 	}
 }
 
 // fullyQualifyCategoryImageURLs - fully qualifies image URL for categories
 func fullyQualifyCategoryImageURLs(r *http.Request, categories *Categories) {
-	if fullyQualifyImageURLs(r) {
-		log.Println("Fully qualifying category image URLs")
-
-		for i := range *categories {
-			category := &((*categories)[i])
-			if len(category.Image) > 0 {
-				category.Image = imageRootURL + category.Name + "/" + category.Image
-			}
-		}
+	for i := range *categories {
+		category := &((*categories)[i])
+		fullyQualifyCategoryImageURL(r, category)
 	}
 }
 
 // fullyQualifyProductImageURL - fully qualifies image URL for a product
 func fullyQualifyProductImageURL(r *http.Request, p *Product) {
-	if len(p.Image) > 0 && fullyQualifyImageURLs(r) {
-		log.Println("Fully qualifying product image URL")
-		p.Image = imageRootURL + p.Category + "/" + p.Image
+	if fullyQualifyImageURLs(r) {
+		if len(p.Image) > 0 && p.Image != missingImageFile {
+			p.Image = imageRootURL + p.Category + "/" + p.Image
+		} else {
+			p.Image = imageRootURL + missingImageFile
+		}
+	} else if len(p.Image) == 0 || p.Image == missingImageFile {
+		p.Image = missingImageFile
 	}
 }
 
 // fullyQualifyProductImageURLs - fully qualifies image URLs for all products
 func fullyQualifyProductImageURLs(r *http.Request, products *Products) {
-	if fullyQualifyImageURLs(r) {
-		log.Println("Fully qualifying product image URLs")
-
-		for i := range *products {
-			product := &((*products)[i])
-			if len(product.Image) > 0 {
-				product.Image = imageRootURL + product.Category + "/" + product.Image
-			}
-		}
+	for i := range *products {
+		product := &((*products)[i])
+		fullyQualifyProductImageURL(r, product)
 	}
 }
 
@@ -331,5 +330,24 @@ func NewProduct(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(product); err != nil {
 		panic(err)
+	}
+}
+
+// DeleteProduct - deletes a single product
+func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	initResponse(&w)
+
+	vars := mux.Vars(r)
+
+	// Get the current product
+	product := RepoFindProduct(vars["productID"])
+	if !product.Initialized() {
+		// Existing product does not exist
+		http.Error(w, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err := RepoDeleteProduct(&product); err != nil {
+		http.Error(w, "Internal error deleting product", http.StatusInternalServerError)
 	}
 }

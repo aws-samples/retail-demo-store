@@ -54,6 +54,12 @@ var routes = Routes{
 		UpdateProduct,
 	},
 	Route{
+		"ProductDelete",
+		"DELETE",
+		"/products/id/{productID}",
+		DeleteProduct,
+	},
+	Route{
 		"NewProduct",
 		"POST",
 		"/products",

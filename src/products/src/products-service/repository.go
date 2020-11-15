@@ -488,3 +488,29 @@ func RepoNewProduct(product *Product) error {
 
 	return err
 }
+
+// RepoDeleteProduct - deletes a single product
+func RepoDeleteProduct(product *Product) error {
+	log.Println("Deleting product: ", product)
+
+	input := &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(product.ID),
+			},
+			"category": {
+				S: aws.String(product.Category),
+			},
+		},
+		TableName: aws.String(ddbTableProducts),
+	}
+
+	_, err := dynamoClient.DeleteItem(input)
+
+	if err != nil {
+		fmt.Println("Got error calling DeleteItem:")
+		fmt.Println(err.Error())
+	}
+
+	return err
+}

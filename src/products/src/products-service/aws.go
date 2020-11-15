@@ -36,7 +36,6 @@ func init() {
 			Region:      aws.String("us-east-1"),
 			Endpoint:    aws.String(ddbEndpointOverride),
 		}
-		//dynamoClient = dynamodb.New(sess, &aws.Config{Endpoint: aws.String(ddbEndpointOverride)})
 		dynamoClient = dynamodb.New(sess, awsConfig)
 	} else {
 		runningLocal = false
