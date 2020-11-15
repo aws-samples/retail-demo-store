@@ -6,8 +6,8 @@ package main
 // Product Struct
 // using omitempty as a DynamoDB optimization to create indexes
 type Product struct {
-	ID             string  `json:"id" yaml:"id"`
-	URL            string  `json:"url" yaml:"url"`
+	ID             string  `json:"id" yaml:"id" copier:"-"`
+	URL            string  `json:"url" yaml:"url" copier:"-"`
 	SK             string  `json:"sk" yaml:"sk"`
 	Name           string  `json:"name" yaml:"name"`
 	Category       string  `json:"category" yaml:"category"`
@@ -20,10 +20,13 @@ type Product struct {
 	CurrentStock   int     `json:"current_stock" yaml:"current_stock"`
 }
 
+// Initialized - indicates if instance has been initialized or not
+func (p *Product) Initialized() bool { return p != nil && len(p.ID) > 0 }
+
 // Products Array
 type Products []Product
 
 // Inventory Struct
 type Inventory struct {
-	StockDelta int `json:"stockdelta" yaml:"stockdelta"`
+	StockDelta int `json:"stock_delta" yaml:"stock_delta"`
 }
