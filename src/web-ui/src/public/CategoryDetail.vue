@@ -102,8 +102,8 @@ export default {
         intermediate = data
       }
 
-      if (this.user && intermediate.length > 0) {
-        const response = await RecommendationsRepository.getRerankedItems(this.user.id, intermediate, ExperimentFeature)
+      if (this.personalizeRecommendationsForVisitor && intermediate.length > 0) {
+        const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
         if (response.headers) {
           if (response.headers['x-personalize-recipe']) {
@@ -136,6 +136,12 @@ export default {
   computed: {
     user() { 
       return AmplifyStore.state.user
+    },
+    personalizeUserID() {
+      return AmplifyStore.getters.personalizeUserID
+    },
+    personalizeRecommendationsForVisitor() {
+      return AmplifyStore.getters.personalizeRecommendationsForVisitor
     }
   },
   filters: {

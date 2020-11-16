@@ -6,6 +6,7 @@
  * (event tracker), and partner integrations.
  */
 import Vue from 'vue';
+import AmplifyStore from '@/store/store';
 import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
@@ -207,11 +208,12 @@ export const AnalyticsHandler = {
 
         AmplifyAnalytics.record({
             eventType: 'ProductAdded',
-            userId: user ? user.id : null,
+            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
                 itemId: product.id
             }
         }, 'AmazonPersonalize')
+        AmplifyStore.commit('incrementSessionEventsRecorded');
 
         let eventProperties = {
             userId: user ? user.id : null,
@@ -305,11 +307,12 @@ export const AnalyticsHandler = {
 
         AmplifyAnalytics.record({
             eventType: 'ProductQuantityUpdated',
-            userId: user ? user.id : null,
+            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
                 itemId: cartItem.product_id
             }
         }, 'AmazonPersonalize')
+        AmplifyStore.commit('incrementSessionEventsRecorded');
 
         let eventProperties = {
             cartId: cart.id,
@@ -349,11 +352,12 @@ export const AnalyticsHandler = {
   
         AmplifyAnalytics.record({
             eventType: 'ProductViewed',
-            userId: user ? user.id : null,
+            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
                 itemId: product.id
             }
         }, 'AmazonPersonalize');
+        AmplifyStore.commit('incrementSessionEventsRecorded');
 
         if (experimentCorrelationId) {
             RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
@@ -406,11 +410,12 @@ export const AnalyticsHandler = {
         for (var item in cart.items) {
             AmplifyAnalytics.record({
                 eventType: 'CartViewed',
-                userId: user ? user.id : null,
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: cart.items[item].product_id
                 }
             }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
         }
 
         let eventProperties = {
@@ -449,11 +454,12 @@ export const AnalyticsHandler = {
         for (var item in cart.items) {
             AmplifyAnalytics.record({
                 eventType: 'CheckoutStarted',
-                userId: user ? user.id : null,
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: cart.items[item].product_id
                 }
             }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
         }
 
         let eventProperties = {
@@ -509,11 +515,12 @@ export const AnalyticsHandler = {
   
             AmplifyAnalytics.record({
                 eventType: 'OrderCompleted',
-                userId: user ? user.id : null,
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: orderItem.product_id
                 }
             }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue

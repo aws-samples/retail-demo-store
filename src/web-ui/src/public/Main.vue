@@ -89,7 +89,7 @@
     </div>
 
     <!-- Recommended/Featured Product List -->
-    <div class="container mt-5 user-recommendations" v-if="user">
+    <div class="container mt-5 user-recommendations" v-if="personalizeRecommendationsForVisitor">
       <h4>{{ this.display | capitalize }}</h4>
       <div v-if="explain_recommended" class="text-muted text-center">
         <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
@@ -108,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="container guest-recommendations" v-if="!user">
+    <div class="container guest-recommendations" v-if="!personalizeRecommendationsForVisitor">
       <h4>{{ this.display | capitalize }}</h4>
       <div class="container mb-4" v-if="!guest_recommended.length">
         <i class="fas fa-spinner fa-spin fa-3x"></i>
@@ -165,7 +165,7 @@ export default {
   },
   methods: {
     async getRecommendations() {
-      if (this.user) {
+      if (this.personalizeRecommendationsForVisitor) {
         this.display = 'Inspired by your shopping trends'
         this.getUserRecommendations()
       }
@@ -176,7 +176,7 @@ export default {
       }
     },
     async getUserRecommendations() {
-      const response = await RecommendationsRepository.getRecommendationsForUser(this.user.id, '', MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRecommendationsForUser(this.personalizeUserID, '', MaxRecommendations, ExperimentFeature)
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
@@ -203,6 +203,12 @@ export default {
   computed: {
     user() { 
       return AmplifyStore.state.user
+    },
+    personalizeUserID() {
+      return AmplifyStore.getters.personalizeUserID
+    },
+    personalizeRecommendationsForVisitor() {
+      return AmplifyStore.getters.personalizeRecommendationsForVisitor
     },
     imageRootURL() {
       return process.env.VUE_APP_IMAGE_ROOT_URL ? process.env.VUE_APP_IMAGE_ROOT_URL : '/images/'
