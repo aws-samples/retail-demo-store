@@ -11,5 +11,8 @@ type Category struct {
 	Image string `json:"image" yaml:"image"`
 }
 
+// Initialized - indicates if instance has been initialized or not
+func (c *Category) Initialized() bool { return c != nil && len(c.ID) > 0 }
+
 // Categories Array
 type Categories []Category
