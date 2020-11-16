@@ -102,7 +102,7 @@ export default {
         intermediate = data
       }
 
-      if (this.personalizeRecommendationsForVisitor && intermediate.length > 0) {
+      if (this.personalizeUserID && intermediate.length > 0) {
         const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
         if (response.headers) {
@@ -139,9 +139,6 @@ export default {
     },
     personalizeUserID() {
       return AmplifyStore.getters.personalizeUserID
-    },
-    personalizeRecommendationsForVisitor() {
-      return AmplifyStore.getters.personalizeRecommendationsForVisitor
     }
   },
   filters: {

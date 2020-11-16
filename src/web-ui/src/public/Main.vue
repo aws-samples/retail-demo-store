@@ -89,7 +89,7 @@
     </div>
 
     <!-- Recommended/Featured Product List -->
-    <div class="container mt-5 user-recommendations" v-if="personalizeRecommendationsForVisitor">
+    <div class="container mt-5 user-recommendations" v-if="personalizeUserID">
       <h4>{{ this.display | capitalize }}</h4>
       <div v-if="explain_recommended" class="text-muted text-center">
         <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
@@ -108,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="container guest-recommendations" v-if="!personalizeRecommendationsForVisitor">
+    <div class="container guest-recommendations" v-if="!personalizeUserID">
       <h4>{{ this.display | capitalize }}</h4>
       <div class="container mb-4" v-if="!guest_recommended.length">
         <i class="fas fa-spinner fa-spin fa-3x"></i>
@@ -165,8 +165,13 @@ export default {
   },
   methods: {
     async getRecommendations() {
-      if (this.personalizeRecommendationsForVisitor) {
-        this.display = 'Inspired by your shopping trends'
+      if (this.personalizeUserID) {
+        if (this.personalizeRecommendationsForVisitor) {
+          this.display = 'Inspired by your shopping trends';
+        }
+        else {
+          this.display = 'Trending products';
+        }
         this.getUserRecommendations()
       }
       else {

@@ -69,7 +69,7 @@ export default {
       this.reranked = false
     },
     async rerank(items) {
-      if (this.personalizeRecommendationsForVisitor && items.length > 0) {
+      if (this.personalizeUserID && items.length > 0) {
         const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, ExperimentFeature)
         this.reranked = JSON.stringify(items) != JSON.stringify(data)
         this.results = data
@@ -86,9 +86,6 @@ export default {
     },
     personalizeUserID() {
       return AmplifyStore.getters.personalizeUserID
-    },
-    personalizeRecommendationsForVisitor() {
-      return AmplifyStore.getters.personalizeRecommendationsForVisitor
     }
   },
   watch: {
