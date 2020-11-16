@@ -237,7 +237,9 @@ export const AnalyticsHandler = {
                 userId: user.id,
                 attributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
-                    WebsiteURL : [process.env.VUE_APP_WEB_ROOT_URL],
+                    WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
+                    WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
+                    WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
                     ShoppingCartItemImageURL:  [process.env.VUE_APP_IMAGE_ROOT_URL + cartProduct.category + '/' + cartProduct.image],
                     ShoppingCartItemTitle :  [cartProduct.name],
                     ShoppingCartItemURL : [cartProduct.url],     
