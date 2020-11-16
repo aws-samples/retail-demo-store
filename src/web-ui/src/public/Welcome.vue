@@ -27,13 +27,17 @@
       </div>
 
       <!-- make both links to go /auth until we have dedicated sign in and create account pages -->
-      <div class="auth-cta my-5 d-flex flex-column flex-sm-row justify-content-end align-items-center">
-        <div class="login-cta d-flex align-items-center">
-          Have an account?<router-link to="/auth" class="sign-in ml-3 btn btn-link">Sign in</router-link>
+      <div class="mt-2 mb-4 my-sm-5 d-flex flex-column align-items-center align-items-sm-end">
+        <div class="d-flex flex-column flex-sm-row align-items-center">
+          <div class="login-cta d-flex justify-content-center align-items-center">
+            Have an account?<router-link to="/auth" class="sign-in btn btn-link">Sign in</router-link>
+          </div>
+          <router-link to="/auth" class="create-account mt-3 mt-sm-0 ml-sm-3 btn btn-primary"
+            >Create an account</router-link
+          >
         </div>
-        <router-link to="/auth" class="create-account mt-3 mt-sm-0 ml-sm-3 btn btn-primary"
-          >Create an account</router-link
-        >
+
+        <router-link to="/" class="mt-3 skip-login btn btn-link">Skip login for now</router-link>
       </div>
     </div>
   </Layout>
@@ -80,7 +84,8 @@ export default {
   list-style-type: none;
 }
 
-.sign-in {
+.sign-in,
+.skip-login {
   color: var(--amazon-orange);
 }
 
@@ -94,14 +99,5 @@ export default {
 .create-account:focus {
   background: var(--amazon-orange-light);
   border-color: var(--amazon-orange-light);
-}
-
-.info {
-  border-radius: 8px;
-  background: var(--aws-deep-squid-ink);
-}
-
-.workshop-link {
-  color: var(--blue-500);
 }
 </style>
