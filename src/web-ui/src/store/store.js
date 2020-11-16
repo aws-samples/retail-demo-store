@@ -6,9 +6,12 @@ import Vuex from 'vuex'
 
 import createPersistedState from 'vuex-persistedstate'
 
+import { welcomePageVisited } from './modules/welcomePageVisited'
+
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
+  modules: { welcomePageVisited }, 
   state: {
     user: null,
     cartID: null

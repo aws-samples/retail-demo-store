@@ -24,8 +24,6 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
 
-import {getWelcomePageVisited, setWelcomePageVisited} from '@/config/localStorage/keys/welcomePageVisited'
-
 const UsersRepository = RepositoryFactory.get('users')
 
 Vue.use(Router);
@@ -271,11 +269,11 @@ const router = new Router({
 // Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
 router.beforeResolve(async (to, _from, next) => {
-  if (!getWelcomePageVisited()) {
+  if (!AmplifyStore.state.welcomePageVisited.visited) {
     const user = await getUser();
 
     if (!user) {
-      setWelcomePageVisited(true);
+      AmplifyStore.dispatch('welcomePageVisited');
       return next('/welcome');
     }
   }     
