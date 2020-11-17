@@ -9,10 +9,10 @@
       <div class="row col-sm-12 col-md-12 col-lg-12 d-none d-sm-block">
         <ul class="nav nav-pills nav-fill mx-auto">
           <li class="nav-item">
-            <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
+            <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link>
           </li>
           <li class="nav-item" v-for="category in categories" v-bind:key=category.id>
-          <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">{{ category.name | capitalize }}</router-link> 
+          <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">{{ category.name | capitalize }}</router-link>
           </li>
         </ul>
       </div>
@@ -21,10 +21,10 @@
           Select Category
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <router-link class="dropdown-item" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
+          <router-link class="dropdown-item" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link>
           <router-link class="dropdown-item" v-for="category in categories" v-bind:key="category" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">
             {{ category.name | capitalize }}
-          </router-link> 
+          </router-link>
         </div>
       </div>
     </div>
@@ -42,7 +42,7 @@
             <div class="carousel-caption">
               <h5>The Apparel Collection</h5>
               <p>Cozy sweaters and classic styles for your wardrobe.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'apparel'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'apparel'}}">See More</router-link>
             </div>
         </div>
         <div class="carousel-item">
@@ -50,7 +50,7 @@
             <div class="carousel-caption">
               <h5>Lets Go Fishing</h5>
               <p>Start gearing up for summer adventures with our new fishing gear!</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'outdoors'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'outdoors'}}">See More</router-link>
             </div>
         </div>
         <div class="carousel-item">
@@ -58,7 +58,7 @@
               <div class="carousel-caption">
               <h5>Beauty Products</h5>
               <p>Popular beauty products now back in stock.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'beauty'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'beauty'}}">See More</router-link>
             </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Category v-for="category in categories" 
+          <Category v-for="category in categories"
             v-bind:key="category.id"
             :category="category"
           />
@@ -99,7 +99,7 @@
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="recommendation in user_recommended" 
+          <Product v-for="recommendation in user_recommended"
             v-bind:key="recommendation.product.id"
             :product="recommendation.product"
             :experiment="recommendation.experiment"
@@ -115,7 +115,7 @@
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="product in guest_recommended" 
+          <Product v-for="product in guest_recommended"
             v-bind:key="product.id"
             :product="product"
             :feature="feature"
@@ -123,7 +123,7 @@
         </div>
       </div>
     </div>
-  </div> 
+  </div>
 </template>
 
 <script>
@@ -165,17 +165,12 @@ export default {
   },
   methods: {
     async getRecommendations() {
+      // Baseline assumption that we're displaying featured products
+      this.display = 'featured'
       if (this.personalizeUserID) {
-        if (this.personalizeRecommendationsForVisitor) {
-          this.display = 'Inspired by your shopping trends';
-        }
-        else {
-          this.display = 'Trending products';
-        }
         this.getUserRecommendations()
       }
       else {
-        this.display = 'featured'
         const { data } = await ProductsRepository.getFeatured()
         this.guest_recommended = data.slice(0, MaxRecommendations)
       }
@@ -185,10 +180,20 @@ export default {
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
+          if (this.personalizeRecommendationsForVisitor) {
+            // Expect recommendations to be personalized by now
+            this.display = 'Inspired by your shopping trends';
+          }
+          else {
+            // Assume popular products are being displayed until user generates some events
+            this.display = 'Trending products';
+          }
           this.personalized = true
           this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
         }
         if (response.headers['x-experiment-name']) {
+          // Can't be sure if we're personalizing or not and if so to what degree
+          this.display = 'Recommended for you';
           this.active_experiment = true
           this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
         }
@@ -206,7 +211,7 @@ export default {
     }
   },
   computed: {
-    user() { 
+    user() {
       return AmplifyStore.state.user
     },
     personalizeUserID() {
