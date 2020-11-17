@@ -151,7 +151,7 @@ export default {
       }
     },
     async getRelatedProducts() {
-      const response = await RecommendationsRepository.getRelatedProducts(this.user ? this.user.id : '', this.product.id, MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRelatedProducts(this.personalizeUserID ? this.personalizeUserID : '', this.product.id, MaxRecommendations, ExperimentFeature)
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
@@ -201,6 +201,9 @@ export default {
   computed: {
     user() { 
       return AmplifyStore.state.user
+    },
+    personalizeUserID() {
+      return AmplifyStore.getters.personalizeUserID
     },
     cartID() {
       return AmplifyStore.state.cartID
