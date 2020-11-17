@@ -6,8 +6,8 @@ module.exports = {
       hostHeader: 'example.com',
     },
     'products-service': {
-      domainOrIp: 'retai-LoadB-XCZTIKO1XP2Z-524701947.eu-west-1.elb.amazonaws.com',
-      hostHeader: 'retai-LoadB-XCZTIKO1XP2Z-524701947.eu-west-1.elb.amazonaws.com',
+      domainOrIp: 'retai-loadb-xcztiko1xp2z-524701947.eu-west-1.elb.amazonaws.com',
+      hostHeader: 'retai-loadb-xcztiko1xp2z-524701947.eu-west-1.elb.amazonaws.com',
       disableCheckCert: true,
     },
   },
