@@ -3,6 +3,7 @@
 
 import Vue from 'vue';
 import Router from 'vue-router';
+import VueMeta from 'vue-meta'
 import Main from '@/public/Main.vue'
 import ProductDetail from '@/public/ProductDetail.vue'
 import CategoryDetail from '@/public/CategoryDetail.vue'
@@ -28,6 +29,7 @@ import { Credentials } from '@aws-amplify/core';
 const UsersRepository = RepositoryFactory.get('users')
 
 Vue.use(Router);
+Vue.use(VueMeta);
 // Explicitly add only components needed to keep deployment as small as possible
 Vue.use(AmplifyPlugin, { "Auth": Auth, "Logger": Logger, "I18n": I18n, "Interactions": Interactions, "Analytics": Analytics })
 
@@ -115,6 +117,9 @@ AmplifyEventBus.$on('authState', async (state) => {
     if (!storeUser.sign_up_date) {
       storeUser.sign_up_date = now.toISOString()
       newSignUp = true
+    }
+    if (!storeUser.phone_number) {
+      storeUser.phone_number = null
     }
 
     // Wait for identify to complete before sending sign in/up events 

@@ -202,6 +202,7 @@ func RepoUpdateUser(t User) User {
 		u.Addresses = t.Addresses
 		u.SignUpDate = t.SignUpDate
 		u.LastSignInDate = t.LastSignInDate
+		u.PhoneNumber = t.PhoneNumber
 
 		if len(u.IdentityId) > 0 && u.IdentityId != t.IdentityId {
 			delete(usersByIdentityId, u.IdentityId)

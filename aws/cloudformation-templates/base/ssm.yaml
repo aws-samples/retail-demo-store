@@ -139,14 +139,6 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Pinpoint SMS long code"
-  
-  ParameterPinpointIncomingMessageSNSTopic:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-pinpoint-message-sns-topic"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Pinpoint Incoming Message SNS topic"
 
 Outputs:
 

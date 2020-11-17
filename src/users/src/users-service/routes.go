@@ -103,4 +103,10 @@ var routes = Routes{
 		"/users/id/{userID}/verifyphone",
 		UserVerifyAndUpdatePhone,
 	},
+	Route{
+		"UserVerifyAndUpdatePhone",
+		"OPTIONS",
+		"/users/id/{userID}/verifyphone",
+		UserVerifyAndUpdatePhone,
+	},
 }

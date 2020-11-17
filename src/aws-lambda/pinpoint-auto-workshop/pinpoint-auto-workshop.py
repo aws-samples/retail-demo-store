@@ -144,8 +144,8 @@ def create_recommendation_sms_template(recommender_id):
 
         response = pinpoint.create_sms_template(
             SMSTemplateRequest={
-                'Body': 'Retail Demo Store - Products Just for You - content TBD',
-                'TemplateDescription': 'Personalized recommendations email template',
+                'Body': 'Retail Demo Store \n TOP PICK Just For you \n Shop Now: {{Recommendations.URL.[0]}}',
+                'TemplateDescription': 'Personalized recommendations sms template',
                 'RecommenderId': recommender_id,
                 'DefaultSubstitutions': json.dumps({
                     'User.UserAttributes.FirstName': 'there'
@@ -296,33 +296,21 @@ def create_users_with_cart_segment(application_id, all_email_users_segment_id):
     return segment_config
 
 def create_users_with_verified_sms_segment(application_id):
-    segment_name = 'UsersWithSMSVerified'
+    segment_name = 'AllSMSUsers'
     segment_config = get_segment(application_id, segment_name)
     
     if not segment_config:
-        logger.info('UsersWithSMSVerified segment does not; creating')
+        logger.info('AllSMSUsers segment does not; creating')
 
         response = pinpoint.create_segment(
             ApplicationId = application_id,
             WriteSegmentRequest = {
-                'Name': 'UsersWithSMSVerified',
+                'Name': segment_name,
                 'SegmentGroups': {
                     'Groups': [
                         {
                             'Dimensions': [
                                 {
-                                    'Attributes': {
-                                        'HasVerifiedSMS': {
-                                            'AttributeType': 'INCLUSIVE',
-                                            'Values': [ 'true' ]
-                                        }
-                                    },
-                                    'Behavior': {
-                                        'Recency': {
-                                            'Duration': 'DAY_30',
-                                            'RecencyType': 'ACTIVE'
-                                        }
-                                    },
                                     'Demographic': {
                                         'Channel': {
                                             'DimensionType': 'INCLUSIVE',
@@ -332,7 +320,7 @@ def create_users_with_verified_sms_segment(application_id):
                                 }
                             ],
                             'SourceType': 'ANY',
-                            'Type': 'ALL'
+                            'Type': 'ANY'
                         }
                     ],
                     'Include': 'ALL'
@@ -342,7 +330,7 @@ def create_users_with_verified_sms_segment(application_id):
         
         segment_config = response['SegmentResponse']
     else:
-        logger.info('UsersWithSMSVerified segment already exists')
+        logger.info('AllSMSUsers segment already exists')
         
     return segment_config
 
@@ -461,6 +449,57 @@ def create_abandoned_cart_campaign(application_id, email_from, users_with_cart_s
     
     return campaign_config
 
+def create_sms_alerts_campaign(application_id, sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version):
+    campaign_name = 'SMSAlerts'
+    campaign_config = get_campaign(application_id, campaign_name)
+    if not campaign_config:
+        logger.info('SMSAlerts campaign does not exist; creating')
+
+        campaign_start = datetime.now() + timedelta(minutes=20)
+        campaign_end = campaign_start + timedelta(days=180)
+        
+        response = pinpoint.create_campaign(
+            ApplicationId = application_id,
+            WriteCampaignRequest = {
+                'Name': campaign_name,
+                "MessageConfiguration": {
+                    "SMSMessage": {
+                        "MessageType": "TRANSACTIONAL"
+                    }
+                },
+                "Schedule": {
+                    "EventFilter": {
+                        "Dimensions": {
+                            "EventType": {
+                                "DimensionType": "INCLUSIVE",
+                                "Values": [
+                                    "UserVerifiedSMS"
+                                ]
+                            },
+                        },
+                        "FilterType": "ENDPOINT"
+                    },
+                    "Frequency": "EVENT",
+                    "IsLocalTime": False,
+                    "StartTime": campaign_start.isoformat(timespec = 'seconds'),
+                    "EndTime": campaign_end.isoformat(timespec = 'seconds')
+                },
+                "SegmentId": all_sms_users_segment_id,
+                "SegmentVersion": all_sms_users_segment_version,
+                "tags": {},
+                "TemplateConfiguration": {
+                    "SMSTemplate": {
+                        "Name": sms_recommendation_template_name
+                    }
+                },
+            }
+        )
+        
+        campaign_config = response['CampaignResponse']
+    else:
+        logger.info('SMS alerts campaign already exists')
+    return campaign_config
+
 def delete_event_rule(rule_name):
     ''' Deletes CloudWatch event rule used to trigger this lambda function '''
     try:
@@ -575,9 +614,14 @@ def lambda_handler(event, context):
         }
     )
     logger.debug(json.dumps(update_sms_channel_response, indent = 2, default = str))
-    # create UsersWithVerifiedSMS segment
+    # create AllSMSUsers segment
     segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
+    all_sms_users_segment_id = segment_config['Id']
+    all_sms_users_segment_version = segment_config['Version']
 
+    # Create SMS alerts Campaign
+    campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
+    logger.debug(json.dumps(campaign_config, indent = 2, default = str))
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)
 
