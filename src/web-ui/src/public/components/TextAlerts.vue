@@ -1,5 +1,5 @@
 <template>
-  <section v-if="user" class="section container p-4">
+  <section v-if="isEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
     <form @submit.prevent="onSubmit" class="form d-flex justify-content-center align-items-stretch">
@@ -28,6 +28,7 @@ export default {
     mixins: [user],
   data() {
     return {
+      isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
       phoneNumber: '',
     };
   },
