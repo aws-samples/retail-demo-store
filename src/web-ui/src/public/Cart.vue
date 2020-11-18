@@ -24,14 +24,16 @@
             </ul>
           </div>
 
-          <div v-if="cart.items.length > 0" class="col-lg-auto">
+          <div v-if="cart.items.length > 0" class="summary-container col-lg-auto">
             <div class="summary p-4">
               <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
               <div class="summary-total mb-2 font-weight-bold">Your Total: {{ formattedCartTotal }}</div>
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <button class="abandoned-cart-btn btn btn-primary btn-block btn-lg">Trigger Abandoned Cart email</button>
+              <button v-if="isEnabled && user" class="abandoned-cart-btn btn btn-primary btn-block btn-lg">
+                Trigger Abandoned Cart email
+              </button>
             </div>
           </div>
         </div>
@@ -41,6 +43,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 import CartItem from './components/CartItem.vue';
 import Layout from '@/components/Layout/Layout';
 
@@ -57,7 +61,11 @@ export default {
     await this.getCart();
     this.recordCartViewed();
   },
+  data() {
+    return { isEnabled: process.env.VUE_APP_ENABLE_ABANDON_CART_BUTTON === 'true' };
+  },
   computed: {
+    ...mapState(['user']),
     isLoading() {
       return !this.cart;
     },
@@ -144,6 +152,10 @@ export default {
 }
 
 @media (min-width: 992px) {
+  .summary-container {
+    min-width: 350px;
+  }
+
   .summary {
     position: sticky;
     top: 120px;
