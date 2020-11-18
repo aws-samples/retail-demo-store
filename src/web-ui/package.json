@@ -11,7 +11,7 @@
     "xdn:start:cache": "concurrently \"npx webpack --watch --config xdn/webpack.xdn.config.js\" \"npx xdn run --cache\"",
     "xdn:start:prod": "npx xdn run --production",
     "xdn:build": "npx webpack --progress --config xdn/webpack.xdn.config.js && npx xdn build",
-    "xdn:deploy": "npm run xdn:build && npx xdn deploy --team=moovweb-demos --skip-build --site=aws-rds",
+    "xdn:deploy": "npx xdn deploy --team=moovweb-demos --skip-build --site=aws-rds",
     "xdn:update": "npm i -D @xdn/cli@latest && npm i @xdn/core@latest @xdn/prefetch@latest @xdn/devtools@latest"
   },
   "dependencies": {
