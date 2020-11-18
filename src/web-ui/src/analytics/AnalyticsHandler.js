@@ -356,7 +356,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    cartViewed(user, cart, cartQuantity, cartSubTotal, cartTotal) {
+    cartViewed(user, cart, cartQuantity, cartTotal) {
         if (user) {
             AmplifyAnalytics.record({
                 name: 'CartViewed', 
@@ -365,7 +365,6 @@ export const AnalyticsHandler = {
                     cartId: cart.id
                 },
                 metrics: {
-                    cartSubTotal: +cartSubTotal.toFixed(2),
                     cartTotal: +cartTotal.toFixed(2),
                     cartQuantity: cartQuantity
                 }
@@ -386,7 +385,6 @@ export const AnalyticsHandler = {
             // Amplitude event
             var eventProperties = {
                 cartId: cart.id,
-                cartSubTotal: +cartSubTotal.toFixed(2),
                 cartTotal: +cartTotal.toFixed(2),
                 cartQuantity: cartQuantity
             };

@@ -131,7 +131,7 @@ export const cart = {
     },
 
     recordCartViewed() {
-      AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartSubTotal, this.cartTotal);
+      AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
     },
 
     // other side effects
