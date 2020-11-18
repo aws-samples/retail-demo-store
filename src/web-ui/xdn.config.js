@@ -10,5 +10,10 @@ module.exports = {
       hostHeader: 'retai-loadb-xcztiko1xp2z-524701947.eu-west-1.elb.amazonaws.com',
       disableCheckCert: true,
     },
+    'recommendations-service': {
+      domainOrIp: 'retai-loadb-1ws47hx7yw7sy-1990974172.eu-west-1.elb.amazonaws.com',
+      hostHeader: 'retai-loadb-1ws47hx7yw7sy-1990974172.eu-west-1.elb.amazonaws.com',
+      disableCheckCert: true,
+    },
   },
 };

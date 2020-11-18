@@ -22,9 +22,13 @@ router.get('/main.js', ({ serveStatic, cache }) => {
   serveStatic(`${DIST_XDN}/browser.js`);
 });
 
+// aws services
 router.get('/products-service/:path*', ({ proxy, cache }) => {
   cache(CACHE_PAGES);
   proxy('products-service', { path: '/:path*' });
+});
+router.get('/recommendations-service/:path*', ({ proxy }) => {
+  proxy('recommendations-service', { path: '/:path*' });
 });
 
 // vue static files
