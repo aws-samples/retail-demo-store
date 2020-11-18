@@ -35,12 +35,13 @@ Preview: https://moovweb-demos-aws-rds-default.moovweb-edge.io
 
 ## Prerequisites
 
-XDN application works with Angular application production build files.
+XDN application works with Vue application production build files.
 To create it, follow the next steps.
 
-1. Set NodeJS version >= 12, to check your version use `node -v`
-2. Install packages: run `npm install` (or just `npm i`)
-3. Build Vue application: `npm run build` (build files will appear in `dist` folder)
+1. Make sure your terminal is open in `%project_root%/src/web-ui` folder
+2. Set NodeJS version >= 12 (to check your version use `node -v`)
+3. Install packages: run `npm install` (or just `npm i`)
+4. Build Vue application: `npm run build` (build files will appear in `dist` folder)
 
 ## Development
 
