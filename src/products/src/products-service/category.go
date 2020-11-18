@@ -4,6 +4,7 @@
 package main
 
 // Category Struct
+// IMPORTANT: if you change the shape of this struct, be sure to update the retaildemostore-lambda-load-products Lambda too!
 type Category struct {
 	ID    string `json:"id" yaml:"id"`
 	URL   string `json:"url" yaml:"url"`

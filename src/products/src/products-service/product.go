@@ -5,6 +5,7 @@ package main
 
 // Product Struct
 // using omitempty as a DynamoDB optimization to create indexes
+// IMPORTANT: if you change the shape of this struct, be sure to update the retaildemostore-lambda-load-products Lambda too!
 type Product struct {
 	ID             string  `json:"id" yaml:"id" copier:"-"`
 	URL            string  `json:"url" yaml:"url" copier:"-"`
