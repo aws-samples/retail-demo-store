@@ -23,6 +23,7 @@ router.get('/main.js', ({ serveStatic, cache }) => {
 });
 
 router.get('/products-service/:path*', ({ proxy }) => {
+  cache(CACHE_PAGES);
   proxy('products-service', { path: '/:path*' });
 });
 
