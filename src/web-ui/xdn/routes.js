@@ -22,7 +22,7 @@ router.get('/main.js', ({ serveStatic, cache }) => {
   serveStatic(`${DIST_XDN}/browser.js`);
 });
 
-router.get('/products-service/:path*', ({ proxy }) => {
+router.get('/products-service/:path*', ({ proxy, cache }) => {
   cache(CACHE_PAGES);
   proxy('products-service', { path: '/:path*' });
 });
