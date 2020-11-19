@@ -33,6 +33,8 @@ Project: https://moovweb.app/moovweb-demos/aws-rds
 
 Preview: https://moovweb-demos-aws-rds-default.moovweb-edge.io
 
+Carts AWS service proxied on XDN: https://github.com/moovweb-demos/aws-rds-carts-service/
+
 ## Prerequisites
 
 XDN application works with Vue application production build files.
