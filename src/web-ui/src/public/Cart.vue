@@ -31,7 +31,7 @@
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <button v-if="user" @click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg">
+              <button v-if="isEnabled && user" @click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg">
                 Trigger Abandoned Cart email
               </button>
             </div>
