@@ -2,13 +2,10 @@
   <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
     <template #default>
       <div class="container">
-        <!-- Product Detail-->
-        <main class="product-container text-left">
+        <main class="product-container mb-5 text-left">
           <div class="title-and-rating mb-md-3">
             <h1 class="product-name">{{ product.name }}</h1>
-            <div>
-              <i v-for="i in 5" :key="i" class="fas fa-star"></i>
-            </div>
+            <FiveStars></FiveStars>
           </div>
 
           <div class="add-to-cart-and-description">
@@ -39,32 +36,13 @@
           </div>
         </main>
 
-        <!-- Recommendations -->
-        <hr />
-
-        <h5>What other items do customers view related to this product?</h5>
-        <div v-if="explain_recommended" class="text-muted text-center">
-          <small>
-            <em>
-              <i v-if="active_experiment" class="fa fa-balance-scale"></i>
-              <i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}
-            </em>
-          </small>
-        </div>
-
-        <div class="related-products row">
-          <LoadingFallback v-if="!related_products.length" class="col my-4 text-center"></LoadingFallback>
-
-          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-            <Product
-              v-for="recommendation in related_products"
-              v-bind:key="recommendation.product.id"
-              :product="recommendation.product"
-              :experiment="recommendation.experiment"
-              :feature="feature"
-            />
-          </div>
-        </div>
+        <RecommendedProductsSection
+          :explainRecommended="explainRecommended"
+          :recommendedProducts="relatedProducts"
+          :feature="feature"
+        >
+          <template #heading>Compare similar items</template>
+        </RecommendedProductsSection>
       </div>
     </template>
   </Layout>
@@ -78,32 +56,30 @@ import { user } from '@/mixins/user';
 import { product } from '@/mixins/product';
 import { cart } from '@/mixins/cart';
 
+import Layout from '@/components/Layout/Layout';
+import ProductPrice from '@/components/ProductPrice/ProductPrice';
+import FiveStars from '@/components/FiveStars/FiveStars';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
-const ExperimentFeature = 'product_detail_related';
-
-import Product from './components/Product.vue';
-import Layout from '@/components/Layout/Layout';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-import ProductPrice from '@/components/ProductPrice/ProductPrice';
+const EXPERIMENT_FEATURE = 'product_detail_related';
 
 export default {
   name: 'ProductDetail',
   components: {
     Layout,
-    LoadingFallback,
-    Product,
     ProductPrice,
+    FiveStars,
+    RecommendedProductsSection,
   },
   mixins: [user, product, cart],
   data() {
     return {
       quantity: 1,
-      feature: ExperimentFeature,
-      related_products: [],
-      explain_recommended: '',
-      active_experiment: false,
-      personalized: false,
+      feature: EXPERIMENT_FEATURE,
+      relatedProducts: null,
+      explainRecommended: null,
     };
   },
   computed: {
@@ -120,7 +96,6 @@ export default {
     },
   },
   watch: {
-    // call again the method if the route changes
     $route: {
       immediate: true,
       handler() {
@@ -138,7 +113,11 @@ export default {
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
+
+      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
+      this.relatedProducts = null;
       this.getRelatedProducts();
+
       this.getCart();
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
     },
@@ -147,24 +126,30 @@ export default {
         this.user?.id ?? '',
         this.product.id,
         MAX_RECOMMENDATIONS,
-        ExperimentFeature,
+        EXPERIMENT_FEATURE,
       );
 
       if (response.headers) {
-        if (response.headers['x-personalize-recipe']) {
-          this.personalized = true;
-          this.explain_recommended = `Personalize recipe: ${response.headers['x-personalize-recipe']}`;
-        }
-        if (response.headers['x-experiment-name']) {
-          this.active_experiment = true;
-          this.explain_recommended = `Active experiment: ${response.headers['x-experiment-name']}`;
+        const experimentName = response.headers['x-experiment-name'];
+        const personalizeRecipe = response.headers['x-personalize-recipe'];
+
+        if (experimentName || personalizeRecipe) {
+          const explanation = experimentName
+            ? `Active experiment: ${experimentName}`
+            : `Personalize recipe: ${personalizeRecipe}`;
+
+          this.explainRecommended = {
+            activeExperiment: !!experimentName,
+            personalized: !!personalizeRecipe,
+            explanation,
+          };
         }
       }
 
-      this.related_products = response.data;
+      this.relatedProducts = response.data;
 
-      if (this.related_products.length > 0 && 'experiment' in this.related_products[0]) {
-        AnalyticsHandler.identifyExperiment(this.user, this.related_products[0].experiment);
+      if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
+        AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);
       }
     },
   },
@@ -202,10 +187,6 @@ export default {
 
 .product-name {
   font-size: 1.5rem;
-}
-
-.fa-star {
-  color: var(--amazon-orange);
 }
 
 .add-to-cart-and-description {

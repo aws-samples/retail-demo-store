@@ -2,6 +2,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import { capitalize } from '@/util/capitalize';
 import { user } from './user';
+import { getProductImageUrl } from '../util/getProductImageUrl';
 
 const ProductsRepository = RepositoryFactory.get('products');
 
@@ -16,9 +17,7 @@ export const product = {
     productImageUrl() {
       if (!this.product) return null;
 
-      if (this.product.image.includes('://')) return this.product.image;
-
-      return `${process.env.VUE_APP_IMAGE_ROOT_URL}${this.product.category}/${this.product.image}`;
+      return getProductImageUrl(this.product);
     },
     readableProductCategory() {
       if (!this.product) return null;
