@@ -1,0 +1,5 @@
+export const getProductImageUrl = (product) => {
+  if (product.image.includes('://')) return product.image;
+
+  return `${process.env.VUE_APP_IMAGE_ROOT_URL}${product.category}/${product.image}`;
+};

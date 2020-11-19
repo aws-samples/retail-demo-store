@@ -1,38 +1,46 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-import createPersistedState from 'vuex-persistedstate'
+import createPersistedState from 'vuex-persistedstate';
 
-Vue.use(Vuex)
+import { welcomePageVisited } from './modules/welcomePageVisited/welcomePageVisited';
+import { categories } from './modules/categories/categories';
+import { cart } from './modules/cart/cart';
+
+Vue.use(Vuex);
 
 const store = new Vuex.Store({
+  modules: { welcomePageVisited, categories, cart },
   state: {
     user: null,
-    cartID: null
   },
   mutations: {
     setLoggedOut(state) {
-      state.user = null
-      state.cartID = null
+      state.user = null;
     },
     setUser(state, user) {
-      if (user && Object.prototype.hasOwnProperty.call(user, "storage")) {
+      if (user && Object.prototype.hasOwnProperty.call(user, 'storage')) {
         // Clear "user.storage" to prevent recursively nested user state
         // from being stored which eventually leads to exhausting local storage.
-        user.storage = null
+        user.storage = null;
       }
-      state.user = user
+      state.user = user;
     },
-    setCartID(state, cartID) {
-      state.cartID = cartID
-    }
   },
   getters: {
+    username: (state) => state.user?.username ?? 'guest',
   },
-  plugins: [createPersistedState()]
-})
+  actions: {
+    logout: ({ commit, dispatch }) => {
+      commit('setLoggedOut');
+      dispatch('getNewCart');
+    },
+  },
+  plugins: [createPersistedState()],
+  strict: process.env.NODE_ENV !== 'production',
+});
 
-export default store
+export default store;
