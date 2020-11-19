@@ -3,7 +3,8 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import AmplifyStore from '@/store/store';
 import swal from 'sweetalert';
-import {user} from './user'
+import { user } from './user';
+import { formatPrice } from '@/util/formatPrice';
 
 const CartsRepository = RepositoryFactory.get('carts');
 
@@ -24,8 +25,24 @@ export const cart = {
   },
   computed: {
     ...mapState(['cartID']),
+    cartTotal() {
+      if (!this.cart) return null;
+
+      return this.cart.items.reduce((subtotal, item) => subtotal + item.quantity * item.price, 0);
+    },
+    cartQuantity() {
+      if (!this.cart) return null;
+
+      return this.cart.items.reduce((total, item) => total + item.quantity, 0);
+    },
+    formattedCartTotal() {
+      if (!this.cart) return null;
+
+      return formatPrice(this.cartTotal);
+    },
   },
   methods: {
+    // CRUD
     async createCart() {
       const { data } = await CartsRepository.createCart(this.username);
 
@@ -49,6 +66,10 @@ export const cart = {
 
       this.cart = parseCart(data);
     },
+    async updateCart() {
+      const { data } = await CartsRepository.updateCart(this.cart);
+      this.cart = parseCart(data);
+    },
     async addToCart(product, quantity, feature, exp) {
       const existingProduct = this.cart.items.find((item) => item.product_id === product.id);
 
@@ -58,17 +79,62 @@ export const cart = {
         this.cart.items.push({ product_id: product.id, price: product.price, quantity });
       }
 
-      const { data } = await CartsRepository.updateCart(this.cart);
-
-      this.cart = parseCart(data);
+      await this.updateCart();
 
       this.recordAddedToCart(product, existingProduct?.quantity ?? quantity, feature, exp);
 
       this.renderAddedToCartConfirmation();
     },
+    async removeFromCart(product_id) {
+      const productIndex = this.cart.items.findIndex((item) => item.product_id === product_id);
+
+      if (productIndex === -1) return;
+
+      const removedItem = this.cart.items.splice(productIndex, 1);
+
+      await this.updateCart();
+
+      AnalyticsHandler.productRemovedFromCart(this.user, this.cart, removedItem, removedItem.quantity);
+    },
+    async increaseQuantity(product_id) {
+      const item = this.cart.items.find((item) => item.product_id === product_id);
+
+      if (!item) return;
+
+      item.quantity++;
+
+      await this.updateCart();
+
+      AnalyticsHandler.productQuantityUpdatedInCart(this.user, this.cart, item, 1);
+    },
+    async decreaseQuantity(product_id) {
+      const itemIndex = this.cart.items.findIndex((item) => item.product_id === product_id);
+
+      if (itemIndex === -1) return;
+
+      const item = this.cart.items[itemIndex];
+
+      if (item.quantity === 1) {
+        this.cart.items.splice(itemIndex, 1);
+        await this.updateCart();
+        AnalyticsHandler.productRemovedFromCart(this.user, this.cart, item, item.quantity);
+      } else {
+        item.quantity--;
+        await this.updateCart();
+        AnalyticsHandler.productQuantityUpdatedInCart(this.user, this.cart, item, -1);
+      }
+    },
+
+    // analytics
     recordAddedToCart(product, quantity, feature, exp) {
       AnalyticsHandler.productAddedToCart(this.user, this.cart, product, quantity, feature, exp);
     },
+
+    recordCartViewed() {
+      AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
+    },
+
+    // other side effects
     renderAddedToCartConfirmation() {
       swal({
         title: 'Added to Cart',
