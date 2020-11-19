@@ -27,8 +27,11 @@ router.get('/products-service/:path*', ({ proxy, cache }) => {
   cache(CACHE_PAGES);
   proxy('products-service', { path: '/:path*' });
 });
-router.get('/recommendations-service/:path*', ({ proxy }) => {
+router.match('/recommendations-service/:path*', ({ proxy }) => {
   proxy('recommendations-service', { path: '/:path*' });
+});
+router.match('/carts-service/:path*', ({ proxy }) => {
+  proxy('carts-service', { path: '/:path*' });
 });
 
 // vue static files

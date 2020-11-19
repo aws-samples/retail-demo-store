@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: MIT-0
 
 import axios from "axios";
+import resolveBaseURL from './resolveBaseURL'
 
-const serviceDomain = process.env.VUE_APP_CARTS_SERVICE_DOMAIN;
-const servicePort = process.env.VUE_APP_CARTS_SERVICE_PORT;
-const baseURL = `${serviceDomain}:${servicePort}`;
+const baseURL = resolveBaseURL(
+    process.env.VUE_APP_CARTS_SERVICE_DOMAIN,
+    process.env.VUE_APP_CARTS_SERVICE_PORT,
+    process.env.VUE_APP_CARTS_SERVICE_PATH
+)
 
 const connection = axios.create({
     baseURL
