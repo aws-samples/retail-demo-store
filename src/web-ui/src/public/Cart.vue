@@ -65,7 +65,10 @@
             </li>            
           </ul>
             <button class="btn btn-primary mb-4 btn-block" v-on:click="checkout()"> Checkout </button>
-            <button class="btn btn-secondary mb-4 btn-block" v-on:click="triggerAbandonedCartEmail()"> Trigger Abaondoned Cart Email </button>
+           <div class="container" v-if="pinpointEnabled">
+              <button class="btn btn-secondary mb-4 btn-block" v-on:click="triggerAbandonedCartEmail()"> Trigger Abaondoned Cart Email </button>   
+          </div>
+          
           </div>
         </div>
       </div>
@@ -95,7 +98,8 @@ export default {
   data () {
     return {  
       errors: [],
-      cart: null
+      cart: null,
+      pinpointEnabled : process.env.VUE_APP_PINPOINT_APP_ID 
     }
   },
   async created() {
