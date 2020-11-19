@@ -5,16 +5,20 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'app',
-  data () {
-    return {
-      errors: []
-    }
+  methods: {
+    ...mapActions(['getCategories','getCart',]),
   },
-}
+  created() {
+    this.getCategories();
+    
+    this.getCart();
+  },
+};
 </script>
-
 <style>
 
 /* Amplify Auth Form Styling */

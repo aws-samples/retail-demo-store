@@ -17,20 +17,22 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import { mask } from 'vue-the-mask';
-import {user} from '@/mixins/user'
 
 export default {
   name: 'TextAlerts',
     directives: {
       mask,
     },
-    mixins: [user],
   data() {
     return {
       isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
       phoneNumber: '',
     };
+  },
+  computed: {
+    ...mapState(['user']),
   },
   methods: {
     onSubmit() {

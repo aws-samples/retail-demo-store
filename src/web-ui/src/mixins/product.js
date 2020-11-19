@@ -1,19 +1,20 @@
+import { mapState } from 'vuex';
+
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import { capitalize } from '@/util/capitalize';
-import { user } from './user';
 import { getProductImageUrl } from '../util/getProductImageUrl';
 
 const ProductsRepository = RepositoryFactory.get('products');
 
 export const product = {
-  mixins: [user],
   data() {
     return {
       product: null,
     };
   },
   computed: {
+    ...mapState(['user']),
     productImageUrl() {
       if (!this.product) return null;
 

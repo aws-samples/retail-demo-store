@@ -16,9 +16,6 @@
                 :key="item.product_id"
                 :product_id="item.product_id"
                 :quantity="item.quantity"
-                @removeFromCart="removeFromCart"
-                @increaseQuantity="increaseQuantity"
-                @decreaseQuantity="decreaseQuantity"
                 class="mb-4"
               ></CartItem>
             </ul>
@@ -43,14 +40,12 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
-import { cart } from '@/mixins/cart';
 
 import CartItem from './components/CartItem.vue';
 import Layout from '@/components/Layout/Layout';
-
 
 export default {
   name: 'Cart',
@@ -58,16 +53,17 @@ export default {
     Layout,
     CartItem,
   },
-  mixins: [cart],
-  async created() {
-    await this.getCart();
-    this.recordCartViewed();
-  },
-  data() {
-    return { isEnabled: process.env.VUE_APP_ENABLE_ABANDON_CART_BUTTON === 'true' };
+  created() {
+        AnalyticsHandler.cartViewed(
+          this.user,
+          this.cart,
+          this.cartQuantity,
+          this.cartTotal,
+        );
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState({ cart: (state) => state.cart.cart, user: state => state.user }),
+    ...mapGetters(['cartQuantity', 'cartTotal', 'formattedCartTotal']),
     isLoading() {
       return !this.cart;
     },
@@ -104,7 +100,6 @@ export default {
 }
 
 .summary {
-  top: 120px;
   border: 1px solid var(--grey-600);
   border-radius: 2px;
 }

@@ -12,17 +12,17 @@
           <ProductPrice :price="product.price" class="product-price"></ProductPrice>
 
           <div class="d-flex align-items-center">
-            <button @click="decreaseQuantity" aria-label="decrease quantity" class="btn text-black-50">
+            <button @click="decreaseProductQuantity" aria-label="decrease quantity" class="btn text-black-50">
               <i class="fas fa-minus"></i>
             </button>
             <div class="quantity text-center font-weight-bold" :aria-label="`quantity is ${quantity}`">
               {{ quantity }}
             </div>
-            <button @click="increaseQuantity" aria-label="increase quantity" class="btn text-black-50">
+            <button @click="increaseProductQuantity" aria-label="increase quantity" class="btn text-black-50">
               <i class="fas fa-plus"></i>
             </button>
 
-            <button class="delete-btn btn" @click="removeFromCart">
+            <button class="delete-btn btn" @click="removeProductFromCart">
               Delete
             </button>
           </div>
@@ -36,6 +36,7 @@
 import { product } from '@/mixins/product';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'CartItem',
@@ -58,14 +59,15 @@ export default {
     this.getProductByID(this.product_id);
   },
   methods: {
-    removeFromCart() {
-      this.$emit('removeFromCart', this.product_id);
+    ...mapActions(['removeFromCart', 'increaseQuantity', 'decreaseQuantity']),
+    removeProductFromCart() {
+      this.removeFromCart(this.product_id);
     },
-    increaseQuantity() {
-      this.$emit('increaseQuantity', this.product_id);
+    increaseProductQuantity() {
+      this.increaseQuantity(this.product_id);
     },
-    decreaseQuantity() {
-      this.$emit('decreaseQuantity', this.product_id);
+    decreaseProductQuantity() {
+      this.decreaseQuantity(this.product_id);
     },
   },
   computed: {
