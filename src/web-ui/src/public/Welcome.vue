@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import Layout from './components/Layout';
+import Layout from '@/components/Layout/Layout'
 import ServiceBadge from './components/ServiceBadge';
 
 export default {

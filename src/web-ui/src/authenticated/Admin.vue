@@ -80,7 +80,7 @@
 <script>
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
-import Layout from '@/public/components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const ProductsRepository = RepositoryFactory.get('products')
 const UsersRepository = RepositoryFactory.get('users')

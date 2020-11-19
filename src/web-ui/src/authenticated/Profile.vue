@@ -78,7 +78,7 @@ import AmplifyStore from '@/store/store'
 
 import swal from 'sweetalert'
 
-import Layout from '@/public/components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const UsersRepository = RepositoryFactory.get('users')
 

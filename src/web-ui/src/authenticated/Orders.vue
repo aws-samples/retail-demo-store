@@ -41,7 +41,7 @@ import AmplifyStore from '@/store/store'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
-import Layout from '@/public/components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const OrdersRepository = RepositoryFactory.get('orders')
 

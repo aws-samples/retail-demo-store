@@ -83,7 +83,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import CartItem from './components/CartItem.vue'
-import Layout from './components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const ProductsRepository = RepositoryFactory.get('products')

@@ -61,7 +61,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import Product from './components/Product.vue'
-import Layout from './components/Layout'
+import Layout from '@/components/Layout/Layout'
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
