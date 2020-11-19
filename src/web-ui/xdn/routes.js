@@ -39,6 +39,9 @@ router.match('/users-service/:path*', ({ proxy }) => {
 router.match('/search-service/:path*', ({ proxy }) => {
   proxy('search-service', { path: '/:path*' });
 });
+router.match('/orders-service/:path*', ({ proxy }) => {
+  proxy('orders-service', { path: '/:path*' });
+});
 
 // vue static files
 router.get('/css/:path*', ({ serveStatic, cache }) => {
