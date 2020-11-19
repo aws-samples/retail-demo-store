@@ -1,37 +1,21 @@
 <template>
   <div id="app">
-    <Navigation/>
     <router-view class="text-center"/>
-    <Footer/>
   </div>
 </template>
 
 <script>
-import Navigation from './public/Navigation.vue'
-import Footer from './public/Footer.vue'
-
 export default {
   name: 'app',
-  components: {
-    Navigation,
-    Footer
-  },
   data () {
     return {
       errors: []
     }
   },
-  mounted () {
-  },
-  methods: {
-  }
 }
 </script>
 
 <style>
-body {
-  background: #FFF;
-}
 
 /* Amplify Auth Form Styling */
 

@@ -9,6 +9,8 @@ import { components } from 'aws-amplify-vue';
 import moment from 'moment'
 import Amplitude from 'amplitude-js'
 
+import './styles/tokens.css'
+
 Vue.prototype.moment = moment
 
 // Base configuration for Amplify
