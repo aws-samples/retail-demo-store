@@ -13,6 +13,8 @@
 
     <slot v-if="!isLoading"></slot>
 
+    <TextAlerts v-if="showTextAlerts"></TextAlerts>
+
     <Footer v-if="showFooter"></Footer>
   </div>
 </template>
@@ -22,11 +24,16 @@ import Navigation from '@/public/Navigation';
 import LoadingFallback from '../LoadingFallback/LoadingFallback';
 import PreviousPageLink from './PreviousPageLink';
 import Footer from '@/public/Footer';
+import TextAlerts from '@/public/components/TextAlerts';
 
 export default {
   name: 'Layout',
   props: {
     showNav: {
+      type: Boolean,
+      default: true,
+    },
+    showTextAlerts: {
       type: Boolean,
       default: true,
     },
@@ -59,6 +66,7 @@ export default {
     Navigation,
     LoadingFallback,
     PreviousPageLink,
+    TextAlerts,
     Footer,
   },
 };
