@@ -2,7 +2,7 @@
   <Layout>
     <div class="content container">
       <RecommendedProductsSection
-        v-if="user"
+        v-if="personalizeUserID"
         :feature="feature"
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
@@ -49,7 +49,7 @@ export default {
       explainRecommended: null,
     };
   },
-  computed: { ...mapState(['user']) },
+  computed: { ...mapState(['user']), ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']) },
   async created() {
     this.getFeaturedProducts();
     this.getUserRecommendations();
@@ -61,10 +61,10 @@ export default {
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
     async getUserRecommendations() {
-      if (!this.user) return;
+      if (!this.personalizeRecommendationsForVisitor) return;
 
       const response = await RecommendationsRepository.getRecommendationsForUser(
-        this.user.id,
+        this.personalizeUserID,
         '',
         MAX_RECOMMENDATIONS,
         EXPERIMENT_FEATURE,

@@ -35,9 +35,11 @@ func UserIndex(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 
-		if i > -1 {
-			offset = i
+		if i < 0 {
+			http.Error(w, "Offset must be >= 0", http.StatusUnprocessableEntity)
+			return
 		}
+		offset = i
 	}
 
 	var countParam = keys.Get("count")
@@ -47,25 +49,35 @@ func UserIndex(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 
-		if i > 0 {
-			count = i
+		if i < 1 {
+			http.Error(w, "Count must be > 0", http.StatusUnprocessableEntity)
+			return
 		}
+
+		if i > 10000 {
+			http.Error(w, "Count exceeds maximum value; please use paging by offset", http.StatusUnprocessableEntity)
+			return
+		}
+
+		count = i
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
 
 	var end = offset + count
 	if end > len(users) {
 		end = len(users)
 	}
 
-	var ret []User
+	ret := make([]User, 0, count)
 
-	if offset < len(users) {
-		ret = users[offset:end]
-	} else {
-		ret = make([]User, 0)
+	idx := offset
+	for len(ret) < count && idx < len(users) {
+		// Do NOT return any users with an associated identity ID.
+		if len(users[idx].IdentityId) == 0 {
+			ret = append(ret, users[idx])
+		}
+		idx++
 	}
 
 	if err := json.NewEncoder(w).Encode(ret); err != nil {

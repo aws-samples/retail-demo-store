@@ -52,6 +52,11 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  SegmentWriteKey:
+    Type: String
+    Description: Segment source write key (optional).
+    NoEcho: true
+
 Resources:
 
   # Authentication
@@ -162,6 +167,7 @@ Resources:
         ExperimentStrategyTableName: !GetAtt Tables.Outputs.ExperimentStrategyTable
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
 
   # CodeCommit Repository
   CodeCommitRepository:
@@ -275,6 +281,10 @@ Outputs:
   ParameterOptimizelySdkKey:
     Description: Optimizely SDK key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterOptimizelySdkKey
+
+  ParameterSegmentWriteKey:
+    Description: Segment write key Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.
