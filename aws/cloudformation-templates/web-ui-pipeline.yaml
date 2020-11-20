@@ -102,6 +102,10 @@ Parameters:
     Type: String
     Description: SSM Parameter name for the Optimizely SDK key
 
+  ParameterSegmentWriteKey:
+    Type: String
+    Description: SSM Parameter name for the Segment write key
+    
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -352,6 +356,9 @@ Resources:
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey
+          - Name: SEGMENT_WRITE_KEY
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterSegmentWriteKey 
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL

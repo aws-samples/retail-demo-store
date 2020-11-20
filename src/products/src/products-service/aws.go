@@ -4,25 +4,41 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
-//var sess *session.Session
 var sess, err = session.NewSession(&aws.Config{})
 
-// read DynamoDB tables env variable
-var ddb_table_products = os.Getenv("DDB_TABLE_PRODUCTS")
-var ddb_table_categories = os.Getenv("DDB_TABLE_CATEGORIES")
+// DynamoDB table names passed via environment
+var ddbTableProducts = os.Getenv("DDB_TABLE_PRODUCTS")
+var ddbTableCategories = os.Getenv("DDB_TABLE_CATEGORIES")
 
-var dynamoclient = dynamodb.New(sess)
-var ssm_client = ssm.New(sess)
+// Allow DDB endpoint to be overridden to support amazon/dynamodb-local
+var ddbEndpointOverride = os.Getenv("DDB_ENDPOINT_OVERRIDE")
+var runningLocal bool
 
-// Connect Stuff
+var dynamoClient *dynamodb.DynamoDB
+
+// Initialize clients
 func init() {
-	
+	if len(ddbEndpointOverride) > 0 {
+		runningLocal = true
+		log.Println("Creating DDB client with endpoint override: ", ddbEndpointOverride)
+		creds := credentials.NewStaticCredentials("does", "not", "matter")
+		awsConfig := &aws.Config{
+			Credentials: creds,
+			Region:      aws.String("us-east-1"),
+			Endpoint:    aws.String(ddbEndpointOverride),
+		}
+		dynamoClient = dynamodb.New(sess, awsConfig)
+	} else {
+		runningLocal = false
+		dynamoClient = dynamodb.New(sess)
+	}
 }

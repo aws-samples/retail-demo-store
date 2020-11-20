@@ -20,12 +20,19 @@ Parameters:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
+  
+  SegmentWriteKey:
+    Type: String
+    Description: Write key for the Segment source used to gather real-time events (optional).
+    NoEcho: true
 
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
   HasOptimizelySdkKey:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
+  HasSegmentWriteKey:
+    !Not [!Equals [!Ref SegmentWriteKey, ""]]
 
 Resources:
 
@@ -101,6 +108,14 @@ Resources:
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"
 
+  ParameterSegmentWriteKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-segment-write-key"
+      Type: "String"
+      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
+      Description: "Retail Demo Store Segment source write key"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -138,3 +153,7 @@ Outputs:
   ParameterOptimizelySdkKey:
     Description: Optimizely SDK key
     Value: !Ref ParameterOptimizelySdkKey
+
+  ParameterSegmentWriteKey:
+    Description: Segment write key
+    Value: !Ref ParameterSegmentWriteKey 

@@ -4,7 +4,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import createPersistedState from 'vuex-persistedstate';
+import createPersistedState from 'vuex-persistedstate'
+import { v4 as uuidv4 } from 'uuid';
 
 import { welcomePageVisited } from './modules/welcomePageVisited/welcomePageVisited';
 import { categories } from './modules/categories/categories';
@@ -16,10 +17,14 @@ const store = new Vuex.Store({
   modules: { welcomePageVisited, categories, cart },
   state: {
     user: null,
+    provisionalUserID: uuidv4(),
+    sessionEventsRecorded: 0
   },
   mutations: {
     setLoggedOut(state) {
-      state.user = null;
+      state.user = null
+      state.provisionalUserID = uuidv4()
+      state.sessionEventsRecorded = 0
     },
     setUser(state, user) {
       if (user && Object.prototype.hasOwnProperty.call(user, 'storage')) {
@@ -29,9 +34,19 @@ const store = new Vuex.Store({
       }
       state.user = user;
     },
+    incrementSessionEventsRecorded(state) {
+      state.sessionEventsRecorded += 1
+    }
   },
   getters: {
     username: (state) => state.user?.username ?? 'guest',
+    personalizeUserID: state => {
+      return state.user ? state.user.id : state.provisionalUserID
+    },
+    personalizeRecommendationsForVisitor: state => {
+      return state.user || (state.provisionalUserID && state.sessionEventsRecorded > 2)
+    }
+    
   },
   actions: {
     logout: ({ commit, dispatch }) => {

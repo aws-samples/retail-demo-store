@@ -73,11 +73,10 @@ aws s3 sync s3://retail-demo-store-code/csvs s3://${BUCKET}/${S3PATH}csvs --only
 
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
-
-for function in bot-intent-recommendations retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns personalize-delete-resources pinpoint-recommender pinpoint-auto-workshop
+for function in ./src/aws-lambda/*/
 do
     echo "  + Staging $function"
-    cd src/aws-lambda/$function
+    cd $function
     chmod +x ./stage.sh
     ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
     cd -

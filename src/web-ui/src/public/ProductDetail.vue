@@ -50,7 +50,7 @@
 
 <script>
 import swal from 'sweetalert';
-import {mapState,mapActions} from 'vuex';
+import {mapState,mapActions,mapGetters} from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
@@ -85,6 +85,7 @@ export default {
   },
   computed: {
     ...mapState(['user']),
+    ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
     },
@@ -133,7 +134,7 @@ export default {
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(
-        this.user?.id ?? '',
+        this.personalizeUserID ?? '',
         this.product.id,
         MAX_RECOMMENDATIONS,
         EXPERIMENT_FEATURE,

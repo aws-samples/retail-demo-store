@@ -31,15 +31,22 @@ export default {
         if (!username || username.length == 0)
             throw "username required"
         return connection.get(`${resource}/username/${username}`)
-    },    
-    createUser(username, cognito_id) {
+    },
+    getUserByIdentityId(identityId) {
+        if (!identityId || identityId.length == 0)
+            throw "identityId required"
+        return connection.get(`${resource}/identityid/${identityId}`)
+    },
+    createUser(provisionalUserId, username, email, identityId) {
         if (!username || username.length == 0)
             throw "username required"
-        let payload = {
+        let user = {
+            id: provisionalUserId,
             username: username,
-            cognito_id: cognito_id        
+            email: email,
+            identity_id: identityId
         }
-        return connection.post(`${resource}`, payload)
+        return connection.post(`${resource}`, user)
     },
     updateUser(user) {
         if (!user)

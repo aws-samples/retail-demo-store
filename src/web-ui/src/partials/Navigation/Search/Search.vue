@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
@@ -67,6 +67,7 @@ export default {
   },
   computed: {
     ...mapState(['user']),
+    ...mapGetters(['personalizeUserID']),
   },
   methods: {
     onInputFocus() {
@@ -83,8 +84,8 @@ export default {
       AnalyticsHandler.productSearched(this.user, val, data.length);
     },
     async rerank(items) {
-      if (this.user && items && items.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.user.id, items, EXPERIMENT_FEATURE);
+      if (this.personalizeUserID && items && items.length > 0) {
+        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID.id, items, EXPERIMENT_FEATURE);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
         this.results = data;
       } else {
