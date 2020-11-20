@@ -105,8 +105,13 @@ func RepoUpdateUser(t User) User {
 		u.SignUpDate = t.SignUpDate
 		u.LastSignInDate = t.LastSignInDate
 
+		if len(u.IdentityId) > 0 && u.IdentityId != t.IdentityId {
+			delete(usersByIdentityId, u.IdentityId)
+		}
+
+		u.IdentityId = t.IdentityId
+
 		if len(t.IdentityId) > 0 {
-			u.IdentityId = t.IdentityId
 			usersByIdentityId[t.IdentityId] = idx
 		}
 
@@ -124,9 +129,24 @@ func RepoCreateUser(t User) (User, error) {
 	}
 
 	idx := len(users)
-	t.ID = strconv.Itoa(idx)
+
+	if len(t.ID) > 0 {
+		// ID provided by caller (provisionally created on storefront) so make
+		// sure it's not already taken.
+		if _, ok := usersById[t.ID]; ok {
+			return User{}, errors.New("User with this ID already exists")
+		}
+	} else {
+		t.ID = strconv.Itoa(idx)
+	}
+
 	users = append(users, t)
 	usersById[t.ID] = idx
 	usersByUsername[t.Username] = idx
+
+	if len(t.IdentityId) > 0 {
+		usersByIdentityId[t.IdentityId] = idx
+	}
+
 	return t, nil
 }

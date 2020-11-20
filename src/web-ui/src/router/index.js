@@ -74,10 +74,14 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser = data
     }
 
+    const credentials = await Credentials.get();
+
     if (!storeUser.id) {
       // Store user does not exist. Create one on the fly.
       console.log('store user does not exist for cognito user... creating on the fly')
-      const { data } = await UsersRepository.createUser(cognitoUser.username, cognitoUser.attributes.email)
+      let identityId = credentials ? credentials.identityId : null;
+      let provisionalUserId = AmplifyStore.getters.personalizeUserID;
+      const { data } = await UsersRepository.createUser(provisionalUserId, cognitoUser.username, cognitoUser.attributes.email, identityId)
       storeUser = data
     }
 
@@ -95,12 +99,11 @@ AmplifyEventBus.$on('authState', async (state) => {
     })
 
     // Sync identityId with user to support reverse lookup.
-    const credentials = await Credentials.get();
     if (credentials && storeUser.identity_id != credentials.identityId) {
       console.log('Syncing credentials identity_id with store user profile')
       storeUser.identity_id = credentials.identityId
     }
-
+    
     // Update last sign in and sign up dates on user.
     let newSignUp = false
 
