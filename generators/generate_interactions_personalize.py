@@ -79,8 +79,6 @@ cart_viewed_percent = .05
 checkout_started_percent = .02
 order_completed_percent = .01
 
-CATEGORY_AFFINITY_PROBS = np.array(CATEGORY_AFFINITY_PROBS)
-
 
 def generate_user_items(out_users_filename, out_items_filename, in_users_filename, in_products_filename):
 
@@ -159,6 +157,8 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
     user_to_product = defaultdict(set)
 
+    category_affinity_probs = np.array(CATEGORY_AFFINITY_PROBS)
+
     print("Writing interactions to: {}".format(out_interactions_filename))
 
     with open(out_interactions_filename, 'w') as outfile:
@@ -204,7 +204,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             if (time.time() > next_update_progress):
                 rate = interactions / (time.time() - start_time_progress)
                 to_go = (min_interactions - interactions) / rate
-                print('Generated {} interactions so far ({:0.2f} seconds to go)'.format(interactions, to_go))
+                print('Generated {} interactions so far (about {} seconds to go)'.format(interactions, int(to_go)))
                 next_update_progress += PROGRESS_MONITOR_SECONDS_UPDATE
 
             # Pick a random user
@@ -214,9 +214,9 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             persona = user['persona']
             preferred_categories = persona.split('_')
 
-            p_normalised = (CATEGORY_AFFINITY_PROBS * category_frequencies[preferred_categories].values)
+            p_normalised = (category_affinity_probs * category_frequencies[preferred_categories].values)
             p_normalised /= p_normalised.sum()
-            p = NORMALISE_PER_PRODUCT_WEIGHT * p_normalised + (1-NORMALISE_PER_PRODUCT_WEIGHT) * CATEGORY_AFFINITY_PROBS
+            p = NORMALISE_PER_PRODUCT_WEIGHT * p_normalised + (1-NORMALISE_PER_PRODUCT_WEIGHT) * category_affinity_probs
 
             # Select category based on weighted preference of category order.
             category = np.random.choice(preferred_categories, 1, p=p)[0]
