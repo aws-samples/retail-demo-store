@@ -50,6 +50,7 @@ Resources:
         PinpointEmailFromAddress: 'dummy@dummy.com' # Only change if you change PreCreatePinpointWorkshop to 'Yes'
         PinpointEmailFromName: 'AWS Retail Demo Store'
         UseDefaultIVSStreams: 'Yes' # Leave to 'Yes' until EE supports reaping IVS resources
+        PinpointSMSLongCode: 'NONE'
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
         SegmentWriteKey: 'NONE'

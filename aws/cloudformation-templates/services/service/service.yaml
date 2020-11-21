@@ -119,6 +119,9 @@ Parameters:
   
   PinpointAppId:
     Type: String
+  
+  PinpointSMSLongCode:
+    Type: String
     
 Resources:
   TaskExecutionRole:
@@ -356,6 +359,8 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
+            - Name: PINPOINT_SMS_LONG_CODE
+              Value: !Ref PinpointSMSLongCode
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

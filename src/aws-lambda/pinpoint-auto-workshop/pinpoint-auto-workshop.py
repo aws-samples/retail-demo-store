@@ -128,7 +128,6 @@ def create_recommendations_email_template(recommender_id):
         return response['CreateTemplateMessageBody']
 
 def create_recommendation_sms_template(recommender_id):
-    # template body to be finalized yet
     try:
         response = pinpoint.get_sms_template(TemplateName=sms_recommendation_template_name)
         logger.info('Recommendations SMS template already exists')
@@ -136,16 +135,10 @@ def create_recommendation_sms_template(recommender_id):
     except pinpoint.exceptions.NotFoundException:
         logger.info('Recommendations SMS template does not exist; creating')
 
-        # with open('pinpoint-templates/recommendations-email-template.html', 'r') as html_file:
-        #     html_template = html_file.read()
-
-        # with open('pinpoint-templates/recommendations-email-template.txt', 'r') as text_file:
-        #     text_template = text_file.read()
-
         response = pinpoint.create_sms_template(
             SMSTemplateRequest={
                 'Body': 'Retail Demo Store \n TOP PICK Just For you \n Shop Now: {{Recommendations.URL.[0]}}',
-                'TemplateDescription': 'Personalized recommendations sms template',
+                'TemplateDescription': 'Personalized recommendations SMS template',
                 'RecommenderId': recommender_id,
                 'DefaultSubstitutions': json.dumps({
                     'User.UserAttributes.FirstName': 'there'
@@ -541,6 +534,7 @@ def lambda_handler(event, context):
     pinpoint_personalize_role_arn = os.environ['pinpoint_personalize_role_arn']
     email_from_address = os.environ['email_from_address']
     email_from_name = os.environ.get('email_from_name', 'AWS Retail Demo Store')
+    pinpoint_sms_long_code = os.environ['pinpoint_sms_long_code']
 
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
@@ -597,31 +591,28 @@ def lambda_handler(event, context):
     campaign_config = create_abandoned_cart_campaign(pinpoint_app_id, email_from, users_with_cart_segment_id, users_with_cart_segment_version)
     logger.debug(json.dumps(campaign_config, indent = 2, default = str))
 
-    # Create SMS template and enable SMS channel
-    response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
-    pinpoint_sms_long_code = response['Parameter']['Value']
+    if(pinpoint_sms_long_code != 'NONE'):
+        logger.info('Creating SMS recommendation template template')
+        create_recommendation_sms_template(recommender_id)
+        logger.info('Enabling SMS channel for Pinpoint project')
+        update_sms_channel_response = pinpoint.update_sms_channel(
+            ApplicationId = pinpoint_app_id,
+            SMSChannelRequest={
+                'Enabled': True,
+                'ShortCode': pinpoint_sms_long_code
+            }
+        )
+        logger.debug(json.dumps(update_sms_channel_response, indent = 2, default = str))
+        # create AllSMSUsers segment
+        segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
+        all_sms_users_segment_id = segment_config['Id']
+        all_sms_users_segment_version = segment_config['Version']
 
-    assert pinpoint_sms_long_code != 'NONE', 'Pinpoint SMS long code value not set'
-
-    logger.info('Creating SMS recommendation template template')
-    create_recommendation_sms_template(recommender_id)
-    logger.info('Enabling SMS channel for Pinpoint project')
-    update_sms_channel_response = pinpoint.update_sms_channel(
-        ApplicationId = pinpoint_app_id,
-        SMSChannelRequest={
-            'Enabled': True,
-            'ShortCode': pinpoint_sms_long_code
-        }
-    )
-    logger.debug(json.dumps(update_sms_channel_response, indent = 2, default = str))
-    # create AllSMSUsers segment
-    segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
-    all_sms_users_segment_id = segment_config['Id']
-    all_sms_users_segment_version = segment_config['Version']
-
-    # Create SMS alerts Campaign
-    campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
-    logger.debug(json.dumps(campaign_config, indent = 2, default = str))
+        # Create SMS alerts Campaign
+        campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
+        logger.debug(json.dumps(campaign_config, indent = 2, default = str))
+    else:
+        print('Pinpoint SMS long code value not set. Please set the value in SSM parameters and trigger this lambda again to create Pinpoint SMS resources.')
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)
 

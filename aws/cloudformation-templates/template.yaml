@@ -32,6 +32,7 @@ Metadata:
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
           - PinpointEmailFromName
+          - PinpointSMSLongCode
       - Label:
           default: "Use default IVS streams"
         Parameters:
@@ -190,6 +191,12 @@ Parameters:
       - 'No'
     Default: 'Yes'
   
+  PinpointSMSLongCode:
+    Type: String
+    Description: >
+      Phone number(a dedicated long code) for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
+      is set to 'Yes'.
+  
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
@@ -235,6 +242,7 @@ Resources:
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId

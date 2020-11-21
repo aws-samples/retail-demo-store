@@ -116,9 +116,6 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser.sign_up_date = now.toISOString()
       newSignUp = true
     }
-    if (!storeUser.phone_number) {
-      storeUser.phone_number = null
-    }
 
     // Wait for identify to complete before sending sign in/up events 
     // so that endpoint is created/updated first. Impacts Pinpoint campaign timing.

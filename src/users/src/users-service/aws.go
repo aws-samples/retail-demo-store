@@ -16,8 +16,8 @@ import (
 var sess, err = session.NewSession(&aws.Config{})
 
 var pinpoint_app_id = os.Getenv("PINPOINT_APP_ID")
+var pinpoint_sms_long_code = os.Getenv("PINPOINT_SMS_LONG_CODE")
 var pinpoint_client = pinpoint.New(sess)
-var ssm_client = ssm.New(sess)
 
 // Connect Stuff
 func init() {

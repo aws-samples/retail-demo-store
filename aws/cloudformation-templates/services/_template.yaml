@@ -95,6 +95,9 @@ Parameters:
   ExperimentStrategyTable:
     Type: String
     Default: none
+  
+  PinpointSMSLongCode:
+    Type: String
 
   ParameterPersonalizeEventTrackerId:
     Type: String
@@ -186,6 +189,7 @@ Resources:
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         PinpointAppId: !Ref PinpointAppId
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -362,6 +366,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsServiceDNSName: !GetAtt ProductsService.Outputs.ServiceDNSName
+        PinpointAppId: !Ref PinpointAppId
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Custom resources

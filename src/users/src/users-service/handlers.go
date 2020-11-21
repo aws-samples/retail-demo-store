@@ -14,7 +14,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/pinpoint"
-	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 var MAX_RANDOM_USER_COUNT_PER_REQEUST int = 20
@@ -274,13 +273,6 @@ func CreateEndpointAndSendConfirmation(updateEndpointInput *pinpoint.UpdateEndpo
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println(updateEndpointOutput)
-		//get long code from the ssm param
-		getLongCodeResponse, err := ssm_client.GetParameter(&ssm.GetParameterInput{
-			Name: aws.String("retaildemostore-pinpoint-sms-longcode"),
-		})
-		if err!=nil {
-			panic(err)
-		}
 		// send confirmation to the user
 		var sendMessageAddress = make(map[string] *pinpoint.AddressConfiguration)
 		sendMessageAddress[phonenumber] = &pinpoint.AddressConfiguration {
@@ -294,7 +286,7 @@ func CreateEndpointAndSendConfirmation(updateEndpointInput *pinpoint.UpdateEndpo
 					SMSMessage: &pinpoint.SMSMessage {
 						Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
 						MessageType: aws.String("TRANSACTIONAL"),
-						OriginationNumber: getLongCodeResponse.Parameter.Value,
+						OriginationNumber: &pinpoint_sms_long_code,
 					},
 				},
 			},
@@ -316,11 +308,11 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	type Useridandnumber struct {
-		Userid		string 	   `json:"userid" yaml:"userid"`
-		PhoneNumber string 	   `json:"phonenumber" yaml:"phonenumber"`
+	type UserIDandNumber struct {
+		UserID		string 	   `json:"user_id" yaml:"user_id"`
+		PhoneNumber string 	   `json:"phone_number" yaml:"phone_number"`
 	}
-	var userdetails Useridandnumber
+	var userDetails UserIDandNumber
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -329,23 +321,23 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &userdetails); err != nil {
+	if err := json.Unmarshal(body, &userDetails); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) // unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
-	fmt.Println(userdetails.PhoneNumber)
-	user := RepoFindUserByID(userdetails.Userid)
+	fmt.Println(userDetails.PhoneNumber)
+	user := RepoFindUserByID(userDetails.UserID)
 	if user.ID == "" {
 		fmt.Println("User does not exist. Cannot associate phone number to user.")
 	} else {
-		user.PhoneNumber = userdetails.PhoneNumber
+		user.PhoneNumber = userDetails.PhoneNumber
 		// check if the number entered by user is valid
 		numberValidaterequest := &pinpoint.NumberValidateRequest{
 			IsoCountryCode: aws.String("US"),
-			PhoneNumber: aws.String(userdetails.PhoneNumber),
+			PhoneNumber: aws.String(userDetails.PhoneNumber),
 		}
 		phoneValidateInput := &pinpoint.PhoneNumberValidateInput{
 			NumberValidateRequest: numberValidaterequest,
@@ -354,44 +346,49 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 		if err != nil {
 			fmt.Println("Got error calling PhoneNumberValidate:")
 			fmt.Println(err.Error())
+			http.Error(w, err.Error(), 500)
+			return
 		} else {
-				fmt.Println(res)
-				mobilePhoneCode := int(*res.NumberValidateResponse.PhoneTypeCode)
-				if (mobilePhoneCode != 0) {
-					panic("Received a phone number that isn't capable of receiving SMS. Cannot create endpoint")
-				} else {
-					var userAge string = strconv.Itoa(user.Age)
-					var userAttributes = make(map[string][]*string)
-					userAttributes["Username"] = []*string{&user.Username}
-					userAttributes["FirstName"] = []*string{&user.FirstName}
-					userAttributes["LastName"] = []*string{&user.LastName}
-					userAttributes["Gender"] = []*string{&user.Gender}
-					userAttributes["Age"] = []*string{&userAge}
+			fmt.Println(res)
+			mobilePhoneCode := int(*res.NumberValidateResponse.PhoneTypeCode)
+			if (mobilePhoneCode != 0) {
+				var errMessage string = "The phone number provided is not a MOBILE phone number. The number is not capable of receiving SMS. Cannot create SMS endpoint for this number. Try entering a mobile phone number."
+				panic(errMessage)
+				http.Error(w, errMessage, 500)
+				return
+			} else {
+				var userAge string = strconv.Itoa(user.Age)
+				var userAttributes = make(map[string][]*string)
+				userAttributes["Username"] = []*string{&user.Username}
+				userAttributes["FirstName"] = []*string{&user.FirstName}
+				userAttributes["LastName"] = []*string{&user.LastName}
+				userAttributes["Gender"] = []*string{&user.Gender}
+				userAttributes["Age"] = []*string{&userAge}
 
-					endpointRequest := &pinpoint.EndpointRequest{
-						Address: &userdetails.PhoneNumber,
-						ChannelType: aws.String("SMS"),
-						OptOut: aws.String("ALL"),
-						Location: &pinpoint.EndpointLocation {
-							PostalCode: res.NumberValidateResponse.ZipCode,
-							City: res.NumberValidateResponse.City,
-							Country: res.NumberValidateResponse.CountryCodeIso2,
-						},
-						Demographic: &pinpoint.EndpointDemographic {
-							Timezone: res.NumberValidateResponse.Timezone,
-						},
-						User: &pinpoint.EndpointUser{
-							UserAttributes: userAttributes,
-							UserId: &userdetails.Userid,
-						},
-					}
-					var endpointId string = userdetails.PhoneNumber[1:]
-					updateEndpointInput := &pinpoint.UpdateEndpointInput{
-						ApplicationId: &pinpoint_app_id,
-						EndpointId: &endpointId,
-						EndpointRequest: endpointRequest,
-					}
-					CreateEndpointAndSendConfirmation(updateEndpointInput, userdetails.PhoneNumber)
+				endpointRequest := &pinpoint.EndpointRequest{
+					Address: &userDetails.PhoneNumber,
+					ChannelType: aws.String("SMS"),
+					OptOut: aws.String("ALL"),
+					Location: &pinpoint.EndpointLocation {
+						PostalCode: res.NumberValidateResponse.ZipCode,
+						City: res.NumberValidateResponse.City,
+						Country: res.NumberValidateResponse.CountryCodeIso2,
+					},
+					Demographic: &pinpoint.EndpointDemographic {
+						Timezone: res.NumberValidateResponse.Timezone,
+					},
+					User: &pinpoint.EndpointUser{
+						UserAttributes: userAttributes,
+						UserId: &userDetails.UserID,
+					},
+				}
+				var endpointId string = userDetails.PhoneNumber[1:]
+				updateEndpointInput := &pinpoint.UpdateEndpointInput{
+					ApplicationId: &pinpoint_app_id,
+					EndpointId: &endpointId,
+					EndpointRequest: endpointRequest,
+				}
+				CreateEndpointAndSendConfirmation(updateEndpointInput, userDetails.PhoneNumber)
 				}
 			}
 		}

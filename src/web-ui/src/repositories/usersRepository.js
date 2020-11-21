@@ -66,9 +66,9 @@ export default {
         if (!userID || userID.length == 0)
             throw "userID required"
         let payload = {
-            userid: userID,
-            phonenumber: phonenumber        
+            user_id: userID,
+            phone_number: phonenumber        
         }
-        return connection.post(`${resource}/id/${userID}/verifyphone`, payload)
+        return connection.put(`${resource}/id/${userID}/verifyphone`, payload)
     }
 }

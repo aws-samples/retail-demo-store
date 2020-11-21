@@ -99,7 +99,7 @@ var routes = Routes{
 	},
 	Route{
 		"UserVerifyAndUpdatePhone",
-		"POST",
+		"PUT",
 		"/users/id/{userID}/verifyphone",
 		UserVerifyAndUpdatePhone,
 	},

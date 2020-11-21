@@ -131,14 +131,6 @@ Resources:
       Type: "String"
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
-    
-  ParameterPinpointSMSLongCode:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-pinpoint-sms-longcode"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Pinpoint SMS long code"
 
 Outputs:
 
@@ -189,4 +181,3 @@ Outputs:
   ParameterSegmentWriteKey:
     Description: Segment write key
     Value: !Ref ParameterSegmentWriteKey 
-

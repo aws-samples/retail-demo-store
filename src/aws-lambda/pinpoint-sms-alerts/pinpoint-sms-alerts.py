@@ -59,7 +59,7 @@ def lambda_handler(event, context):
     endpointId = originationNumber[1:]
 
     # opt in the customer to receive text alerts if they responded with 'y' to the confirmation SMS
-    if 'y' in response:
+    if 'y' == response:
         logger.info('Updating SMS endpoint for user.')
         response = updateEndpointOptIn(originationNumber, timestamp, pinpoint_app_id)
         print(response)

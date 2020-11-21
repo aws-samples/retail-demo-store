@@ -201,6 +201,10 @@ Parameters:
 
   Uid:
     Type: String
+  
+  PinpointSMSLongCode:
+    Type: String
+    Default: none
 
 Resources:
 
@@ -279,6 +283,7 @@ Resources:
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         PinpointAppId: !Ref PinpointAppId
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
