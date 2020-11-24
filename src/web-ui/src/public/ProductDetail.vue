@@ -16,9 +16,11 @@
               <template v-else>Items currently in stock: {{ product.current_stock }}</template>
             </div>
 
+            <div v-if="cartHasMaxAmount" class="mb-2">Sorry, you cannot add more of this item to your cart.</div>
+
             <div class="mb-5 mb-md-4 d-flex">
               <button
-                v-if="!outOfStock"
+                v-if="!outOfStock && !cartHasMaxAmount"
                 class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="quantity-dropdown"
@@ -30,7 +32,7 @@
               </button>
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
                 <button
-                  v-for="i in Math.min(9, product.current_stock)"
+                  v-for="i in Math.min(9, product.current_stock - quantityInCart)"
                   :key="i"
                   class="dropdown-item"
                   @click="quantity = i"
@@ -38,7 +40,9 @@
                   {{ i }}
                 </button>
               </div>
-              <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock">Add to Cart</button>
+              <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
+                Add to Cart
+              </button>
             </div>
 
             <p>{{ product.description }}</p>
@@ -97,7 +101,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState({ user: (state) => state.user, cart: (state) => state.cart.cart }),
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
@@ -109,6 +113,19 @@ export default {
         to: `/category/${this.product.category}`,
         text: this.readableProductCategory,
       };
+    },
+    cartItem() {
+      if (!this.product || !this.cart) return 0;
+
+      return this.cart.items.find((item) => item.product_id === this.product.id);
+    },
+    quantityInCart() {
+      return this.cartItem?.quantity ?? 0;
+    },
+    cartHasMaxAmount() {
+      if (!this.product || !this.cartItem) return false;
+
+      return !this.outOfStock && this.cartItem.quantity >= this.product.current_stock;
     },
   },
   watch: {

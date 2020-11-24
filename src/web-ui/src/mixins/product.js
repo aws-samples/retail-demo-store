@@ -26,7 +26,7 @@ export const product = {
       return capitalize(this.product.category);
     },
     outOfStock() {
-      if (!this.product) return null;
+      if (!this.product) return false;
 
       return this.product.current_stock === 0;
     },
