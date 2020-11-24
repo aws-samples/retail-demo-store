@@ -8,7 +8,7 @@
         :explainRecommended="explainRecommended"
       >
         <template #heading>
-          Inspired by your shopping trends
+          {{ userRecommendationsTitle }}
         </template>
       </RecommendedProductsSection>
 
@@ -45,6 +45,7 @@ export default {
     return {
       feature: EXPERIMENT_FEATURE,
       featuredProducts: null,
+      userRecommendationsTitle: null,
       userRecommendations: null,
       explainRecommended: null,
     };
@@ -84,6 +85,14 @@ export default {
             personalized: !!personalizeRecipe,
             explanation,
           };
+
+          if (personalizeRecipe) {
+            this.userRecommendationsTitle = this.personalizeRecommendationsForVisitor
+              ? 'Inspired by your shopping trends'
+              : 'Trending products';
+          } else if (experimentName) {
+            this.userRecommendationsTitle = 'Recommended for you';
+          }
         }
       }
 
