@@ -25,6 +25,11 @@ export const product = {
 
       return capitalize(this.product.category);
     },
+    outOfStock() {
+      if (!this.product) return null;
+
+      return this.product.current_stock === 0;
+    },
   },
   methods: {
     async getProductByID(product_id) {

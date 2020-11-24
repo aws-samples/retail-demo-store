@@ -11,8 +11,14 @@
           <div class="add-to-cart-and-description">
             <ProductPrice :price="product.price" class="mb-1"></ProductPrice>
 
+            <div class="mb-2">
+              <template v-if="outOfStock">Sorry, this item is currently out of stock.</template>
+              <template v-else>Items currently in stock: {{ product.current_stock }}</template>
+            </div>
+
             <div class="mb-5 mb-md-4 d-flex">
               <button
+                v-if="!outOfStock"
                 class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="quantity-dropdown"
@@ -23,9 +29,16 @@
                 Qty: {{ quantity }}
               </button>
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
-                <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+                <button
+                  v-for="i in Math.min(9, product.current_stock)"
+                  :key="i"
+                  class="dropdown-item"
+                  @click="quantity = i"
+                >
+                  {{ i }}
+                </button>
               </div>
-              <button class="add-to-cart-btn btn" @click="addProductToCart">Add to Cart</button>
+              <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock">Add to Cart</button>
             </div>
 
             <p>{{ product.description }}</p>
@@ -50,7 +63,7 @@
 
 <script>
 import swal from 'sweetalert';
-import {mapState,mapActions,mapGetters} from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
@@ -119,7 +132,7 @@ export default {
         exp: this.$route.query.exp,
       });
 
-      this.renderAddedToCartConfirmation()
+      this.renderAddedToCartConfirmation();
 
       this.resetQuantity();
     },
