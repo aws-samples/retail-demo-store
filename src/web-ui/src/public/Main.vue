@@ -2,7 +2,7 @@
   <Layout>
     <div class="content container">
       <RecommendedProductsSection
-        v-if="personalizeUserID"
+        v-if="user && personalizeUserID"
         :feature="feature"
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
