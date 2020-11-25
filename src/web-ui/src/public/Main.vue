@@ -2,7 +2,7 @@
   <Layout>
     <div class="content container">
       <RecommendedProductsSection
-        v-if="user && personalizeUserID"
+        v-if="personalizeUserID"
         :feature="feature"
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
@@ -62,8 +62,6 @@ export default {
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
     async getUserRecommendations() {
-      if (!this.personalizeRecommendationsForVisitor) return;
-
       const response = await RecommendationsRepository.getRecommendationsForUser(
         this.personalizeUserID,
         '',
