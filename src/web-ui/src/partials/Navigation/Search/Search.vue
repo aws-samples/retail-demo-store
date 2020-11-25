@@ -85,7 +85,7 @@ export default {
     },
     async rerank(items) {
       if (this.personalizeUserID && items && items.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID.id, items, EXPERIMENT_FEATURE);
+        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
         this.results = data;
       } else {
