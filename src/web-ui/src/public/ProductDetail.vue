@@ -115,7 +115,7 @@ export default {
       };
     },
     cartItem() {
-      if (!this.product || !this.cart) return 0;
+      if (!this.product || !this.cart) return null;
 
       return this.cart.items.find((item) => item.product_id === this.product.id);
     },
