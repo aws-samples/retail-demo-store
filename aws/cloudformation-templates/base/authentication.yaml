@@ -46,16 +46,8 @@ Resources:
       MfaConfiguration: "OFF"
       AutoVerifiedAttributes:
         - email
-        - phone_number
-      SmsConfiguration:
-        ExternalId: !Sub ${AuthName}-external
-        SnsCallerArn: !GetAtt SNSRole.Arn
       Schema:
         - Name: email
-          AttributeDataType: String
-          Mutable: false
-          Required: true
-        - Name: phone_number
           AttributeDataType: String
           Mutable: false
           Required: true

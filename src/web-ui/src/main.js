@@ -6,8 +6,11 @@ import App from './App.vue'
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
 import { components } from 'aws-amplify-vue'; 
+import store from '@/store/store';
 import moment from 'moment'
 import Amplitude from 'amplitude-js'
+
+import './styles/tokens.css'
 
 Vue.prototype.moment = moment
 
@@ -83,6 +86,7 @@ new Vue({
   el: '#app',
   router: router,
   template: '<App/>',
+  store,
   components: { 
     App,
     ...components

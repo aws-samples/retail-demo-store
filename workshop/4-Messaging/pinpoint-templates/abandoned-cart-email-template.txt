@@ -1,6 +1,12 @@
 Hi {{User.UserAttributes.FirstName}}-
 
-We noticed that you recently put some items in your shopping cart but didn't complete your order. If there is anything we can do to help with your decision, please let us know. In addition, we'd like to offer you a $5 coupon for being a valued customer. Just enter ABC123 in the promotion code field at checkout to redeem your coupon. This coupon will exire in one week.
+Sometimes you want to be extra sure. We just don’t want you to miss out. This is a friendly reminder to complete your purchase. Your favorite products are selling fast. 
+
+{{Attributes.ShoppingCartItemTitle}}
+Buy Now
 
 Cheers,
 Retail Demo Store team
+
+Amazon Pinpoint | Real-time events
+When a user interacts with products included in a Pinpoint email, the events recorded are feed into Personalize and will show up when the user returns to the store.

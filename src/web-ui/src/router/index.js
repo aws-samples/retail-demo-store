@@ -9,6 +9,7 @@ import CategoryDetail from '@/public/CategoryDetail.vue'
 import Help from '@/public/Help.vue'
 import Cart from '@/public/Cart.vue'
 import Checkout from '@/public/Checkout.vue'
+import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
 import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
@@ -53,9 +54,10 @@ function getCognitoUser() {
 // Event Handles for Authentication
 AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
-    AmplifyStore.commit('setLoggedOut');
+    AmplifyStore.dispatch('logout');
     AnalyticsHandler.clearUser()
-    router.push({path: '/'})
+    
+    if (router.currentRoute.path !== '/') router.push({ path: '/' })
   } 
   else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
@@ -166,6 +168,12 @@ async function getUser() {
 const router = new Router({
   routes: [
     {
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome,
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/',
       name: 'Main',
       component: Main,
@@ -222,7 +230,35 @@ const router = new Router({
     {
       path: '/auth',
       name: 'Authenticator',
-      component: components.Authenticator
+      component: components.Authenticator,
+      props: {
+        authConfig: {   
+          signUpConfig: {
+            hideAllDefaults: true,
+            header: 'Create new account',
+            signUpFields: [
+              {
+                label: 'Email',
+                key: 'email',
+                type: 'email',
+                required: true
+              },
+              {
+                label: 'Password',
+                key: 'password',
+                type: 'password',
+                required: true
+              },
+              {
+                label: 'Username',
+                key: 'username',
+                type: 'string',
+                required: true
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {
@@ -234,8 +270,18 @@ const router = new Router({
   }
 });
 
+// Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
 router.beforeResolve(async (to, _from, next) => {
+  if (!AmplifyStore.state.welcomePageVisited.visited) {
+    const user = await getUser();
+
+    if (!user) {
+      AmplifyStore.dispatch('welcomePageVisited');
+      return next('/welcome');
+    }
+  }     
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await getUser();
     if (!user) {
