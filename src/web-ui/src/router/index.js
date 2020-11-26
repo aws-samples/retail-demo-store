@@ -184,7 +184,7 @@ const router = new Router({
       path: '/product/:id',
       name: 'ProductDetail',
       component: ProductDetail,
-      props: route => ({ discount: route.query.di === "true" }),
+      props: route => ({ discount: route.query.di === "true" || route.query.di === true}),
       meta: { requiresAuth: false}
     },  
     {

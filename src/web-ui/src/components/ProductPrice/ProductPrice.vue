@@ -39,5 +39,6 @@ export default {
 
 .discounted {
   text-decoration: line-through;
+  color: red;
 }
 </style>

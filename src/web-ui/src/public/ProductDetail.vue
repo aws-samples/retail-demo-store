@@ -11,8 +11,16 @@
           <div class="add-to-cart-and-description">
             <ProductPrice :price="product.price" :discount="discount" class="mb-1"></ProductPrice>
 
+            <div class="mb-2">
+              <template v-if="outOfStock">Sorry, this item is currently out of stock.</template>
+              <template v-else>Items currently in stock: {{ product.current_stock }}</template>
+            </div>
+
+            <div v-if="cartHasMaxAmount" class="mb-2">Sorry, you cannot add more of this item to your cart.</div>
+
             <div class="mb-5 mb-md-4 d-flex">
               <button
+                v-if="!outOfStock && !cartHasMaxAmount"
                 class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="quantity-dropdown"
@@ -23,9 +31,18 @@
                 Qty: {{ quantity }}
               </button>
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
-                <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+                <button
+                  v-for="i in Math.min(9, product.current_stock - quantityInCart)"
+                  :key="i"
+                  class="dropdown-item"
+                  @click="quantity = i"
+                >
+                  {{ i }}
+                </button>
               </div>
-              <button class="add-to-cart-btn btn" @click="addProductToCart">Add to Cart</button>
+              <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
+                Add to Cart
+              </button>
             </div>
 
             <p>{{ product.description }}</p>
@@ -50,7 +67,7 @@
 
 <script>
 import swal from 'sweetalert';
-import {mapState,mapActions,mapGetters} from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
@@ -92,7 +109,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState({ user: (state) => state.user, cart: (state) => state.cart.cart }),
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
@@ -104,6 +121,19 @@ export default {
         to: `/category/${this.product.category}`,
         text: this.readableProductCategory,
       };
+    },
+    cartItem() {
+      if (!this.product || !this.cart) return 0;
+
+      return this.cart.items.find((item) => item.product_id === this.product.id);
+    },
+    quantityInCart() {
+      return this.cartItem?.quantity ?? 0;
+    },
+    cartHasMaxAmount() {
+      if (!this.product || !this.cartItem) return false;
+
+      return !this.outOfStock && this.cartItem.quantity >= this.product.current_stock;
     },
   },
   watch: {
@@ -130,7 +160,7 @@ export default {
         exp: this.$route.query.exp,
       });
 
-      this.renderAddedToCartConfirmation()
+      this.renderAddedToCartConfirmation();
 
       this.resetQuantity();
     },
