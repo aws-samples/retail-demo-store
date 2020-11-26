@@ -19,6 +19,7 @@ from flask_cors import CORS
 # -- Environment variables - defined by CloudFormation when deployed
 VIDEO_BUCKET = os.environ.get('RESOURCE_BUCKET')
 SSM_VIDEO_CHANNEL_MAP_PARAM = os.environ.get('PARAMETER_IVS_VIDEO_CHANNEL_MAP', 'retaildemostore-ivs-video-channel-map')
+
 USE_DEFAULT_IVS_STREAMS = os.environ.get('USE_DEFAULT_IVS_STREAMS') == 'true'
 
 DEFAULT_THUMB_FNAME = 'default_thumb.png'

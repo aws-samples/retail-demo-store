@@ -1,241 +1,258 @@
 <template>
-<div class="container">
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
+    <template #default>
+      <div class="container">
+        <main class="product-container mb-5 text-left">
+          <div class="title-and-rating mb-md-3">
+            <h1 class="product-name">{{ product.name }}</h1>
+            <FiveStars></FiveStars>
+          </div>
 
-  <!-- Loading Indicator -->
-  <div class="container mb-4" v-if="!product">
-    <i class="fas fa-spinner fa-spin fa-3x"></i>
-  </div>
+          <div class="add-to-cart-and-description">
+            <ProductPrice :price="product.price" :discount="discount" class="mb-1"></ProductPrice>
 
-  <!-- Product Detail-->
-  <div class="row" v-if="product">
-    <div class="col-sm-12 col-md-6 col-lg-6">
-      <img :src="productImageURL" class="card-img-top" alt="...">
-    </div>
-    <div class="col-sm-12 col-md-6 col-lg-6">
-       <h5>{{ product.name }}</h5>
-       <p>{{ product.description }}</p>
-       <p v-bind:class="{discount: discount == 'true'}">${{ product.price }}</p>
-       <p v-if="discount == 'true'" class="font-weight-bold">${{ discountedPrice.toFixed(2) }}</p>
-       <span v-if="product.current_stock > 0">Items currently in stock: {{ product.current_stock }}</span>
-       <span v-else>Sorry, this item is currently out of stock</span>
-       <p>
-        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-       </p>       
-       <button class="btn btn-outline-primary" v-on:click="addToCart()" :disabled='addToCartDisabled'> Add to Cart </button>
-    </div>
-  </div>
+            <div class="mb-5 mb-md-4 d-flex">
+              <button
+                class="quantity-dropdown mr-3 btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="quantity-dropdown"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Qty: {{ quantity }}
+              </button>
+              <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
+                <button v-for="i in 9" :key="i" class="dropdown-item" @click="quantity = i">{{ i }}</button>
+              </div>
+              <button class="add-to-cart-btn btn" @click="addProductToCart">Add to Cart</button>
+            </div>
 
-  <!-- Recommendations -->
-  <hr/>
-  <h5>What other items do customers view related to this product?</h5>
-  <div v-if="explain_recommended" class="text-muted text-center">
-    <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
-  </div>
+            <p>{{ product.description }}</p>
+          </div>
 
-  <div class="container related-products">
-    <div class="container mb-4" v-if="!related_products.length">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-    <div class="row">
-      <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-        <Product v-for="recommendation in related_products" 
-          v-bind:key="recommendation.product.id"
-          :product="recommendation.product"
-          :experiment="recommendation.experiment"
+          <div class="product-img">
+            <img :src="productImageUrl" class="img-fluid" :alt="product.name" />
+          </div>
+        </main>
+
+        <RecommendedProductsSection
+          :explainRecommended="explainRecommended"
+          :recommendedProducts="relatedProducts"
           :feature="feature"
-        />
+        >
+          <template #heading>Compare similar items</template>
+        </RecommendedProductsSection>
       </div>
-    </div>
-  </div>
-    
-</div>
+    </template>
+  </Layout>
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
-
-import { RepositoryFactory } from '@/repositories/RepositoryFactory'
-import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
-
-const ProductsRepository = RepositoryFactory.get('products')
-const CartsRepository = RepositoryFactory.get('carts')
-const RecommendationsRepository = RepositoryFactory.get('recommendations')
-const MaxRecommendations = 6
-const DiscountAmount = 0.2
-const ExperimentFeature = 'product_detail_related'
-
-import Product from './components/Product.vue'
-
 import swal from 'sweetalert';
+import {mapState,mapActions,mapGetters} from 'vuex';
+
+import { RepositoryFactory } from '@/repositories/RepositoryFactory';
+import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
+
+import { product } from '@/mixins/product';
+
+import Layout from '@/components/Layout/Layout';
+import ProductPrice from '@/components/ProductPrice/ProductPrice';
+import FiveStars from '@/components/FiveStars/FiveStars';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import {discountProductPrice} from "@/util/discountProductPrice";
+
+const RecommendationsRepository = RepositoryFactory.get('recommendations');
+const MAX_RECOMMENDATIONS = 6;
+const EXPERIMENT_FEATURE = 'product_detail_related';
 
 export default {
   name: 'ProductDetail',
   components: {
-    Product
+    Layout,
+    ProductPrice,
+    FiveStars,
+    RecommendedProductsSection,
   },
+  mixins: [product],
   props: {
-    discount: null
-  },
-  data () {
-    return {
-      feature: ExperimentFeature,
-      errors: [],
-      product: null,
-      related_products: [],
-      explain_recommended: '',
-      active_experiment: false,
-      personalized: false
+    discount: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
-  async created () {
-    this.fetchData();
+  data() {
+    return {
+      quantity: 1,
+      feature: EXPERIMENT_FEATURE,
+      relatedProducts: null,
+      explainRecommended: null,
+    };
+  },
+  computed: {
+    ...mapState(['user']),
+    ...mapGetters(['personalizeUserID']),
+    isLoading() {
+      return !this.product;
+    },
+    previousPageLinkProps() {
+      if (!this.product) return null;
+
+      return {
+        to: `/category/${this.product.category}`,
+        text: this.readableProductCategory,
+      };
+    },
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler() {
+        this.fetchData();
+      },
+    },
   },
   methods: {
-    addToCart: function () {
+    ...mapActions(['addToCart']),
+    resetQuantity() {
+      this.quantity = 1;
+    },
+    async addProductToCart() {
+      await this.addToCart({
+        product: {
+          ...this.product,
+          price: this.discount ? discountProductPrice(this.product.price) : this.product.price
+        },
+        quantity: this.quantity,
+        feature: this.$route.query.feature,
+        exp: this.$route.query.exp,
+      });
 
-      if (this.cart.items == null) {
-        this.cart.items = new Array()
-      } 
+      this.renderAddedToCartConfirmation()
 
-      var exists = false
-      var qty = 1
-      for (var item in this.cart.items) {
-        if (this.cart.items[item].product_id == this.product.id)
-        {
-          exists = true
-          qty = this.cart.items[item].quantity + 1
-          this.cart.items[item].quantity = this.cart.items[item].quantity + 1
-        } 
-      }
+      this.resetQuantity();
+    },
+    async fetchData() {
+      await this.getProductByID(this.$route.params.id);
 
-      if (exists == false) {
-          let newItem = {
-            product_id: this.product.id,
-            quantity: qty,
-            price: this.discount == 'true' ? this.discountedPrice : this.product.price
-          }
-          this.cart.items.push(newItem)
-      }
+      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
+      this.relatedProducts = null;
+      this.getRelatedProducts();
 
-      CartsRepository.updateCart(this.cart)
-      this.getCart()
+      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
+    },
+    async getRelatedProducts() {
+      const response = await RecommendationsRepository.getRelatedProducts(
+        this.personalizeUserID ?? '',
+        this.product.id,
+        MAX_RECOMMENDATIONS,
+        EXPERIMENT_FEATURE,
+      );
 
-      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
+      if (response.headers) {
+        const experimentName = response.headers['x-experiment-name'];
+        const personalizeRecipe = response.headers['x-personalize-recipe'];
 
-      swal({
-        title: "Added to Cart",
-        icon: "success",
-        buttons: {
-          cancel: "Continue Shopping",
-          cart: "View Cart"
+        if (experimentName || personalizeRecipe) {
+          const explanation = experimentName
+            ? `Active experiment: ${experimentName}`
+            : `Personalize recipe: ${personalizeRecipe}`;
+
+          this.explainRecommended = {
+            activeExperiment: !!experimentName,
+            personalized: !!personalizeRecipe,
+            explanation,
+          };
         }
+      }
+
+      this.relatedProducts = response.data;
+
+      if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
+        AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);
+      }
+    },
+    renderAddedToCartConfirmation() {
+      swal({
+        title: 'Added to Cart',
+        icon: 'success',
+        buttons: {
+          cancel: 'Continue Shopping',
+          cart: 'View Cart',
+        },
       }).then((value) => {
         switch (value) {
-          case "cancel":  
+          case 'cancel':
             break;
-          case "cart":
+          case 'cart':
             this.$router.push('/cart');
         }
       });
     },
-    async getProductByID (product_id){
-      const { data } = await ProductsRepository.getProduct(product_id)
-      this.product = data
-      this.getRelatedProducts()
-    },
-    async fetchData (){
-      await this.getProductByID(this.$route.params.id)
-      this.getCart()
-      this.recordProductViewed()
-    },
-    recordProductViewed() {
-      if (this.product) {
-        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp)
-      }
-    },
-    async getRelatedProducts() {
-      const response = await RecommendationsRepository.getRelatedProducts(this.personalizeUserID ? this.personalizeUserID : '', this.product.id, MaxRecommendations, ExperimentFeature)
-
-      if (response.headers) {
-        if (response.headers['x-personalize-recipe']) {
-          this.personalized = true
-          this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
-        }
-        if (response.headers['x-experiment-name']) {
-          this.active_experiment = true
-          this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
-        }
-      }
-
-      this.related_products = response.data
-
-      if (this.related_products.length > 0 && 'experiment' in this.related_products[0]) {
-        AnalyticsHandler.identifyExperiment(this.user, this.related_products[0].experiment)
-      }
-    },
-    async getCart () {
-      if (this.cartID) {
-        const { data } = await CartsRepository.getCartByID(this.cartID)
-        // Since cart service holds carts in memory, they can be lost on restarts. 
-        // Make sure our cart was returned. Otherwise create a new one.
-        if (data.id == this.cartID) {
-          this.cart = data
-        }
-        else {
-          console.warn('Cart ' + this.cartID + ' not found. Creating new cart. Was cart service restarted?')
-          this.createCart()
-        }
-      }
-      else {
-        this.createCart()
-      }
-    }, 
-    async createCart (){
-      if (this.user) {
-        const { data } = await CartsRepository.createCart(this.user.username)
-        this.cart = data
-      } else {
-        const { data } = await CartsRepository.createCart('guest')
-        this.cart = data
-      }
-      AmplifyStore.commit('setCartID', this.cart.id)
-    }
   },
-  computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },
-    personalizeUserID() {
-      return AmplifyStore.getters.personalizeUserID
-    },
-    cartID() {
-      return AmplifyStore.state.cartID
-    },
-    discountedPrice() {
-      return Math.round((this.product.price * (1-DiscountAmount)) * 100) / 100
-    },
-    productImageURL: function () {
-      if (this.product.image.includes('://')) {
-        return this.product.image
-      }
-      else {
-        let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
-        return root_url + this.product.category + '/' + this.product.image
-      }
-    },
-    addToCartDisabled: function () {
-      return !this.product.current_stock > 0     
-    }
-  },
-  watch: {
-    // call again the method if the route changes
-    '$route': 'fetchData'
-  },
-}
+};
 </script>
 
 <style scoped>
-.discount {
-  text-decoration: line-through;
+.product-container {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    'TitleAndRating'
+    'ProductImage'
+    'AddToCardAndDescription';
+}
+
+@media (min-width: 768px) {
+  .product-container {
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 30px;
+    grid-template-rows: auto;
+    grid-row-gap: 00px;
+    grid-template-areas:
+      'ProductImage TitleAndRating'
+      'ProductImage AddToCardAndDescription'
+      'ProductImage .';
+  }
+}
+
+.title-and-rating {
+  grid-area: TitleAndRating;
+}
+
+.product-name {
+  font-size: 1.5rem;
+}
+
+.add-to-cart-and-description {
+  grid-area: AddToCardAndDescription;
+}
+
+.quantity-dropdown {
+  border-color: var(--grey-600);
+}
+
+.quantity-dropdown:hover,
+.quantity-dropdown:focus {
+  background: var(--grey-900);
+  border-color: var(--grey-900);
+}
+
+.add-to-cart-btn {
+  background: var(--grey-600);
+  color: var(--white);
+}
+
+.add-to-cart-btn:hover,
+.add-to-cart-btn:focus {
+  background: var(--grey-900);
+}
+
+.product-img {
+  grid-area: ProductImage;
 }
 </style>

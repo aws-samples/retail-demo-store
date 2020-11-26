@@ -1,59 +1,62 @@
 <template>
-  <div class="content">
-    <div class="container">
-      <h3>Customer Support</h3>
+  <Layout>
+    <div class="content">
+      <div class="container">
+        <h3>Customer Support</h3>
 
-      <!-- Checking backend indicator -->
-      <div class="container mb-4" v-if="checkingBackend">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
+        <!-- Checking backend indicator -->
+        <div class="container mb-4" v-if="checkingBackend">
+          <i class="fas fa-spinner fa-spin fa-3x"></i>
+        </div>
 
-      <!-- Backend configured -->
-      <div v-if="backendConfigured">
-        <p>Support available 24/7/365. For immediate assistance please ask a question using the form below and our virtual assistant will direct your request.
-        </p>
-        <div class="row">
-          <div class="col-sm">
-            <amplify-chatbot v-bind:chatbotConfig="chatbotConfig" id="chatBot"></amplify-chatbot>
-          </div>
-          <div class="col-sm">
-            <div class="card-deck">
-              <div class="card card-recommend mb-3" v-for="card in responseCards" v-bind:key="card.title">
-                <img class="card-img-top" :src="card.imageUrl" :alt="card.title">
-                <div class="card-body">
-                  <h6 class="card-title">{{ card.title }}</h6>
-                  <p class="card-text"><small>{{ card.subTitle }}</small></p>
-                  <a class="btn btn-secondary btn-block mt-auto" :href="card.attachmentLinkUrl">Learn more...</a>
+        <!-- Backend configured -->
+        <div v-if="backendConfigured">
+          <p>Support available 24/7/365. For immediate assistance please ask a question using the form below and our virtual assistant will direct your request.
+          </p>
+          <div class="row">
+            <div class="col-sm">
+              <amplify-chatbot v-bind:chatbotConfig="chatbotConfig" id="chatBot"></amplify-chatbot>
+            </div>
+            <div class="col-sm">
+              <div class="card-deck">
+                <div class="card card-recommend mb-3" v-for="card in responseCards" v-bind:key="card.title">
+                  <img class="card-img-top" :src="card.imageUrl" :alt="card.title">
+                  <div class="card-body">
+                    <h6 class="card-title">{{ card.title }}</h6>
+                    <p class="card-text"><small>{{ card.subTitle }}</small></p>
+                    <a class="btn btn-secondary btn-block mt-auto" :href="card.attachmentLinkUrl">Learn more...</a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Backend NOT configured -->
-      <div v-if="!checkingBackend && !backendConfigured">
-        <p>The virtual assistant does not appear to be configured for this deployment.
-        </p>
-      </div>
+        <!-- Backend NOT configured -->
+        <div v-if="!checkingBackend && !backendConfigured">
+          <p>The virtual assistant does not appear to be configured for this deployment.
+          </p>
+        </div>
 
-      <div v-if="error" class="error">
-        {{ error }}
-      </div>
+        <div v-if="error" class="error">
+          {{ error }}
+        </div>
 
+      </div>
     </div>
-  </div>
+  </Layout>
 </template>
 
 <script>
 import { Interactions } from 'aws-amplify';
 import { AmplifyEventBus } from 'aws-amplify-vue';
 
+import Layout from '@/components/Layout/Layout'
+
 export default {
   name: 'Help',
   components: {
-  },
-  props: {
+    Layout,
   },
   data () {
     return {
