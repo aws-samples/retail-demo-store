@@ -17,6 +17,7 @@ import boto3
 import uuid
 import requests
 import logging
+import random
 
 NUM_DISCOUNTS = 2
 
@@ -25,6 +26,7 @@ DEBUG_LOGGING = True
 
 servicediscovery = boto3.client('servicediscovery')
 personalize = boto3.client('personalize')
+personalize_runtime = boto3.client('personalize-runtime')
 ssm = boto3.client('ssm')
 codepipeline = boto3.client('codepipeline')
 sts = boto3.client('sts')
@@ -39,6 +41,8 @@ product_campaign_arn_param = 'retaildemostore-product-recommendation-campaign-ar
 rerank_campaign_arn_param = 'retaildemostore-personalized-ranking-campaign-arn'
 discount_campaign_arn_param = 'retaildemostore-personalized-discount-campaign-arn'
 
+offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
+
 campaign_type_to_ssm_param = {
     "retaildemostore-related-products": "retaildemostore-related-products-campaign-arn",
     "retaildemostore-product-personalization": "retaildemostore-product-recommendation-campaign-arn",
@@ -47,7 +51,6 @@ campaign_type_to_ssm_param = {
 }
 
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
-dataset_group_name_root = 'retaildemostore-'
 
 CAMPAIGN_ARN_PARAMS = [related_product_campaign_arn_param, product_campaign_arn_param,
                        rerank_campaign_arn_param, discount_campaign_arn_param]
@@ -365,8 +368,7 @@ def ranking_request_params():
 
 
 def get_ranking(user_id, items, feature,
-                default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn',
-                top_n=None):
+                default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn'):
     """
     Re-ranks a list of items using personalized reranking.
     Or delegates to experiment manager if there is an active experiment.
@@ -377,7 +379,6 @@ def get_ranking(user_id, items, feature,
                                   {"itemId":"22", "url":"path_to_product22"}]
         feature: Used to lookup the currently active experiment.
         default_campaign_arn_param_name: For discounts this would be different.
-        top_n (Optional[int]): Only return the top N ranked if not None.
 
     Returns:
         Items as passed in, but ordered according to reranker - also might have experimentation metadata added.
@@ -445,18 +446,21 @@ def get_ranking(user_id, items, feature,
         )
 
     response_items = []
-    if top_n is not None:
-        # We may not want to return them all - for example in a "pick the top N" scenario.
-        ranked_items = ranked_items[:top_n]
-
     for ranked_item in ranked_items:
+
         # Unlike with /recommendations and /related we are not hitting the products API to get product info back
-        # The caller may have left that info in there so in case they have we want to leave it in.
+        # One would hope the caller would have it since the products are coming from there
         item = item_map.get(ranked_item.get('itemId'))
 
         if 'experiment' in ranked_item:
 
-            item['experiment'] = ranked_item['experiment']
+            # We do not want to override an experiment if info already there
+            # e.g. if client is pulling recommendations then reranking them for example
+            # - this should not happen as the first recommendation pull would already be ranked
+            if 'experiment' not in item:
+                # The client may just use the correlation ID but here
+                # we give full information about the experiment to the client anyway
+                item['experiment'] = ranked_item['experiment']
 
             if 'url' in item:
                 # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
@@ -468,6 +472,7 @@ def get_ranking(user_id, items, feature,
 
                 product_url += 'exp=' + ranked_item['experiment']['correlationId']
 
+                item['old_url'] = item['url']
                 item['url'] = product_url
 
         response_items.append(item)
@@ -486,6 +491,9 @@ def rerank():
         print('ITEMS', items)
         response_items, resp_headers = get_ranking(user_id, items, feature)
         app.logger.debug(f"Response items for reranking: {response_items}")
+        for item in response_items:
+            if 'old_url' in item:
+                del item['old_url']  # clean up some stuff
         resp = Response(json.dumps(response_items, cls=CompatEncoder), content_type='application/json',
                         headers=resp_headers)
         return resp
@@ -497,39 +505,27 @@ def rerank():
 @app.route('/choose_discounted', methods=['POST'])
 def choose_discounted():
     """
-    Gets user ID, items list and feature and chooses which items to discount according to the discount reranking
+    Gets user ID, items list and feature and chooses which one to discount according to the discount reranking
     campaign.
-    The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
-    The items that are chosen for discount will have the "discounted" key set to True.
-    If there is an experiment active for this feature the request for ranking for choosing discounts will have been
-    routed through the experiment resolver and discounts chosen according to whichever approach is active. The
-    items will have experiment information recorded against them and if URLs were provided for products these will be
-    suffixed with an experiment tracking correlation ID. That way, different approaches to discounting can be compared,
-    as with different approaches to recommendations and reranking in other campaigns.
     """
     items = []
     try:
         user_id, items, feature = ranking_request_params()
         response_items, resp_headers = get_ranking(
             user_id, items, feature,
-            default_campaign_arn_param_name='retaildemostore-personalized-discount-campaign-arn',
-            top_n=NUM_DISCOUNTS)
-        discount_item_map = {item['itemId']:item for item in response_items}
-
-        return_items = []
+            default_campaign_arn_param_name='retaildemostore-personalized-discount-campaign-arn')
+        discount_inds = [item['itemId'] for item in response_items[:NUM_DISCOUNTS]]
         for item in items:
-            item_id = item['itemId']
-            if item_id in discount_item_map:
-                # This was picked for discount so we flag it as a discounted item. It may also have experiment
-                # information recorded against it by get_ranking() if an experiment is active.
-                discounted_item = discount_item_map[item_id]
-                discounted_item['discounted'] = True
-                return_items.append(discounted_item)
+            if item['itemId'] in discount_inds:
+                item['discounted'] = True
+                if 'old_url' in item:
+                    del item['old_url']  # clean up some stuff
             else:
-                # This was not picked for discount, so is not participating in any experiment comparing
-                # discount approaches and we also do not flag it as a discounted item
                 item['discounted'] = False
-                return_items.append(item)
+                if 'experiment' in item: del item['experiment']  # do not track as it was not recommended (no discount)
+                if 'old_url' in item:
+                    item['url'] = item['old_url']  # do not track as it was not recommended (no discount)
+                    del item['old_url']  # clean up
 
         resp = Response(json.dumps(items, cls=CompatEncoder), content_type='application/json',
                         headers=resp_headers)
@@ -537,6 +533,167 @@ def choose_discounted():
     except Exception as e:
         app.logger.exception('Unexpected error calculating discounted items', e)
         return json.dumps(items)
+
+
+def get_offers_service():
+    """
+    Get offers service URL root. Check for env variables first in case we're running in a local Docker container (dev mode)
+    """
+
+    service_host = os.environ.get('OFFERS_SERVICE_HOST')
+    service_port = os.environ.get('OFFERS_SERVICE_PORT', 80)
+
+    if not service_host or service_host.strip().lower() == 'offers.retaildemostore.local':
+        # Get product service instance. We'll need it rehydrate product info for recommendations.
+        response = servicediscovery.discover_instances(
+            NamespaceName='retaildemostore.local',
+            ServiceName='offers',
+            MaxResults=1,
+            HealthStatus='HEALTHY'
+        )
+
+        service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+
+    return service_host, service_port
+
+
+def get_all_offers_by_id():
+    """We might wish to prepopulate all offers if we are going to be picking up multiple offers."""
+    offers_service_host, offers_service_port = get_offers_service()
+    url = f'http://{offers_service_host}:{offers_service_port}/offers'
+    logger.debug(f"Asking for offers info from {url}")
+    offers_response = requests.get(url)  # we let connection error propagate
+    logger.debug(f"Got offer info: {offers_response}")
+    if not offers_response.ok:
+        logger.error(f"Offers service not giving us offers: {offers_response.reason}")
+        raise BadRequest(message='Cannot obtain offers', status_code=500)
+    offers = offers_response.json()['tasks']
+    offers_by_id = {str(offer['id']): offer for offer in offers}
+    return offers_by_id
+
+
+def get_offer_by_id(offer_id):
+    offers_service_host, offers_service_port = get_offers_service()
+    url = f'http://{offers_service_host}:{offers_service_port}/offers/{offer_id}'
+    logger.debug(f"Asking for offer info from {url}")
+    offers_response = requests.get(url)  # we let connection error propagate
+    logger.debug(f"Got offer info: {offers_response}")
+    if not offers_response.ok:
+        logger.error(f"Offers service not giving us offers: {offers_response.reason}")
+        raise BadRequest(message='Cannot obtain offers', status_code=500)
+    offer = offers_response.json()['task']
+    return offer
+
+
+@app.route('/coupon_offer', methods=['GET'])
+def coupon_offer():
+    """
+    Returns an offer recommendation for a given user.
+
+    Hits the offers endpoint to find what offers are available, get their preferences for adjusting scores.
+    Uses Amazon Personalize if available to score them.
+    Returns the highest scoring offer.
+
+    Experimentation is disabled because we are sending the offers through Pinpoint emails and for this
+    demonstration we would need to add some more complexity to track those within the current framework.
+    Pinpoint also has A/B experimentation built in which can be used.
+    """
+
+    user_id = request.args.get('userID')
+    if not user_id:
+        raise BadRequest('userID is required')
+
+    resp_headers = {}
+    try:
+
+        campaign_arn = get_parameter_values(offers_arn_param_name)[0]
+        offers_service_host, offers_service_port = get_offers_service()
+
+        url = f'http://{offers_service_host}:{offers_service_port}/offers'
+        app.logger.debug(f"Asking for offers info from {url}")
+        offers_response = requests.get(url)
+        app.logger.debug(f"Got offer info: {offers_response}")
+
+        if not offers_response.ok:
+            app.logger.exception('Offers service did not return happily', offers_response.reason())
+            raise BadRequest(message='Cannot obtain offers', status_code=500)
+        else:
+
+            offers = offers_response.json()['tasks']
+            offers_by_id = {str(offer['id']): offer for offer in offers}
+            offer_ids = sorted(list(offers_by_id.keys()))
+
+            if not campaign_arn:
+                app.logger.warning('No campaign Arn set for offers - returning random')
+                #chosen_offer_id = random.choice(offer_ids)
+                # We deterministically choose an offer.
+                chosen_offer_id = offer_ids[int(user_id) % len(offer_ids)]
+                chosen_score = None
+            else:
+                resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+                logger.info(f"Input to Personalized Ranking for offers: userId: {user_id}({type(user_id)}) "
+                            f"inputList: {offer_ids}")
+                # get_recommendations_response = personalize_runtime.get_personalized_ranking(
+                #     campaignArn=campaign_arn,
+                #     userId=user_id,
+                #     inputList=offer_ids
+                # )
+                get_recommendations_response = personalize_runtime.get_recommendations(
+                    campaignArn=campaign_arn,
+                    userId=user_id,
+                    numResults=len(offer_ids)
+                )
+
+                logger.info(f'Recommendations returned: {json.dumps(get_recommendations_response)}')
+
+                return_key = 'personalizedRanking'
+                return_key = 'itemList'
+
+                # Here is where might want to incorporate some business logic
+                # for more information on how these scores are used see
+                # https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-scores-in-amazon-personalize/
+                user_scores = {item['itemId']: float(item['score']) for item in
+                               get_recommendations_response[return_key]}
+                # We assume we have pre-calculated the adjusting factor, can be a mix of probability when applicable,
+                # calculation of expected return per offer, etc.
+                adjusted_scores = {offer_id: score * offers_by_id[offer_id]['preference']
+                                   for offer_id, score in user_scores.items()}
+                logger.info(f"Scores after adjusting for preference parameters: {adjusted_scores}")
+
+                # Normalise these - makes it easier to do further adjustments
+                score_sum = sum(adjusted_scores.values())
+                adjusted_scores = {offer_id: score / score_sum
+                                   for offer_id, score in adjusted_scores.items()}
+                logger.info(f"Scores after normalising adjusted scores: {adjusted_scores}")
+
+                # Just one way we could add some randomness - adds serendipity though removes personalization a bit
+                # because we have the scores though we retain a lot of the personalization
+                random_factor = 0.0
+                adjusted_scores = {offer_id: score*(1-random_factor) + random_factor*random.random()
+                                   for offer_id, score in adjusted_scores.items()}
+                logger.info(f"Scores after adding randomness: {adjusted_scores}")
+
+                # We can do many other things here, like randomisation, normalisation in different dimensions,
+                # tracking per-user, offer, quotas, etc. Here, we just select the most promising adjusted score
+                chosen_offer_id = max(adjusted_scores, key=adjusted_scores.get)
+                chosen_score = user_scores[chosen_offer_id]
+                chosen_adjusted_score = adjusted_scores[chosen_offer_id]
+
+            chosen_offer = offers_by_id[chosen_offer_id]
+            if chosen_score is not None:
+                chosen_offer['score'] = chosen_score
+                chosen_offer['adjusted_score'] = chosen_adjusted_score
+
+
+        resp = Response(json.dumps({'offer': chosen_offer}, cls=CompatEncoder),
+                        content_type='application/json', headers=resp_headers)
+
+        app.logger.debug(f"Recommendations response to be returned for offers: {resp}")
+        return resp
+
+    except Exception as e:
+        app.logger.exception('Unexpected error generating recommendations', e)
+        raise BadRequest(message='Unhandled error', status_code=500)
 
 
 @app.route('/experiment/outcome', methods=['POST'])
@@ -621,11 +778,13 @@ def reset_realtime():
     for train_config_step in train_configs['steps']:
 
         new_train_config_step = {'dataset_groups': {}}
-        # Let us change the dataset group suffix to avoid any silliness with carrying over events
+        # Let us change the dataset group suffix to avoid carrying over any resources keyed by dataset group
         if train_config_step['dataset_groups'] is not None:
             for dataset_group_name, dataset_group_config in train_config_step['dataset_groups'].items():
 
+                dataset_group_name_root = dataset_group_name.split('-')[0]
                 new_dataset_group_name = dataset_group_name_root + str(uuid.uuid4())[:8]
+
                 # Let us also bump the solution number in case some things are stored by name there
                 for campaign_type, campaign_config in dataset_group_config['campaigns'].items():
                     campaign_config['desired_campaign_suffixes'] = [v + 1 for v in campaign_config['desired_campaign_suffixes']]

@@ -11,8 +11,12 @@ type Order struct {
 	Total           float32    		`json:"total" yaml:"total"`
 	BillingAddress  Address    		`json:"billing_address" yaml:"billing_address"`
 	ShippingAddress Address    		`json:"shipping_address" yaml:"shipping_address"`
+	DeliveryType    string          `json:"delivery_type" yaml:"delivery_type"`
+	DeliveryStatus  string          `json:"delivery_status" yaml:"delivery_status"`
+	PaymentType     string          `json:"payment_type" yaml:"payment_type"`
 	Channel			string	   		`json:"channel" yaml:"channel"`
 	ChannelDetail   ChannelDetail	`json:"channel_detail" yaml:"channel_detail"`
+	DeliveryComplete bool           `json:"delivery_complete" yaml:"delivery_complete"`
 }
 
 // Orders Array

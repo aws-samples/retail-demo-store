@@ -10,7 +10,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
+
 	"github.com/gorilla/mux"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
 // Index Handler
@@ -102,6 +106,46 @@ func CartCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
+		panic(err)
+	}
+}
+
+//CartCreate Func
+func SignAmazonPayPayload(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+	if (*r).Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	awsSession := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+
+	client := lambda.New(awsSession)
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+
+	var requestBody map[string]interface{}
+	json.Unmarshal(body, &requestBody)
+
+	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("WaypointNrfDemoAmazonPaySigningLambda"), Payload: body})
+	if err != nil {
+		panic(err)
+	}
+
+	var responsePayload map[string]interface{}
+	json.Unmarshal(result.Payload, &responsePayload)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(responsePayload); err != nil {
 		panic(err)
 	}
 }

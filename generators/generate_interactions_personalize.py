@@ -34,7 +34,7 @@ RANDOM_SEED = 0
 
 # Without checking the contents, skip making any output files. Since this script is deterministic,
 # this will usually give the correct behaviour.
-SKIP_EXISTING = True
+SKIP_EXISTING = False
 
 # Where to put the generated data so that it is picked up by stage.sh
 GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-campaigns/data"
@@ -384,7 +384,7 @@ def generate_data():
         print(f"Total order completed: {order_completed_count} ({discounted_order_completed_count})")
 
     globals().update(locals())   # This can be used for inspecting in console after script ran or if run with ipython.
-    print('Generation script finished')
+    print('Generation script finished - user-product interactions')
 
 
 if __name__ == '__main__':

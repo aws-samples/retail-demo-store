@@ -101,6 +101,12 @@ Resources:
           StringAttributeConstraints:
             MinLength: '1'
             MaxLength: '200'
+        - Name: demo_journey
+          AttributeDataType: String
+          Mutable: true
+          StringAttributeConstraints:
+            MinLength: '1'
+            MaxLength: '200'
   
   # Creates a User Pool Client to be used by the identity pool
   UserPoolClient:
@@ -213,6 +219,11 @@ Resources:
                   - "lex:PostText"
                 Resource:
                   - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:RetailDemoStore:*"
+              - Effect: "Allow"
+                Action:
+                  - "geo:*"
+                Resource:
+                  - !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:*"
   
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:

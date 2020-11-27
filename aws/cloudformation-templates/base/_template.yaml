@@ -85,6 +85,8 @@ Resources:
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
+        PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         
   # Tables
   Tables:

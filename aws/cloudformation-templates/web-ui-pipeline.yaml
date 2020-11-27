@@ -54,6 +54,18 @@ Parameters:
   GitHubUser:
     Type: String
 
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: Public Key ID for the Amazon Pay sandbox account being used
+
+  AmazonPayStoreId:
+    Type: String
+    Description: Store ID of the Amazon Pay sandbox account being used
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: Merchant ID of the Amazon Pay sandbox account being used
+
   UserPoolId:
     Type: String
 
@@ -83,7 +95,15 @@ Parameters:
     Type: String
     Default: none
 
+  WaypointServiceExternalUrl:
+    Type: String
+    Default: none
+
   SearchServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OffersServiceExternalUrl:
     Type: String
     Default: none
 
@@ -109,6 +129,14 @@ Parameters:
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
+
+  WaypointResourceName:
+    Type: String
+    Description: Name of Waypoint resources (Map, Geofence collection, Tracker)
+
+  WaypointNotificationEndpoint:
+    Type: String
+    Description: URL of WebSocket API for Geofence notifications
 
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
@@ -319,6 +347,12 @@ Resources:
             Value: !Ref WebUIBucketName
           - Name: CLOUDFRONT_DIST_ID
             Value: !Ref WebUICDN
+          - Name: AMAZON_PAY_PUBLIC_KEY_ID
+            Value: !Ref AmazonPayPublicKeyId
+          - Name: AMAZON_PAY_STORE_ID
+            Value: !Ref AmazonPayStoreId
+          - Name: AMAZON_PAY_MERCHANT_ID
+            Value: !Ref AmazonPayMerchantId
           - Name: COGNITO_USER_POOL_ID
             Value: !Sub ${UserPoolId}
           - Name: COGNITO_USER_POOL_CLIENT_ID
@@ -334,7 +368,9 @@ Resources:
           - Name: ORDERS_SERVICE_URL
             Value: !Sub ${OrdersServiceExternalUrl}        
           - Name: RECOMMENDATIONS_SERVICE_URL
-            Value: !Sub ${RecommendationsServiceExternalUrl}   
+            Value: !Sub ${RecommendationsServiceExternalUrl}
+          - Name: WAYPOINT_SERVICE_URL
+            Value: !Sub ${WaypointServiceExternalUrl}
           - Name: SEARCH_SERVICE_URL
             Value: !Sub ${SearchServiceExternalUrl}
           - Name: VIDEOS_SERVICE_URL
@@ -352,6 +388,10 @@ Resources:
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey
+          - Name: WAYPOINT_RESOURCE_NAME
+            Value: !Ref WaypointResourceName
+          - Name: WAYPOINT_NOTIFICATION_URL
+            Value: !Ref WaypointNotificationEndpoint
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL

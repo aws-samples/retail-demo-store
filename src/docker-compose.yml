@@ -9,6 +9,9 @@ services:
       context: ./carts
     networks:
       - dev-net
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
     ports:
       - "8003:80"
 
@@ -106,6 +109,30 @@ services:
       - dev-net
     ports:
       - "8002:80"
+
+  offers:
+    container_name: offers
+    build:
+      context: offers
+    networks:
+      - dev-net
+    ports:
+      - "8008:80"
+
+  waypoint:
+    container_name: waypoint
+    build:
+      context: waypoint
+    networks:
+      - dev-net
+    environment:
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
+      - RESOURCE_BUCKET
+    volumes:
+      - ~/.aws/:/root/.aws:ro
+    ports:
+      - "8009:80"
 
   # This service has it's own .env file at src/web-ui/.env
   web-ui:

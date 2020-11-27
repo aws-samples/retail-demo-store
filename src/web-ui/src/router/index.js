@@ -23,6 +23,9 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
+import Waypoint from "@/public/Waypoint";
+import Collections from "@/public/Collections";
+
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -58,7 +61,7 @@ AmplifyEventBus.$on('authState', async (state) => {
     AnalyticsHandler.clearUser()
     router.push({path: '/'})
   } 
-  else if (state === 'signedIn') {
+    else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
 
     let storeUser = null
@@ -70,14 +73,8 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser = data
     }
     else {
-      const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
-      storeUser = data
-    }
-
-    if (!storeUser.id) {
-      // Store user does not exist. Create one on the fly.
-      console.log('store user does not exist for cognito user... creating on the fly')
-      const { data } = await UsersRepository.createUser(cognitoUser.username, cognitoUser.attributes.email)
+      // If the user is not associated with a store user, we assign them one randomly.
+      const { data } = await UsersRepository.getUserByID(Math.floor(Math.random() * 6000).toString())
       storeUser = data
     }
 
@@ -211,7 +208,19 @@ const router = new Router({
       name: 'Checkout',
       component: Checkout,
       meta: { requiresAuth: false}
-    },       
+    },
+    {
+      path: '/waypoint',
+      name: 'Waypoint',
+      component: Waypoint,
+      meta: { requiresAuth: true}
+    },
+    {
+      path: '/collections',
+      name: 'Collections',
+      component: Collections,
+      meta: { requiresAuth: true}
+    },
     {
       path: '/profile',
       name: 'Profile',

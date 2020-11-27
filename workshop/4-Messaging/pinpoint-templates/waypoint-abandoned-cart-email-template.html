@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <style>
+            td.product {text-align: center;}
+        </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<center>
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td>
+            <p><strong>Hi {{User.UserAttributes.FirstName}}</strong>-
+            </p>
+            <p>We noticed that you have items in your cart. Would you like to complete your purchase in the local AWS Retail Demo store?
+            </p>
+            <p>Cheers,<br/>Retail Demo Store team
+            </p>
+        </td>
+    </tr>
+    <tr><td class="product"><strong>Products waiting for you include:</strong></td></tr>
+    <tr><td class="product">{{User.UserAttributes.CartProductNames.[0]}}<br/><img src="{{User.UserAttributes.CartProductImages.[0]}}" width="100px"></td></tr>
+    <tr><td class="product">{{User.UserAttributes.CartProductNames.[1]}}<br/><img src="{{User.UserAttributes.CartProductImages.[1]}}" width="100px"></td></tr>
+    <tr><td class="product">{{User.UserAttributes.CartProductNames.[2]}}<br/><img src="{{User.UserAttributes.CartProductImages.[2]}}" width="100px"></td></tr>
+    <tr>
+        <td style="text-align: center; padding-top: 20px">
+            <small>Retail Demo Store &copy; 2019-2020</small>
+        </td>
+    </tr>
+    </table>
+</center>
+</body>
+</html>

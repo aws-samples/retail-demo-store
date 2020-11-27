@@ -1,6 +1,7 @@
 .idea
 __pycache__/
 .vscode
+.python-version
 build/*
 .venv/
 venv/
@@ -8,12 +9,15 @@ workshop/*/.ipynb_checkpoints
 workshop/1-Personalization/interactions.csv
 workshop/1-Personalization/items.csv
 workshop/1-Personalization/users.csv
+workshop/generate_interactions_personalize.py
 src/web-ui/node_modules
+src/aws-lambda/amazon-pay-signing/node_modules
 .DS_Store
 src/aws-lambda/*/bin/
 src/aws-lambda/*/package
 src/aws-lambda/elasticsearch-pre-index/products.yaml
 src/aws-lambda/personalize-delete-resources/models
+src/aws-lambda/personalize-pre-create-campaigns/data/
 src/aws-lambda/personalize-pre-create-campaigns/models
 src/aws-lambda/pinpoint-auto-workshop/pinpoint-templates
 local/*
@@ -26,3 +30,5 @@ generators/*.gz
 workshop/data/*
 workshop/datagenerator/*
 workshop/requirements.txt
+videos/
+!videos/sample.*

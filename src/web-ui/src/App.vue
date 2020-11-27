@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <Notifications/>
     <Navigation/>
     <router-view class="text-center"/>
     <Footer/>
@@ -9,10 +10,12 @@
 <script>
 import Navigation from './public/Navigation.vue'
 import Footer from './public/Footer.vue'
+import Notifications from "@/public/Notifications";
 
 export default {
   name: 'app',
   components: {
+    Notifications,
     Navigation,
     Footer
   },

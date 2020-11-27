@@ -64,97 +64,127 @@
         </div>
         <div class="col-md-8 order-md-1">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Details</span>
-          </h4>          
+            <span class="text-muted">Delivery Preferences</span>
+          </h4>
           <hr/>
-          <h5 class="mb-3">Billing Address</h5>
-          <form>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="firstName">First name</label>
-                <input type="text" class="form-control" id="firstName" v-model="order.billing_address.first_name" placeholder="" value="" required>
+          <div class="row">
+            <div class="col">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption1" :value="true" v-model="collection">
+                <label class="form-check-label" for="collectionOption1">Collection</label>
               </div>
-              <div class="col-md-6 mb-3">
-                <label for="lastName">Last name</label>
-                <input type="text" class="form-control" id="lastName" v-model="order.billing_address.last_name" placeholder="" value="" required>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption2" :value="false" v-model="collection">
+                <label class="form-check-label" for="collectionOption2">Delivery</label>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="email">Email <span class="text-muted">(Optional)</span></label>
-              <input type="email" class="form-control" id="email" v-model="order.email" placeholder="you@example.com">
+          </div>
+          <hr/>
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Payment</span>
+          </h4>
+          <hr/>
+          <div class="row">
+            <div class="col" v-if="this.useAmazonPay">
+              <amazon-pay-button @click.native="submitAmazonPayOrder"/>
             </div>
-
-            <div class="mb-3">
-              <label for="address">Address</label>
-              <input type="text" class="form-control" id="address" v-model="order.billing_address.address1" placeholder="1234 Main St" required>
-            </div>
-
-            <div class="mb-3">
-              <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
-              <input type="text" class="form-control" id="address2" v-model="order.billing_address.address2" placeholder="Apartment or suite">
-            </div>
-
-            <div class="row">
-              <div class="col-md-5 mb-3">
-                <label for="country">Country</label>
-                <select class="custom-select d-block w-100" id="country" v-model="order.billing_address.country" required>
-                  <option value="">Choose...</option>
-                  <option value="US">United States</option>
-                </select>
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="state">State</label>
-                <select class="custom-select d-block w-100" id="state" v-model="order.billing_address.state" required>
-                  <option value="">Choose...</option>
-                  <option value="CA">California</option>
-                </select>
-              </div>
-              <div class="col-md-3 mb-3">
-                <label for="zip">Zip</label>
-                <input type="text" class="form-control" id="zip" v-model="order.billing_address.zipcode" placeholder="" required>
-                <div class="invalid-feedback">
-                  Zip code required.
+          </div>
+          <p class="btn btn-link m-0 p-0 pb-3 " v-on:click="() => this.useAmazonPay = !this.useAmazonPay">
+            <small>
+              {{ this.useAmazonPay ? "Enter details manually" : "Use Amazon Pay" }}
+            </small>
+          </p>
+          <div v-if="!this.useAmazonPay">
+            <h5 class="mb-3">Billing Address</h5>
+            <form>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="firstName">First name</label>
+                  <input type="text" class="form-control" id="firstName" v-model="order.billing_address.first_name" placeholder="" value="" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="lastName">Last name</label>
+                  <input type="text" class="form-control" id="lastName" v-model="order.billing_address.last_name" placeholder="" value="" required>
                 </div>
               </div>
-            </div>
-            <hr class="mb-4">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="same-address">
-              <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="save-info">
-              <label class="custom-control-label" for="save-info">Save this information for next time</label>
-            </div>
-            <hr class="mb-4">
 
-            <h5 class="mb-3">Payment</h5>
+              <div class="mb-3">
+                <label for="email">Email <span class="text-muted">(Optional)</span></label>
+                <input type="email" class="form-control" id="email" v-model="order.email" placeholder="you@example.com">
+              </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="cc-name">Name on card</label>
-                <input type="text" class="form-control" id="cc-name" placeholder="" required>
-                <small class="text-muted">Full name as displayed on card</small>
+              <div class="mb-3">
+                <label for="address">Address</label>
+                <input type="text" class="form-control" id="address" v-model="order.billing_address.address1" placeholder="1234 Main St" required>
               </div>
-              <div class="col-md-6 mb-3">
-                <label for="cc-number">Credit card number</label>
-                <input type="text" class="form-control" id="cc-number" placeholder="" required>
+
+              <div class="mb-3">
+                <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
+                <input type="text" class="form-control" id="address2" v-model="order.billing_address.address2" placeholder="Apartment or suite">
               </div>
-            </div>
-            <div class="row">
-              <div class="col-md-3 mb-3">
-                <label for="cc-expiration">Expiration</label>
-                <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
+
+              <div class="row">
+                <div class="col-md-5 mb-3">
+                  <label for="country">Country</label>
+                  <select class="custom-select d-block w-100" id="country" v-model="order.billing_address.country" required>
+                    <option value="">Choose...</option>
+                    <option value="US">United States</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="state">State</label>
+                  <select class="custom-select d-block w-100" id="state" v-model="order.billing_address.state" required>
+                    <option value="">Choose...</option>
+                    <option value="CA">California</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="zip">Zip</label>
+                  <input type="text" class="form-control" id="zip" v-model="order.billing_address.zipcode" placeholder="" required>
+                  <div class="invalid-feedback">
+                    Zip code required.
+                  </div>
+                </div>
               </div>
-              <div class="col-md-3 mb-3">
-                <label for="cc-expiration">CVV</label>
-                <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
+              <hr class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="same-address">
+                <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
               </div>
-            </div>
-            <hr class="mb-4">
-            <button class="btn btn-primary btn-lg btn-block" v-on:click="submitOrder">Confirm Order</button>
-          </form>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="save-info">
+                <label class="custom-control-label" for="save-info">Save this information for next time</label>
+              </div>
+              <hr class="mb-4">
+
+              <h5 class="mb-3">Payment</h5>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="cc-name">Name on card</label>
+                  <input type="text" class="form-control" id="cc-name" placeholder="" required>
+                  <small class="text-muted">Full name as displayed on card</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="cc-number">Credit card number</label>
+                  <input type="text" class="form-control" id="cc-number" placeholder="" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <label for="cc-expiration">Expiration</label>
+                  <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="cc-expiration">CVV</label>
+                  <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
+                </div>
+              </div>
+              <hr class="mb-4">
+              <button class="btn btn-primary btn-lg btn-block" v-on:click="submitOrder">Confirm Order</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -169,13 +199,20 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import swal from 'sweetalert';
+import AmazonPayButton from "@/public/components/AmazonPayButton";
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
 
+let amazonPayDeployed = false;
+if (process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_PAY_STORE_ID && process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID) {
+  amazonPayDeployed = true;
+}
+
 export default {
   name: 'Checkout',
   components: {
+    AmazonPayButton
   },
   props: {
   },
@@ -184,7 +221,9 @@ export default {
       errors: [],
       cart: null,
       order: null,
-      showCheckout: false
+      showCheckout: false,
+      collection: true,
+      useAmazonPay: amazonPayDeployed
     }
   },
   async created () {
@@ -205,6 +244,7 @@ export default {
         this.cart = data
         this.order = this.cart
         this.order.total = this.cartTotal
+        this.order.delivery_type = this.collection ? 'COLLECTION' : 'DELIVERY'
 
         if (this.user) {
           this.order.email = this.user.email
@@ -237,6 +277,11 @@ export default {
     },
     guestCheckout () {
       this.showCheckout = true
+    },
+    submitAmazonPayOrder () {
+      OrdersRepository.createOrder(this.cart).then(() => {
+        AmplifyStore.commit('setCartID', null)
+      })
     },
     submitOrder () {
 
@@ -302,6 +347,11 @@ export default {
       return quantity
     }
   },
+  watch: {
+    collection: function(value) {
+      this.order.delivery_type = value ? 'COLLECTION' : 'DELIVERY';
+    }
+  }
 }
 </script>
 

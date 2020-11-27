@@ -31,6 +31,9 @@ export const AnalyticsHandler = {
 
         try {
             const cognitoUser = await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser()
+            const endpointId = AmplifyAnalytics.getPluggable('AWSPinpoint')._config.endpointId;
+            console.log('Pinpoint EndpointId Currently Active:');
+            console.log(endpointId);
 
             let endpoint = {
                 userId: user.id,

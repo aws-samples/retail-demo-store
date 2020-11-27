@@ -75,10 +75,10 @@ aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
 # Stage AWS Lambda functions
 echo " + Staging AWS Lambda functions"
 
-for function in ivs-create-channels bot-intent-recommendations retaildemostore-lambda-load-products elasticsearch-pre-index personalize-pre-create-campaigns pinpoint-recommender pinpoint-auto-workshop
+for function in  ./src/aws-lambda/*/
 do
     echo "  + Staging $function"
-    cd src/aws-lambda/$function
+    cd $function
     chmod +x ./stage.sh
     ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
     cd -
@@ -90,10 +90,15 @@ aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
 
 echo " + Creating CSVs for Personalize model pre-create training"
 PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
 
 # Sync CSVs used for Personalize pre-create campaign Lambda function
 echo " + Copying CSVs for Personalize model pre-create training"
 aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
+
+# Sync waypoint data files
+echo " + Copying waypoint location data"
+aws s3 sync ./waypoint s3://${BUCKET}/${S3PATH}waypoint --only-show-errors $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

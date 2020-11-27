@@ -8,20 +8,20 @@ Parameters:
   ResourceBucket:
     Type: String
     Description: >
-      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
       notebooks, deployment Lambda code, etc).
 
   ResourceBucketRelativePath:
     Type: String
     Description: >
-      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Search workshop included in this deployment
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
       as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
@@ -31,20 +31,20 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
       and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
       - 'No'
     Default: 'No'
-
+    
   PreCreatePinpointWorkshop:
     Type: String
     Description: >
-      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
       in SageMaker.
     AllowedValues:
       - 'Yes'
@@ -53,7 +53,7 @@ Parameters:
 
   Subnet1:
     Type: String
-
+  
   Subnet2:
     Type: String
 
@@ -88,6 +88,9 @@ Parameters:
   CustomizeRecommendationsFunctionArn:
     Type: String
 
+  CustomizeOffersRecommendationsFunctionArn:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -111,7 +114,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
       Handler: personalize-pre-create-campaigns.lambda_handler
-      Role: !GetAtt
+      Role: !GetAtt 
         - PersonalizePreCreateLambdaExecutionRole
         - Arn
       Code:
@@ -157,7 +160,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
-                  - ssm:GetParameter
+                  - ssm:GetParameter                
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
               - Effect: Allow
                 Action:
@@ -171,77 +174,34 @@ Resources:
                   - iam:AttachRolePolicy
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource:
+                Resource: 
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
-              - Effect: Allow
-                Action:
-                  - events:ListTargetsByRule
-                  - events:DisableRule
-                  - events:EnableRule
-                Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
-              - Effect: Allow
-                Action:
-                  - events:PutRule
-                  - events:PutTargets
-                  - events:RemoveTargets
-                  - events:DeleteRule
-                Resource: '*'
               - Effect: Allow
                 Action:
                   - lambda:AddPermission
                   - lambda:RemovePermission
-                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePersonalizePreCreateCampaigns'
-              - Effect: Allow
-                Action:
-                  - personalize:ListCampaigns
-                  - personalize:ListDatasetGroups
-                  - personalize:ListSolutions
-                  - personalize:ListSchemas
-                  - personalize:ListSolutionVersions
-                  - personalize:ListDatasetImportJobs
-                  - personalize:ListDatasets
-                  - personalize:ListEventTrackers
-                  - personalize:CreateSchema
-                  - personalize:CreateDatasetGroup
+                  - events:PutRule
+                  - events:PutTargets
+                  - events:ListTargetsByRule
+                  - events:RemoveTargets
+                  - events:DeleteRule
+                  - events:DisableRule
+                  - events:EnableRule
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - personalize:DescribeSolutionVersion
-                  - personalize:CreateSolutionVersion
-                  - personalize:CreateDatasetImportJob
-                  - personalize:CreateSolution
-                  - personalize:DescribeDatasetGroup
-                  - personalize:DescribeDatasetImportJob
-                  - personalize:DescribeSolution
-                  - personalize:CreateCampaign
-                  - personalize:CreateDataset
-                  - personalize:CreateEventTracker
-                  - personalize:CreateFilter
-                  - personalize:DeleteCampaign
-                  - personalize:DeleteDataset
-                  - personalize:DeleteDatasetGroup
-                  - personalize:DeleteFilter
-                  - personalize:DeleteSchema
-                  - personalize:DeleteSolution
-                  - personalize:ListFilters
-                Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
-              - Effect: Allow
-                Action:
-                  - personalize:DescribeEventTracker
-                  - personalize:DeleteEventTracker
-                Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*'
+                  - personalize:*
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - codepipeline:ListPipelines
                   - codepipeline:ListTagsForResource
-                Resource:
+                Resource: 
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
               - Effect: Allow
                 Action:
                   - codepipeline:StartPipelineExecution
-                Resource:
+                Resource: 
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
                 Condition:
                   StringEquals:
@@ -252,28 +212,29 @@ Resources:
     Type: 'AWS::Events::Rule'
     Properties:
       Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
-      Description: Calls Personalize pre-create Lambda function every 5 minutes until Personalize reaches desired state
-      ScheduleExpression: rate(5 minutes)
+      Description: Calls Personalize pre-create Lambda function every 2 minutes until Personalize reaches desired state
+      ScheduleExpression: rate(2 minutes)
       State: DISABLED
       Targets:
-        - Arn: !GetAtt
+        - Arn: !GetAtt 
             - PersonalizePreCreateLambdaFunction
             - Arn
           Id: TargetFunctionV1
 
-  PersonalizePreCreatePermissionToInvokeLambda:
+  PersonalizePreCreatePermissionToInvokeLambda: 
     Condition: DeployPreCreateCampaign
     Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName:
+    Properties: 
+      FunctionName: 
         Ref: "PersonalizePreCreateLambdaFunction"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn:
-        Fn::GetAtt:
+      SourceArn: 
+        Fn::GetAtt: 
           - "PersonalizePreCreateScheduledRule"
           - "Arn"
 
+  # Custom resource to launch IVS create channels function
   CustomLaunchPersonalizePreCreateLambdaFunction:
     Condition: DeployPreCreateCampaign
     Type: Custom::CustomLambdaPersonalize
@@ -374,7 +335,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon Elasticsearch'
       Handler: elasticsearch-pre-index.lambda_handler
-      Role: !GetAtt
+      Role: !GetAtt 
         - ElasticsearchPreIndexLambdaExecutionRole
         - Arn
       Code:
@@ -423,7 +384,7 @@ Resources:
                   - logs:PutLogEvents
                 Resource:
                   - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'        
               - Effect: Allow
                 Action:
                   - es:ESHttpDelete
@@ -450,7 +411,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that configures messaging templates, segments, and campaigns in Amazon Pinpoint'
       Handler: pinpoint-auto-workshop.lambda_handler
-      Role: !GetAtt
+      Role: !GetAtt 
         - PinpointPreCreateLambdaExecutionRole
         - Arn
       Code:
@@ -463,6 +424,7 @@ Resources:
         Variables:
           pinpoint_app_id: !Ref PinpointAppId
           pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunctionArn
+          pinpoint_offers_recommender_arn: !Ref CustomizeOffersRecommendationsFunctionArn
           pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRoleArn
           email_from_address: !Ref PinpointEmailFromAddress
           email_from_name: !Ref PinpointEmailFromName
@@ -501,10 +463,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-              -
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemo*'
+              - 
                 Effect: "Allow"
-                Action:
+                Action: 
                   - mobiletargeting:*
                 Resource: "*"
               - Effect: Allow
@@ -521,32 +483,32 @@ Resources:
     Properties:
       Name: 'RetailDemoStore-PinpointPreCreateRule'
       Description: Calls Pinpoint workshop pre-create Lambda function when the Personalize campaign ARN SSM parameter is updated
-      EventPattern:
-        source:
+      EventPattern: 
+        source: 
           - "aws.ssm"
-        detail-type:
+        detail-type: 
           - "Parameter Store Change"
-        detail:
-          name:
+        detail: 
+          name: 
             - "retaildemostore-product-recommendation-campaign-arn"
-          operation:
+          operation: 
             - "Update"
       State: ENABLED
       Targets:
-        - Arn: !GetAtt
+        - Arn: !GetAtt 
             - PinpointPreCreateLambdaFunction
             - Arn
           Id: TargetFunctionV1
 
-  PinpointPreCreatePermissionToInvokeLambda:
+  PinpointPreCreatePermissionToInvokeLambda: 
     Condition: DeployPreCreatePinpointWorkshop
     Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName:
+    Properties: 
+      FunctionName: 
         Ref: "PinpointPreCreateLambdaFunction"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn:
-        Fn::GetAtt:
+      SourceArn: 
+        Fn::GetAtt: 
           - "PinpointPreCreateRule"
           - "Arn"

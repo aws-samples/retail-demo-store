@@ -151,6 +151,14 @@ Parameters:
     Type: String
     Default: 80
 
+  EnvOffersServiceInternalUrl:
+    Type: String
+    Default: search.retaildemostore.local
+
+  EnvOffersServiceInternalPort:
+    Type: String
+    Default: 80
+
   EnvElasticsearchDomainEndpoint:
     Type: String
     Default: none
@@ -271,6 +279,8 @@ Resources:
         EnvUsersServiceInternalPort: !Ref EnvUsersServiceInternalPort
         EnvSearchServiceInternalUrl: !Ref EnvSearchServiceInternalUrl
         EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
+        EnvOffersServiceInternalUrl: !Ref EnvOffersServiceInternalUrl
+        EnvOffersServiceInternalPort: !Ref EnvOffersServiceInternalPort
         EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
         ResourceBucket: !Ref ResourceBucket
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap

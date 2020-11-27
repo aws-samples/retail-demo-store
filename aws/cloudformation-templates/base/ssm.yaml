@@ -77,6 +77,14 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalized Discounts Campaign Arn Parameter"
 
+  ParameterPersonalizedOffersCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalized-offers-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalized Coupon Offers Campaign Arn Parameter"
+
   ParameterPersonalizeTrainConfig:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -84,6 +92,14 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Train Config"
+
+  ParameterPersonalizeTrainState:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-training-state"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Train State"
 
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
@@ -158,6 +174,10 @@ Outputs:
   ParameterPersonalizeTrainConfig:
     Description: Train config
     Value: !Ref ParameterPersonalizeTrainConfig
+
+  ParameterPersonalizeTrainState:
+    Description: Train state
+    Value: !Ref ParameterPersonalizeTrainState
 
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn

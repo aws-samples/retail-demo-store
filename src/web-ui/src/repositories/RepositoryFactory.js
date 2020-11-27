@@ -7,7 +7,8 @@ import CartsRepository from "./cartsRepository.js"
 import OrdersRepository from "./ordersRepository.js"
 import RecommendationsRepository from "./recommendationsRepository.js"
 import SearchRepository from "./searchRepository.js"
-import VideosRepository from "./videosRepository"
+import VideosRepository from "./videosRepository.js"
+import WaypointRepository from "./waypointRepository.js"
 
 const repositories = {
     products: ProductsRepository,
@@ -16,7 +17,8 @@ const repositories = {
     orders: OrdersRepository,
     recommendations: RecommendationsRepository,
     search: SearchRepository,
-    videos: VideosRepository
+    videos: VideosRepository,
+    waypoint: WaypointRepository
 }
 
 export const RepositoryFactory = {

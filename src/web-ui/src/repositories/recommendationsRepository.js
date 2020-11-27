@@ -15,6 +15,7 @@ const related = "/related"
 const recommendations = "/recommendations"
 const rerank = "/rerank"
 const chooseDiscounted = "/choose_discounted"
+const couponOffer = "/coupon_offer"
 const experimentOutcome = "/experiment/outcome"
 const resetTracker = "/reset/realtime"
 
@@ -41,6 +42,9 @@ export default {
             feature: feature
         }
         return connection.post(`${chooseDiscounted}`, payload) // inserts discount and discounted keys into items
+    },
+    getCouponOffer(userID) {
+        return connection.get(`${couponOffer}?userID=${userID}`)
     },
     recordExperimentOutcome(correlationId) {
         let payload = {

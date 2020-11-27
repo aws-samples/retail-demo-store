@@ -37,6 +37,18 @@ Metadata:
         Parameters:
           - UseDefaultIvsStreams
       - Label:
+          default: "Create Waypoint resources"
+        Parameters:
+          - DeployWaypoint
+          - DeployDefaultGeofence
+      - Label:
+          default: "Amazon Pay"
+        Parameters:
+          - AmazonPayStoreId
+          - AmazonPayMerchantId
+          - AmazonPayPublicKeyId
+          - AmazonPayPrivateKey
+      - Label:
           default: "Miscellaneous"
         Parameters:
           - AmplitudeApiKey
@@ -70,10 +82,22 @@ Metadata:
         default: "Reply-To name"
       UseDefaultIvsStreams:
         default: "Use default IVS streams"
+      DeployWaypoint:
+        default: "Deploy waypoint resources"
+      DeployDefaultGeofence:
+        default: "Create a default geofence in the created Amazon Waypoint geofence collection"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      AmazonPayStoreId:
+        default: "Store ID of Amazon Pay sandbox account"
+      AmazonPayMerchantId:
+        default: "Merchant ID of Amazon Pay sandbox account"
+      AmazonPayPublicKeyId:
+        default: "Public key ID associated with Amazon Pay sandbox account"
+      AmazonPayPrivateKey:
+        default: "Private key associated with Amazon Pay sandbox account"
 
 Parameters:
   ResourceBucket:
@@ -181,7 +205,7 @@ Parameters:
     Type: String
     Description: >
       Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
-      created based on any videos placed in the CloudFormation resource bucket.
+      created based on any videos places in the CloudFormation resource bucket.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -195,6 +219,39 @@ Parameters:
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
+    NoEcho: true
+
+  DeployWaypoint:
+    Type: String
+    Description: Deploy any Waypoint Resources
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  DeployDefaultGeofence:
+    Type: String
+    Description: Create a default geofence in the created Amazon Waypoint geofence collection
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: Public Key ID for the Amazon Pay sandbox account being used
+
+  AmazonPayStoreId:
+    Type: String
+    Description: Store ID of the Amazon Pay sandbox account being used
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: Merchant ID of the Amazon Pay sandbox account being used
+
+  AmazonPayPrivateKey:
+    Type: String
+    Description: The private key to be used for signing Amazon Pay requests for a sandbox account.
     NoEcho: true
 
 Resources:
@@ -264,6 +321,9 @@ Resources:
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
@@ -272,10 +332,14 @@ Resources:
         CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        WaypointServiceExternalUrl: !GetAtt Services.Outputs.WaypointServiceUrl
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
+        WaypointResourceName: !GetAtt Waypoint.Outputs.WaypointResourceName
+        WaypointNotificationEndpoint: !GetAtt Waypoint.Outputs.WaypointNotificationEndpoint
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
@@ -296,6 +360,30 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+
+  # Amazon Waypoint Resources
+  Waypoint:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/waypoint.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        UserPoolId: !GetAtt Base.Outputs.UserPoolId
+        DeployDefaultGeofence: !Ref DeployDefaultGeofence
+        DeployWaypoint: !Ref DeployWaypoint
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
+        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
+        AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
 
   # Deployment support
   DeploymentSupport:
@@ -319,6 +407,7 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
+        CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
 

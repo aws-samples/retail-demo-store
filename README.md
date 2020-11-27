@@ -72,6 +72,41 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your Clo
 
 You can read more detailed instructions on how to use this demo in the [demonstration documentation](documentation).
 
+## Using the Amazon Waypoint Integration Demo
+
+[Amazon Waypoint](https://console.aws.amazon.com/location/) is an amazon service providing maps, location indexing,
+geofencing and user tracking. Built into this demo is a simulation of a user moving nearby to a physical store.
+The user provides personalized recommendations and offers and other messaging as they get close to the store (when they
+"trigger" a geofence around the store). There is
+also an in-store interface that shows a sample view for store staff showing orders that are about to be collected,
+and transactional messaging for user and store staff around pickup that is triggered by the user approaching the
+store for pickup.
+
+To use the Amazon Waypoint functionality, Waypoint must be enabled in your region. First, deploy in a region in which 
+Waypoint is enabled. Next, to enable the demo functionality, ensure that the "Deploy waypoint resources" and
+"Create a default geofence in the created Amazon Waypoint geofence collection" options are set to "Yes" when you run
+the deployment CloudFormation. A Waypoint geofence will be set up for you. You can access the Waypoint "In-Store View"
+where you can see orders made to be collected from in-store and "Waypoint Geofence" where you can see the Waypoint
+map and simulated user - from here you can initiate simulations of users travelling close to the default configured
+store either.
+
+### Amazon Waypoint and Pinpoint 
+
+We use Amazon Waypoint integrated with Pinpoint transactional messaging for sending SMS + email to shoppers when they 
+enter the shopping geofence. These email and SMS channels are enabled when "Auto-Configure Pinpoint" is enabled, 
+ along with the Waypoint-attached Pinpoint campaigns. If this is not enabled there will not be any email and
+  SMS notifications, just in-browser popups.
+  
+  There is one more manual job, which is to ensure that the emails will be sent.
+
+ - Navigate to your Pinpoint application called "retaildemostore" in the UI Console
+   ( https://console.aws.amazon.com/pinpoint/home )
+ - Click on Settings > Email > Identities > Edit
+ - Ensure the email channel for the project is set to "Enabled".
+ - Either choose an already verified email address or verify a new one. This should be the same one that you set up 
+   as the From email when you deployed the solution under "Reply-To email address"..
+ - Save the changes.
+
 ## Accessing Workshops
 
 To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker and then Notebook instances in the AWS console in your AWS account. You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance. You will find several workshops in a directory structure in the notebook instance. See the [workshops](./workshop/Welcome.ipynb) page for details.
