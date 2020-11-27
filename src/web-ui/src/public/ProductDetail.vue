@@ -171,7 +171,7 @@ export default {
       this.relatedProducts = null;
       this.getRelatedProducts();
 
-      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
+      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(

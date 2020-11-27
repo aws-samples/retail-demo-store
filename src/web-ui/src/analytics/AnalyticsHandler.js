@@ -210,7 +210,8 @@ export const AnalyticsHandler = {
             eventType: 'ProductAdded',
             userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
-                itemId: product.id
+                itemId: product.id,
+                discount: "No"
             }
         }, 'AmazonPersonalize')
         AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -331,7 +332,8 @@ export const AnalyticsHandler = {
             eventType: 'ProductQuantityUpdated',
             userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
-                itemId: cartItem.product_id
+                itemId: cartItem.product_id,
+                discount: "No"
             }
         }, 'AmazonPersonalize')
         AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -353,7 +355,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    productViewed(user, product, feature, experimentCorrelationId) {
+    productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
             AmplifyAnalytics.record({
                 name: 'ProductViewed', 
@@ -376,7 +378,8 @@ export const AnalyticsHandler = {
             eventType: 'ProductViewed',
             userId: user ? user.id : AmplifyStore.state.provisionalUserID,
             properties: {
-                itemId: product.id
+                itemId: product.id,
+                discount: discount?"Yes":"No"
             }
         }, 'AmazonPersonalize');
         AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -433,7 +436,8 @@ export const AnalyticsHandler = {
                 eventType: 'CartViewed',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
-                    itemId: cart.items[item].product_id
+                    itemId: cart.items[item].product_id,
+                    discount: "No"
                 }
             }, 'AmazonPersonalize')
             AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -476,7 +480,8 @@ export const AnalyticsHandler = {
                 eventType: 'CheckoutStarted',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
-                    itemId: cart.items[item].product_id
+                    itemId: cart.items[item].product_id,
+                    discount: "No"
                 }
             }, 'AmazonPersonalize')
             AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -537,7 +542,8 @@ export const AnalyticsHandler = {
                 eventType: 'OrderCompleted',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
-                    itemId: orderItem.product_id
+                    itemId: orderItem.product_id,
+                    discount: "No"
                 }
             }, 'AmazonPersonalize')
             AmplifyStore.commit('incrementSessionEventsRecorded');

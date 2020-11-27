@@ -239,6 +239,34 @@ const router = new Router({
       path: '/auth',
       name: 'Authenticator',
       component: components.Authenticator,
+      props: {
+        authConfig: {
+          signUpConfig: {
+            hideAllDefaults: true,
+            header: 'Create new account',
+            signUpFields: [
+              {
+                label: 'Email',
+                key: 'email',
+                type: 'email',
+                required: true
+              },
+              {
+                label: 'Password',
+                key: 'password',
+                type: 'password',
+                required: true
+              },
+              {
+                label: 'Username',
+                key: 'username',
+                type: 'string',
+                required: true
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {

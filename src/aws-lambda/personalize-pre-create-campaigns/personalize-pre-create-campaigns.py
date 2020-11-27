@@ -121,13 +121,6 @@ campaign_type_to_ssm_param = {
 # Info on CloudWatch event rule used to repeatedely call this function.
 lambda_event_rule_name = os.environ['lambda_event_rule_name']
 
-# schemas
-schemas_to_delete = [
-    'retaildemostore-schema-users',
-    'retaildemostore-schema-items',
-    'retaildemostore-schema-interactions',
-    'retaildemostore-event-schema'
-]
 items_schema = {
     "type": "record",
     "name": "Items",
@@ -1001,11 +994,17 @@ def update():
                     logger.info('EventTrackers fully deleted')
                     if delete_datasets(dataset_group_arn):
                         logger.info('Datasets fully deleted')
-                        if delete_dataset_group(dataset_group_arn):
-                            logger.info('DatasetGroup fully deleted')
+                        event_schema_name = datasetGroup['name'] + '-event-schema'
+                        if delete_personalize_schemas([event_schema_name]):
+                            logger.info(f"Event schema deleted {event_schema_name}")
+                            if delete_dataset_group(dataset_group_arn):
+                                logger.info('DatasetGroup fully deleted')
 
     if len(desired_dataset_group_names) == 0:
-        all_deleted = all_deleted and delete_personalize_schemas(schemas_to_delete)
+        all_deleted = all_deleted and delete_personalize_schemas([
+                                        'retaildemostore-schema-users',
+                                        'retaildemostore-schema-items',
+                                        'retaildemostore-schema-interactions'])
         all_deleted = all_deleted and delete_personalize_role()
 
     if all_created and all_deleted:

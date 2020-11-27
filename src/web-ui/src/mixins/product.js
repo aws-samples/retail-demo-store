@@ -36,8 +36,8 @@ export const product = {
       const { data } = await ProductsRepository.getProduct(product_id);
       this.product = data;
     },
-    recordProductViewed(feature, exp) {
-      AnalyticsHandler.productViewed(this.user, this.product, feature, exp);
+    recordProductViewed(feature, exp, discount) {
+      AnalyticsHandler.productViewed(this.user, this.product, feature, exp, discount);
     },
   },
 };
