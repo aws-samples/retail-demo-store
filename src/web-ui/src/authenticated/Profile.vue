@@ -8,7 +8,7 @@
 
     <div class="container" v-if="user">
       <h4>{{ user.username }}</h4>
-      <h5>{{ user.persona }}</h5>
+      <h5 v-if="user.persona">{{ user.persona }}</h5>
       <hr/>
 
       <div class="row text-left">
@@ -20,7 +20,16 @@
                 <label for="newUserId">User</label>
                 <select class="custom-select" v-model="newUserId" id="newUserId">
                   <option value="">Select User</option>
-                  <option v-for="u in users" v-bind:key="u.id" v-bind:value="u.id" :selected="user.id === u.id">{{ u.first_name }} {{ u.last_name }} - {{ u.persona }}</option>
+                  <optgroup label="Your Profile" v-if="authdUser">
+                    <option v-bind:key="authdUser.id" v-bind:value="authdUser.id" :selected="user.id === authdUser.id">
+                      <span v-if="authdUser.first_name">{{ authdUser.first_name }} {{ authdUser.last_name }}</span><span v-else>{{authdUser.username}}</span>
+                    </option>
+                  </optgroup>
+                  <optgroup label="Sample Shoppers">
+                    <option v-for="u in users" v-bind:key="u.id" v-bind:value="u.id" :selected="user.id === u.id">
+                      <span v-if="u.first_name">{{ u.first_name }} {{ u.last_name }}</span><span v-else>{{u.username}}</span> ({{ u.persona }})
+                    </option>
+                  </optgroup>
                 </select>
               </div>
             </div>
@@ -64,6 +73,12 @@
 
       </div>
 
+      <h4>Waypoint Demo</h4>
+      <hr/>
+      <router-link type="button" class="btn btn-primary" :to="{name:'Collections'}">
+        Access Waypoint Demo
+      </router-link>
+
       <h4>Admin</h4>
       <hr/>
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -99,6 +114,7 @@
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 import { AmplifyEventBus } from 'aws-amplify-vue';
+import { Credentials } from '@aws-amplify/core';
 
 import AmplifyStore from '@/store/store'
 
@@ -117,6 +133,8 @@ export default {
     return {  
       errors: [],
       user: null,
+      authdUser: null,
+      identityId: null,
       saving: false,
       users: [],
       newUserId: AmplifyStore.state.user.id
@@ -124,6 +142,7 @@ export default {
   },
   created () {
     this.getUser(AmplifyStore.state.user.id)
+    this.getAuthdUser()
     this.getUsers()
   },
   methods: {
@@ -134,11 +153,18 @@ export default {
       }
       return this.user
     },
+    async getAuthdUser() {
+      const credentials = await Credentials.get();
+      if (credentials && credentials.identityId) {
+        this.identityId = credentials.identityId;
+        const { data } = await UsersRepository.getUserByIdentityId(credentials.identityId);
+        this.authdUser = data
+      }
+    },
     async getUsers() {
       // More users than we can display in dropdown so limit to 300.
-      const start = Math.max(0, parseInt(AmplifyStore.state.user.id) - 100)
-      const { data } = await UsersRepository.get(start, start + 300)
-      this.users = data
+      const { data } = await UsersRepository.get(0, 300);
+      this.users = this.users.concat(data);
     },     
     async saveChanges () {
       this.saving = true;

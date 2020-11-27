@@ -18,6 +18,7 @@ type User struct {
 	Age            int        `json:"age" yaml:"age"`
 	Gender         string     `json:"gender" yaml:"gender"`
 	Persona        string     `json:"persona" yaml:"persona"`
+	DiscountPersona        string     `json:"discount_persona" yaml:"discount_persona"`
 	SignUpDate     *time.Time `json:"sign_up_date,omitempty"`
 	LastSignInDate *time.Time `json:"last_sign_in_date,omitempty"`
 	IdentityId     string     `json:"identity_id,omitempty"`

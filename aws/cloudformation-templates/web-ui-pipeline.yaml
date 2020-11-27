@@ -126,6 +126,10 @@ Parameters:
     Type: String
     Description: SSM Parameter name for the Optimizely SDK key
 
+  ParameterSegmentWriteKey:
+    Type: String
+    Description: SSM Parameter name for the Segment write key
+    
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -162,6 +166,7 @@ Resources:
               source_bucket_name = event['ResourceProperties']['SourceBucket']
               source_path = event['ResourceProperties']['SourceBucketPath']
               target_bucket_name = event['ResourceProperties']['TargetBucket']
+              resource_bucket_path = event['ResourceProperties']['ResourceBucketRelativePath']
 
               if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
                 # Copy from source to target
@@ -171,7 +176,11 @@ Resources:
 
                 for obj in source_bucket.objects.filter(Prefix=source_path):
                     source = { 'Bucket': source_bucket_name, 'Key': obj.key }
-                    target = target_bucket.Object(obj.key)
+                    if len(resource_bucket_path)>0:
+                      # need to remove the resource_relative_path for the target images directory
+                      target = target_bucket.Object(obj.key[len(resource_bucket_path):])
+                    else:
+                      target = target_bucket.Object(obj.key)
                     target.copy(source)
 
                 response_data['Message'] = "Resource creation succeeded"
@@ -197,6 +206,7 @@ Resources:
       SourceBucket: !Ref ResourceBucket
       SourceBucketPath: !Sub '${ResourceBucketRelativePath}images'
       TargetBucket: !Ref WebUIBucketName
+      ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   CopyImagesLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -392,6 +402,9 @@ Resources:
             Value: !Ref WaypointResourceName
           - Name: WAYPOINT_NOTIFICATION_URL
             Value: !Ref WaypointNotificationEndpoint
+          - Name: SEGMENT_WRITE_KEY
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterSegmentWriteKey 
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL

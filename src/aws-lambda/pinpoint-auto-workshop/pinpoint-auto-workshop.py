@@ -23,6 +23,7 @@ import os
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
 from collections import defaultdict
+import time
 
 GEOFENCE_PINPOINT_EVENTTYPE = 'WaypointApproachLocalShop'
 
@@ -56,40 +57,46 @@ def create_email_template(template_name, template_fname_root, subject, descripti
         recommender_id: If supplied, attach Pinpoint "machine learning model" (wraps Personalize) to template.
 
     Returns:
-        Email template config. Returns even if already exists.
+        Email template config. Deletes earlier version if already exists.
     """
-    try:
-        response = pinpoint.get_email_template(TemplateName=template_name)
-        logger.info(f'Email message template {template_name }already exists')
-        return response['EmailTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info(f'Template {template_name} does not exist; creating')
+    logger.info(f"Creating email template: {template_name}")
 
-        with open('pinpoint-templates/'+template_fname_root+'.html', 'r') as html_file:
-            html_template = html_file.read()
+    with open('pinpoint-templates/'+template_fname_root+'.html', 'r') as html_file:
+        html_template = html_file.read()
 
-        with open('pinpoint-templates/'+template_fname_root+'.txt', 'r') as text_file:
-            text_template = text_file.read()
+    with open('pinpoint-templates/'+template_fname_root+'.txt', 'r') as text_file:
+        text_template = text_file.read()
 
-        request = {
-            'Subject': subject,
-            'TemplateDescription': description,
-            'HtmlPart': html_template,
-            'TextPart': text_template,
-            'DefaultSubstitutions': json.dumps({
-                'User.UserAttributes.FirstName': 'there'
-            })
-        }
+    request = {
+        'Subject': subject,
+        'TemplateDescription': description,
+        'HtmlPart': html_template,
+        'TextPart': text_template,
+        'DefaultSubstitutions': json.dumps({
+            'User.UserAttributes.FirstName': 'there'
+        })
+    }
 
-        if recommender_id is not None:
-            request['RecommenderId'] = recommender_id
+    if recommender_id is not None:
+        request['RecommenderId'] = recommender_id
 
-        response = pinpoint.create_email_template(
-            EmailTemplateRequest=request,
-            TemplateName=template_name
-        )
+    while True:
+        try:
+            response = pinpoint.create_email_template(
+                EmailTemplateRequest=request,
+                TemplateName=template_name
+            )
+            break
+        except pinpoint.exceptions.BadRequestException as e:
+            try:
+                delete_response = pinpoint.delete_email_template(TemplateName=template_name)
+            except:
+                pass
+            backoff_seconds = 30
+            logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
+            time.sleep(backoff_seconds)
 
-        return response['CreateTemplateMessageBody']
+    return response['CreateTemplateMessageBody']
 
 
 def create_sms_template(template_name, body, description, recommender_id=None):
@@ -105,30 +112,36 @@ def create_sms_template(template_name, body, description, recommender_id=None):
         SMS template config. Returns even if already exists.
 
     """
-    try:
-        response = pinpoint.get_sms_template(TemplateName=template_name)
-        logger.info(f'{template_name} SMS message template already exists')
-        return response['SMSTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info(f'{template_name} SMS message template does not exist; creating')
+    logger.info(f"Creating SMS template: {template_name}")
 
-        request = {
-            'TemplateDescription': description,
-            'Body': body,
-            'DefaultSubstitutions': json.dumps({
-                'User.UserAttributes.FirstName': 'there'
-            })
-        }
+    request = {
+        'TemplateDescription': description,
+        'Body': body,
+        'DefaultSubstitutions': json.dumps({
+            'User.UserAttributes.FirstName': 'there'
+        })
+    }
 
-        if recommender_id is not None:
-            request['RecommenderId'] = recommender_id
+    if recommender_id is not None:
+        request['RecommenderId'] = recommender_id
 
-        response = pinpoint.create_sms_template(
-            SMSTemplateRequest=request,
-            TemplateName=template_name
-        )
+    while True:
+        try:
+            response = pinpoint.create_sms_template(
+                SMSTemplateRequest=request,
+                TemplateName=template_name
+            )
+            break
+        except pinpoint.exceptions.BadRequestException as e:
+            try:
+                delete_response = pinpoint.delete_sms_template(TemplateName=template_name)
+            except:
+                pass
+            backoff_seconds = 30
+            logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
+            time.sleep(backoff_seconds)
 
-        return response['CreateTemplateMessageBody']
+    return response['CreateTemplateMessageBody']
 
 
 def create_welcome_email_template():
@@ -177,7 +190,7 @@ def create_waypoint_abandoned_cart_sms_template():
 def create_waypoint_offers_sms_template(recommender_id):
     return create_sms_template(waypoint_offers_recommendations_template_name,
                                body='Hi {{User.UserAttributes.FirstName}}! Pop into our store near you, use the code '
-                                    '{{Recommendations.OfferCode.[0]}} for any purchase and get'
+                                    '{{Recommendations.OfferCode.[0]}} for any purchase and get '
                                     '{{Recommendations.OfferDescription.[0]}}. We are looking forward to seeing you.',
                                description='Personalized recommendations SMS template', recommender_id=recommender_id)
 
@@ -193,35 +206,38 @@ def get_recommender_configuration(recommender_name):
 
 
 def create_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, lambda_function_arn):
+
     recommender_config = get_recommender_configuration(recommender_name)
 
-    if not recommender_config:
-        logger.info('Pinpoint/Personalize recommender does not exist; creating')
+    if recommender_config:
+        recommender_id = recommender_config['Id']
+        logger.warning(f"Deleting previous recommender config with id {recommender_id}")
+        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
 
-        response = pinpoint.create_recommender_configuration(
-            CreateRecommenderConfiguration={
-                'Attributes': {
-                    'Recommendations.Name': 'Product Name',
-                    'Recommendations.URL': 'Product Detail URL',
-                    'Recommendations.Category': 'Product Category',
-                    'Recommendations.Style': 'Product Style',
-                    'Recommendations.Description': 'Product Description',
-                    'Recommendations.Price': 'Product Price',
-                    'Recommendations.ImageURL': 'Product Image URL'
-                },
-                'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
-                'Name': recommender_name,
-                'RecommendationProviderIdType': 'PINPOINT_USER_ID',
-                'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
-                'RecommendationProviderUri': personalize_campaign_arn,
-                'RecommendationTransformerUri': lambda_function_arn,
-                'RecommendationsPerMessage': 4
-            }
-        )
+    logger.info('Creating Pinpoint/Personalize recommender')
 
-        recommender_config = response['RecommenderConfigurationResponse']
-    else:
-        logger.info('Pinpoint/Personalize recommender already exists')
+    response = pinpoint.create_recommender_configuration(
+        CreateRecommenderConfiguration={
+            'Attributes': {
+                'Recommendations.Name': 'Product Name',
+                'Recommendations.URL': 'Product Detail URL',
+                'Recommendations.Category': 'Product Category',
+                'Recommendations.Style': 'Product Style',
+                'Recommendations.Description': 'Product Description',
+                'Recommendations.Price': 'Product Price',
+                'Recommendations.ImageURL': 'Product Image URL'
+            },
+            'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
+            'Name': recommender_name,
+            'RecommendationProviderIdType': 'PINPOINT_USER_ID',
+            'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
+            'RecommendationProviderUri': personalize_campaign_arn,
+            'RecommendationTransformerUri': lambda_function_arn,
+            'RecommendationsPerMessage': 4
+        }
+    )
+
+    recommender_config = response['RecommenderConfigurationResponse']
 
     return recommender_config['Id']
 
@@ -229,37 +245,39 @@ def create_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, 
 def create_offers_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, lambda_function_arn):
     recommender_config = get_recommender_configuration(offers_recommender_name)
 
-    if not recommender_config:
-        logger.info('Pinpoint/Personalize recommender for offers does not exist; creating')
+    if recommender_config:
+        recommender_id = recommender_config['Id']
+        logger.warning(f"Deleting previous recommender config for offers with id {recommender_id}")
+        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
 
-        response = pinpoint.create_recommender_configuration(
-            CreateRecommenderConfiguration={
-                'Attributes': {
-                    # We may wish to push product recommendations
-                    'Recommendations.Name': 'Product Name',
-                    'Recommendations.URL': 'Product Detail URL',
-                    'Recommendations.Category': 'Product Category',
-                    'Recommendations.Style': 'Product Style',
-                    'Recommendations.Description': 'Product Description',
-                    'Recommendations.Price': 'Product Price',
-                    'Recommendations.ImageURL': 'Product Image URL',
-                    # We may also wish to push offer recommendations
-                    'Recommendations.OfferCode': 'Coupon offer code',
-                    'Recommendations.OfferDescription': 'Coupon offer description',
-                },
-                'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
-                'Name': offers_recommender_name,
-                'RecommendationProviderIdType': 'PINPOINT_USER_ID',
-                'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
-                'RecommendationProviderUri': personalize_campaign_arn,
-                'RecommendationTransformerUri': lambda_function_arn,
-                'RecommendationsPerMessage': 1
-            }
-        )
+    logger.info('Creating Pinpoint/Personalize recommender for offers')
 
-        recommender_config = response['RecommenderConfigurationResponse']
-    else:
-        logger.info('Pinpoint/Personalize recommender for offers already exists')
+    response = pinpoint.create_recommender_configuration(
+        CreateRecommenderConfiguration={
+            'Attributes': {
+                # We may wish to push product recommendations
+                'Recommendations.Name': 'Product Name',
+                'Recommendations.URL': 'Product Detail URL',
+                'Recommendations.Category': 'Product Category',
+                'Recommendations.Style': 'Product Style',
+                'Recommendations.Description': 'Product Description',
+                'Recommendations.Price': 'Product Price',
+                'Recommendations.ImageURL': 'Product Image URL',
+                # We may also wish to push offer recommendations
+                'Recommendations.OfferCode': 'Coupon offer code',
+                'Recommendations.OfferDescription': 'Coupon offer description',
+            },
+            'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
+            'Name': offers_recommender_name,
+            'RecommendationProviderIdType': 'PINPOINT_USER_ID',
+            'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
+            'RecommendationProviderUri': personalize_campaign_arn,
+            'RecommendationTransformerUri': lambda_function_arn,
+            'RecommendationsPerMessage': 1
+        }
+    )
+
+    recommender_config = response['RecommenderConfigurationResponse']
 
     return recommender_config['Id']
 
@@ -432,8 +450,12 @@ def create_campaign(application_id,
         message_config = {}
         template_config = {}
         if email_from is not None and email_template_name is not None:
-            message_config["EmailMessage"] = {"FromAddress": email_from}
-            template_config["EmailTemplate"] = {"Name": email_template_name}
+            if len(email_from) > 0:
+                message_config["EmailMessage"] = {"FromAddress": email_from}
+                template_config["EmailTemplate"] = {"Name": email_template_name}
+            else:
+                logger.warning(f"Empty email - not creating campaign {campaign_name}")
+                return None
         if (email_template_name and not email_from) or (not email_template_name and email_from):
             logger.error('Specify both or none of "email_from" and "email_template_name"')
         if sms_template_name is not None:

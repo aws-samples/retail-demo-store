@@ -101,8 +101,7 @@ datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
 
 all_campaign_types_products = ['retaildemostore-related-products',
                                'retaildemostore-product-personalization',
-                               'retaildemostore-personalized-ranking',
-                               'retaildemostore-personalized-discounting']
+                               'retaildemostore-personalized-ranking']
 
 all_campaign_types_offers = ['retaildemostore-personalized-offers']
 
@@ -110,7 +109,6 @@ campaign_type_to_event_type = {
     "retaildemostore-related-products": "ProductViewed",
     "retaildemostore-product-personalization": "ProductViewed",
     "retaildemostore-personalized-ranking": "ProductViewed",
-    "retaildemostore-personalized-discounting": "DiscountedProductViewed",
     "retaildemostore-personalized-offers": "OfferConverted",
 }
 
@@ -118,28 +116,19 @@ campaign_type_to_recipe_arn = {
     "retaildemostore-related-products": "arn:aws:personalize:::recipe/aws-sims",
     "retaildemostore-product-personalization": "arn:aws:personalize:::recipe/aws-user-personalization",
     "retaildemostore-personalized-ranking": "arn:aws:personalize:::recipe/aws-personalized-ranking",
-    "retaildemostore-personalized-discounting": "arn:aws:personalize:::recipe/aws-personalized-ranking",
-    "retaildemostore-personalized-offers": "arn:aws:personalize:::recipe/aws-user-personalization",
+    "retaildemostore-personalized-offers": "arn:aws:personalize:::recipe/aws-user-personalization"
 }
 
 campaign_type_to_ssm_param = {
     "retaildemostore-related-products": "retaildemostore-related-products-campaign-arn",
     "retaildemostore-product-personalization": "retaildemostore-product-recommendation-campaign-arn",
     "retaildemostore-personalized-ranking": "retaildemostore-personalized-ranking-campaign-arn",
-    "retaildemostore-personalized-discounting": "retaildemostore-personalized-discount-campaign-arn",
-    "retaildemostore-personalized-offers": "retaildemostore-personalized-offers-campaign-arn",
+    "retaildemostore-personalized-offers": "retaildemostore-personalized-offers-campaign-arn"
 }
 
 # Info on CloudWatch event rule used to repeatedely call this function.
 lambda_event_rule_name = os.environ['lambda_event_rule_name']
 
-# schemas
-schemas_to_delete = [
-    'retaildemostore-schema-users',
-    'retaildemostore-schema-items',
-    'retaildemostore-schema-interactions',
-    'retaildemostore-event-schema'
-]
 items_schema = {
     "type": "record",
     "name": "Items",
@@ -185,7 +174,37 @@ users_schema = {
     "version": "1.0"
 }
 
-interactions_schema = {
+interactions_schema_products = {
+    "type": "record",
+    "name": "Interactions",
+    "namespace": "com.amazonaws.personalize.schema",
+    "fields": [
+        {
+            "name": "ITEM_ID",
+            "type": "string"
+        },
+        {
+            "name": "USER_ID",
+            "type": "string"
+        },
+        {
+            "name": "EVENT_TYPE",
+            "type": "string"
+        },
+        {
+            "name": "TIMESTAMP",
+            "type": "long"
+        },
+        {
+            "name": "DISCOUNT",  # This is the contextual metadata - "Yes" or "No".
+            "type": "string",
+            "categorical": True
+        }
+    ],
+    "version": "1.0"
+}
+
+interactions_schema_offers = {
     "type": "record",
     "name": "Interactions",
     "namespace": "com.amazonaws.personalize.schema",
@@ -214,11 +233,27 @@ interactions_schema = {
 #                           'USERS': 'retaildemostore-schema-users',
 #                           'INTERACTIONS': 'retaildemostore-schema-interactions'}
 
-dataset_type_to_filename_products = {'ITEMS': items_filename,
-                                     'USERS': users_filename,
-                                     'INTERACTIONS': interactions_filename}
+# dataset_type_to_filename_products = {'ITEMS': items_filename,
+#                                      'USERS': users_filename,
+#                                      'INTERACTIONS': interactions_filename}
+#
+# dataset_type_to_filename_offers = {'INTERACTIONS': offer_interactions_filename}
 
-dataset_type_to_filename_offers = {'INTERACTIONS': offer_interactions_filename}
+dataset_type_to_detail_products = {
+    'ITEMS': {'schema': {'name': 'retaildemostore-schema-items',
+                         'avro': items_schema},
+              'filename': items_filename},
+    'USERS': {'schema': {'name': 'retaildemostore-schema-users',
+                         'avro': users_schema},
+              'filename': users_filename},
+    'INTERACTIONS': {'schema': {'name': 'retaildemostore-schema-interactions-products',
+                                'avro': interactions_schema_products},
+                     'filename': interactions_filename}}
+
+dataset_type_to_detail_offers = {
+    'INTERACTIONS': {'schema': {'name': 'retaildemostore-schema-interactions-offers',
+                                'avro': interactions_schema_offers},
+                     'filename': offer_interactions_filename}}
 
 
 def create_schema(schema, name):
@@ -562,8 +597,6 @@ def create_campaign_polling(dataset_group_arn, recipe_arn,
     status = describe_solution_version_response["solutionVersion"]["status"]
     logger.info(f"SolutionVersion Status for {campaign_solution_name} is: {status}")
     if status != "ACTIVE":
-        # logger.info(f"Recommendation solution version for {campaign_solution_name} "
-        #             f"status is NOT active - status {status} - repoll later")
         return None
 
     # Create related product campaign if it doesn't exist
@@ -588,7 +621,6 @@ def create_campaign_polling(dataset_group_arn, recipe_arn,
             minProvisionedTPS=1
         )
         return None
-    # Will not arrive here
 
 
 def delete_campaign_polling(dataset_group_arn, solution_arn, **kwargs):
@@ -756,6 +788,7 @@ def delete_filters(dataset_group_arn):
 
     return len(filters_response['Filters'])==0
 
+
 def update():
     """
     According to the contents of the SSM variable retaildemostore-training-config build and delete
@@ -768,7 +801,7 @@ def update():
         - Each step Personalize config dictionary has a set of keys as the name of dataset group
           to create and the value the config for that dataset group.
         - Each dataset group config consists of a single key: "campaigns" with its value a dictionary
-          with key campaign type (there are 4 campaign types: user-item, item-item, rerankin and discounts)
+          with key campaign type (there are 4 campaign types: user-item, item-item, reranking)
           and value campaign config for that campaign type.
         - The campaign config consists of a dictionary with 3 keys:
             - "desired_campaign_suffixes" - a list of numerical version numbers of solutions and campaigns to create.
@@ -821,15 +854,12 @@ def update():
         train_state = ssm.get_parameter(Name=training_state_param_name)
         train_state = json.loads(train_state['Parameter']['Value'])
     except (ssm.exceptions.ParameterNotFound, json.JSONDecodeError) as e:
-        train_state = {'dataset_groups': []}
+        train_state = {'dataset_groups': [], 'schema': []}
     logger.info(f"Current train state: {json.dumps(train_state, indent=2)}")
 
     # Find all dataset groups in region
     response = personalize.list_dataset_groups()
     datasetGroups = response['datasetGroups']
-    # datasetGroups = [datasetGroup for datasetGroup in datasetGroups
-    #                  if datasetGroup['name'].startswith(dataset_group_name_root)]
-    # all_region_dataset_group_names = [datasetGroup['name'] for datasetGroup in datasetGroups]
     dataset_group_name_to_arn = {datasetGroup['name']: datasetGroup['datasetGroupArn'] for datasetGroup in
                                  datasetGroups}
 
@@ -852,12 +882,6 @@ def update():
             logger.info('Waiting for IAM role to be consistent')
             return False
 
-        # Conditionally create schemas
-        # for dataset_type, schema_name in dataset_type_to_schema_name.items():
-        schemas['ITEMS'] = create_schema(items_schema, "retaildemostore-schema-items")
-        schemas['USERS'] = create_schema(users_schema, "retaildemostore-schema-users")
-        schemas['INTERACTIONS'] = create_schema(interactions_schema, "retaildemostore-schema-interactions")
-
     for dataset_group_name in desired_dataset_group_names:
 
         all_created_dataset_group = True
@@ -866,6 +890,7 @@ def update():
         # Create dataset group if it doesn't exist and save the name in an SSM param
         if dataset_group_arn is None:
 
+            # take ownership of this dataset group
             train_state['dataset_groups'] = list(set(train_state['dataset_groups']) | {dataset_group_name})
             response = ssm.put_parameter(
                 Name=training_state_param_name,
@@ -879,6 +904,16 @@ def update():
             logger.info(f'Generating a dataset group with unique name {dataset_group_name}')
             create_dataset_group_response = personalize.create_dataset_group(name=dataset_group_name)
             dataset_group_arn = create_dataset_group_response['datasetGroupArn']
+
+            # take ownership of the dataset group's schema
+            train_state['schema'] = list(set(train_state['schema']) | {dataset_group_name+'-event-schema'})
+            response = ssm.put_parameter(
+                Name=training_state_param_name,
+                Description='Retail Demo Store Train State (controlled dataset groups)',
+                Value=json.dumps(train_state),
+                Type='String',
+                Overwrite=True
+            )
 
         describe_dataset_group_response = personalize.describe_dataset_group(
             datasetGroupArn=dataset_group_arn
@@ -896,50 +931,40 @@ def update():
         if status != "ACTIVE":
             logger.info(f'DatasetGroup {dataset_group_name} not active yet')
             all_created = False
-            all_created_dataset_group = False
             continue
 
         datasets_config = trainstep_config['dataset_groups'][dataset_group_name]['datasets']
 
         dataset_arns = {}
         import_job_arns = {}
-        for dataset_type, dataset_filename in datasets_config.items():
-            # dataset_name = dataset_detail['dataset_name']
+
+        for dataset_type, dataset_detail in datasets_config.items():
+
+            dataset_filename = dataset_detail['filename']
+
+            # Conditionally create schemas
+            schemas[dataset_type] = create_schema(dataset_detail['schema']['avro'],
+                                                  dataset_detail['schema']['name'])
+
+            # take ownership of this schema
+            train_state['schema'] = list(set(train_state['schema']) | {dataset_detail['schema']['name']})
+            response = ssm.put_parameter(
+                Name=training_state_param_name,
+                Description='Retail Demo Store Train State (controlled dataset groups)',
+                Value=json.dumps(train_state),
+                Type='String',
+                Overwrite=True
+            )
+
             dataset_name = dataset_group_name + '-' + dataset_type
             dataset_arns[dataset_type] = create_dataset(dataset_group_arn, dataset_name,
                                                         dataset_type, schemas[dataset_type])
 
             dataset_import_job_name = dataset_name+'-import'
             s3_filename = "s3://{}/{}".format(bucket, dataset_filename)
-            # logger.info(f"Now will import {dataset_import_job_name} with dataset Arn {dataset_arns[dataset_type]} "
-            #             f"filename {s3_filename} and role_arn {role_arn}")
             import_job_arns[dataset_type] = create_import_job(dataset_import_job_name,
                                                              dataset_arns[dataset_type], account_id, region,
                                                              s3_filename, role_arn)
-            # 'retaildemostore-dataset-items'
-        # Create datasets if not already created
-        # if 'ITEMS' in datasets_config:
-            # items_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-items',
-            #                                    'ITEMS', items_schema_arn)
-        # if 'USE' in datasets_config:
-        # users_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-users',
-                                           # 'USERS', users_schema_arn)
-        # interactions_dataset_arn = create_dataset(dataset_group_arn, 'retaildemostore-dataset-interactions',
-        #                                           'INTERACTIONS', interactions_schema_arn)
-
-        # Create dataset import jobs
-        # items_dataset_import_job_arn = create_import_job('retaildemostore-dataset-items-import-job',
-        #                                                  items_dataset_arn, account_id, region,
-        #                                                  "s3://{}/{}".format(bucket, items_filename),
-        #                                                  role_arn)
-        # users_dataset_import_job_arn = create_import_job('retaildemostore-dataset-users-import-job',
-        #                                                  users_dataset_arn, account_id, region,
-        #                                                  "s3://{}/{}".format(bucket, users_filename),
-        #                                                  role_arn)
-        # interactions_dataset_import_job_arn = create_import_job('retaildemostore-dataset-interactions-import-job',
-        #                                                         interactions_dataset_arn, account_id, region,
-        #                                                         "s3://{}/{}".format(bucket, interactions_filename),
-        #                                                         role_arn)
 
         # Make sure all import jobs are done/active before continuing
         for arn in import_job_arns.values():
@@ -960,7 +985,7 @@ def update():
             if len(list_filters_response['Filters']) == 0:
                 create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)  # Adds the SSM param
 
-        # Create related product, product recommendation, discount, and rerank solutions if they doesn't exist
+        # Create related product, product recommendation, and rerank solutions if they doesn't exist
 
         # Start by calculating what recipes, with what names, event types, and whether we want activated first.
         campaigns_config = trainstep_config['dataset_groups'][dataset_group_name]['campaigns']
@@ -998,7 +1023,6 @@ def update():
                 )
             all_created_dataset_group = all_created_dataset_group and campaign_arn is not None
             all_created = all_created and all_created_dataset_group
-            # We record if we have an available campaign
 
         # Now we will go through the existing solutions and remove any we don't want
         list_solutions_response = personalize.list_solutions(datasetGroupArn=dataset_group_arn)
@@ -1081,14 +1105,15 @@ def update():
                             logger.info('DatasetGroup fully deleted')
 
     if len(desired_dataset_group_names) == 0:
-        all_deleted = all_deleted and delete_personalize_schemas(schemas_to_delete)
+        all_deleted = all_deleted and delete_personalize_schemas(train_state['schema'])
         all_deleted = all_deleted and delete_personalize_role()
 
     if all_created and all_deleted:
         # No need for this lambda function to be called anymore so disable CW event rule that has been calling us.
         # If somethihng wants this functionality, they just enable the rule.
+        # Alternatively, if we have been configured with multi-step config, move on to the next step.
         msg = ('Related product, Product recommendation, Personalized reranking, '
-               'and Discount campaigns fully provisioned '
+               'fully provisioned '
                'and unwanted campaigns removed.')
         logger.info(msg)
         if len(train_configs['steps'])>1:
@@ -1124,7 +1149,7 @@ def poll_create(event, context):
     Called on creation by CloudFormation. Polled till creation is done.
     Sets up the default training configuration and calls update() which tries to pull everything in shape to match the
     training config. By default we train up one version of each of thge campaign types (user-item, item-item,
-    reranking and discounts).
+    reranking).
     How the config is generated can be examined below but there is more documentation in update()
     Args:
         event: We ignore this - we know what we want to build
@@ -1159,12 +1184,12 @@ def poll_create(event, context):
                 {
                     "dataset_groups": {
                         dataset_group_name_unique_products: {
-                            'datasets': dataset_type_to_filename_products,
+                            'datasets': dataset_type_to_detail_products,
                             'campaigns': campaigns_to_build_products,
                             'filter': True
                         },
                         dataset_group_name_unique_offers: {
-                            'datasets': dataset_type_to_filename_offers,
+                            'datasets': dataset_type_to_detail_offers,
                             'campaigns': campaigns_to_build_offers,
                             'filter': False
                         }

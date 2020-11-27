@@ -51,8 +51,6 @@
               <router-link class="dropdown-item" :to="{name:'Orders'}">Orders</router-link>  
               <router-link class="dropdown-item" :to="{name:'Profile'}">Profile</router-link>  
               <div class="dropdown-divider"></div>
-              <router-link class="dropdown-item" :to="{name:'Collections'}">In-Store View</router-link>
-              <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="#" v-on:click="signOut">Sign Out</a>
             </div>
           </li>        

@@ -108,7 +108,7 @@ Resources:
                 Effect: "Allow"
                 Action: 
                   - sagemaker:ListTags
-                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/${Uid}'
+                Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/*'
         - 
           PolicyName: "0-StartHere"
           PolicyDocument: 
@@ -138,7 +138,7 @@ Resources:
                 Action: 
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemo*'
               - 
                 Effect: "Allow"
                 Action: 

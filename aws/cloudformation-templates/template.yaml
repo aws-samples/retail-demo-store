@@ -49,10 +49,11 @@ Metadata:
           - AmazonPayPublicKeyId
           - AmazonPayPrivateKey
       - Label:
-          default: "Miscellaneous"
+          default: "AWS Partner Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
+          - SegmentWriteKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -98,6 +99,8 @@ Metadata:
         default: "Public key ID associated with Amazon Pay sandbox account"
       AmazonPayPrivateKey:
         default: "Private key associated with Amazon Pay sandbox account"
+      SegmentWriteKey:
+        default: "Segment Write Key"
 
 Parameters:
   ResourceBucket:
@@ -205,7 +208,7 @@ Parameters:
     Type: String
     Description: >
       Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
-      created based on any videos places in the CloudFormation resource bucket.
+      created based on any videos placed in the CloudFormation resource bucket.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -254,6 +257,11 @@ Parameters:
     Description: The private key to be used for signing Amazon Pay requests for a sandbox account.
     NoEcho: true
 
+  SegmentWriteKey:
+    Type: String
+    Description: Segment write key for real-time data collection (optional).
+    NoEcho: true
+
 Resources:
   # Base Resources
   Base:
@@ -269,6 +277,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        SegmentWriteKey: !Ref SegmentWriteKey
 
   # Services Resources
   Services:
@@ -342,6 +351,7 @@ Resources:
         WaypointNotificationEndpoint: !GetAtt Waypoint.Outputs.WaypointNotificationEndpoint
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
+        ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
@@ -417,6 +427,15 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
+  # Segment Lambda Function
+  SegmentPersonalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.

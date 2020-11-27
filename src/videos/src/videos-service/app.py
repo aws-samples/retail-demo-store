@@ -18,7 +18,8 @@ from flask_cors import CORS
 
 # -- Environment variables - defined by CloudFormation when deployed
 VIDEO_BUCKET = os.environ.get('RESOURCE_BUCKET')
-SSM_VIDEO_CHANNEL_MAP_PARAM = os.environ.get('PARAMETER_IVS_VIDEO_CHANNEL_MAP')
+SSM_VIDEO_CHANNEL_MAP_PARAM = os.environ.get('PARAMETER_IVS_VIDEO_CHANNEL_MAP', 'retaildemostore-ivs-video-channel-map')
+
 USE_DEFAULT_IVS_STREAMS = os.environ.get('USE_DEFAULT_IVS_STREAMS') == 'true'
 
 DEFAULT_THUMB_FNAME = 'default_thumb.png'
@@ -37,22 +38,22 @@ FFMPEG_SUBS_COMMAND = "ffmpeg -i \"{video_filepath}\" \"{subtitle_path}\""
 DEFAULT_STREAM_DETAILS = {
     0: {
         "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.0tBjE5G3Y648.m3u8",
-        "products": [201, 202, 203, 204, 205, 206, 207],
+        "products": [71, 72, 73, 74, 75, 81, 82],
         "thumb_url": STATIC_URL_PATH + '/default_stream0_thumb.png'
     },
     1: {
         "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.Kyr5LYOURnWt.m3u8",
-        "products": [101, 102, 103, 104, 105, 106, 107],
+        "products": [63, 64, 65, 66, 67, 68, 69],
         "thumb_url": STATIC_URL_PATH + '/default_stream1_thumb.png'
     },
     2: {
         "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.8DVlPzmSylNT.m3u8",
-        "products": [1000567890, 1000567891, 1000567892, 1000567893, 1000567894, 1000567895, 401],
+        "products": [57, 58, 59, 60, 61, 62, 80],
         "thumb_url": STATIC_URL_PATH + '/default_stream2_thumb.png'
     },
     3: {
         "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.kFHQJjo6tk1V.m3u8",
-        "products": [301, 302, 303, 304, 201, 1000567890],
+        "products": [76, 77, 78, 79, 71, 57],
         "thumb_url": STATIC_URL_PATH + '/default_stream3_thumb.png'
     },
 }
@@ -140,7 +141,6 @@ def put_ivs_metadata(channel_arn, line):
         Sends metadata to a given IVS stream. Metadata can be any string, but the AWS Retail Demo Store UI expects
         metadata of the format {"productId":"<product-id>"}
     """
-#     while True:
     try:
         app.logger.info(f'Sending metadata to stream: {line}')
         ivs_client.put_metadata(

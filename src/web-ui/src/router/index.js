@@ -75,6 +75,22 @@ AmplifyEventBus.$on('authState', async (state) => {
     else {
       // If the user is not associated with a store user, we assign them one randomly.
       const { data } = await UsersRepository.getUserByID(Math.floor(Math.random() * 6000).toString())
+      // Disabled for waypoint demo: const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
+      storeUser = data
+    }
+
+    const credentials = await Credentials.get();
+
+    if (!storeUser.id) {
+      // Store user does not exist. Create one on the fly.
+      // Current Waypoint demo logic does not need this code but it may be necessary when merging to master branch
+      // (this is being worked on).
+      // This takes the personalize User ID which was a UUID4 for the current session and turns it into a
+      // user userID.
+      console.log('store user does not exist for cognito user... creating on the fly')
+      let identityId = credentials ? credentials.identityId : null;
+      let provisionalUserId = AmplifyStore.getters.personalizeUserID;
+      const { data } = await UsersRepository.createUser(provisionalUserId, cognitoUser.username, cognitoUser.attributes.email, identityId)
       storeUser = data
     }
 
@@ -92,12 +108,11 @@ AmplifyEventBus.$on('authState', async (state) => {
     })
 
     // Sync identityId with user to support reverse lookup.
-    const credentials = await Credentials.get();
     if (credentials && storeUser.identity_id != credentials.identityId) {
       console.log('Syncing credentials identity_id with store user profile')
       storeUser.identity_id = credentials.identityId
     }
-
+    
     // Update last sign in and sign up dates on user.
     let newSignUp = false
 
@@ -170,7 +185,7 @@ const router = new Router({
       path: '/product/:id',
       name: 'ProductDetail',
       component: ProductDetail,
-      props: route => ({ discount: route.query.di }),
+      props: route => ({ discount: route.query.di === "true"}),
       meta: { requiresAuth: false}
     },  
     {

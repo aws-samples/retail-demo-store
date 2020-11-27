@@ -2,7 +2,7 @@ FROM python:3.8-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y g++ ffmpeg
+RUN apt-get update && apt-get install -y g++ ffmpeg procps
 COPY /src/videos-service/requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 

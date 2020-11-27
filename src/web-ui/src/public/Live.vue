@@ -5,7 +5,7 @@
     <Navigation display="live" :categories="categories"/>
 
     <div class="container">
-      <div class="row" v-if="user&&productDiscounts.length>0">
+      <div class="row">
         <div class="col">
           <div class="alert alert-warning mb-2 py-1" role="alert">
             <div class="row no-gutters">
@@ -156,7 +156,7 @@ export default {
     return {
       categories: [],
       metadata: [],
-      activeStreamId: null,
+      activeStreamId: 0,
       activeProductId: 0,
       streamDetails: [],
       productDetails: [],
@@ -173,7 +173,6 @@ export default {
     }
   },
   created: async function () {
-     this.getStreamDetails();
      this.loadPlayer();
      this.getCategories();
      this.getRecommendations();
@@ -248,30 +247,6 @@ export default {
         AnalyticsHandler.identifyExperiment(this.user, this.userRecommended[0].experiment);
       }
     },
-    async getStreamDetails() {
-      let videoResponse = await VideosRepository.get();
-      this.streamDetails = videoResponse.data.streams;
-      this.activeStreamId = 0;
-      this.activeProductId = this.streamDetails[this.activeStreamId].products[0];
-      const productDetails = this.streamDetails.map((detail) => {
-        return this.getProducts(detail.products);
-      })
-      this.productDetails = await Promise.all(productDetails);
-      const discounts = this.productDetails.map((detail) => {
-        return this.getDiscounts(detail);
-      })
-
-      const discountDetails = await Promise.all(discounts)
-      this.productDiscounts = discountDetails.flat().filter(discount => discount.discounted).map(disc => disc.itemId);
-      if (this.productDiscounts.length>0) {
-        this.productDetails = discountDetails;
-      }
-      else{
-        console.log("No discount info.");
-      }
-
-
-    },
     async loadPlayer () {
       const mediaPlayerScript = document.createElement("script");
       mediaPlayerScript.src = "https://player.live-video.net/1.0.0/amazon-ivs-player.min.js";
@@ -314,9 +289,31 @@ export default {
       });
 
       // Setup stream and play
+      let videoResponse = await VideosRepository.get();
+      this.streamDetails = videoResponse.data.streams;
+      this.activeProductId = this.streamDetails[this.activeStreamId].products[0]
       player.setAutoplay(true);
-
       player.setVolume(0.5);
+      player.load(this.streamDetails[this.activeStreamId].playback_url);
+
+      const productDetails = this.streamDetails.map((detail) => {
+        return this.getProducts(detail.products);
+      })
+      this.productDetails = await Promise.all(productDetails);
+
+      const discounts = this.productDetails.map((detail) => {
+        return this.getDiscounts(detail);
+      })
+      const discountDetails = await Promise.all(discounts)
+
+      this.productDiscounts = discountDetails.flat().filter(discount => discount.discounted).map(disc => disc.itemId);
+      if (this.productDiscounts.length>0) {
+        this.productDetails = discountDetails;
+      }
+      else {
+        console.log("No discount info.");
+      }
+
     },
     handleMetadata (metadata) {
       this.activeProductId = JSON.parse(metadata).productId;

@@ -14,6 +14,15 @@ services:
       - AWS_SECRET_ACCESS_KEY
     ports:
       - "8003:80"
+      
+  ddb:
+    image: amazon/dynamodb-local
+    container_name: ddb
+    command: -jar DynamoDBLocal.jar -port 3001
+    networks:
+      - dev-net
+    ports:
+      - 3001:3001
 
   orders:
     container_name: orders
@@ -26,6 +35,8 @@ services:
 
   products:
     container_name: products
+    depends_on:
+      - ddb
     environment:
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
@@ -33,7 +44,9 @@ services:
       - AWS_SESSION_TOKEN
       - DDB_TABLE_PRODUCTS
       - DDB_TABLE_CATEGORIES
+      - DDB_ENDPOINT_OVERRIDE
       - IMAGE_ROOT_URL
+      - WEB_ROOT_URL
     build:
       context: ./products
     networks:

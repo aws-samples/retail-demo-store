@@ -13,7 +13,6 @@ import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const ProductsRepository = RepositoryFactory.get('products')
 
-
 export default {
   name: "Notifications",
   data() {
@@ -62,7 +61,7 @@ export default {
           }
         } else if (!this.isWaypointView) {
           if (messageData.EventType === "PURCHASE") {
-            RecommendationsRepository.getCouponOffer(this.user)
+            RecommendationsRepository.getCouponOffer(this.user.id)
                 .then((offer_recommendation) => {
                   const offer = offer_recommendation.data.offer;
 

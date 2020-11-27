@@ -139,11 +139,18 @@ Resources:
               Service: ecs-tasks.amazonaws.com
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-
+      Policies:
+        - PolicyName: ReadRetailDemoStoreSSMParams
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [!Ref Uid ,!Ref ServiceName, TaskRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -295,6 +302,12 @@ Resources:
         - Name: !Ref ServiceName
           Image: !Ref ContainerImage
           Essential: true
+          Memory: 256
+          Secrets:
+            - Name: OPTIMIZELY_SDK_KEY
+              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
+            - Name: SEGMENT_WRITE_KEY
+              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeCampaignArn          
@@ -361,3 +374,4 @@ Outputs:
 
   FargateServiceName:
     Value: !GetAtt FargateService.Name
+    

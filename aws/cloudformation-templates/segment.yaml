@@ -1,0 +1,131 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys two Lambda functions that can be used with the Segment Amazon Personalize destination 
+    in the Personalize and CDP workshops, along with the execution roles required to run the Lambda and for Segment
+    to be able to access the Lambda from the Personalize destination.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+Resources:
+  SegmentPersonalizeEventsDestinationLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles sending events passed from Segment to the Personalize tracker for user-item interactions.'
+      Handler: segment-personalize-events-destination.lambda_handler
+      Role: !GetAtt 
+        - SegmentPersonalizeDestinationLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/segment-personalize-events-destination.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: SegmentPersonalizeEventsDestination
+      Environment:
+        Variables:
+          personalize_tracking_id:  ''
+
+  SegmentPersonalizeInferenceDestinationLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles events passed from Segment to Personalize for inference.'
+      Handler: segment-personalize-inference-destination.lambda_handler
+      Role: !GetAtt 
+        - SegmentPersonalizeDestinationLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/segment-personalize-inference-destination.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: SegmentPersonalizeInferenceDestination
+      Environment:
+        Variables:
+          personalize_campaign_id:  ''
+          segment_personas_write_key: ''
+         
+  SegmentCrossAccountLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+     Description: 'Required role for Segment to execute a Lambda from the Segment Personalize destination.'
+     AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::595280932656:root"
+            Action:
+              - 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                "sts:ExternalId": '123456789'
+     Path: /
+     Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SegmentPersonalize*'
+
+  SegmentPersonalizeDestinationLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: 'Execution role for the two Lambdas provided with the Segment workshop.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter                
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:GetRecommendations
+                  - personalize:PutEvents
+                Resource: '*'
+
+Outputs:
+  SegmentPersonalizeEventsLambdaFunctionArn:
+    Description: Lambda function ARN for the Segment Personalize destination Lambda function.
+    Value: !GetAtt SegmentPersonalizeEventsDestinationLambda.Arn
+  SegmentPersonalizeInferenceLambdaFunctionArn:
+    Description: Lambda function ARN for the Segment Personalize destination Lambda function.
+    Value: !GetAtt SegmentPersonalizeInferenceDestinationLambda.Arn

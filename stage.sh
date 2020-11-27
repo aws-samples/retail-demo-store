@@ -45,7 +45,7 @@ echo " + Copying Notebook Dependencies"
 [ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
 rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
 
-cp ./generators/generate_interactions_personalize.py ./workshop/
+cp ./generators/generate_interactions_personalize.py ./workshop/1-Personalization/
 cp ./generators/requirements.txt ./workshop
 
 [ ! -d "./workshop/data" ] && mkdir ./workshop/data

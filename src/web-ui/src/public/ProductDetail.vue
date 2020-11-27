@@ -14,12 +14,14 @@
     <div class="col-sm-12 col-md-6 col-lg-6">
        <h5>{{ product.name }}</h5>
        <p>{{ product.description }}</p>
-       <p v-bind:class="{discount: discount == 'true'}">${{ product.price }}</p>
-       <p v-if="discount == 'true'" class="font-weight-bold">${{ discountedPrice.toFixed(2) }}</p>
+       <p v-bind:class="{discount: discount}">${{ product.price }}</p>
+       <p v-if="discount" class="font-weight-bold">${{ discountedPrice.toFixed(2) }}</p>
+       <span v-if="product.current_stock > 0">Items currently in stock: {{ product.current_stock }}</span>
+       <span v-else>Sorry, this item is currently out of stock</span>
        <p>
         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
        </p>       
-       <button class="btn btn-outline-primary" v-on:click="addToCart()"> Add to Cart </button>
+       <button class="btn btn-outline-primary" v-on:click="addToCart()" :disabled='addToCartDisabled'> Add to Cart </button>
     </div>
   </div>
 
@@ -72,7 +74,11 @@ export default {
     Product
   },
   props: {
-    discount: null
+    discount: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   data () {
     return {
@@ -110,7 +116,7 @@ export default {
           let newItem = {
             product_id: this.product.id,
             quantity: qty,
-            price: this.discount == 'true' ? this.discountedPrice : this.product.price
+            price: this.discount ? this.discountedPrice : this.product.price
           }
           this.cart.items.push(newItem)
       }
@@ -118,7 +124,8 @@ export default {
       CartsRepository.updateCart(this.cart)
       this.getCart()
 
-      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature, this.$route.query.exp)
+      AnalyticsHandler.productAddedToCart(this.user, this.cart, this.product, qty, this.$route.query.feature,
+          this.$route.query.exp, this.$route.query.di)
 
       swal({
         title: "Added to Cart",
@@ -148,11 +155,12 @@ export default {
     },
     recordProductViewed() {
       if (this.product) {
-        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp)
+        AnalyticsHandler.productViewed(this.user, this.product, this.$route.query.feature, this.$route.query.exp,
+                                       this.$route.query.di)
       }
     },
     async getRelatedProducts() {
-      const response = await RecommendationsRepository.getRelatedProducts(this.user ? this.user.id : '', this.product.id, MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRelatedProducts(this.personalizeUserID ? this.personalizeUserID : '', this.product.id, MaxRecommendations, ExperimentFeature)
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
@@ -203,6 +211,9 @@ export default {
     user() { 
       return AmplifyStore.state.user
     },
+    personalizeUserID() {
+      return AmplifyStore.getters.personalizeUserID
+    },
     cartID() {
       return AmplifyStore.state.cartID
     },
@@ -217,6 +228,9 @@ export default {
         let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
         return root_url + this.product.category + '/' + this.product.image
       }
+    },
+    addToCartDisabled: function () {
+      return !this.product.current_stock > 0     
     }
   },
   watch: {

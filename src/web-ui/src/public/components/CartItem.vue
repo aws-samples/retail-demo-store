@@ -10,10 +10,10 @@
             <i class="fas fa-plus text-black-50" v-on:click="increaseQuantity(product_id)"></i> <div class="mr-1 ml-1 font-weight-bold"> {{ quantity }} </div> <i class="fas fa-minus text-black-50" v-on:click="decreaseQuantity(product_id)"></i>
         </td>
         <td class="px-1" >
-          <span class="mr-2" v-bind:class="{discount: cartPrice < product.price}">
-            ${{ product.price }}
+          <span class="mr-2 discount" v-if="cartPrice < product.price">
+            ${{ product.price.toFixed(2) }}
           </span>
-          <span class="font-weight-heavy">
+          <span class="font-weight-heavy" :v-if="cartPrice < product.price">
             ${{ cartPrice.toFixed(2) }}
           </span>
         </td>

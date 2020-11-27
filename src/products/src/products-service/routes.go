@@ -30,12 +30,6 @@ var routes = Routes{
 		ProductIndex,
 	},
 	Route{
-		"CategoryIndex",
-		"GET",
-		"/categories/all",
-		CategoryIndex,
-	},
-	Route{
 		"ProductShow",
 		"GET",
 		"/products/id/{productID}",
@@ -48,9 +42,45 @@ var routes = Routes{
 		ProductFeatured,
 	},
 	Route{
-		"CategoryShow",
+		"ProductInCategory",
 		"GET",
 		"/products/category/{categoryName}",
+		ProductInCategory,
+	},
+	Route{
+		"ProductUpdate",
+		"PUT",
+		"/products/id/{productID}",
+		UpdateProduct,
+	},
+	Route{
+		"ProductDelete",
+		"DELETE",
+		"/products/id/{productID}",
+		DeleteProduct,
+	},
+	Route{
+		"NewProduct",
+		"POST",
+		"/products",
+		NewProduct,
+	},
+	Route{
+		"InventoryUpdate",
+		"PUT",
+		"/products/id/{productID}/inventory",
+		UpdateInventory,
+	},
+	Route{
+		"CategoryIndex",
+		"GET",
+		"/categories/all",
+		CategoryIndex,
+	},
+	Route{
+		"CategoryShow",
+		"GET",
+		"/categories/id/{categoryID}",
 		CategoryShow,
 	},
 }

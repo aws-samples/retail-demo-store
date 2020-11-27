@@ -7,6 +7,7 @@ import os
 import json
 import logging
 from datetime import datetime
+from collections import defaultdict
 
 GEOFENCE_PINPOINT_EVENTTYPE = 'WaypointApproachLocalShop'
 
@@ -23,7 +24,6 @@ logger.info(f"DISABLE_SEND_EMAIL: {DISABLE_SEND_EMAIL}")
 logger.info(f"DISABLE_SEND_SMS: {DISABLE_SEND_SMS}")
 
 apigateway = boto3.client('apigatewaymanagementapi', endpoint_url=NOTIFICATION_ENDPOINT)
-
 cognito_idp = boto3.client('cognito-idp')
 dynamodb = boto3.client('dynamodb')
 pinpoint = boto3.client('pinpoint')
@@ -32,7 +32,7 @@ servicediscovery = boto3.client('servicediscovery')
 logger.info(f'Pinpoint region is {pinpoint.meta.region_name}')
 
 
-def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL'):
+def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL', restrict_number=None):
     """
     If a user already exists in Pinpoint with certain "User Attributes", those attributes will be carried over to any
     other enpdoint we create for that user. In many applications therefore you just create a new endpoint and
@@ -44,9 +44,10 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
         shopper_user_id: Shopper User ID which Pinpoint uses internally.
         phone_number: E.g. '+90555555555'
         source_channel_type: E.g. 'EMAIL' - where to grab endpoint details from to propagate to SMS.
+        restrict_number (int): Do not carry over more than this number of endpoints.
 
     Returns:
-
+        Side effects in Pinpoint. No return.
     """
     pinpoint_app_id = os.environ['PinpointAppId']
 
@@ -54,8 +55,10 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
         endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
 
         # If the caller has requested that we sync to only certain endpoints (e.g. email)
+        # We also only sync active endpoints
         endpoints = [endpoint_item for endpoint_item in endpoints['EndpointsResponse']['Item'] if
-                     endpoint_item['ChannelType'] == source_channel_type]
+                     'ChannelType' in endpoint_item and endpoint_item['ChannelType'] == source_channel_type and
+                     endpoint_item['EndpointStatus'].upper() == 'ACTIVE']
 
         if len(endpoints) > 1:
             logger.warning(f"More than one endpoint with email channel for shopper {shopper_user_id} - normally"
@@ -69,6 +72,11 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
     except pinpoint.exceptions.NotFoundException:
         logger.error(f"User {shopper_user_id} has no endpoints set. Unable to carry attributes over to SMS endpoint.")
         return
+
+    if restrict_number is not None:
+        if len(endpoints) > 1:
+            logger.info(f"Removing {len(endpoints)-restrict_number} endpoints.")
+            endpoints = endpoints[:restrict_number]
 
     # Grab all attributes and metrics from existing endpoints and get them ready to pop into the new endpoint
     attributes = {}
@@ -95,7 +103,8 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
     )
 
 
-def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso=None, restrict_to_endpoint_types=None):
+def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso=None, restrict_to_endpoint_types=None,
+                                            restrict_number=None):
     """
     We fire an event in Pinpoint with name parametrised by GEOFENCE_PINPOINT_EVENTTYPE for all endpoints
     associated with this user. This enables campaigns based on waypoint events.
@@ -103,6 +112,7 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
         shopper_user_id (str): Shopper User ID which Pinpoint uses internally.
         event_timestamp_iso (Optional[str]): If null current timestamp is used otherwise stamps the event with this.
         restrict_to_endpoint_types (Optional[list]): If not None, the channel types to send events for.
+        restrict_number (int): Do not fire for more than more than this number of endpoints for each channel type/address.
 
     Returns:
         None.
@@ -110,11 +120,39 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
     pinpoint_app_id = os.environ['PinpointAppId']
     try:
         endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
+        endpoints = endpoints['EndpointsResponse']['Item']
     except pinpoint.exceptions.NotFoundException:
         logger.warning(f"No endoints found for user {shopper_user_id} - no waypoint event fire")
         return
-    endpoint_ids = [endpoint['Id'] for endpoint in endpoints['EndpointsResponse']['Item']
-                    if restrict_to_endpoint_types is None or endpoint['ChannelType'] in restrict_to_endpoint_types]
+
+    if restrict_number is not None:
+        # Sometimes your Analytics may put unnecessary endpoints in to Pinpoint - for example, one for each session
+        # but with the same address - we ensure that each address only has one endpoint event fired.
+        removed = []
+        kept = defaultdict(list)
+        for endpoint in endpoints:
+            if 'ChannelType' in endpoint:
+                channel_type = endpoint['ChannelType']
+            else:
+                channel_type = 'unk'
+            if 'Address' in endpoint:
+                addr = endpoint['Address']
+            else:
+                addr = 'unk'
+            if endpoint['EndpointStatus'].upper() == 'ACTIVE' and len(kept[(channel_type, addr)]) < restrict_number:
+                kept[(channel_type, addr)].append(endpoint)
+            else:
+                removed.append(endpoint)
+                logger.info(f"Dropping endpoint with Id {endpoint['Id']}")
+        if len(removed) > 0:
+            logger.info(f"Dropped {len(removed)} endpoints.")
+        endpoints = []
+        for endpointlist in kept.values():
+            endpoints += endpointlist
+
+    endpoint_ids = [endpoint['Id'] for endpoint in endpoints
+                    if restrict_to_endpoint_types is None or
+                    ('ChannelType' in endpoint and endpoint['ChannelType'] in restrict_to_endpoint_types)]
 
     if event_timestamp_iso is None:
         timestamp = datetime.now().isoformat()
@@ -165,13 +203,14 @@ def pinpoint_add_current_cart_details_to_user(shopper_user_id, carts_service, pr
     new_user_attributes = {'CartProductImages': [product['details']['image_url'] for product in cart_products][:3],
                            'CartProductURLs': [product['details']['url'] for product in cart_products][:3],
                            'CartProductNames': [product['details']['name'] for product in cart_products][:3]}
+
     # Ensure we always have exactly 3
     new_user_attributes = {key: items + ['']*(3-len(items)) for key,items in new_user_attributes.items()}
 
     if len(carts) > 0:
 
         # OK let us fill this information.
-        if max(len(cart['items']) for cart in carts if cart['items'] is not None) > 0:
+        if sum(len(cart['items']) for cart in carts if cart['items'] is not None) > 0:
 
             pinpoint_app_id = os.environ['PinpointAppId']
             try:
@@ -188,8 +227,7 @@ def pinpoint_add_current_cart_details_to_user(shopper_user_id, carts_service, pr
                 )
                 logger.info(f"Inserted into user {shopper_user_id} endpoint {endpoint['Id']}: {new_user_attributes}")
             except pinpoint.exceptions.NotFoundException:
-                logger.warning(f"No endoints found for user {shopper_user_id} - not adding cart details")
-                return
+                logger.warning(f"No endpoints found for user {shopper_user_id} - not adding cart details")
         else:
             logger.warning(f"User {shopper_user_id} has carts but no items: {carts}.")
     else:
@@ -216,7 +254,6 @@ def send_email(to_email, subject, html_content, text_content):
         logger.warning('Send of email disabled')
         return
 
-    email_from_address = os.environ['EmailFromAddress']
     pinpoint_app_id = os.environ['PinpointAppId']
     response = pinpoint.send_messages(
         ApplicationId=pinpoint_app_id,
@@ -228,7 +265,6 @@ def send_email(to_email, subject, html_content, text_content):
             },
             'MessageConfiguration': {
                 'EmailMessage': {
-                    'FromAddress': email_from_address,
                     'SimpleEmail': {
                         'Subject': {
                             'Charset': "UTF-8",
@@ -372,8 +408,13 @@ def add_product_details(products_service, product):
         logging.info(f'Hitting {products_url} for product details to add to order.')
         response = requests.get(products_url)
         product['details'] = response.json()
-        product['details']['image_url'] = os.environ['WebURL'] + '/images/' + product['details']['category'] + '/' + \
-                                          product['details']['image']
+        # Latest product service behaviour makes product service responsible for
+        # adding in URL root - this may change in the future
+        if product['details']['image'].lower().startswith('http://'):
+            base = ''
+        else:
+            base = os.environ['WebURL'] + '/images/' + product['details']['category'] + '/'
+        product['details']['image_url'] = base + product['details']['image']
     except requests.exceptions.ConnectionError:
         logger.warning(f'Could not retrieve {products_url}')
 
@@ -656,7 +697,7 @@ def handle_geofence_enter(event):
     Returns:
         None.
     """
-    waypoint_device_id = event['detail']['DeviceID']
+    waypoint_device_id = event['detail']['DeviceId']
     # If there are multiple geofences, it is possible to learn which geofence by inspecting the event
     # at event['detail']['GeofenceID']
     # and event['detail']['GeofenceCollectionARN']
@@ -724,7 +765,7 @@ def handle_geofence_enter(event):
         # If there are any Pinpoint campaigns waiting for Waypoint events of type parametrised
         # by GEOFENCE_PINPOINT_EVENTTYPE (see defined at top)
         # They should get triggered for all endpoints for this user:
-        pinpoint_fire_waypoint_approached_event(shopper_user_id, event['detail']['EventDetectionTimestamp'])
+        pinpoint_fire_waypoint_approached_event(shopper_user_id, event['detail']['SampleTime'])
         send_purchase_browser_notification(cognito_user_id)
 
     elif demo_journey == 'COLLECTION':
@@ -739,78 +780,38 @@ def handle_geofence_enter(event):
                         f"for user {first_name} {last_name} ({shopper_user_id})")
             notify_waiting_orders(to_email, phone_number, orders)
 
+
 def lambda_handler(event, context):
     """
     Lambda function to handle geofence enter exit events for retail demo store.
 
-   Here is the structure of a Waypoint exit event (we expect DeviceID to contain cognito user ID - e.g. "daemon"):
-    {
-        "version": "0",
-        "id": "12345678-9abc-def0-1234-56789abcdef0",
-        "detail-type": "Geofence Exit",
-        "source": "aws.geo",
-        "account": "YOUR_ACCOUNT_ID",
-        "time": "2020-10-14T15:55:31Z",
-        "region": "eu-west-1",
-        "resources": [
-            "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID"
-        ],
-        "detail": {
-            "EventID": "12345678-9abc-def0-1234-56789abcdef0",
-            "CustomerID": "YOUR_ACCOUNT_ID",
-            "GeofenceCollectionARN": "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID",
-            "TrackerARN": "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:tracker/COLLECTIONID",
-            "GeofenceID": "YOUR_ACCOUNT_ID+arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID+monitoring-12345678-9abc-def0-1234-56789abcdef0",
-            "DeviceID": "FILL_THIS_IN_WE_USE_COGNITO_USER",
-            "DeviceLocation": [
-                50,
-                -110
-            ],
-            "GeofenceEventType": "GEOFENCE_EXIT",
-            "LocationUpdateTimestamp": "2020-10-14T15:55:30.963Z",
-            "LocationIngestionTimestamp": "2020-10-14T15:55:31.093Z",
-            "BreachDetectionTimestamp": "2020-10-14T15:55:31.388Z",
-            "EventDetectionTimestamp": "2020-10-14T15:55:31.585Z",
-            "RequestID": "12345678-9abc-def0-1234-56789abcdef0"
-        }
-    }
+    Here is the structure of a Waypoint enter event (an exit event also exists):
 
-    Here is the structure of a Waypoint enter event:
-    {
-        "version": "0",
-        "id": "12345678-9abc-def0-1234-56789abcdef0",
-        "detail-type": "Geofence Enter",
-        "source": "aws.geo",
-        "account": "YOUR_ACCOUNT_ID",
-        "time": "2020-10-14T15:46:17Z",
-        "region": "eu-west-1",
-        "resources": [
-            "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID"
-        ],
-        "detail": {
-            "EventID": "12345678-9abc-def0-1234-56789abcdef0",
-            "CustomerID": "YOUR_ACCOUNT_ID",
-            "GeofenceCollectionARN": "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID",
-            "TrackerARN": "arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:tracker/COLLECTIONID",
-            "GeofenceID": "YOUR_ACCOUNT_ID+arn:aws:geo:eu-west-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID+monitoring-12345678-9abc-def0-1234-56789abcdef0",
-            "DeviceID": "FILL_THIS_IN_WE_USE_COGNITO_USER",
-            "DeviceLocation": [
-                -100,
-                50
+        {
+            "version": "0",
+            "id": "12345678-9abc-def0-1234-56789abcdef0",
+            "detail-type": "Location Geofence Event",
+            "source": "aws.geo",
+            "account": "YOUR_ACCOUNT_ID",
+            "time": "2020-11-23T14:30:33Z",
+            "region": "us-east-1",
+            "resources": [
+                "arn:aws:geo:us-east-1:YOUR_ACCOUNT_ID:geofence-collection/COLLECTIONID",
+                "arn:aws:geo:us-east-1:YOUR_ACCOUNT_ID:tracker/TRACKERID"
             ],
-            "GeofenceEventType": "GEOFENCE_ENTER",
-            "LocationUpdateTimestamp": "2020-10-14T15:46:16.961Z",
-            "LocationIngestionTimestamp": "2020-10-14T15:46:17.105Z",
-            "BreachDetectionTimestamp": "2020-10-14T15:46:17.418Z",
-            "EventDetectionTimestamp": "2020-10-14T15:46:17.706Z",
-            "RequestID": "12345678-9abc-def0-1234-56789abcdef0"
+            "detail": {
+                "EventType": "ENTER",
+                "GeofenceId": "GEOFENCEID",
+                "DeviceId": "FILL_THIS_IN: WE_USE_COGNITO_USER",
+                "SampleTime": "2020-11-23T14:30:32.867Z",
+                "Position": [-100,50]
+            }
         }
-    }
 
     Args:
-        event: See the examples above
-        context: Information like the Python version,
-                 logging group https://docs.aws.amazon.com/lambda/latest/dg/python-context.html
+        event: See the example above
+        context: Information such as the Python version,
+                 logging group https://docs.aws.amazon.com/lambda/latest/dg/python-context.html .
                  Ignored here
 
     Returns:
@@ -825,10 +826,10 @@ def lambda_handler(event, context):
     if float(event['version']) != 0:
         logger.warning(f"Getting event structure for Waypoint event of non-known version: {event}")
 
-    if event['detail-type'] == 'Geofence Enter':
-        if event['detail']['GeofenceEventType'] != 'GEOFENCE_ENTER':
-            logger.error(f"Event detail type {event['detail-type']} does not match GeofenceEventType"
-                         f" {event['detail']['GeofenceEventType']}")
+    if event['detail-type'] == 'Location Geofence Event':
+        if event['detail']['EventType'] != 'ENTER':
+            logger.warning(f"Event detail type {event['detail-type']} EventType"
+                           f" {event['detail']['EventType']} - not handled.")
             return
         handle_geofence_enter(event)
 

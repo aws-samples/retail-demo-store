@@ -40,8 +40,9 @@
   "resolutions": {
     "acorn": "^6.4.1",
     "elliptic": "^6.5.3",
+    "kind-of": "^6.0.3",
     "minimist": "^1.2.5",
-    "kind-of": "^6.0.3"
+    "selfsigned": "^1.10.8"
   },
   "eslintConfig": {
     "root": true,

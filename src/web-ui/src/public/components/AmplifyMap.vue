@@ -132,7 +132,7 @@ export default {
         this.map.addSource('devices', { type: 'geojson', data });
         this.map.addLayer({
           id: 'devices',
-          paint: { 'circle-radius': 6, 'circle-color': '#B42222' },
+          paint: { 'circle-radius': 12, 'circle-color': '#B42222' },
           source: 'devices',
           type: 'circle',
         });
@@ -164,7 +164,7 @@ export default {
         this.map.addSource('stores', { type: 'geojson', data });
         this.map.addLayer({
           id: 'stores',
-          paint: { 'circle-radius': 6, 'circle-color': '#2242b4' },
+          paint: { 'circle-radius': 12, 'circle-color': '#2242b4' },
           source: 'stores',
           type: 'circle',
         });

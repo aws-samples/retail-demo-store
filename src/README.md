@@ -14,6 +14,8 @@ Docker Compose will load the [.env](./.env) file to resolve environment variable
 
 Some services, such as the [products](./products) and [recommendations](./recommendations) services, need to access AWS services running in your AWS account from your local machine. Given the differences between these container setups, different approaches are needed to pass in the AWS credentials needed to make these connections. For example, for the recommendations service we can map your local `~./.aws` configuration directory into the container's `/root` directory so the AWS SDK in the container can pick up the credentials it needs. Alternatively, since the products service is packaged from a [scratch image](https://hub.docker.com/_/scratch), credentials must be passed using the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables. In this case, rather than setting these variables in `.env` and risk exposing these values, consider setting these three variables in your shell environment. The following command can be used to obtain a session token which can be used to set your environment variables in your shell.
 
+> DynamoDB is one dependency that can be run locally rather than connecting to the real DynamoDB. This makes it easier to run services like the [products](./products) service completely local to you computer.
+
 ```console
 foo@bar:~$ aws sts get-session-token
 ```

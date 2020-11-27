@@ -16,7 +16,7 @@ class ABExperiment(Experiment):
     def __init__(self, table, **data):
         super(ABExperiment, self).__init__(table, **data)
 
-    def get_items(self, user_id, current_item_id = None, item_list = None, num_results = 10, tracker = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -36,7 +36,8 @@ class ABExperiment(Experiment):
             'user_id': user_id,
             'product_id': current_item_id,
             'product_list': item_list,
-            'num_results': num_results
+            'num_results': num_results,
+            'context': context
         }
         items = variation.resolver.get_items(**resolve_params)
 
