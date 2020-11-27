@@ -1,8 +1,8 @@
 <template>
   <div class="content">
 
-    <!-- Categories Navigation -->
-    <Navigation :display="display" :categories="categories"/>
+<!-- Categories Navigation -->
+   <Navigation :display="display" :categories="categories"/>
 
     <!-- Announcements -->
     <div id="featuredProducts" class="carousel slide col-sm-12 col-md-12 col-lg-12 d-none d-md-block mb-5" data-ride="carousel">
@@ -17,7 +17,7 @@
             <div class="carousel-caption">
               <h5>The Apparel Collection</h5>
               <p>Cozy sweaters and classic styles for your wardrobe.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'apparel'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'apparel'}}">See More</router-link>
             </div>
         </div>
         <div class="carousel-item">
@@ -25,7 +25,7 @@
             <div class="carousel-caption">
               <h5>Lets Go Fishing</h5>
               <p>Start gearing up for summer adventures with our new fishing gear!</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'outdoors'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'outdoors'}}">See More</router-link>
             </div>
         </div>
         <div class="carousel-item">
@@ -33,7 +33,7 @@
               <div class="carousel-caption">
               <h5>Beauty Products</h5>
               <p>Popular beauty products now back in stock.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'beauty'}}">See More</router-link> 
+              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'beauty'}}">See More</router-link>
             </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Category v-for="category in categories" 
+          <Category v-for="category in categories"
             v-bind:key="category.id"
             :category="category"
           />
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Recommended/Featured Product List -->
-    <div class="container mt-5 user-recommendations" v-if="user">
+    <div class="container mt-5 user-recommendations" v-if="personalizeUserID">
       <h4>{{ this.display | capitalize }}</h4>
       <div v-if="explain_recommended" class="text-muted text-center">
         <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
@@ -74,7 +74,7 @@
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="recommendation in user_recommended" 
+          <Product v-for="recommendation in user_recommended"
             v-bind:key="recommendation.product.id"
             :product="recommendation.product"
             :experiment="recommendation.experiment"
@@ -83,14 +83,14 @@
         </div>
       </div>
     </div>
-    <div class="container guest-recommendations" v-if="!user">
+    <div class="container guest-recommendations" v-if="!personalizeUserID">
       <h4>{{ this.display | capitalize }}</h4>
       <div class="container mb-4" v-if="!guest_recommended.length">
         <i class="fas fa-spinner fa-spin fa-3x"></i>
       </div>
       <div class="row">
         <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="product in guest_recommended" 
+          <Product v-for="product in guest_recommended"
             v-bind:key="product.id"
             :product="product"
             :feature="feature"
@@ -98,7 +98,7 @@
         </div>
       </div>
     </div>
-  </div> 
+  </div>
 </template>
 
 <script>
@@ -106,10 +106,10 @@ import AmplifyStore from '@/store/store'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import Navigation from "./CategoryNavigation.vue";
 
 import Product from './components/Product.vue'
 import Category from './components/Category.vue'
-import Navigation from "./CategoryNavigation.vue";
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -142,25 +142,35 @@ export default {
   },
   methods: {
     async getRecommendations() {
-      if (this.user) {
-        this.display = 'Inspired by your shopping trends'
+      // Baseline assumption that we're displaying featured products
+      this.display = 'featured'
+      if (this.personalizeUserID) {
         this.getUserRecommendations()
       }
       else {
-        this.display = 'featured'
         const { data } = await ProductsRepository.getFeatured()
         this.guest_recommended = data.slice(0, MaxRecommendations)
       }
     },
     async getUserRecommendations() {
-      const response = await RecommendationsRepository.getRecommendationsForUser(this.user.id, '', MaxRecommendations, ExperimentFeature)
+      const response = await RecommendationsRepository.getRecommendationsForUser(this.personalizeUserID, '', MaxRecommendations, ExperimentFeature)
 
       if (response.headers) {
         if (response.headers['x-personalize-recipe']) {
+          if (this.personalizeRecommendationsForVisitor) {
+            // Expect recommendations to be personalized by now
+            this.display = 'Inspired by your shopping trends';
+          }
+          else {
+            // Assume popular products are being displayed until user generates some events
+            this.display = 'Trending products';
+          }
           this.personalized = true
           this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
         }
         if (response.headers['x-experiment-name']) {
+          // Can't be sure if we're personalizing or not and if so to what degree
+          this.display = 'Recommended for you';
           this.active_experiment = true
           this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
         }
@@ -178,8 +188,14 @@ export default {
     }
   },
   computed: {
-    user() { 
+    user() {
       return AmplifyStore.state.user
+    },
+    personalizeUserID() {
+      return AmplifyStore.getters.personalizeUserID
+    },
+    personalizeRecommendationsForVisitor() {
+      return AmplifyStore.getters.personalizeRecommendationsForVisitor
     },
     imageRootURL() {
       return process.env.VUE_APP_IMAGE_ROOT_URL ? process.env.VUE_APP_IMAGE_ROOT_URL : '/images/'
