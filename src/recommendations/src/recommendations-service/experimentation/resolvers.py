@@ -167,6 +167,7 @@ class SearchSimilarProductsResolver(Resolver):
  
         return items 
 
+
 class PersonalizeRecommendationsResolver(Resolver):
     """ Provides recommendations from an Amazon Personalize campaign """
     __personalize_runtime = boto3.client('personalize-runtime')
@@ -209,7 +210,7 @@ class PersonalizeRecommendationsResolver(Resolver):
             elif self.filter_arn:
                 params['filterArn'] = self.filter_arn
 
-            # contextual metadata does not work in related items recipe
+            # contextual metadata is not supported in related items recipe
             if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
 
         if item_id:
@@ -378,7 +379,6 @@ class PersonalizeContextComparePickResolver(Resolver):
 
     The campaign must be trained using the Personalized-Ranking recipe
     """
-    __personalize_runtime = boto3.client('personalize-runtime')
 
     def __init__(self, **params):
         with_context = params.get('with_context')
@@ -417,7 +417,6 @@ class PersonalizeContextComparePickResolver(Resolver):
 class RandomPickResolver(Resolver):
     """ Picks random N products.
     """
-    __personalize_runtime = boto3.client('personalize-runtime')
 
     def __init__(self, **params):
         pass

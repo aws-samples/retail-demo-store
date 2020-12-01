@@ -619,9 +619,10 @@ def get_top_n(user_id, items, feature, top_n,
 @app.route('/choose_discounted', methods=['POST'])
 def choose_discounted():
     """
-    Gets user ID, items list and feature and chooses which items to discount according to the discount reranking
-    campaign. Gets a ranking with discount applied and without and looks at the difference. The products
-    are ordered according to how the response is expected to improve after applying discount.
+    Gets user ID, items list and feature and chooses which items to discount according to the
+    reranking campaign. Gets a ranking with discount applied and without (using contextual metadata)
+    and looks at the difference. The products are ordered according to how the response is expected
+    to improve after applying discount.
 
     The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
     The items that are chosen for discount will have the "discounted" key set to True.
@@ -698,29 +699,6 @@ def experiment_outcome():
     except Exception as e:
         app.logger.exception('Unexpected error logging outcome', e)
         raise BadRequest(message='Unhandled error', status_code=500)
-
-
-def get_dataset_group_arn_from_name(dsg_name):
-    """Looks through the available dataset groups for one with the provided name and returns
-    its Arn."""
-    app.logger.info(f'Getting dataset group Arn')
-    dataset_group_arn = None
-    for dg in personalize.list_dataset_groups()['datasetGroups']:
-        if dg['name'] == dsg_name:
-            dataset_group_arn = dg['datasetGroupArn']
-    return dataset_group_arn
-
-
-def get_event_tracker_arn_from_id(dataset_group_arn, event_tracking_id):
-    """Looks for the Arn of an event tracker given its dataset group and Id"""
-    list_response = personalize.list_event_trackers(datasetGroupArn=dataset_group_arn, maxResults=100)
-    for event_tracker in list_response['eventTrackers']:
-        arn = event_tracker['eventTrackerArn']
-        describe_response = personalize.describe_event_tracker(eventTrackerArn=arn)
-        tracking_id = describe_response['eventTracker']['trackingId']
-        if tracking_id == event_tracking_id:
-            return arn
-    return None
 
 
 @app.route('/reset/realtime', methods=['POST'])

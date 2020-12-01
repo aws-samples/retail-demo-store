@@ -1,0 +1,53 @@
+{
+  "0": {
+    "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.0tBjE5G3Y648.m3u8",
+    "products": [
+      71,
+      72,
+      73,
+      74,
+      75,
+      81,
+      82
+    ],
+    "thumb_fname": "default_stream0_thumb.png"
+  },
+  "1": {
+    "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.Kyr5LYOURnWt.m3u8",
+    "products": [
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69
+    ],
+    "thumb_fname": "default_stream1_thumb.png"
+  },
+  "2": {
+    "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.8DVlPzmSylNT.m3u8",
+    "products": [
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      80
+    ],
+    "thumb_fname": "default_stream2_thumb.png"
+  },
+  "3": {
+    "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.kFHQJjo6tk1V.m3u8",
+    "products": [
+      76,
+      77,
+      78,
+      79,
+      71,
+      57
+    ],
+    "thumb_fname": "default_stream3_thumb.png"
+  }
+}

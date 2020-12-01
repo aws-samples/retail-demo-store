@@ -5,8 +5,8 @@ Description: >
     This template deploys the Retail Demo Store Services.
 
 Conditions:
-  UseDefaultIvsStreams: !Equals
-    - !Ref UseDefaultIvsStreams
+  UseDefaultIVSStreams: !Equals
+    - !Ref UseDefaultIVSStreams
     - 'Yes'
 
 Parameters:
@@ -116,7 +116,7 @@ Parameters:
     Type: String
     Description: Lambda Arn for cleanup function
 
-  UseDefaultIvsStreams:
+  UseDefaultIVSStreams:
     Type: String
     Description: Whether to use created IVS streams or those hosted by AWS.
   
@@ -347,7 +347,7 @@ Resources:
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
-        UseDefaultIvsStreams: !If [UseDefaultIvsStreams, true, false]
+        UseDefaultIVSStreams: !If [UseDefaultIVSStreams, true, false]
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}

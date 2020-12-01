@@ -35,9 +35,8 @@ from crhelper import CfnResource
 from packaging import version
 from botocore.exceptions import ClientError
 
-
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 min_botocore_version = '1.16.24'
 
@@ -88,13 +87,10 @@ dataset_group_name_root = 'retaildemostore-'
 # Exactly what we want train is stored in this SS parameter - or we generate it ourselves with a default
 # if it does not exist.
 training_config_param_name = 'retaildemostore-training-config'  # ParameterPersonalizeTrainConfig
-num_to_train = int(os.environ['num_to_train'])
 
 role_name = os.environ.get('Uid') + '-PersonalizeS3'
 event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
 filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
-
-datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
 
 all_campaign_types = ['retaildemostore-related-products',
                       'retaildemostore-product-personalization',
