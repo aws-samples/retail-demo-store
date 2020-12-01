@@ -10,14 +10,16 @@
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
       >
-        <template #heading>
+        <template #heading v-if="userRecommendationsTitle">
           {{ userRecommendationsTitle }}
+          <DemoGuideBadge :article="userRecommendationsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
 
       <RecommendedProductsSection :feature="feature" :recommendedProducts="featuredProducts">
         <template #heading>
           Featured products
+          <DemoGuideBadge :article="featuredProductsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
     </div>
@@ -32,6 +34,9 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import Layout from '@/components/Layout/Layout';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -43,11 +48,14 @@ export default {
   components: {
     Layout,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   data() {
     return {
       feature: EXPERIMENT_FEATURE,
       isLoadingRecommendations: true,
+      featuredProductsDemoGuideBadgeArticle: Articles.PERSONALIZED_RANKING,
+      userRecommendationsDemoGuideBadgeArticle: Articles.USER_PERSONALIZATION,
       featuredProducts: null,
       userRecommendationsTitle: null,
       userRecommendations: null,

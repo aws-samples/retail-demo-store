@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'layout--has-nav': showNav}">
+  <div :class="{'layout--has-nav': showNav, 'layout--has-demo-guide': showDemoGuide}">
     <Navigation v-if="showNav"></Navigation>
 
     <LoadingFallback v-if="isLoading" class="container mb-4"></LoadingFallback>
@@ -16,6 +16,10 @@
     <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
     <Footer v-if="showFooter" class="my-4"></Footer>
+
+    <AppModal></AppModal>
+
+    <DemoGuideButton v-if="showDemoGuide" class="demo-guide-button"></DemoGuideButton>
   </div>
 </template>
 
@@ -25,6 +29,8 @@ import PreviousPageLink from './PreviousPageLink';
 import Footer from '@/partials/Footer/Footer';
 import TextAlerts from '@/partials/TextAlerts/TextAlerts';
 import Navigation from '@/partials/Navigation/Navigation';
+import AppModal from '@/partials/AppModal/AppModal';
+import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
 
 export default {
   name: 'Layout',
@@ -38,6 +44,10 @@ export default {
       default: true,
     },
     showFooter: {
+      type: Boolean,
+      default: true,
+    },
+    showDemoGuide: {
       type: Boolean,
       default: true,
     },
@@ -68,6 +78,8 @@ export default {
     PreviousPageLink,
     TextAlerts,
     Footer,
+    AppModal,
+    DemoGuideButton,
   },
 };
 </script>
@@ -75,6 +87,19 @@ export default {
 <style scoped>
 .layout--has-nav {
   padding-top: 200px;
+}
+
+.layout--has-demo-guide {
+  padding-bottom: 100px;
+}
+
+.demo-guide-button {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
 }
 </style>
 

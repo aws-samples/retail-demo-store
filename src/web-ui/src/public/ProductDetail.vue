@@ -58,7 +58,10 @@
           :recommendedProducts="relatedProducts"
           :feature="feature"
         >
-          <template #heading>Compare similar items</template>
+          <template #heading
+            >Compare similar items
+            <DemoGuideBadge :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
+          </template>
         </RecommendedProductsSection>
       </div>
     </template>
@@ -79,6 +82,9 @@ import ProductPrice from '@/components/ProductPrice/ProductPrice';
 import FiveStars from '@/components/FiveStars/FiveStars';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 import {discountProductPrice} from "@/util/discountProductPrice";
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -91,6 +97,7 @@ export default {
     ProductPrice,
     FiveStars,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   mixins: [product],
   props: {
@@ -106,6 +113,7 @@ export default {
       feature: EXPERIMENT_FEATURE,
       relatedProducts: null,
       explainRecommended: null,
+      demoGuideBadgeArticle: Articles.SIMILAR_ITEM_RECOMMENDATIONS,
     };
   },
   computed: {
