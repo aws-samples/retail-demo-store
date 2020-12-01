@@ -194,8 +194,9 @@ Parameters:
   PinpointSMSLongCode:
     Type: String
     Description: >
-      Phone number(a dedicated long code) for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
+      Phone number(a dedicated long code) for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
       is set to 'Yes'.
+    Default: "NONE"
   
   AmplitudeApiKey:
     Type: String

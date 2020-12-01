@@ -354,7 +354,7 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 			if (mobilePhoneCode != 0) {
 				var errMessage string = "The phone number provided is not a MOBILE phone number. The number is not capable of receiving SMS. Cannot create SMS endpoint for this number. Try entering a mobile phone number."
 				panic(errMessage)
-				http.Error(w, errMessage, 500)
+				http.Error(w, errMessage, 422)
 				return
 			} else {
 				var userAge string = strconv.Itoa(user.Age)
