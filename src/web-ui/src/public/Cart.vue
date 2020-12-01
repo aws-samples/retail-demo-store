@@ -74,12 +74,7 @@ export default {
     };
   },
   created() {
-    AnalyticsHandler.cartViewed(
-      this.user,
-      this.cart,
-      this.cartQuantity,
-      this.cartTotal,
-    );
+    AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
   },
   computed: {
     ...mapState({ cart: (state) => state.cart.cart, user: (state) => state.user }),
