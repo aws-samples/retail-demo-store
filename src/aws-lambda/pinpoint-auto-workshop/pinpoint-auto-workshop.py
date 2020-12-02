@@ -612,7 +612,7 @@ def lambda_handler(event, context):
         campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
         logger.debug(json.dumps(campaign_config, indent = 2, default = str))
     else:
-        print('Pinpoint SMS long code value not set. Please set the value in SSM parameters and trigger this lambda again to create Pinpoint SMS resources.')
+        print('Pinpoint SMS long code value not set. Please go through the manual workshop to enable Pinpoint SMS services.')
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)
 

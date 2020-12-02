@@ -278,18 +278,35 @@ func CreateEndpointAndSendConfirmation(updateEndpointInput *pinpoint.UpdateEndpo
 		sendMessageAddress[phonenumber] = &pinpoint.AddressConfiguration {
 			ChannelType: aws.String("SMS"),
 		}
-		sendMessageInput := &pinpoint.SendMessagesInput {
-			ApplicationId: &pinpoint_app_id,
-			MessageRequest: &pinpoint.MessageRequest {
-				Addresses: sendMessageAddress,
-				MessageConfiguration: &pinpoint.DirectMessageConfiguration {
-					SMSMessage: &pinpoint.SMSMessage {
-						Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
-						MessageType: aws.String("TRANSACTIONAL"),
-						OriginationNumber: &pinpoint_sms_long_code,
+		var sendMessageInput *pinpoint.SendMessagesInput 
+		if (pinpoint_sms_long_code == "NONE") {
+			fmt.Println("Long code not assigned by user");
+			sendMessageInput = &pinpoint.SendMessagesInput {
+				ApplicationId: &pinpoint_app_id,
+				MessageRequest: &pinpoint.MessageRequest {
+					Addresses: sendMessageAddress,
+					MessageConfiguration: &pinpoint.DirectMessageConfiguration {
+						SMSMessage: &pinpoint.SMSMessage {
+							Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
+							MessageType: aws.String("TRANSACTIONAL"),
+						},
 					},
 				},
-			},
+			}
+		} else {
+			sendMessageInput = &pinpoint.SendMessagesInput {
+				ApplicationId: &pinpoint_app_id,
+				MessageRequest: &pinpoint.MessageRequest {
+					Addresses: sendMessageAddress,
+					MessageConfiguration: &pinpoint.DirectMessageConfiguration {
+						SMSMessage: &pinpoint.SMSMessage {
+							Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
+							MessageType: aws.String("TRANSACTIONAL"),
+							OriginationNumber: &pinpoint_sms_long_code,
+						},
+					},
+				},
+			}
 		}
 		sendMessageOutput, err := pinpoint_client.SendMessages(sendMessageInput)
 		if err!=nil {

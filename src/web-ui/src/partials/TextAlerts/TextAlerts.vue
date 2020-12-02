@@ -2,13 +2,18 @@
   <section v-if="isEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
+<<<<<<< HEAD
     <form @submit.prevent="onSubmit" class="mb-2 form d-flex justify-content-center align-items-stretch">
       <input
+=======
+    <form @submit.prevent="onSubmit" class="form d-flex justify-content-center align-items-stretch">
+      <TheMask
+>>>>>>> Added about lambda function in pinpoint workshop. Made the latest frontend changes to work with backend.
         type="tel"
         name="phoneNumber"
         placeholder="Enter cellphone number"
         v-model="phoneNumber"
-        v-mask="'+1 (###) ### - ####'"
+        mask="+1 (###) ### - ####"
         class="input py-1 px-2"
       />
       <button type="submit" class="submit btn">Submit</button>
@@ -18,21 +23,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { mask } from 'vue-the-mask';
+import { mapActions, mapState } from 'vuex';
+import { TheMask } from 'vue-the-mask';
+import { RepositoryFactory } from '@/repositories/RepositoryFactory';
+
+const UsersRepository = RepositoryFactory.get('users');
 
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 export default {
   name: 'TextAlerts',
-  directives: {
-    mask,
+  components: { 
+    TheMask,
+    DemoGuideBadge 
   },
-  components: { DemoGuideBadge },
   data() {
     return {
-      isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
+      isEnabled: process.env.VUE_APP_PINPOINT_APP_ID ,
       phoneNumber: '',
       demoGuideBadgeArticle: Articles.SMS_MESSAGING,
     };
@@ -41,8 +49,11 @@ export default {
     ...mapState(['user']),
   },
   methods: {
-    onSubmit() {
+    ...mapActions(['setUser']),
+    async onSubmit() {
       console.log(`Text alerts form submitted with phone number: ${this.phoneNumber}`);
+      const {data} = await UsersRepository.verifyAndUpdateUserPhoneNumber(this.user.id, `+1${this.phoneNumber}`);
+      this.setUser(data);
     },
   },
 };
