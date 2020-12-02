@@ -6,6 +6,7 @@ import Router from 'vue-router';
 import Main from '@/public/Main.vue'
 import ProductDetail from '@/public/ProductDetail.vue'
 import CategoryDetail from '@/public/CategoryDetail.vue'
+import Live from '@/public/Live.vue'
 import Help from '@/public/Help.vue'
 import Cart from '@/public/Cart.vue'
 import Checkout from '@/public/Checkout.vue'
@@ -183,6 +184,7 @@ const router = new Router({
       path: '/product/:id',
       name: 'ProductDetail',
       component: ProductDetail,
+      props: route => ({ discount: route.query.di === "true" || route.query.di === true}),
       meta: { requiresAuth: false}
     },  
     {
@@ -190,7 +192,13 @@ const router = new Router({
       name: 'CategoryDetail',
       component: CategoryDetail,
       meta: { requiresAuth: false}
-    },     
+    },
+    {
+      path: '/live',
+      name: 'Live',
+      component: Live,
+      meta: { requiresAuth: false}
+    },
     {
       path: '/help',
       name: 'Help',
@@ -214,7 +222,7 @@ const router = new Router({
       name: 'Checkout',
       component: Checkout,
       meta: { requiresAuth: false}
-    },       
+    },
     {
       path: '/profile',
       name: 'Profile',
@@ -232,7 +240,7 @@ const router = new Router({
       name: 'Authenticator',
       component: components.Authenticator,
       props: {
-        authConfig: {   
+        authConfig: {
           signUpConfig: {
             hideAllDefaults: true,
             header: 'Create new account',

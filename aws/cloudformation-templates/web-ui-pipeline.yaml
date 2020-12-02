@@ -87,6 +87,10 @@ Parameters:
     Type: String
     Default: none
 
+  VideosServiceExternalUrl:
+    Type: String
+    Default: none
+
   PinpointAppId:
     Type: String
     Default: none
@@ -343,6 +347,8 @@ Resources:
             Value: !Sub ${RecommendationsServiceExternalUrl}   
           - Name: SEARCH_SERVICE_URL
             Value: !Sub ${SearchServiceExternalUrl}
+          - Name: VIDEOS_SERVICE_URL
+            Value: !Sub ${VideosServiceExternalUrl}
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
           - Name: PINPOINT_APP_ID

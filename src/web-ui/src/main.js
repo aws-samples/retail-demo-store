@@ -75,7 +75,7 @@ require('dotenv').config()
 
 Vue.config.productionTip = false
 
-Logger.LOG_LEVEL = 'DEBUG'
+// Logger.LOG_LEVEL = 'DEBUG'
 const logger = new Logger('main')
 
 Auth.currentUserInfo()

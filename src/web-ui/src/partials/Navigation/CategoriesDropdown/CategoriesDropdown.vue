@@ -21,6 +21,8 @@
         :to="`/category/${category.name}`"
         >{{ formattedCategories[i] }}</router-link
       >
+      <hr/>
+      <router-link class="dropdown-item" :to="`/live`">Live Streams</router-link>
     </div>
   </div>
 </template>

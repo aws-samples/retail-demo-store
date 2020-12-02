@@ -9,6 +9,8 @@ import json
 import urllib.parse
 import logging
 
+from random import shuffle
+
 log = logging.getLogger(__name__)
 servicediscovery = boto3.client('servicediscovery')
 
@@ -77,10 +79,12 @@ class DefaultProductResolver(Resolver):
             # Lookup product to determine if it belongs to a category
             url = f'http://{self.products_service_host}:{self.products_service_port}/products/id/{product_id}'
             log.debug('DefaultProductResolver - getting product details ' + url)
-            response = requests.get(url)
-
-            if response.ok:
-                category = response.json()['category']
+            try:
+                response = requests.get(url)
+                if response.ok:
+                    category = response.json()['category']
+            except requests.ConnectionError as e:
+                log.error(f"Could not pull product information from URL {url} - error: {e}")
 
         if category:
             # Product belongs to a category so get list of products in same category
@@ -163,6 +167,7 @@ class SearchSimilarProductsResolver(Resolver):
  
         return items 
 
+
 class PersonalizeRecommendationsResolver(Resolver):
     """ Provides recommendations from an Amazon Personalize campaign """
     __personalize_runtime = boto3.client('personalize-runtime')
@@ -204,6 +209,9 @@ class PersonalizeRecommendationsResolver(Resolver):
                 params['filterArn'] = filter_arn
             elif self.filter_arn:
                 params['filterArn'] = self.filter_arn
+
+            # contextual metadata is not supported in related items recipe
+            if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
 
         if item_id:
             params['itemId'] = item_id
@@ -275,9 +283,10 @@ class HttpResolver(Resolver):
 
         return items
 
+
 class PersonalizeRankingResolver(Resolver):
     """ Provides personalized ranking of products from an Amazon Personalize campaign 
-    
+
     The campaign must be trained using the Personalized-Ranking recipe
     """
     __personalize_runtime = boto3.client('personalize-runtime')
@@ -291,9 +300,11 @@ class PersonalizeRankingResolver(Resolver):
         # Optionally support filter specified at resolver creation.
         self.filter_arn = params.get('filter_arn')
 
+        self.context = params.get('context', None)
+
     def get_items(self, **kwargs):
         """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
-        
+
         Arguments:
             user_id - ID for the user for which to rerank items (required for Personalized-Ranking recipe)
             product_list - list of product IDs to rerank for the user
@@ -313,6 +324,11 @@ class PersonalizeRankingResolver(Resolver):
             'inputList': input_list
         }
 
+        if 'context' in kwargs and kwargs['context'] is not None:
+            params['context'] = kwargs['context']
+        elif self.context is not None:
+            params['context'] = self.context
+
         filter_arn = kwargs.get('filter_arn')
         if filter_arn:
             params['filterArn'] = filter_arn
@@ -325,16 +341,22 @@ class PersonalizeRankingResolver(Resolver):
 
         return response['personalizedRanking']
 
+
 class RankingProductsNoOpResolver(Resolver):
-    """ Simply returns the provided items in unchanged order; a dummy or no-op resolver for ranking use-cases 
+    """ Simply returns the provided items in unchanged order; a dummy or no-op resolver for ranking use-cases
 
     This class is intended to provide a no-op experience for item/product ranking
-    use-cases. In other words, if you want the default behavior. The returned items 
+    use-cases. In other words, if you want the default behavior. The returned items
     are formatted the same as Personalize to support consistent handling for clients.
     """
+
+    def __init__(self, **params):
+        """The resolver factory expects arguments in the constructor"""
+        pass
+
     def get_items(self, **kwargs):
         """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
-        
+
         Arguments:
             user_id - ID for the user for which to rerank items (required for Personalized-Ranking recipe)
             product_list - list of product IDs to rerank for the user
@@ -351,6 +373,80 @@ class RankingProductsNoOpResolver(Resolver):
 
         return echo_items
 
+
+class PersonalizeContextComparePickResolver(Resolver):
+    """ Provides personalized ranking of products from an Amazon Personalize campaign
+
+    The campaign must be trained using the Personalized-Ranking recipe
+    """
+
+    def __init__(self, **params):
+        with_context = params.get('with_context')
+        without_context = params.get('with_context')
+        self.with_resolver = PersonalizeRankingResolver(**params, context=with_context)
+        self.without_resolver = PersonalizeRankingResolver(**params, context=without_context)
+
+    def get_items(self, **kwargs):
+        """ Returns reranking items from an Amazon Personalize campaign trained with Personalized-Ranking recipe
+
+        Arguments:
+            user_id - ID for the user for which to rerank items (required for Personalized-Ranking recipe)
+            product_list - list of product IDs to rerank for the user
+        """
+        top_n = kwargs.get('num_results')
+
+        if top_n is None:
+            raise Exception('num_results is required')
+
+        log.debug('PersonalizeContextComparePickResolver - comparing personalized rankings...')
+        with_ranked = self.with_resolver.get_items(**kwargs)
+        without_ranked = self.without_resolver.get_items(**kwargs)
+        without_id_to_item = {item['itemId']: item for item in without_ranked}
+        with_id_to_item = {item['itemId']: item for item in with_ranked}
+        score_increases_with_discount = {item_id: with_id_to_item[item_id]['score'] / (0.01 + without_id_to_item[item_id]['score'])
+                                         for item_id in with_id_to_item}
+        # Let us get the items sorted according to this score:
+        discount_improve_sorted_item_ids = sorted(score_increases_with_discount.keys(),
+                                                  key=lambda item_id: score_increases_with_discount[item_id])
+
+        discount_improve_sorted_items = [with_id_to_item[item_id] for item_id in discount_improve_sorted_item_ids]
+
+        return discount_improve_sorted_items[:top_n]
+
+
+class RandomPickResolver(Resolver):
+    """ Picks random N products.
+    """
+
+    def __init__(self, **params):
+        pass
+
+    def get_items(self, **kwargs):
+        """ Picks random N products.
+
+        Arguments:
+            product_list - list of product IDs to rerank for the user
+        """
+        input_list = kwargs.get('product_list')
+        top_n = kwargs.get('num_results')
+
+        if not top_n:
+            raise Exception('num_results is required')
+
+        if not input_list:
+            raise Exception('product_list is required')
+
+        ranked_items = input_list.copy()
+        shuffle(ranked_items)
+        ranked_items = ranked_items[:top_n]
+
+        echo_items = []
+        for item_id in ranked_items:
+            echo_items.append({'itemId': item_id})
+
+        return echo_items
+
+
 class ResolverFactory:
     """ Provides resolver instance given a type and initialization arguments """
     TYPE_HTTP = 'http'
@@ -359,6 +455,8 @@ class ResolverFactory:
     TYPE_PERSONALIZE_RECOMMENDATIONS = 'personalize-recommendations'
     TYPE_PERSONALIZE_RANKING = 'personalize-ranking'
     TYPE_RANKING_NO_OP = 'ranking-no-op'
+    TYPE_PERSONALIZE_PICK = 'personalize-pick'
+    TYPE_RANDOM_PICK = 'random-pick'
 
     __resolvers = {}
 
@@ -386,3 +484,7 @@ ResolverFactory.register_resolver(ResolverFactory.TYPE_HTTP, HttpResolver)
 # These resolvers are used with product reranking use-cases
 ResolverFactory.register_resolver(ResolverFactory.TYPE_PERSONALIZE_RANKING, PersonalizeRankingResolver)
 ResolverFactory.register_resolver(ResolverFactory.TYPE_RANKING_NO_OP, RankingProductsNoOpResolver)
+# These ones are for the top-N use cases
+ResolverFactory.register_resolver(ResolverFactory.TYPE_PERSONALIZE_PICK, PersonalizeContextComparePickResolver)
+ResolverFactory.register_resolver(ResolverFactory.TYPE_RANDOM_PICK, RandomPickResolver)
+

@@ -133,6 +133,23 @@ services:
     volumes:
       - ../images:/usr/share/nginx/html/images:ro
 
+  videos:
+    container_name: videos
+    build:
+      context: ./videos
+    networks:
+      - dev-net
+    environment:
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
+      - RESOURCE_BUCKET
+      - PARAMETER_IVS_VIDEO_CHANNEL_MAP
+      - USE_DEFAULT_IVS_STREAMS
+    volumes:
+      - ~/.aws/:/root/.aws:ro
+    ports:
+      - "8007:80"
+
 networks:
   dev-net:
     driver: bridge

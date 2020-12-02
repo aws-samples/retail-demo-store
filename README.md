@@ -101,6 +101,7 @@ Here you will find several workshops in a directory structure in the notebook in
 
 If you're interested in contributing enhancements, features, or fixes to the Retail Demo Store, please see the [Developer Instructions](./Developer-Instructions.md) for details on how to setup your local environment and deployment environment.
 
+
 # Delivering a Demo of the Retail Demo Store
 
 Once you have deployed the Retail Demo Store, you may want to walk through the demonstration guide to learn how to show the features the Retail Demo Store provides.

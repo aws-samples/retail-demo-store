@@ -42,7 +42,7 @@ const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
 const ExperimentFeature = 'category_detail_rank'
-const MaxProducts = 9
+const MaxProducts = 60
 
 export default {
   name: 'Products',

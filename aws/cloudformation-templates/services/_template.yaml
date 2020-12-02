@@ -4,6 +4,11 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
     This template deploys the Retail Demo Store Services.
 
+Conditions:
+  UseDefaultIVSStreams: !Equals
+    - !Ref UseDefaultIVSStreams
+    - 'Yes'
+
 Parameters:
   ResourceBucket:
     Type: String
@@ -103,9 +108,17 @@ Parameters:
     Type: String
     Description: SSM parameter name for the Optimizely SDK key
 
+  ParameterIVSVideoChannelMap:
+    Type: String
+    Description: SSM parameter name for video to IVS stream map
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
+
+  UseDefaultIVSStreams:
+    Type: String
+    Description: Whether to use created IVS streams or those hosted by AWS.
   
   ParentStackName:
     Type: String
@@ -305,6 +318,39 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+
+  VideosService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
+      Parameters:
+        ServiceName: videos
+        ServicePath: src/videos
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
+        IdentityPoolId: !Ref IdentityPoolId
+        StackBucketName: !Ref StackBucketName
+        Subnets: !Ref Subnets
+        VpcId: !Ref VpcId
+        ClusterName: !Ref ClusterName
+        ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
+        ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
+        ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
+        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        UseDefaultIVSStreams: !If [UseDefaultIVSStreams, true, false]
+        WebRootUrl: !Ref WebRootUrl
+        ImageRootUrl: !Ref ImageRootUrl
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
  
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
@@ -424,6 +470,10 @@ Outputs:
   RecommendationsServiceUrl: 
     Description: Recommendations load balancer URL.
     Value: !GetAtt RecommendationsService.Outputs.ServiceUrl
+
+  VideosServiceUrl:
+    Description: Videos load balancer URL.
+    Value: !GetAtt VideosService.Outputs.ServiceUrl
 
   SearchServiceUrl: 
     Description: Search load balancer URL.

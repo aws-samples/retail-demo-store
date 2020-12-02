@@ -9,7 +9,7 @@
           </div>
 
           <div class="add-to-cart-and-description">
-            <ProductPrice :price="product.price" class="mb-1"></ProductPrice>
+            <ProductPrice :price="product.price" :discount="discount" class="mb-1"></ProductPrice>
 
             <div class="mb-2">
               <template v-if="outOfStock">Sorry, this item is currently out of stock.</template>
@@ -78,6 +78,7 @@ import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
 import FiveStars from '@/components/FiveStars/FiveStars';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import {discountProductPrice} from "@/util/discountProductPrice";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -92,6 +93,13 @@ export default {
     RecommendedProductsSection,
   },
   mixins: [product],
+  props: {
+    discount: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
+  },
   data() {
     return {
       quantity: 1,
@@ -143,7 +151,10 @@ export default {
     },
     async addProductToCart() {
       await this.addToCart({
-        product: this.product,
+        product: {
+          ...this.product,
+          price: this.discount ? discountProductPrice(this.product.price) : this.product.price
+        },
         quantity: this.quantity,
         feature: this.$route.query.feature,
         exp: this.$route.query.exp,
@@ -160,7 +171,7 @@ export default {
       this.relatedProducts = null;
       this.getRelatedProducts();
 
-      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp);
+      this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
     },
     async getRelatedProducts() {
       const response = await RecommendationsRepository.getRelatedProducts(

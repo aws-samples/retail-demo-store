@@ -1,6 +1,9 @@
+.idea
 __pycache__/
 .vscode
 build/*
+.venv/
+venv/
 workshop/*/.ipynb_checkpoints
 workshop/1-Personalization/interactions.csv
 workshop/1-Personalization/items.csv
