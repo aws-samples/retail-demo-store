@@ -44,9 +44,9 @@ Resources:
                   - personalize:DescribeCampaign
                   - personalize:GetRecommendations
                 Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-product-personalization'
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-product-personalization'
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-product-personalization'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-product-personalization*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-product-personalization*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-product-personalization*'
 
   CustomizeRecommendationsFunctionRole:
     Type: AWS::IAM::Role

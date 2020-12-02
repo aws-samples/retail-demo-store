@@ -12,7 +12,15 @@ This script only needs to be run once to produce a random users data
 file that is bundled with all Retail Demo Store deployments. 
 """
 
+import datagenerator.users
 from datagenerator.users import UserPool 
+
+import numpy as np
+import random
+
+datagenerator.users.Faker.seed(42)  # Deterministic randomness
+random.seed(42)  # Deterministic randomness
+np.random.seed(42)  # Deterministic randomness
 
 num_users = 6000
 

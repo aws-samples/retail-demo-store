@@ -76,6 +76,14 @@ Parameters:
   ClusterName:
     Type: String
 
+  ContainerCpu:
+    Type: String
+    Default: 256
+
+  ContainerMemory:
+    Type: String
+    Default: 512
+
   ServiceDiscoveryNamespace:
     Type: String
 
@@ -88,6 +96,10 @@ Parameters:
     Default: none
 
   CartsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  VideosServiceExternalUrl:
     Type: String
     Default: none
 
@@ -170,6 +182,11 @@ Parameters:
     Description: SSM parameter name for the Optimizely SDK key
     Default: none
 
+  ParameterIVSVideoChannelMap:
+    Type: String
+    Description: SSM parameter name for video to IVS stream map
+    Default: none
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -177,6 +194,10 @@ Parameters:
   DeleteRepositoryLambdaArn:
     Type: String
     Description: Lambda Arn for deleting ECR repository
+
+  UseDefaultIVSStreams:
+    Type: String
+    Default: false
 
   Uid:
     Type: String
@@ -213,6 +234,7 @@ Resources:
         ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
         UsersServiceExternalUrl: !Ref UsersServiceExternalUrl
         CartsServiceExternalUrl: !Ref CartsServiceExternalUrl
+        VideosServiceExternalUrl: !Ref VideosServiceExternalUrl
         OrdersServiceExternalUrl: !Ref OrdersServiceExternalUrl
         RecommendationsServiceExternalUrl: !Ref RecommendationsServiceExternalUrl
         SearchServiceExternalUrl: !Ref SearchServiceExternalUrl
@@ -233,6 +255,8 @@ Resources:
         ServiceName: !Ref ServiceName
         ClusterName: !Ref ClusterName
         DesiredCount: '1'
+        ContainerMemory: !Ref ContainerMemory
+        ContainerCpu: !Ref ContainerCpu
         TargetGroup: !GetAtt Loadbalancer.Outputs.TargetGroup
         SourceSecurityGroup: !GetAtt Loadbalancer.Outputs.SecurityGroup
         Subnets: !Ref Subnets
@@ -248,6 +272,9 @@ Resources:
         EnvSearchServiceInternalUrl: !Ref EnvSearchServiceInternalUrl
         EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
         EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        ResourceBucket: !Ref ResourceBucket
+        ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
+        UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable

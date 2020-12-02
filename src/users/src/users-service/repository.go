@@ -114,15 +114,11 @@ func RepoFindUsersIdByPrimaryPersona(persona string) []int {
 }
 
 // RepoFindRandomUserByPrimaryPersonaAndAgeRage Function
-
 func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageRange string) User {
 	var primaryPersonaFilteredUserIds = RepoFindUsersIdByPrimaryPersona(primaryPersona)
 	var ageRangeFilteredUserIds = RepoFindUserIdsByAgeRange(ageRange)
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
-	log.Println("Revieivng filtered items")
-	log.Println(ageRangeFilteredUserIds)
-	log.Println(primaryPersonaFilteredUserIds)
 	for _, idx := range ageRangeFilteredUserIds {
 		if containsInt(primaryPersonaFilteredUserIds,idx){
 			return users[idx]

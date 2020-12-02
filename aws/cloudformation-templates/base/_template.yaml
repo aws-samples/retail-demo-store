@@ -282,6 +282,10 @@ Outputs:
     Description: Optimizely SDK key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterOptimizelySdkKey
 
+  ParameterIVSVideoChannelMap:
+    Description: Retail Demo Store video file to IVS channel mapping parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterIVSVideoChannelMap
+
   ParameterSegmentWriteKey:
     Description: Segment write key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey

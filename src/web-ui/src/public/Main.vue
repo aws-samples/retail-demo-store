@@ -28,7 +28,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import Layout from '@/components/Layout/Layout';
-import RecommendedProductsSection from '@/components//RecommendedProductsSection/RecommendedProductsSection';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -91,13 +91,13 @@ export default {
           } else if (experimentName) {
             this.userRecommendationsTitle = 'Recommended for you';
           }
+
+          this.userRecommendations = response.data;
+
+          if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
+            AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);
+          }
         }
-      }
-
-      this.userRecommendations = response.data;
-
-      if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
-        AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);
       }
     },
   },

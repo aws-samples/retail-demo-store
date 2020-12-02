@@ -1,0 +1,4 @@
+Flask==1.0.2
+flask-cors==3.0.8
+boto3==1.14.57
+srt
