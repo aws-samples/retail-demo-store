@@ -1,4 +1,4 @@
-FROM golang:1.11-alpine AS build
+FROM public.ecr.aws/s5z3t2n9/golang:1.11-alpine AS build
 WORKDIR /src/
 COPY src/users-service/*.* /src/
 COPY src/users-service/data/*.* /src/data/
