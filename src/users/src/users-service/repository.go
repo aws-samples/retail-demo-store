@@ -10,12 +10,18 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+	"math/rand"
+	"time"
 )
 
 var users Users
 var usersById map[string]int
 var usersByUsername map[string]int
 var usersByIdentityId map[string]int
+var usersByPrimaryPersona map[string][]int
+var usersByAgeRange map[string][]int
+
 
 // Init
 func init() {
@@ -34,6 +40,8 @@ func loadUsers(filename string) (Users, error) {
 	usersById = make(map[string]int)
 	usersByUsername = make(map[string]int)
 	usersByIdentityId = make(map[string]int)
+	usersByPrimaryPersona = make(map[string][]int)
+	usersByAgeRange = make(map[string][]int)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -60,11 +68,67 @@ func loadUsers(filename string) (Users, error) {
 	for i, u := range r {
 		usersById[u.ID] = i
 		usersByUsername[u.Username] = i
+		usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]] = append(usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]],i)
+		usersByAgeRange[getAgeRange(u.Age)] = append(usersByAgeRange[getAgeRange(u.Age)], i)	
 	}
 
 	log.Println("Users successfully loaded into memory structures")
 
 	return r, nil
+}
+
+func getAgeRange(age int) string{
+	if age < 18 {
+	     return ""
+	}else if age < 25{
+		return "18-24"
+	}else if age < 35{
+		return "25-34"
+	}else if age < 45{
+		return "35-44"
+	}else if age < 55{
+		return "45-54"
+	}else{
+		return "70-and-above"
+	}
+}
+
+// containsInt returns a bool indicating whether the given []int contained the given int
+func containsInt(slice []int, value int) bool {
+	for _, v := range slice {
+		if value == v {
+			return true
+		}
+	}
+	return false
+}
+
+// RepoFindUsersIdByAgeRange Function
+func RepoFindUserIdsByAgeRange(ageRange string) []int {
+	return usersByAgeRange[ageRange]	 
+}
+
+// RepoFindUsersIdByPrimaryPersona Function
+func RepoFindUsersIdByPrimaryPersona(persona string) []int {
+	return usersByPrimaryPersona[persona]
+}
+
+// RepoFindRandomUserByPrimaryPersonaAndAgeRage Function
+
+func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageRange string) User {
+	var primaryPersonaFilteredUserIds = RepoFindUsersIdByPrimaryPersona(primaryPersona)
+	var ageRangeFilteredUserIds = RepoFindUserIdsByAgeRange(ageRange)
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
+	log.Println("Revieivng filtered items")
+	log.Println(ageRangeFilteredUserIds)
+	log.Println(primaryPersonaFilteredUserIds)
+	for _, idx := range ageRangeFilteredUserIds {
+		if containsInt(primaryPersonaFilteredUserIds,idx){
+			return users[idx]
+		}
+	}
+	return User{}	
 }
 
 // RepoFindUserByID Function
@@ -143,7 +207,6 @@ func RepoCreateUser(t User) (User, error) {
 	users = append(users, t)
 	usersById[t.ID] = idx
 	usersByUsername[t.Username] = idx
-
 	if len(t.IdentityId) > 0 {
 		usersByIdentityId[t.IdentityId] = idx
 	}

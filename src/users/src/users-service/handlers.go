@@ -123,6 +123,23 @@ func UserShowByIdentityId(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetFilteredUser handler
+func GetFilteredUser(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+
+	var keys = r.URL.Query()
+	
+	var primaryPersona = keys.Get("primaryPersona")
+	var ageRange = keys.Get("ageRange")
+	
+	fmt.Println("XXXXX age range")
+	fmt.Println(primaryPersona)
+	fmt.Println(ageRange)
+
+	if err := json.NewEncoder(w).Encode(RepoFindRandomUserByPrimaryPersonaAndAgeRange(primaryPersona,ageRange)); err != nil {
+		panic(err)
+	}
+}
 //UserUpdate Func
 func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
