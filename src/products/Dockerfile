@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine AS build
+FROM golang:1.15-alpine AS build
 WORKDIR /src/
 RUN apk add --no-cache git bash
 RUN go get -u github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
