@@ -1,4 +1,4 @@
-FROM golang:1.15-alpine AS build
+FROM public.ecr.aws/s5z3t2n9/golang:1.15-alpine AS build
 WORKDIR /src/
 RUN apk add --no-cache git bash
 RUN go get -u github.com/gorilla/mux
