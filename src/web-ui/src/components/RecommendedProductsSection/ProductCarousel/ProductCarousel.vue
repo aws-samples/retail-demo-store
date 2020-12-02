@@ -11,7 +11,7 @@
           params: { id: recommendation.product.id },
           query: { exp: getExperimentCorrelationId(recommendation.experiment), feature },
         }"
-        class="product p-3 d-flex flex-column justify-content-between"
+        class="featured-product p-3 d-flex flex-column justify-content-between"
       >
         <div>
           <img :src="getProductImageUrl(recommendation.product)" alt="" class="mb-2 img-fluid" />
@@ -98,7 +98,7 @@ export default {
 </script>
 
 <style scoped>
-.product {
+.featured-product {
   border: 1px solid var(--grey-500);
   text-decoration: none;
   color: inherit;

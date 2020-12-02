@@ -1,1 +1,2 @@
 packaging==20.4
+crhelper

@@ -16,12 +16,11 @@
                 :key="item.product_id"
                 :product_id="item.product_id"
                 :quantity="item.quantity"
+                :cartPrice="item.price"
                 class="mb-4"
               ></CartItem>
             </ul>
           </div>
-
-
           <div v-if="cart.items.length > 0" class="summary-container col-lg-auto">
             <div class="summary p-4">
               <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
@@ -62,12 +61,12 @@ export default {
     }
   },
   created() {
-        AnalyticsHandler.cartViewed(
-          this.user,
-          this.cart,
-          this.cartQuantity,
-          this.cartTotal,
-        );
+    AnalyticsHandler.cartViewed(
+      this.user,
+      this.cart,
+      this.cartQuantity,
+      this.cartTotal,
+    );
   },
   computed: {
     ...mapState({ cart: (state) => state.cart.cart, user: state => state.user }),
@@ -75,8 +74,6 @@ export default {
     isLoading() {
       return !this.cart;
     },
-        
-
     cartQuantityReadout() {
       if (this.cartQuantity === null) return null;
 

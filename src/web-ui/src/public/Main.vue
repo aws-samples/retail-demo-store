@@ -28,7 +28,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import Layout from '@/components/Layout/Layout';
-import RecommendedProductsSection from '@/components//RecommendedProductsSection/RecommendedProductsSection';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');

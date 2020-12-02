@@ -1,7 +1,6 @@
 <template>
   <li>
     <LoadingFallback v-if="isLoading"></LoadingFallback>
-
     <div class="row" v-if="!isLoading">
       <div class="col-sm-4 mb-2 mb-sm-0"><img :src="productImageUrl" alt="" class="img-fluid" /></div>
 
@@ -9,7 +8,7 @@
         <div class="product-name font-weight-bold">{{ product.name }}</div>
 
         <div class="d-flex d-sm-block justify-content-between align-items-center">
-          <ProductPrice :price="product.price" class="product-price"></ProductPrice>
+          <ProductPrice :price="product.price" class="product-price" :discount="cartPrice < product.price"></ProductPrice>
 
           <div class="d-flex align-items-center">
             <button @click="decreaseProductQuantity" aria-label="decrease quantity" class="btn text-black-50">
@@ -54,6 +53,10 @@ export default {
       type: Number,
       required: true,
     },
+    cartPrice: {
+      type: Number,
+      required: false
+    }
   },
   created() {
     this.getProductByID(this.product_id);

@@ -1,0 +1,3 @@
+packaging==20.4
+boto3==1.14.57
+crhelper

@@ -14,7 +14,9 @@ const connection = axios.create({
 const related = "/related"
 const recommendations = "/recommendations"
 const rerank = "/rerank"
+const chooseDiscounted = "/choose_discounted"
 const experimentOutcome = "/experiment/outcome"
+const resetTracker = "/reset/realtime"
 
 export default {
     getRelatedProducts(userID, currentItemID, numResults, feature) {
@@ -32,11 +34,21 @@ export default {
         
         return connection.post(`${rerank}`, payload)
     },
+    chooseDiscounts(userID, items, feature) {
+        let payload = {
+            userID: userID,
+            items: items,
+            feature: feature
+        }
+        return connection.post(`${chooseDiscounted}`, payload) // inserts discount and discounted keys into items
+    },
     recordExperimentOutcome(correlationId) {
         let payload = {
             correlationId: correlationId
         }
-        
         return connection.post(`${experimentOutcome}`, payload)
+    },
+    resetRealtimeRecommendations() {
+        return connection.post(`${resetTracker}`, {})
     }
 }

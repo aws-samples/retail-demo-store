@@ -63,6 +63,10 @@ Parameters:
     Type: String
     Default: none
 
+  VideosServiceExternalUrl:
+    Type: String
+    Default: none
+
   OrdersServiceExternalUrl:
     Type: String
     Default: none
@@ -290,6 +294,8 @@ Resources:
             Value: !Sub ${UsersServiceExternalUrl}
           - Name: CARTS_SERVICE_URL
             Value: !Sub ${CartsServiceExternalUrl}
+          - Name: VIDEOS_SERVICE_URL
+            Value: !Sub ${VideosServiceExternalUrl}
           - Name: ORDERS_SERVICE_URL
             Value: !Sub ${OrdersServiceExternalUrl}        
           - Name: RECOMMENDATIONS_SERVICE_URL

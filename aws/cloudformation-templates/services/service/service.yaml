@@ -16,6 +16,12 @@ Parameters:
     Type: Number
     Default: 1
 
+  ContainerCpu:
+    Type: Number
+
+  ContainerMemory:
+    Type: Number
+
   TargetGroup:
     Type: String
 
@@ -71,6 +77,18 @@ Parameters:
   EnvElasticsearchDomainEndpoint:
     Type: String
     Default: none
+
+  ResourceBucket:
+    Type: String
+    Default: none
+
+  ParameterIVSVideoChannelMap:
+    Type: String
+    Default: none
+
+  UseDefaultIVSStreams:
+    Type: String
+    Default: false
 
   WebRootUrl:
     Type: String
@@ -160,14 +178,72 @@ Resources:
                 Resource: '*'
               - Effect: Allow
                 Action:
+                  - logs:CreateLogGroup
+                  - personalize:CreateSchema
+                  - personalize:CreateDatasetGroup
+                  - personalize:CreateSolutionVersion
+                  - personalize:CreateDatasetImportJob
+                  - personalize:CreateSolution
+                  - personalize:DescribeDatasetGroup
+                  - personalize:DescribeDatasetImportJob
+                  - personalize:DescribeSolution
                   - personalize:DescribeSolutionVersion
+                  - personalize:DescribeEventTracker
                   - personalize:DescribeCampaign
-                  - personalize:GetPersonalizedRanking 
-                  - personalize:GetRecommendations 
-                Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-*'     
+                  - personalize:CreateCampaign
+                  - personalize:CreateDataset
+                  - personalize:CreateEventTracker
+                  - personalize:CreateFilter
+                  - personalize:GetPersonalizedRanking
+                  - personalize:GetRecommendations
+                  - personalize:DeleteEventTracker
+                  - personalize:DescribeEventTracker
+                Resource:
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:ListCampaigns
+                  - personalize:ListDatasetGroups
+                  - personalize:ListSolutions
+                  - personalize:ListSchemas
+                  - personalize:ListSolutionVersions
+                  - personalize:ListDatasetImportJobs
+                  - personalize:ListDatasets
+                  - personalize:ListEventTrackers
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}'
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - ivs:ListStreamKeys
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - ivs:GetChannel
+                  - ivs:GetStream
+                  - ivs:PutMetadata
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:channel/*'
+              - Effect: Allow
+                Action:
+                  - ivs:GetStreamKey
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:stream-key/*'
+              - Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:ListRules
+                  - events:EnableRule
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
 
@@ -204,8 +280,8 @@ Resources:
       Family: !Sub ${AWS::StackName}-retaildemostore
       RequiresCompatibilities:
         - FARGATE
-      Memory: '512'
-      Cpu: '256'
+      Memory: !Ref ContainerMemory
+      Cpu: !Ref ContainerCpu
       NetworkMode: awsvpc
       ExecutionRoleArn: !Ref TaskExecutionRole
       TaskRoleArn: !Ref TaskRole
@@ -238,6 +314,12 @@ Resources:
               Value: '80'
             - Name: STACK_BUCKET
               Value: none
+            - Name: RESOURCE_BUCKET
+              Value: !Ref ResourceBucket
+            - Name: PARAMETER_IVS_VIDEO_CHANNEL_MAP
+              Value: !Ref ParameterIVSVideoChannelMap
+            - Name: USE_DEFAULT_IVS_STREAMS
+              Value: !Ref UseDefaultIVSStreams
             - Name: ES_SEARCH_DOMAIN_HOST
               Value: !Ref EnvElasticsearchDomainEndpoint
             - Name: ES_SEARCH_DOMAIN_PORT
@@ -250,6 +332,8 @@ Resources:
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL
               Value: !Ref ImageRootUrl
+            - Name: PERSONALIZE_PRECREATE_CAMPAIGNS_EVENTRULENAME
+              Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
