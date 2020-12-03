@@ -2,7 +2,10 @@
   <Layout>
     <div class="content container">
       <RecommendedProductsSection
-        v-if="personalizeUserID"
+        v-if="
+          personalizeUserID &&
+            ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
+        "
         :feature="feature"
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
@@ -44,6 +47,7 @@ export default {
   data() {
     return {
       feature: EXPERIMENT_FEATURE,
+      isLoadingRecommendations: true,
       featuredProducts: null,
       userRecommendationsTitle: null,
       userRecommendations: null,
@@ -99,6 +103,8 @@ export default {
           }
         }
       }
+
+      this.isLoadingRecommendations = false;
     },
   },
 };
