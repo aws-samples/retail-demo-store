@@ -121,9 +121,11 @@ func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageR
 	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
 	for _, idx := range ageRangeFilteredUserIds {
 		if containsInt(primaryPersonaFilteredUserIds,idx){
+			log.Println("User found matching filter criteria:", idx)
 			return users[idx]
 		}
 	}
+	log.Println("No User found matching filter criteria")
 	return User{}	
 }
 

@@ -132,10 +132,6 @@ func GetFilteredUser(w http.ResponseWriter, r *http.Request) {
 	var primaryPersona = keys.Get("primaryPersona")
 	var ageRange = keys.Get("ageRange")
 	
-	fmt.Println("XXXXX age range")
-	fmt.Println(primaryPersona)
-	fmt.Println(ageRange)
-
 	if err := json.NewEncoder(w).Encode(RepoFindRandomUserByPrimaryPersonaAndAgeRange(primaryPersona,ageRange)); err != nil {
 		panic(err)
 	}
