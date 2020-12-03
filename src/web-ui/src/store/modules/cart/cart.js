@@ -67,7 +67,7 @@ export const cart = {
 
       if (index === -1) return;
 
-      const removedItem = this.cart.items[index];
+      const removedItem = state.cart.items[index];
       commit({ type: 'removeItemFromCart', index });
 
       await dispatch('updateCart');
