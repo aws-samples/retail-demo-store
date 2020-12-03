@@ -80,15 +80,15 @@ func loadUsers(filename string) (Users, error) {
 func getAgeRange(age int) string{
 	if age < 18 {
 	     return ""
-	}else if age < 25{
+	}else if age < 25 {
 		return "18-24"
-	}else if age < 35{
+	}else if age < 35 {
 		return "25-34"
-	}else if age < 45{
+	}else if age < 45 {
 		return "35-44"
-	}else if age < 55{
+	}else if age < 55 {
 		return "45-54"
-	}else{
+	}else {
 		return "70-and-above"
 	}
 }
@@ -126,6 +126,19 @@ func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageR
 		}
 	}
 	log.Println("No User found matching filter criteria")
+	return User{}	
+}
+
+func RepoFindRandomUser () User {
+	randomId := 0
+	rand.Seed(time.Now().UnixNano())
+	if len(users)>0 {
+		for randomId == 0 {
+			randomId = rand.Intn(len(users))	
+		}
+		log.Println("Random user returned with userId:",randomId)
+		return users[randomId]
+	}
 	return User{}	
 }
 
