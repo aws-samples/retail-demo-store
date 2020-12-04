@@ -36,7 +36,7 @@ export default {
           return UserSegmentation;
         case Articles.PERSONALIZED_EMAILS:
           return PersonalizedEmails;
-        case Articles.TEXT_MESSAGING:
+        case Articles.SMS_MESSAGING:
           return TextMessaging;
         case Articles.OMNI_CHANNEL:
           return OmniChannel;

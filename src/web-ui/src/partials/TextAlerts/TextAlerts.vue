@@ -34,7 +34,7 @@ export default {
     return {
       isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
       phoneNumber: '',
-      demoGuideBadgeArticle: Articles.TEXT_MESSAGING,
+      demoGuideBadgeArticle: Articles.SMS_MESSAGING,
     };
   },
   computed: {

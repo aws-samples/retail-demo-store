@@ -32,7 +32,7 @@ export default {
   computed: {
     service() {
       switch (this.article) {
-        case Articles.TEXT_MESSAGING:
+        case Articles.SMS_MESSAGING:
         case Articles.PERSONALIZED_EMAILS:
           return Services.Pinpoint;
         case Articles.USER_PERSONALIZATION:
@@ -55,7 +55,7 @@ export default {
     },
     copy() {
       switch (this.article) {
-        case Articles.TEXT_MESSAGING:
+        case Articles.SMS_MESSAGING:
           return 'Click here to learn more about Personalized product recommendations via SMS';
         case Articles.USER_PERSONALIZATION:
           return 'Click here to learn more about User Personalization';
