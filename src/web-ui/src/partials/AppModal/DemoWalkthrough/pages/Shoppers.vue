@@ -26,8 +26,7 @@
 
       <div class="select-shoppers-text">
         <p>
-          This demo allows you to select shoppers from the store users’ dataset, based on shopping preferences, age and
-          gender.
+          This demo allows you to select shoppers from the store users’ dataset, based on age and shopping preferences.
         </p>
 
         <p>
