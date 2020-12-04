@@ -52,21 +52,6 @@
     </section>
 
     <section class="my-4">
-      <h2 class="section-heading">Interacting with the Retail Demo Store</h2>
-
-      <p>
-        Usually, an instance would have to be deployed in the given AWS account in order to interact with the store.
-        However, shared instances will be created to provide internal AWS employees as well as external customers with
-        easy access to the The Retail Demo Store.
-      </p>
-
-      <p>
-        Also, periodic resets have been created to automatically refresh the dataset on a daily basis and keep the
-        datasets fresh.
-      </p>
-    </section>
-
-    <section class="my-4">
       <h2 class="section-heading">How the Retail Demo Store works</h2>
 
       <p>
