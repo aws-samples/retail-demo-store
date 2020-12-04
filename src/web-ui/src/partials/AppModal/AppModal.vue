@@ -6,6 +6,7 @@
 import { mapState } from 'vuex';
 
 import DemoGuide from './DemoGuide/DemoGuide';
+import DemoWalkthrough from './DemoWalkthrough/DemoWalkthrough';
 import { Modals } from './config';
 
 export default {
@@ -18,6 +19,8 @@ export default {
         switch (state.modal.openModal.name) {
           case Modals.DemoGuide:
             return DemoGuide;
+          case Modals.DemoWalkthrough:
+            return DemoWalkthrough;
           default:
             throw new Error('Invalid modal name');
         }

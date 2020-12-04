@@ -27,6 +27,10 @@ export const modal = {
           break;
         }
 
+        case Modals.DemoWalkthrough:
+          commit('setOpenModal', { name, pageIndex: 0 });
+          break;
+
         default:
           throw new Error('Invalid modal name');
       }
@@ -44,6 +48,14 @@ export const modal = {
       // show bootstrap modal
       // eslint-disable-next-line no-undef
       setTimeout(() => $(`#${APP_MODAL_ID}`).modal('show'), 0);
+    },
+    prevTourPage: ({ commit, state }) => {
+      if (state.openModal?.name === Modals.DemoWalkthrough && state.openModal.pageIndex > 0)
+        commit('setOpenModal', { name: Modals.DemoWalkthrough, pageIndex: state.openModal.pageIndex - 1 });
+    },
+    nextTourPage: ({ commit, state }) => {
+      if (state.openModal?.name === Modals.DemoWalkthrough)
+        commit('setOpenModal', { name: Modals.DemoWalkthrough, pageIndex: state.openModal.pageIndex + 1 });
     },
   },
 };

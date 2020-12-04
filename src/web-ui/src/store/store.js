@@ -11,11 +11,12 @@ import { welcomePageVisited } from './modules/welcomePageVisited/welcomePageVisi
 import { categories } from './modules/categories/categories';
 import { cart } from './modules/cart/cart';
 import { modal, manageResponsiveModalState } from './modules/modal/modal';
+import { demoWalkthroughShown } from './modules/demoWalkthroughShown/demoWalkthroughShown';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  modules: { welcomePageVisited, categories, cart, modal },
+  modules: { welcomePageVisited, categories, cart, modal, demoWalkthroughShown },
   state: {
     user: null,
     provisionalUserID: uuidv4(),
@@ -56,7 +57,14 @@ const store = new Vuex.Store({
   },
   plugins: [
     createPersistedState({
-      paths: ['user', 'provisionalUserID', 'sessionEventsRecorded', 'welcomePageVisited', 'cart'],
+      paths: [
+        'user',
+        'provisionalUserID',
+        'sessionEventsRecorded',
+        'welcomePageVisited',
+        'cart',
+        'demoWalkthroughShown',
+      ],
     }),
   ],
   strict: process.env.NODE_ENV !== 'production',

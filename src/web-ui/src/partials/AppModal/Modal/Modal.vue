@@ -10,7 +10,7 @@
   >
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <slot name="header"><ModalHeader></ModalHeader></slot>
+        <slot v-if="showHeader" name="header"><ModalHeader></ModalHeader></slot>
 
         <slot name="body" bodyClass="modal-body"></slot>
       </div>
@@ -29,6 +29,7 @@ export default {
   components: { ModalHeader },
   props: {
     ariaLabelledBy: { type: String, required: false },
+    showHeader: { type: Boolean, default: true },
   },
   data() {
     return { APP_MODAL_ID };
