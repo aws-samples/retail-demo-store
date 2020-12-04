@@ -10,7 +10,7 @@
     </p>
 
     <div>
-      <img src="/batch-recommendations-architecture" alt="batch recommendations architecture" class="img-fluid" />
+      <img src="/batch-recommendations-architecture.png" alt="batch recommendations architecture" class="img-fluid" />
     </div>
 
     <ArticleFeature>
