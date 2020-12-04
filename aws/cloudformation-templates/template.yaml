@@ -180,6 +180,15 @@ Parameters:
       is set to 'Yes'.
     Default: "AWS Retail Demo Store"
 
+  UseIVSStreams:
+    Type: String
+    Description: >
+      Whether to create Interactive Video Service (IVS) streams hosted by AWS. 
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
   UseDefaultIVSStreams:
     Type: String
     Description: >
@@ -331,7 +340,7 @@ Resources:
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
-        UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        UseIVSStreams: !Ref UseIVSStreams
 
   # Cleanup bucket function
   CleanupBucket:
