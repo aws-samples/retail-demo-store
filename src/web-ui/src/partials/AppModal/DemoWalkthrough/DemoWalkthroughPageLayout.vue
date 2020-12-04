@@ -147,7 +147,6 @@ export default {
   padding: 0;
   display: grid;
   grid-template-rows: 1fr auto;
-  /* grid-row-gap: 20px; */
   overflow: auto;
   color: var(--white);
 }
