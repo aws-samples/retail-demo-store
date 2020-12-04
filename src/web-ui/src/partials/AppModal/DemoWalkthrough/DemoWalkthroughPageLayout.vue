@@ -147,13 +147,14 @@ export default {
   padding: 0;
   display: grid;
   grid-template-rows: 1fr auto;
-  grid-row-gap: 20px;
+  /* grid-row-gap: 20px; */
   overflow: auto;
   color: var(--white);
 }
 
 .main {
   padding: 32px;
+  padding-bottom: 0;
 }
 
 /* fixes inability to scroll on firefox */
