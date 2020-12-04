@@ -12,8 +12,7 @@
       </p>
 
       <p class="demo-guide-text mb-0">
-        Go to the <span ref="demo-guide">Demo Guide</span> to learn more about the Similar Item recommendations and for
-        tips on how to demonstrate this use case during customer meetings.
+        Go to the <span ref="demo-guide">Demo Guide</span> to learn more about the Similar Item recommendations.
       </p>
 
       <div class="img-container">
