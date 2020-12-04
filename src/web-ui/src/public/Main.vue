@@ -27,10 +27,11 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
+import { Modals } from '@/partials/AppModal/config';
 
 import Layout from '@/components/Layout/Layout';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
@@ -62,12 +63,22 @@ export default {
       explainRecommended: null,
     };
   },
-  computed: { ...mapState(['user']), ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']) },
+  computed: {
+    ...mapState({ user: (state) => state.user, demoWalkthroughShown: (state) => state.demoWalkthroughShown.shown }),
+    ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
+  },
   async created() {
     this.getFeaturedProducts();
     this.getUserRecommendations();
   },
+  mounted() {
+    if (!this.demoWalkthroughShown) {
+      this.openModal(Modals.DemoWalkthrough);
+      this.markDemoWalkthroughAsShown();
+    }
+  },
   methods: {
+    ...mapActions(['openModal', 'markDemoWalkthroughAsShown']),
     async getFeaturedProducts() {
       const { data } = await ProductsRepository.getFeatured();
 
