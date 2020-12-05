@@ -1,5 +1,5 @@
 <template>
-  <section v-if="isEnabled && user" class="section container p-4">
+  <section v-if="isPinpointEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
 <<<<<<< HEAD
@@ -40,7 +40,7 @@ export default {
   },
   data() {
     return {
-      isEnabled: process.env.VUE_APP_PINPOINT_APP_ID ,
+      isPinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID ,
       phoneNumber: '',
       demoGuideBadgeArticle: Articles.SMS_MESSAGING,
     };
