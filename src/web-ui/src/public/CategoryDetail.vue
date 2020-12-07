@@ -9,13 +9,43 @@
 
       <!-- Product List -->
       <div class="container mt-3" v-if="products.length">
-        <h4>{{ this.display | capitalize }}</h4>
+        <h4 class="text-left">{{ this.display | capitalize }}</h4>
         <div v-if="explain_recommended" class="text-muted text-center">
           <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
         </div>
         <div class="row">
-          <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-            <Product v-for="product in products" 
+
+          <div class="col-sm-3 col-md-3 col-lg-3 text-left">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title mb-0">Gender</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+              <li class="list-group-item" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
+                <label class="mb-0">
+                  <input type="checkbox" :value="gender" v-model="selectedGenders">
+                  {{ { M: 'Male', F: 'Female'}[gender] }}
+                </label>
+              </li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-0">Styles</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+              <li class="list-group-item" v-for="style in styles" v-bind:key="style">
+                <label class="mb-0">
+                  <input type="checkbox"  :value="style" v-model="selectedStyles">
+                  {{style | capitalize}}
+                </label>
+              </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card-deck col-sm-9 col-md-9 col-lg-9 mt-4">
+            <Product v-for="product in filteredProducts"
               v-bind:key="product.id"
               :product="product"
               :experiment="product.experiment"
@@ -25,7 +55,7 @@
         </div>
       </div>
 
-    </div> 
+    </div>
   </Layout>
 </template>
 
@@ -54,22 +84,22 @@ export default {
     return {
       feature: ExperimentFeature,
       products: [],
-      categories: [],
       errors: [],
       display: '',
       explain_recommended: '',
       active_experiment: false,
-      personalized: false
+      personalized: false,
+      selectedGenders: [],
+      selectedStyles: []
     }
   },
   async created () {
     this.fetchData()
-    this.getCategories()
   },
   methods: {
     async fetchData (){
       this.getProductsByCategory(this.$route.params.id)
-    }, 
+    },
     async getProductsByCategory(categoryName) {
       let intermediate = null
       if (categoryName == 'featured') {
@@ -106,18 +136,35 @@ export default {
       }
 
       this.display = categoryName
-    },
-    async getCategories () {
-      const { data } = await ProductsRepository.getCategories()
-      this.categories = data
     }
   },
   computed: {
-    user() { 
+    user() {
       return AmplifyStore.state.user
     },
     personalizeUserID() {
       return AmplifyStore.getters.personalizeUserID
+    },
+    styles() {
+      const styles = this.products.map(product => product.style)
+      const uniqueStyles = styles.filter((style, index, styles) => styles.indexOf(style) === index).sort()
+      return uniqueStyles
+    },
+    filteredProducts() {
+      let products = this.products
+
+      const selectedStyles = this.selectedStyles
+      const selectedGenders = this.selectedGenders
+
+      if (selectedStyles.length) {
+        products = products.filter(product => selectedStyles.includes(product.style))
+      }
+
+      if (selectedGenders.length) {
+        products = products.filter(product => selectedGenders.includes(product.gender_affinity) || !product.gender_affinity)
+      }
+
+      return products
     }
   },
   filters: {
