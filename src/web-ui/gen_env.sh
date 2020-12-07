@@ -9,22 +9,22 @@ set -e
 # Delete .env if it exists
 [ -e ".env" ] && rm .env
 
-printf 'VUE_APP_PRODUCTS_SERVICE_DOMAIN=%s\n' "https://products.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_PRODUCTS_SERVICE_PORT=%s\n' "443" >> .env
-printf 'VUE_APP_USERS_SERVICE_DOMAIN=%s\n' "https://users.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_USERS_SERVICE_PORT=%s\n' "443" >> .env
-printf 'VUE_APP_CARTS_SERVICE_DOMAIN=%s\n' "https://carts.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_CARTS_SERVICE_PORT=%s\n' "443" >> .env
-printf 'VUE_APP_ORDERS_SERVICE_DOMAIN=%s\n' "https://orders.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_ORDERS_SERVICE_PORT=%s\n' "443" >> .env
-printf 'VUE_APP_RECOMMENDATIONS_SERVICE_DOMAIN=%s\n' "https://recommendations.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_RECOMMENDATIONS_SERVICE_PORT=%s\n' "443" >> .env
-printf 'VUE_APP_WAYPOINT_SERVICE_DOMAIN=%s\n' "https://waypoint.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_WAYPOINT_SERVICE_PORT=443\n' >> .env
-printf 'VUE_APP_SEARCH_SERVICE_DOMAIN=%s\n' "https://search.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_SEARCH_SERVICE_PORT=443\n' >> .env
-printf 'VUE_APP_VIDEOS_SERVICE_DOMAIN=%s\n' "https://videos.retail-store.retail.sa.aws.dev" >> .env
-printf 'VUE_APP_VIDEOS_SERVICE_PORT=443\n' >> .env
+printf 'VUE_APP_PRODUCTS_SERVICE_DOMAIN=%s\n' "$PRODUCTS_SERVICE_URL" >> .env
+printf 'VUE_APP_PRODUCTS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_USERS_SERVICE_DOMAIN=%s\n' "$USERS_SERVICE_URL" >> .env
+printf 'VUE_APP_USERS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_CARTS_SERVICE_DOMAIN=%s\n' "$CARTS_SERVICE_URL" >> .env
+printf 'VUE_APP_CARTS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_ORDERS_SERVICE_DOMAIN=%s\n' "$ORDERS_SERVICE_URL" >> .env
+printf 'VUE_APP_ORDERS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_RECOMMENDATIONS_SERVICE_DOMAIN=%s\n' "$RECOMMENDATIONS_SERVICE_URL" >> .env
+printf 'VUE_APP_RECOMMENDATIONS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_WAYPOINT_SERVICE_DOMAIN=%s\n' "$WAYPOINT_SERVICE_URL" >> .env
+printf 'VUE_APP_WAYPOINT_SERVICE_PORT=80\n' >> .env
+printf 'VUE_APP_SEARCH_SERVICE_DOMAIN=%s\n' "$SEARCH_SERVICE_URL" >> .env
+printf 'VUE_APP_SEARCH_SERVICE_PORT=80\n' >> .env
+printf 'VUE_APP_VIDEOS_SERVICE_DOMAIN=%s\n' "$VIDEOS_SERVICE_URL" >> .env
+printf 'VUE_APP_VIDEOS_SERVICE_PORT=80\n' >> .env
 printf 'VUE_APP_AWS_REGION=%s\n' "$DEPLOYED_REGION" >> .env
 printf 'VUE_APP_AWS_IDENTITY_POOL_ID=%s\n' "$COGNITO_IDENTITY_POOL_ID" >> .env
 printf 'VUE_APP_AWS_USER_POOL_ID=%s\n' "$COGNITO_USER_POOL_ID" >> .env
