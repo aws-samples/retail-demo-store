@@ -1,25 +1,29 @@
 <template>
-  <div class="col-sm-12 col-md-4 col-lg-4 mb-4">
+  <div class="col-sm-12 col-md-4 col-lg-3 mb-4">
     <!-- Card -->
-    <div class="card mx-auto h-100 product-card">
-      <router-link :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
+    <router-link class="link" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
+      <div class="card mx-auto h-100 product-card text-left">
         <img :src="productImageURL" class="card-img-top" :alt="product.name">
-      </router-link>
-      <div class="card-body">
-        <router-link class="btn btn-secondary btn-block mt-auto" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">Details</router-link>  
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text">{{ product.description }}</p>
+          <five-stars />
+          <p class="card-text">${{ product.price.toFixed(2) }}</p>
+        </div>
+        <div class="card-footer" v-if="experiment">
+          <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
+        </div>
       </div>
-      <div class="card-footer" v-if="experiment">
-        <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
-      </div>
-  </div>
-
+    </router-link>
   </div>
 </template>
 
 <script>
+import FiveStars from '../../components/FiveStars/FiveStars.vue'
 export default {
   name: 'Product',
   components: {
+    FiveStars
   },
   props: {
       product: null,
@@ -27,7 +31,7 @@ export default {
       experiment: null
   },
   data () {
-    return {  
+    return {
       errors: []
     }
   },
@@ -76,8 +80,16 @@ export default {
 
 <style scoped>
 
+  .link {
+    color: inherit;
+  }
+
+  .link:hover {
+    text-decoration: none;
+  }
+
   .card-img-overlay {
     opacity: 0.75;
   }
-  
+
 </style>
