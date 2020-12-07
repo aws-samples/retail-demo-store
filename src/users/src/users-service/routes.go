@@ -56,6 +56,24 @@ var routes = Routes{
 		GetFilteredUser,
 	},
 	Route{
+		"GetRandomUser",
+		"GET",
+		"/users/getRandomUser/",
+		GetRandomUser,
+	},
+	Route{
+		"ClaimUser",
+		"POST",
+		"/users/claim/",
+		ClaimUser,
+	},
+	Route{
+		"ClaimUser",
+		"OPTIONS",
+		"/users/claim/",
+		ClaimUser,
+	},
+	Route{
 		"UserCreate",
 		"POST",
 		"/users",

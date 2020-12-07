@@ -21,6 +21,7 @@ var usersByUsername map[string]int
 var usersByIdentityId map[string]int
 var usersByPrimaryPersona map[string][]int
 var usersByAgeRange map[string][]int
+var usersClaimedByIdentityId map[int]string
 
 
 // Init
@@ -42,6 +43,7 @@ func loadUsers(filename string) (Users, error) {
 	usersByIdentityId = make(map[string]int)
 	usersByPrimaryPersona = make(map[string][]int)
 	usersByAgeRange = make(map[string][]int)
+	usersClaimedByIdentityId = make(map[int]string)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -88,6 +90,8 @@ func getAgeRange(age int) string{
 		return "35-44"
 	}else if age < 55 {
 		return "45-54"
+	}else if age < 70 {
+		return "54-70"
 	}else {
 		return "70-and-above"
 	}
@@ -120,7 +124,7 @@ func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageR
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
 	for _, idx := range ageRangeFilteredUserIds {
-		if containsInt(primaryPersonaFilteredUserIds,idx){
+		if containsInt(primaryPersonaFilteredUserIds,idx) && len(usersClaimedByIdentityId[idx])==0 {
 			log.Println("User found matching filter criteria:", idx)
 			return users[idx]
 		}
@@ -129,15 +133,31 @@ func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageR
 	return User{}	
 }
 
+
+// RepoClaimUser Function
+// Function used to map which shopper user ids have been claimed by the user Id.
+func RepoClaimUser(userId int , identityID string) bool{
+	log.Println("An identity has claimed the user id:" , userId)
+	usersClaimedByIdentityId[userId]= identityID
+	return true
+}
+
 func RepoFindRandomUser () User {
-	randomId := 0
 	rand.Seed(time.Now().UnixNano())
+	randomUserFound := false
+	var randomUserId int
 	if len(users)>0 {
-		for randomId == 0 {
-			randomId = rand.Intn(len(users))	
+		for !randomUserFound {
+			randomUserId = rand.Intn(len(users))	
+			log.Println("Random number Selected:",randomUserId)
+			if randomUserId!=0 {
+				if len(usersClaimedByIdentityId[randomUserId])==0 {
+					randomUserFound =true;
+				} 
+			}
 		}
-		log.Println("Random user returned with userId:",randomId)
-		return users[randomId]
+		log.Println("Random user returned with userId:",randomUserId)
+		return users[randomUserId]
 	}
 	return User{}	
 }

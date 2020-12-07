@@ -122,6 +122,33 @@ func UserShowByIdentityId(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+// ClaimUser handler
+func ClaimUser(w http.ResponseWriter, r *http.Request) {
+	
+	enableCors(&w)
+	if (*r).Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	r.ParseForm()
+	identityId := r.Form.Get("identityId")
+	userId, err := strconv.Atoi(r.Form.Get("userId"))
+		if err != nil {
+			panic(err)
+		}
+	if err := json.NewEncoder(w).Encode(RepoClaimUser(userId,identityId)); err != nil {
+		panic(err)
+	}
+} 
+
+// GetRandomUser handler
+func GetRandomUser(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+
+	if err := json.NewEncoder(w).Encode(RepoFindRandomUser()); err != nil {
+		panic(err)
+	}
+}
 
 // GetFilteredUser handler
 func GetFilteredUser(w http.ResponseWriter, r *http.Request) {
@@ -129,8 +156,8 @@ func GetFilteredUser(w http.ResponseWriter, r *http.Request) {
 
 	var keys = r.URL.Query()
 	
-	var primaryPersona = keys.Get("primaryPersona")
-	var ageRange = keys.Get("ageRange")
+	primaryPersona := keys.Get("primaryPersona")
+	ageRange := keys.Get("ageRange")
 	
 	if err := json.NewEncoder(w).Encode(RepoFindRandomUserByPrimaryPersonaAndAgeRange(primaryPersona,ageRange)); err != nil {
 		panic(err)
