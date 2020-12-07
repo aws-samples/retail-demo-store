@@ -250,6 +250,28 @@ export const AnalyticsHandler = {
         }
     },
 
+    recordAbanonedCartEvent(user,cart,cartProduct) {
+        if (user && cart && cartProduct) {
+            AmplifyAnalytics.record({
+                name: '_session.stop',
+                attributes: {
+                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                }
+            })
+            AmplifyAnalytics.updateEndpoint({
+                userId: user.id,
+                attributes: {
+                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                    WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
+                    WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
+                    WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
+                    ShoppingCartItemImageURL:  [process.env.VUE_APP_IMAGE_ROOT_URL + cartProduct.category + '/' + cartProduct.image],
+                    ShoppingCartItemTitle :  [cartProduct.name],
+                    ShoppingCartItemURL : [cartProduct.url],     
+                },
+            })
+        }   
+    },
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
             AmplifyAnalytics.record({
@@ -397,7 +419,7 @@ export const AnalyticsHandler = {
         }
     },
 
-    cartViewed(user, cart, cartQuantity, cartSubTotal, cartTotal) {
+    cartViewed(user, cart, cartQuantity, cartTotal) {
         if (user) {
             AmplifyAnalytics.record({
                 name: 'CartViewed', 
@@ -406,7 +428,6 @@ export const AnalyticsHandler = {
                     cartId: cart.id
                 },
                 metrics: {
-                    cartSubTotal: +cartSubTotal.toFixed(2),
                     cartTotal: +cartTotal.toFixed(2),
                     cartQuantity: cartQuantity
                 }
@@ -427,7 +448,6 @@ export const AnalyticsHandler = {
 
         let eventProperties = {
             cartId: cart.id,
-            cartSubTotal: +cartSubTotal.toFixed(2),
             cartTotal: +cartTotal.toFixed(2),
             cartQuantity: cartQuantity
         };

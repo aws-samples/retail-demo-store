@@ -35,7 +35,7 @@ Metadata:
       - Label:
           default: "Use default IVS streams"
         Parameters:
-          - UseDefaultIvsStreams
+          - UseDefaultIVSStreams
       - Label:
           default: "Create Waypoint resources"
         Parameters:
@@ -81,7 +81,7 @@ Metadata:
         default: "Reply-To email address"
       PinpointEmailFromName:
         default: "Reply-To name"
-      UseDefaultIvsStreams:
+      UseDefaultIVSStreams:
         default: "Use default IVS streams"
       DeployWaypoint:
         default: "Deploy waypoint resources"
@@ -204,7 +204,7 @@ Parameters:
       is set to 'Yes'.
     Default: "AWS Retail Demo Store"
 
-  UseDefaultIvsStreams:
+  UseDefaultIVSStreams:
     Type: String
     Description: >
       Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
@@ -311,7 +311,7 @@ Resources:
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
-        UseDefaultIvsStreams: !Ref UseDefaultIvsStreams
+        UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ImageRootUrl: !Sub 
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
@@ -394,7 +394,6 @@ Resources:
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
-
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
@@ -420,6 +419,8 @@ Resources:
         CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
 
   # Cleanup bucket function
   CleanupBucket:

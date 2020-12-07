@@ -44,14 +44,6 @@ Resources:
       Value: !Ref StackBucketName
       Description: "Retail Demo Store Stack Bucket Parameter"
 
-  ParameterPersonalizeDatasetGroupName:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-personalize-datasetgroup-name"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Personalize dataset group name"
-
   ParameterRelatedProductsCampaignArn:
     Type: "AWS::SSM::Parameter"
     Properties:

@@ -1,187 +1,161 @@
 <template>
-  <div class="content">
-
-    <!-- Categories Navigation -->
-    <Navigation display="live" :categories="categories"/>
-
+  <Layout>
     <div class="container">
-      <div class="row">
-        <div class="col">
-          <div class="alert alert-warning mb-2 py-1" role="alert">
-            <div class="row no-gutters">
-            <div class="col-11">
-              <span>
-                {{user ? "This page features discounts based on your past browsing with us!" : "Log in to receive personalized discounts!"}}
-              </span>
-            </div>
-            <div class="col-1 my-auto">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            </div>
-          </div>
+      <div class="gridwrapper">
+        <h2 class="m-0 text-left">Shop Livestreams </h2>
+        <div class="d-flex align-items-end">
+          <h5 class="m-0 text-left featured-heading d-none d-md-block">Featured </h5>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-12 col-md-8">
-          <h6><i class="fas fa-circle live-icon"></i> LIVE NOW</h6>
-          <div class="video-container">
-            <video id="video-player" class="video-elem" playsInline muted></video>
-          </div>
+        <div class="video-container">
+          <video id="video-player" class="video-elem" playsInline muted></video>
         </div>
-        <div class="col-4 text-left d-none d-md-block">
-          <h6>Featured items</h6>
-            <div class="featured-products pr-1" id="featured-products-scrollable">
-              <live-product v-for="product in productDetails[activeStreamId]"
-                            v-bind:key="`featured-prod-${product.id}`"
-                            :discount="product.discounted"
-                            :active="product.id == activeProductId"
-                            :experiment="product.experiment"
-                            :product="product"
-                            :id="`featured-prod-${product.id}`"
-              />
-            </div>
-        </div>
-      </div>
-      <div class="row mt-1">
 
-        <div v-for="(_, index) in streamDetails"
-             class="col-2"
-             v-bind:id="`thumb-${index}`"
-             v-bind:key="`stream-${index}`"
-             v-bind:class="{'d-none': index == activeStreamId}"
-        >
-          <div class="thumb-wrapper" v-on:click="activeStreamId = index; activeProductId = 0;">
-            <div class="thumb-overlay"></div>
-            <img
-                type="button"
-                class="channel-thumb"
-                v-bind:src="streamDetails[index]['thumb_url']"
-            />
+        <div class="position-relative featured-product-column d-none d-md-block">
+          <div class="featured-products">
+            <router-link
+              v-for="product in productDetails[activeStreamId]"
+              v-bind:key="`featured-prod-${product.id}`"
+              :to="{
+                  name: 'ProductDetail',
+                  params: { id: product.id },
+                  query: { exp: productActiveExperiment, feature, di: product.discounted},
+                }"
+              class="featured-product pt-1 pb-2 px-2 d-flex flex-column justify-content-between mb-2 mr-1"
+              v-bind:class="{'active-product': product.id === activeProductId.toString()}"
+            >
+              <div>
+                <img :src="product.image" alt="" class="mb-2 img-fluid w-100" />
+                <div class="product-name">
+                  {{ product.name }}
+                </div>
+                <div class="container">
+                  <div class="row">
+                    <div class="col" v-bind:class="{'discounted': product.discounted}">{{ formatPrice(product.price) }}</div>
+                    <div class="col font-weight-bold" v-if="product.discounted">{{ formatPrice(discountProductPrice(product.price)) }}</div>
+                  </div>
+                </div>
+              </div>
+            </router-link>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="user-items my-2">
-      <div class="container d-md-none">
-        <div class="row">
-          <div class="col text-left my-2">
-            <h6>Featured item</h6>
-          </div>
-        </div>
-        <div class="row">
-          <div v-for="product in productDetails[activeStreamId]" v-bind:key="`horiz-featured-${product.id}`">
-            <live-recommendation v-if="product.id == activeProductId" :product="product"/>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="related-items mb-2" >
-      <div class="container py-2">
-        <div class="row">
-          <div class="col text-left my-2">
-            <h6>Related Items</h6>
-          </div>
-        </div>
-        <div class="row" v-if="productRecommended.length">
-          <live-recommendation v-for="product in productRecommended"
-                               :product="product.product"
-                               :experiment="product.experiment"
-                               v-bind:key="`user-recommendation-${product.product.id}`"
-          />
-        </div>
-          <div class="row mb-4" v-if="!productRecommended.length">
-            <div class="col">
-              <i class="fas fa-spinner fa-spin fa-3x"></i>
+        <div class="stream-selector">
+          <div class="row">
+            <div v-for="(_, index) in streamDetails"
+                 class="col-3"
+                 v-bind:id="`thumb-${index}`"
+                 v-bind:key="`stream-${index}`"
+                 v-bind:class="{'d-none': index === activeStreamId}"
+            >
+              <div class="thumb-wrapper" v-on:click="activeStreamId = index; activeProductId = 0;">
+                <div class="thumb-overlay"></div>
+                <img
+                    class="channel-thumb"
+                    v-bind:src="streamDetails[index]['thumb_url']"
+                />
+              </div>
             </div>
           </div>
+        </div>
       </div>
-    </div>
 
-    <div class="user-items">
-      <div class="container py-2">
+      <div class="container d-md-none" >
+        <div class="row mt-2">
+          <div class="col pl-0 text-left">
+            <h3>Featured</h3>
+          </div>
+
+        </div>
         <div class="row">
-          <div class="col text-left my-2">
-            <h6>{{ !!userPersonalized ? "Inspired by your shopping trends" : "Explore"}}</h6>
+          <div class="col-6 p-0"
+               v-for="product in productDetails[activeStreamId]"
+               v-bind:key="`featured-prod-${product.id}`"
+          >
+            <router-link
+
+                :to="{
+                    name: 'ProductDetail',
+                    params: { id: product.id },
+                    query: { exp: productActiveExperiment, feature},
+                  }"
+                class="featured-product pt-1 pb-2 px-2 d-flex flex-column justify-content-between mb-2 mr-1"
+                v-bind:class="{'active-product': product.id === activeProductId.toString()}"
+            >
+              <div>
+                <img :src="product.image" alt="" class="mb-2 img-fluid w-100" />
+                <div class="product-name">
+                  {{ product.name }}
+                </div>
+                <div class="container">
+                  <div class="row">
+                    <div class="col" v-bind:class="{'discounted': product.discounted}">{{ formatPrice(product.price) }}</div>
+                    <div class="col font-weight-bold" v-if="product.discounted">{{ formatPrice(discountProductPrice(product.price)) }}</div>
+                  </div>
+                </div>
+              </div>
+            </router-link>
           </div>
         </div>
-        <div class="row" v-if="user">
-          <live-recommendation v-for="product in userRecommended"
-                               :product="product.product"
-                               :experiment="product.experiment"
-                               v-bind:key="`user-recommendation-${product.product.id}`"
-          />
-        </div>
-        <div class="row" v-if="!user">
-          <live-recommendation v-for="product in guestRecommended"
-                               :product="product"
-                               v-bind:key="`user-recommendation-${product.id}`"
-          />
-        </div>
       </div>
+
+      <RecommendedProductsSection
+          :key="`rec-products-${(new Date()).getTime()}`"
+          :explainRecommended="explainRecommended"
+          :recommendedProducts="productRecommended"
+          :feature="feature"
+          class="mt-4"
+      >
+        <template #heading>Compare similar items</template>
+      </RecommendedProductsSection>
+
     </div>
-  </div>
+  </Layout>
 </template>
 
 <script>
 import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 
-import Navigation from "@/public/CategoryNavigation";
-import LiveProduct from "@/public/components/LiveProduct";
-import LiveRecommendation from "@/public/components/LiveRecommendation";
+import Layout from "@/components/Layout/Layout";
+import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
 import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
+import {formatPrice} from "@/util/formatPrice";
+import {discountProductPrice} from "@/util/discountProductPrice";
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const VideosRepository = RepositoryFactory.get('videos');
 
-const MaxRecommendations = 6;
-const UserExperimentFeature = 'live_stream_user_recommendation';
-const ProductExperimentFeature = 'live_stream_prod_recommendation';
+const MAX_RECOMMENDATIONS = 6;
+const PRODUCT_EXPERIMENT_FEATURE = 'live_stream_prod_recommendation';
 const ProductDiscountFeature = 'live_stream_prod_discounts';
+
 let player = null
 
 export default {
   name: "Live",
   components: {
-    LiveProduct,
-    Navigation,
-    LiveRecommendation
+    Layout,
+    RecommendedProductsSection,
   },
   data() {
     return {
-      categories: [],
-      metadata: [],
-      activeStreamId: 0,
-      activeProductId: 0,
       streamDetails: [],
+      activeStreamId: 0,
       productDetails: [],
-      productDiscounts: [],
-      userActiveExperiment: false,
-      userPersonalized: false,
-      userRecommended: [],
-      guestRecommended: [],
-      userExplainRecommended: '',
+      activeProductId: 0,
+      productRecommended: null,
+      explainRecommended: null,
       productActiveExperiment: false,
-      productPersonalized: false,
-      productRecommended: [],
-      productExplainRecommended: ''
+      feature: PRODUCT_EXPERIMENT_FEATURE,
+      metadata: [],
+      productDiscounts: [],
     }
   },
   created: async function () {
      this.loadPlayer();
-     this.getCategories();
-     this.getRecommendations();
   },
   methods: {
-    async getCategories () {
-      const { data } = await ProductsRepository.getCategories();
-      this.categories = data;
-    },
     async getProducts (productIds) {
       let products = [];
       for (const product of productIds) {
@@ -200,16 +174,27 @@ export default {
       return data;
     },
     async getRelatedProducts() {
-      const response = await RecommendationsRepository.getRelatedProducts(this.user ? this.user.id : '', this.activeProductId, MaxRecommendations, ProductExperimentFeature);
+      const response = await RecommendationsRepository.getRelatedProducts(
+          this.personalizeUserID ?? '',
+          this.activeProductId,
+          MAX_RECOMMENDATIONS,
+          PRODUCT_EXPERIMENT_FEATURE,
+      );
 
       if (response.headers) {
-        if (response.headers['x-personalize-recipe']) {
-          this.productPersonalized = true;
-          this.productExplainRecommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe'];
-        }
-        if (response.headers['x-experiment-name']) {
-          this.productActiveExperiment = true;
-          this.productExplainRecommended = 'Active experiment: ' + response.headers['x-experiment-name'];
+        const experimentName = response.headers['x-experiment-name'];
+        const personalizeRecipe = response.headers['x-personalize-recipe'];
+
+        if (experimentName || personalizeRecipe) {
+          const explanation = experimentName
+              ? `Active experiment: ${experimentName}`
+              : `Personalize recipe: ${personalizeRecipe}`;
+
+          this.explainRecommended = {
+            activeExperiment: !!experimentName,
+            personalized: !!personalizeRecipe,
+            explanation,
+          };
         }
       }
 
@@ -217,34 +202,6 @@ export default {
 
       if (this.productRecommended.length > 0 && 'experiment' in this.productRecommended[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.productRecommended[0].experiment);
-      }
-    },
-    async getRecommendations() {
-      if (this.user) {
-        this.getUserRecommendations();
-      }
-      else {
-        const { data } = await ProductsRepository.getFeatured();
-        this.guestRecommended = data.slice(0, MaxRecommendations);
-      }
-    },
-    async getUserRecommendations() {
-      const response = await RecommendationsRepository.getRecommendationsForUser(this.user.id, '', MaxRecommendations, UserExperimentFeature);
-      if (response.headers) {
-        if (response.headers['x-personalize-recipe']) {
-          this.userPersonalized = true;
-          this.userExplainRecommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe'];
-        }
-        if (response.headers['x-experiment-name']) {
-          this.userActiveExperiment = true;
-          this.userExplainRecommended = 'Active experiment: ' + response.headers['x-experiment-name'];
-        }
-      }
-
-      this.userRecommended = response.data;
-
-      if (this.userRecommended.length > 0 && 'experiment' in this.userRecommended[0]) {
-        AnalyticsHandler.identifyExperiment(this.user, this.userRecommended[0].experiment);
       }
     },
     async loadPlayer () {
@@ -284,7 +241,7 @@ export default {
         console.warn("Player Event - ERROR:", err);
       });
       player.addEventListener(PlayerEventType.TEXT_METADATA_CUE, (cue) => {
-        console.log('Timed metadata: ', cue.text);
+        console.log(cue)
         this.handleMetadata(cue.text);
       });
 
@@ -307,13 +264,12 @@ export default {
       const discountDetails = await Promise.all(discounts)
 
       this.productDiscounts = discountDetails.flat().filter(discount => discount.discounted).map(disc => disc.itemId);
-      if (this.productDiscounts.length>0) {
+      if (this.productDiscounts.length > 0) {
         this.productDetails = discountDetails;
       }
       else {
         console.log("No discount info.");
       }
-
     },
     handleMetadata (metadata) {
       this.activeProductId = JSON.parse(metadata).productId;
@@ -323,7 +279,9 @@ export default {
         this.metadata.length = maxMetadata;
       }
       this.metadata.unshift(metadata);
-    }
+    },
+    formatPrice,
+    discountProductPrice
   },
   computed: {
     user() {
@@ -347,16 +305,24 @@ export default {
 </script>
 
 <style scoped>
-.live-icon {
-  color: #12e21e;
+.gridwrapper {
+  display: grid;
+  grid-template-columns: 1.6fr 0.4fr;
+  grid-auto-rows: auto auto 1fr;
+  grid-gap: 10px;
 }
 
-.related-items {
-  background-color: #e5ebff;
+.featured-product-column {
+  grid-area: 2 / 2 / 4 / 3;
 }
 
-.user-items {
-  background-color: #f1f1f1;
+.featured-products {
+  position:absolute;
+  overflow-y: auto;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
 }
 
 .video-container {
@@ -364,6 +330,21 @@ export default {
   position: relative;
   padding-top: 56.25%;
   height: 0;
+  grid-area: 2 / 1 / 3 / 3;
+}
+
+.stream-selector {
+  grid-area: 3 / 1 / 4 / 3;
+}
+
+@media (min-width: 768px) {
+  .video-container {
+    grid-area: 2 / 1 / 3 / 2;
+  }
+
+  .stream-selector {
+    grid-area: 3 / 1 / 4 / 2;
+  }
 }
 
 .video-elem {
@@ -372,19 +353,10 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 5px;
-}
-
-.featured-products {
-  height: calc(100% - 1.6rem);
-  overflow-y: auto;
-  position: absolute;
-  border-radius: 5px;
 }
 
 .channel-thumb {
   width: 100%;
-  border-radius: 5px;
 }
 
 .thumb-overlay {
@@ -394,7 +366,6 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(196, 194, 194, 0.5);
-  border-radius: 5px;
 }
 
 .thumb-wrapper {
@@ -402,6 +373,21 @@ export default {
   position: relative;
   width: 100%;
   font-size: 0;
+}
+
+.active-product {
+  background-color: #00a1c991;
+}
+
+.featured-product {
+  border: 1px solid var(--grey-500);
+  text-decoration: none;
+  color: inherit;
+}
+
+.discounted {
+  text-decoration: line-through;
+  color: red;
 }
 
 </style>

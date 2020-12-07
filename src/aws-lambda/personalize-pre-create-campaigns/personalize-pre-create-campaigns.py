@@ -31,13 +31,13 @@ import logging
 import os
 import uuid
 from crhelper import CfnResource
+import urllib3
 
 from packaging import version
 from botocore.exceptions import ClientError
 
-
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 min_botocore_version = '1.16.24'
 
@@ -91,11 +91,15 @@ dataset_group_name_root_offers = 'retaildemooffers-'
 # if it does not exist.
 training_config_param_name = 'retaildemostore-training-config'  # ParameterPersonalizeTrainConfig
 training_state_param_name = 'retaildemostore-training-state'
-num_to_train = int(os.environ['num_to_train'])
 
 role_name = os.environ.get('Uid') + '-PersonalizeS3'
 event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
-filter_purchased_arn_param = 'retaildemostore-personalize-filter-purchased-arn'
+
+filters_config = [
+     {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
+      'filter_name': 'retaildemostore-filter-purchased-products',
+      'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
+     ]
 
 datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
 
@@ -228,16 +232,6 @@ interactions_schema_offers = {
     ],
     "version": "1.0"
 }
-
-# dataset_type_to_schema = {'ITEMS': 'retaildemostore-schema-items',
-#                           'USERS': 'retaildemostore-schema-users',
-#                           'INTERACTIONS': 'retaildemostore-schema-interactions'}
-
-# dataset_type_to_filename_products = {'ITEMS': items_filename,
-#                                      'USERS': users_filename,
-#                                      'INTERACTIONS': interactions_filename}
-#
-# dataset_type_to_filename_offers = {'INTERACTIONS': offer_interactions_filename}
 
 dataset_type_to_detail_products = {
     'ITEMS': {'schema': {'name': 'retaildemostore-schema-items',
@@ -688,28 +682,47 @@ def delete_campaign_polling(dataset_group_arn, solution_arn, **kwargs):
     return finished
 
 
-def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
-    """Creates Personalize Filter that excludes recommendations for recently purchased products"""
+def create_filter(dataset_group_arn, arn_param, filter_name, filter_expression):
+    """
+    Creates Personalize Filter for e.g. excluding recommendations for recently purchased products or
+    restricting products to certain sets of categories.
+    It is possible to do this exclusion for each call to GetRecommendations but much easier to pass
+    around the filter.
+    If already made, returns without doing anything.
+    Args:
+        dataset_group_arn: Where to make the filter
+        arn_param: Where to put the SSM parameter to store the Arn of the resulting filter
+        filter_name: Usually ends up in the Arn
+        filter_expression: See https://docs.aws.amazon.com/personalize/latest/dg/filter-expressions.html
 
-    logger.info('Creating purchased product filter')
+    Returns:
+        Nothing.
+    """
 
-    response = personalize.create_filter(
-        name = 'retaildemostore-filter-purchased-products',
-        datasetGroupArn = dataset_group_arn,
-        filterExpression = 'EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")'
-    )
- 
-    filter_arn = response['filterArn']
+    """"""
+    logger.info(f"Making filter with name {filter_name}, SSM arn {arn_param} and expression {filter_expression}")
 
-    logger.info('Setting purchased product filter ARN as SSM parameter ' + ssm_parameter_name)
+    try:
+        response = personalize.create_filter(
+            name=filter_name,
+            datasetGroupArn=dataset_group_arn,
+            filterExpression=filter_expression
+        )
 
-    ssm.put_parameter(
-        Name=ssm_parameter_name,
-        Description='Retail Demo Store Personalize Filter Purchased Products Arn Parameter',
-        Value='{}'.format(filter_arn),
-        Type='String',
-        Overwrite=True
-    )
+        filter_arn = response['filterArn']
+
+        logger.info('Setting purchased product filter ARN as SSM parameter ' + arn_param)
+
+        ssm.put_parameter(
+            Name=arn_param,
+            Description=f'Retail Demo Store Personalize Filter - {filter_name}',
+            Value='{}'.format(filter_arn),
+            Type='String',
+            Overwrite=True
+        )
+
+    except personalize.exceptions.ResourceAlreadyExistsException:
+        logger.info("Filter already exists - skipping creation")
 
 
 def delete_datasets(dataset_group_arn):
@@ -978,15 +991,7 @@ def update():
         if not all_created_dataset_group:
             continue
 
-        # Create recent product purchase filter, if necessary
-        filter_config = trainstep_config['dataset_groups'][dataset_group_name]['filter']
-        if filter_config:
-            list_filters_response = personalize.list_filters(datasetGroupArn=dataset_group_arn)
-            if len(list_filters_response['Filters']) == 0:
-                create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)  # Adds the SSM param
-
         # Create related product, product recommendation, and rerank solutions if they doesn't exist
-
         # Start by calculating what recipes, with what names, event types, and whether we want activated first.
         campaigns_config = trainstep_config['dataset_groups'][dataset_group_name]['campaigns']
         augmented_train_config = []
@@ -1041,39 +1046,54 @@ def update():
                     solution_arn=solution['solutionArn'])
                 all_deleted = all_deleted and deleted_one
 
-        list_event_trackers_response = personalize.list_event_trackers(datasetGroupArn=dataset_group_arn)
-        if len(list_event_trackers_response['eventTrackers']) == 0 and all_created:
+        # Create recent product purchase and category filter, if necessary
+        filters_config = trainstep_config['dataset_groups'][dataset_group_name]['filters']
+        if filters_config is not None:
+            for filter_config in filters_config:
+                create_filter(dataset_group_arn=dataset_group_arn,
+                              arn_param=filter_config['arn_param'],
+                              filter_name=filter_config['filter_name'],
+                              filter_expression=filter_config['filter_expression'])
 
-            # Either hasn't been created yet or isn't active yet.
-            if len(list_event_trackers_response['eventTrackers']) == 0:
-                logger.info('Event Tracker does not exist; creating')
-                event_tracker = personalize.create_event_tracker(
-                    datasetGroupArn=dataset_group_arn,
-                    name='retaildemostore-event-tracker'
-                )
+            # list_filters_response = personalize.list_filters(datasetGroupArn=dataset_group_arn)
+            # if len(list_filters_response['Filters']) == 0:
+            #     create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)  # Adds the SSM param
 
-                if event_tracker.get('trackingId'):
-                    event_tracking_id = event_tracker['trackingId']
-                    logger.info('Setting event tracking ID {} as SSM parameter'.format(event_tracking_id))
+        tracker_config = trainstep_config['dataset_groups'][dataset_group_name]['tracker']
+        if tracker_config:
+            list_event_trackers_response = personalize.list_event_trackers(datasetGroupArn=dataset_group_arn)
+            if len(list_event_trackers_response['eventTrackers']) == 0 and all_created:
 
-                    ssm.put_parameter(
-                        Name=event_tracking_id_param,
-                        Description='Retail Demo Store Personalize Event Tracker ID Parameter',
-                        Value='{}'.format(event_tracking_id),
-                        Type='String',
-                        Overwrite=True
+                # Either hasn't been created yet or isn't active yet.
+                if len(list_event_trackers_response['eventTrackers']) == 0:
+                    logger.info('Event Tracker does not exist; creating')
+                    event_tracker = personalize.create_event_tracker(
+                        datasetGroupArn=dataset_group_arn,
+                        name='retaildemostore-event-tracker'
                     )
-                    # Trigger rebuild of Web UI service so event tracker gets picked up.
-                    rebuild_webui_service(region, account_id)
 
-                return False  # Give event tracker a moment to get ready
-            else:
-                event_tracker = list_event_trackers_response['eventTrackers'][0]
-                logger.info("Event Tracker: {}".format(event_tracker['status']))
+                    if event_tracker.get('trackingId'):
+                        event_tracking_id = event_tracker['trackingId']
+                        logger.info('Setting event tracking ID {} as SSM parameter'.format(event_tracking_id))
 
-                if event_tracker['status'] == 'CREATE FAILED':
-                    logger.error('Event tracker create failed: {}'.format(json.dumps(event_tracker)))
-                    return False
+                        ssm.put_parameter(
+                            Name=event_tracking_id_param,
+                            Description='Retail Demo Store Personalize Event Tracker ID Parameter',
+                            Value='{}'.format(event_tracking_id),
+                            Type='String',
+                            Overwrite=True
+                        )
+                        # Trigger rebuild of Web UI service so event tracker gets picked up.
+                        rebuild_webui_service(region, account_id)
+
+                    return False  # Give event tracker a moment to get ready
+                else:
+                    event_tracker = list_event_trackers_response['eventTrackers'][0]
+                    logger.info("Event Tracker: {}".format(event_tracker['status']))
+
+                    if event_tracker['status'] == 'CREATE FAILED':
+                        logger.error('Event tracker create failed: {}'.format(json.dumps(event_tracker)))
+                        return False
 
     # Now go through dataset groups getting rid of any we do not need.
     for dataset_group_name in undesired_dataset_group_names:
@@ -1186,12 +1206,14 @@ def poll_create(event, context):
                         dataset_group_name_unique_products: {
                             'datasets': dataset_type_to_detail_products,
                             'campaigns': campaigns_to_build_products,
-                            'filter': True
+                            'filters': filters_config,
+                            'tracker': True
                         },
                         dataset_group_name_unique_offers: {
                             'datasets': dataset_type_to_detail_offers,
                             'campaigns': campaigns_to_build_offers,
-                            'filter': False
+                            'filters': {},
+                            'tracker': False
                         }
                     }
                 }

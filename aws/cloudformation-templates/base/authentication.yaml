@@ -2,8 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store Cognito Configuration.
-
+  This template deploys the Retail Demo Store Cognito Configuration.
 Parameters:
   AuthName:
     Type: String
@@ -18,20 +17,20 @@ Resources:
   SNSRole:
     Type: AWS::IAM::Role
     Properties:
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal: 
-              Service: 
+            Principal:
+              Service:
                 - "cognito-idp.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRole"
       Policies:
         - PolicyName: "CognitoSNSPolicy"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
+            Statement:
               - Effect: "Allow"
                 Action: "sns:publish"
                 Resource: "*"
@@ -58,7 +57,7 @@ Resources:
         - Name: phone_number
           AttributeDataType: String
           Mutable: false
-          Required: true
+          Required: false
         - Name: profile_user_id
           AttributeDataType: String
           Mutable: true
@@ -107,7 +106,7 @@ Resources:
           StringAttributeConstraints:
             MinLength: '1'
             MaxLength: '200'
-  
+
   # Creates a User Pool Client to be used by the identity pool
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -115,14 +114,14 @@ Resources:
       ClientName: !Sub ${AuthName}-client
       GenerateSecret: false
       UserPoolId: !Ref UserPool
-  
+
   # Creates a federeated Identity pool
   IdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
       IdentityPoolName: !Sub ${AuthName}Identity
       AllowUnauthenticatedIdentities: true
-      CognitoIdentityProviders: 
+      CognitoIdentityProviders:
         - ClientId: !Ref UserPoolClient
           ProviderName: !GetAtt UserPool.ProviderName
 
@@ -130,29 +129,29 @@ Resources:
   CognitoUnAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal: 
+            Principal:
               Federated: "cognito-identity.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRoleWithWebIdentity"
             Condition:
-              StringEquals: 
+              StringEquals:
                 "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": unauthenticated
       Policies:
         - PolicyName: "CognitoUnauthorizedPolicy"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
+            Statement:
               - Effect: "Allow"
                 Action:
                   - mobiletargeting:UpdateEndpoint
                   - mobiletargeting:PutEvents
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*"
               - Effect: "Allow"
                 Action:
@@ -162,7 +161,7 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "cognito-sync:*"
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:cognito-sync:${AWS::Region}:${AWS::AccountId}:identitypool/${IdentityPool}"
               - Effect: "Allow"
                 Action:
@@ -175,29 +174,29 @@ Resources:
   CognitoAuthorizedRole:
     Type: AWS::IAM::Role
     Properties:
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal: 
+            Principal:
               Federated: "cognito-identity.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRoleWithWebIdentity"
             Condition:
-              StringEquals: 
+              StringEquals:
                 "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": authenticated
       Policies:
         - PolicyName: "CognitoAuthorizedPolicy"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
+            Statement:
               - Effect: "Allow"
                 Action:
                   - mobiletargeting:UpdateEndpoint
                   - mobiletargeting:PutEvents
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*"
               - Effect: "Allow"
                 Action:
@@ -207,12 +206,12 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "cognito-identity:*"
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${IdentityPool}"
               - Effect: "Allow"
                 Action:
                   - "cognito-sync:*"
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:cognito-sync:${AWS::Region}:${AWS::AccountId}:identitypool/${IdentityPool}"
               - Effect: "Allow"
                 Action:
@@ -224,7 +223,7 @@ Resources:
                   - "geo:*"
                 Resource:
                   - !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:*"
-  
+
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"

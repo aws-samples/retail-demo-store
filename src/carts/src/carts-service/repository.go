@@ -32,6 +32,7 @@ func RepoUpdateCart(t Cart) Cart {
 		c := &carts[i]
 		if c.ID == t.ID {
 			c.Items = t.Items
+			c.Username = t.Username
 			return RepoFindCartByID(t.ID)
 		}
 	}

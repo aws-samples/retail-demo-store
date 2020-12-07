@@ -32,6 +32,32 @@ servicediscovery = boto3.client('servicediscovery')
 logger.info(f'Pinpoint region is {pinpoint.meta.region_name}')
 
 
+def userid_to_username(user_id, users_service):
+    """
+    Use the users service to map a User ID (which might be a shopper user or one based on a provisional session ID
+    but later added on signup) to the username (which might be "userXXXX where XXXX was the shopper user ID
+    or the cognito username)
+    Args:
+        user_id: E.g. '5999' for a shopper user or '2e8fe504-c3e8-46e2-9e38-52bd1c7303fc' for a user transferred
+                 from a non-login session
+        users_service: URL to pull user from (users service)
+
+    Returns:
+        The relevant username which is useful to look up stuff against e.g. the carts service
+    """
+    user_url = f'{users_service}/users/id/{user_id}'
+    try:
+        logging.info(f'Hitting {user_url} for user info to map user ID to username.')
+        response = requests.get(user_url)
+        user = response.json()
+    except requests.exceptions.ConnectionError:
+        logger.warning(f'Could not retrieve {user_url}')
+        return 'user' + user_id
+    username = user['username']
+    logging.info(f"User ID {user_id} --> username {username}")
+    return username
+
+
 def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL', restrict_number=None):
     """
     If a user already exists in Pinpoint with certain "User Attributes", those attributes will be carried over to any
@@ -89,7 +115,8 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
             metrics[metric] = value
 
     logger.info(
-        f"Adding SMS endpoint to user {shopper_user_id} with phone {phone_number} and additional attributes {attributes} and metrics {metrics}")
+        f"Adding SMS endpoint to user {shopper_user_id} with phone {phone_number}"
+        f" and additional attributes {attributes} and metrics {metrics}")
     pinpoint.update_endpoint(
         ApplicationId=pinpoint_app_id,
         EndpointId=sms_endpoint_id,
@@ -112,7 +139,8 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
         shopper_user_id (str): Shopper User ID which Pinpoint uses internally.
         event_timestamp_iso (Optional[str]): If null current timestamp is used otherwise stamps the event with this.
         restrict_to_endpoint_types (Optional[list]): If not None, the channel types to send events for.
-        restrict_number (int): Do not fire for more than more than this number of endpoints for each channel type/address.
+        restrict_number (int): Do not fire for more than more than this number of endpoints
+                               for each channel type/address.
 
     Returns:
         None.
@@ -163,9 +191,9 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
 
     events = {endpoint_id: {'Endpoint': {},  # We need to provide this but empty because not here to update endpoint
                             'Events': {endpoint_id:  # API docs state this is the endpoint ID too
-                                           {'EventType': GEOFENCE_PINPOINT_EVENTTYPE,
-                                            'Session': {'Id': sess_id, 'StartTimestamp': timestamp},  # required
-                                            'Timestamp': timestamp}}}  # required
+                                       {'EventType': GEOFENCE_PINPOINT_EVENTTYPE,
+                                        'Session': {'Id': sess_id, 'StartTimestamp': timestamp},  # required
+                                        'Timestamp': timestamp}}}  # required
               for endpoint_id in endpoint_ids}
 
     if len(events) > 0:
@@ -180,12 +208,15 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
         logger.warning(f'Did not fire any waypoint events for user {shopper_user_id} in app {pinpoint_app_id}')
 
 
-def pinpoint_add_current_cart_details_to_user(shopper_user_id, carts_service, products_service):
+def pinpoint_add_current_cart_details_to_user(shopper_user_id, username, carts_service, products_service):
     """
     Fill Pinpoint User Attributes (against the user not endpoint) with information about 3 products that still
     exist in user carts.
     Args:
-        shopper_user_id: E.g. "6000" - not handled: non-profile users like "loginname"
+        shopper_user_id: E.g. "5999"  or "2e8fe504-c3e8-46e2-9e38-52bd1c7303fc" depending if profile user
+                         user created from session login
+        username: E.g. "user5999" or "cognitousername" depending if profile user
+                        user created from session login
         carts_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
         products_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
 
@@ -194,7 +225,7 @@ def pinpoint_add_current_cart_details_to_user(shopper_user_id, carts_service, pr
     """
 
     # Get information we need to put
-    carts = get_cart_products_with_details(shopper_user_id, carts_service, products_service)
+    carts = get_cart_products_with_details(username, carts_service, products_service)
     cart_products = []
     for cart in carts:
         if cart['items'] is not None:
@@ -356,6 +387,18 @@ def get_service(environ_key, get_local_ip=False, local_servicename=None):
     return service_instance
 
 
+def get_users_service(get_local_ip=False):
+    """
+    Get the URL of the orders service
+    Args:
+        get_local_ip: If true obtains the internal IP using service discovery
+
+    Returns:
+        URL of the orders service.
+    """
+    return get_service('UsersServiceExternalUrl', get_local_ip, 'users')
+
+
 def get_orders_service(get_local_ip=False):
     """
     Get the URL of the orders service
@@ -443,14 +486,15 @@ def add_product_details_to_product_list(orders, products_service):
         thread.join()
 
 
-def get_cart_products_with_details(shopper_user_id, carts_service, products_service):
+def get_cart_products_with_details(username, carts_service, products_service):
     """
     For the shopper with this ID grab her non-empty shopping carts and add more
     info about the products on the order with the products service.
     NOTE: there are some issues with the UI that means that shopping cart seen in UI might not match that
     recorded against the user.
     Args:
-        shopper_user_id: E.g. "6000" - not handled: non-profile users like "loginname"
+        username: E.g. "user5999" or "cognitousername" depending if profile user
+                  user created from session login
         carts_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
         products_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
 
@@ -461,30 +505,30 @@ def get_cart_products_with_details(shopper_user_id, carts_service, products_serv
     """
 
     # we can optionally retrive this from the user service if we want non-profile users:
-    shopper_user_name = 'user' + shopper_user_id
     url = f'{carts_service}/carts/all'  # OK for demo else push up to carts repo
 
     logging.info(f'Hitting {url}')
     response = requests.get(url)
     carts = response.json()
 
-    carts = [cart for cart in carts if cart['username'] == shopper_user_name]
+    carts = [cart for cart in carts if cart['username'] == username]
 
-    logger.info(f'Carts for user {shopper_user_name} is: {carts}')
+    logger.info(f'Carts for user {username} is: {carts}')
 
     add_product_details_to_product_list(carts, products_service)
 
-    logger.info(f'Carts for user {shopper_user_name} after adding details is: {carts}')
+    logger.info(f'Carts for user {username} after adding details is: {carts}')
 
     return carts
 
 
-def get_orders_with_details(shopper_user_id, orders_service, products_service):
+def get_orders_with_details(username, orders_service, products_service):
     """
     For the shopper with this ID grab her/his orders which are awaiting collection from the orders service and add more
     info about the products on the order with the products service
     Args:
-        shopper_user_id: E.g. "6000" - not handled: non-profile users like "loginname"
+        username: E.g. "user5999" or "cognitousername" depending if profile user
+                  user created from session login
         orders_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
         products_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
 
@@ -494,9 +538,8 @@ def get_orders_with_details(shopper_user_id, orders_service, products_service):
         with info from the products service so we can get orders[:]["items"][:]["details"]["name"] for example.
     """
     # we can optionally retrive this from the user service if we want non-profile users:
-    shopper_user_name = 'user' + shopper_user_id
-    orders_url = f'{orders_service}/orders/username/{shopper_user_name}'
 
+    orders_url = f'{orders_service}/orders/username/{username}'
     logging.info(f'Hitting {orders_url}')
     response = requests.get(orders_url)
     orders = response.json()
@@ -504,7 +547,7 @@ def get_orders_with_details(shopper_user_id, orders_service, products_service):
                                   and order['delivery_type'] == 'COLLECTION']
 
     add_product_details_to_product_list(awaiting_collection_orders, products_service)
-    logger.info(f'Orders for user {shopper_user_name} is: {awaiting_collection_orders}')
+    logger.info(f'Orders for user {username} is: {awaiting_collection_orders}')
 
     return awaiting_collection_orders
 
@@ -685,7 +728,8 @@ def notify_waiting_orders(to_email, phone_number, orders):
         Sends email and SMS as side effect.
     """
     send_pickup_email(to_email, orders)
-    send_pickup_sms(phone_number, orders)
+    if phone_number is not None:
+        send_pickup_sms(phone_number, orders)
 
 
 def handle_geofence_enter(event):
@@ -719,7 +763,9 @@ def handle_geofence_enter(event):
     # Grab the user attributes as a dictionary and pull relevant ones.
     user_attributes = {att['Name']: att['Value'] for att in response['UserAttributes']}
     to_email = user_attributes['email']
-    phone_number = user_attributes['phone_number']
+    phone_number = user_attributes.get('phone_number', None)
+    if phone_number is None:
+        logger.warning(f"User {cognito_user_id} has no phone number - SMS will not work till they add one from the UI.")
 
     try:
         first_name = user_attributes['custom:profile_first_name']
@@ -750,17 +796,20 @@ def handle_geofence_enter(event):
     orders_service = get_orders_service()
     carts_service = get_carts_service()
     products_service = get_products_service()
+    users_service = get_users_service()
+    username = userid_to_username(shopper_user_id, users_service)
 
     if demo_journey == 'PURCHASE':
 
         # In case we want to show users details of items in their cart, we add them as Pinpoint User Attributes
-        pinpoint_add_current_cart_details_to_user(shopper_user_id, carts_service, products_service)
+        pinpoint_add_current_cart_details_to_user(shopper_user_id, username, carts_service, products_service)
 
         # Update pinpoint to have an SMS endpoint for the user
         # carrying attributes over from any email endpoint that may have been created
         # by AmplifyAnalytics client side (AmplifyAnalytics maintains one endpoint at a time).
         # This way, any campaigns for SMS will work also same as email.
-        pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL')
+        if phone_number is not None:
+            pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL')
 
         # If there are any Pinpoint campaigns waiting for Waypoint events of type parametrised
         # by GEOFENCE_PINPOINT_EVENTTYPE (see defined at top)
@@ -771,13 +820,13 @@ def handle_geofence_enter(event):
     elif demo_journey == 'COLLECTION':
 
         # Get a list of waiting orders.
-        orders = get_orders_with_details(shopper_user_id, orders_service, products_service)
+        orders = get_orders_with_details(username, orders_service, products_service)
         send_pickup_browser_notification(cognito_user_id, orders)
 
         if len(orders) > 0:
-            logger.info(f'User {shopper_user_id} has waiting orders')
+            logger.info(f'User {shopper_user_id}/{username} has waiting orders')
             logger.info(f"Going to send a message to {to_email} and {phone_number} "
-                        f"for user {first_name} {last_name} ({shopper_user_id})")
+                        f"for user {first_name} {last_name} ({shopper_user_id}/{username})")
             notify_waiting_orders(to_email, phone_number, orders)
 
 

@@ -97,16 +97,29 @@ def get_parameter_values(names):
 
     return values
 
-def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
+
+def get_products(feature, user_id, current_item_id, num_results, default_campaign_arn_param_name,
+                 default_filter_arn_param_name, user_reqd_for_campaign=False, fully_qualify_image_urls=False,
+                 ):
     """ Returns products given a UI feature, user, item/product.
 
-    If a feature name is provided and there is an active experiment for the 
-    feature, the experiment will be used to retrieve products. Otherwise, 
-    the default behavior will be used which will look to see if an Amazon Personalize 
-    campaign is available. If not, the Product service will be called to get products 
+    If a feature name is provided and there is an active experiment for the
+    feature, the experiment will be used to retrieve products. Otherwise,
+    the default behavior will be used which will look to see if an Amazon Personalize
+    campaign is available. If not, the Product service will be called to get products
     from the same category as the current product.
+    Args:
+        feature: Used to track different experiments - different experiments pertain to different features
+        user_id: If supplied we are looking at user personalization
+        current_item_id: Or maybe we are looking at related items
+        num_results: Num to return
+        default_campaign_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
+        default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
+        user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
+        fully_qualify_image_urls: Fully qualify image URLs n here
+    Returns:
+        A prepared HTTP response object.
     """
-
     # Check environment for host and port first in case we're running in a local Docker container (dev mode)
     products_service_host = os.environ.get('PRODUCT_SERVICE_HOST')
     products_service_port = os.environ.get('PRODUCT_SERVICE_PORT', 80)
@@ -137,8 +150,8 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
         tracker = exp_manager.default_tracker()
 
         items = experiment.get_items(
-            user_id = user_id, 
-            current_item_id = current_item_id, 
+            user_id = user_id,
+            current_item_id = current_item_id,
             num_results = num_results,
             tracker = tracker
         )
@@ -149,12 +162,19 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
     else:
         # Fallback to default behavior of checking for campaign ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([ campaign_arn_param_name, filter_purchased_param_name ])
+        values = get_parameter_values([ default_campaign_arn_param_name, default_filter_arn_param_name ])
 
         campaign_arn = values[0]
         filter_arn = values[1]
 
         if campaign_arn and (user_id or not user_reqd_for_campaign):
+
+            logger.info(f"get_products: Supplied campaign: {campaign_arn} Supplied filter: {filter_arn} Supplied user: {user_id}")
+
+            if filter_arn is not None and (user_id is None or len(user_id.strip()) == 0):
+                logger.warning(f"userID is required if using filter - filter Arn: {filter_arn} - spoofing user to 0")
+                user_id = "0"
+
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
@@ -275,6 +295,8 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
+    filter_ssm = filter_purchased_param_name
+
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
@@ -286,13 +308,15 @@ def related():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn', 
+            default_campaign_arn_param_name='retaildemostore-related-products-campaign-arn',
+            default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
     except Exception as e:
         app.logger.exception('Unexpected error generating related items', e)
         raise BadRequest(message = 'Unhandled error', status_code = 500)
+
 
 @app.route('/recommendations', methods=['GET'])
 def recommendations():
@@ -321,6 +345,8 @@ def recommendations():
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
+    filter_ssm =  filter_purchased_param_name
+
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
@@ -329,7 +355,8 @@ def recommendations():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn', 
+            default_campaign_arn_param_name='retaildemostore-product-recommendation-campaign-arn',
+            default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
         app.logger.debug(f"Recommendations response to be returned: {response}")
@@ -620,9 +647,10 @@ def get_top_n(user_id, items, feature, top_n,
 @app.route('/choose_discounted', methods=['POST'])
 def choose_discounted():
     """
-    Gets user ID, items list and feature and chooses which items to discount according to the discount reranking
-    campaign. Gets a ranking with discount applied and without and looks at the difference. The products
-    are ordered according to how the response is expected to improve after applying discount.
+    Gets user ID, items list and feature and chooses which items to discount according to the
+    reranking campaign. Gets a ranking with discount applied and without (using contextual metadata)
+    and looks at the difference. The products are ordered according to how the response is expected
+    to improve after applying discount.
 
     The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
     The items that are chosen for discount will have the "discounted" key set to True.
@@ -852,29 +880,6 @@ def experiment_outcome():
     except Exception as e:
         app.logger.exception('Unexpected error logging outcome', e)
         raise BadRequest(message='Unhandled error', status_code=500)
-
-
-def get_dataset_group_arn_from_name(dsg_name):
-    """Looks through the available dataset groups for one with the provided name and returns
-    its Arn."""
-    app.logger.info(f'Getting dataset group Arn')
-    dataset_group_arn = None
-    for dg in personalize.list_dataset_groups()['datasetGroups']:
-        if dg['name'] == dsg_name:
-            dataset_group_arn = dg['datasetGroupArn']
-    return dataset_group_arn
-
-
-def get_event_tracker_arn_from_id(dataset_group_arn, event_tracking_id):
-    """Looks for the Arn of an event tracker given its dataset group and Id"""
-    list_response = personalize.list_event_trackers(datasetGroupArn=dataset_group_arn, maxResults=100)
-    for event_tracker in list_response['eventTrackers']:
-        arn = event_tracker['eventTrackerArn']
-        describe_response = personalize.describe_event_tracker(eventTrackerArn=arn)
-        tracking_id = describe_response['eventTracker']['trackingId']
-        if tracking_id == event_tracking_id:
-            return arn
-    return None
 
 
 @app.route('/reset/realtime', methods=['POST'])

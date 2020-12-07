@@ -1,40 +1,26 @@
 <template>
   <div id="app">
-    <Notifications/>
-    <Navigation/>
     <router-view class="text-center"/>
-    <Footer/>
   </div>
 </template>
 
 <script>
-import Navigation from './public/Navigation.vue'
-import Footer from './public/Footer.vue'
-import Notifications from "@/public/Notifications";
+
+import { mapActions } from 'vuex';
 
 export default {
   name: 'app',
-  components: {
-    Notifications,
-    Navigation,
-    Footer
-  },
-  data () {
-    return {
-      errors: []
-    }
-  },
-  mounted () {
-  },
   methods: {
-  }
-}
+    ...mapActions(['getCategories','getCart',]),
+  },
+  created() {
+    this.getCategories();
+    
+    this.getCart();
+  },
+};
 </script>
-
 <style>
-body {
-  background: #FFF;
-}
 
 /* Amplify Auth Form Styling */
 

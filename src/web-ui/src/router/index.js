@@ -10,6 +10,7 @@ import Live from '@/public/Live.vue'
 import Help from '@/public/Help.vue'
 import Cart from '@/public/Cart.vue'
 import Checkout from '@/public/Checkout.vue'
+import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
 import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
@@ -57,9 +58,10 @@ function getCognitoUser() {
 // Event Handles for Authentication
 AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
-    AmplifyStore.commit('setLoggedOut');
+    AmplifyStore.dispatch('logout');
     AnalyticsHandler.clearUser()
-    router.push({path: '/'})
+    
+    if (router.currentRoute.path !== '/') router.push({ path: '/' })
   } 
     else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
@@ -68,14 +70,13 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     if (Object.prototype.hasOwnProperty.call(cognitoUser, 'attributes') && 
         Object.prototype.hasOwnProperty.call(cognitoUser.attributes, 'custom:profile_user_id')) {
-
-      const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
-      storeUser = data
+        const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
+        storeUser = data
     }
     else {
-      // If the user is not associated with a store user, we assign them one randomly.
-      const { data } = await UsersRepository.getUserByID(Math.floor(Math.random() * 6000).toString())
-      // Disabled for waypoint demo: const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
+      // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
+      // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user
+      const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
       storeUser = data
     }
 
@@ -83,10 +84,7 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     if (!storeUser.id) {
       // Store user does not exist. Create one on the fly.
-      // Current Waypoint demo logic does not need this code but it may be necessary when merging to master branch
-      // (this is being worked on).
-      // This takes the personalize User ID which was a UUID4 for the current session and turns it into a
-      // user userID.
+      // This takes the personalize User ID which was a UUID4 for the current session and turns it into a user user ID.
       console.log('store user does not exist for cognito user... creating on the fly')
       let identityId = credentials ? credentials.identityId : null;
       let provisionalUserId = AmplifyStore.getters.personalizeUserID;
@@ -176,6 +174,12 @@ async function getUser() {
 const router = new Router({
   routes: [
     {
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome,
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/',
       name: 'Main',
       component: Main,
@@ -185,7 +189,7 @@ const router = new Router({
       path: '/product/:id',
       name: 'ProductDetail',
       component: ProductDetail,
-      props: route => ({ discount: route.query.di === "true"}),
+      props: route => ({ discount: route.query.di === "true" || route.query.di === true}),
       meta: { requiresAuth: false}
     },  
     {
@@ -251,7 +255,41 @@ const router = new Router({
     {
       path: '/auth',
       name: 'Authenticator',
-      component: components.Authenticator
+      component: components.Authenticator,
+      props: {
+        authConfig: {
+          signUpConfig: {
+            hideAllDefaults: true,
+            header: 'Create new account',
+            signUpFields: [
+              {
+                label: 'Email',
+                key: 'email',
+                type: 'email',
+                required: true
+              },
+              {
+                label: 'Phone',
+                key: 'phone_number',
+                type: 'phone_number',
+                required: false
+              },
+              {
+                label: 'Password',
+                key: 'password',
+                type: 'password',
+                required: true
+              },
+              {
+                label: 'Username',
+                key: 'username',
+                type: 'string',
+                required: true
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {
@@ -263,8 +301,18 @@ const router = new Router({
   }
 });
 
+// Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
 router.beforeResolve(async (to, _from, next) => {
+  if (!AmplifyStore.state.welcomePageVisited.visited) {
+    const user = await getUser();
+
+    if (!user) {
+      AmplifyStore.dispatch('welcomePageVisited');
+      return next('/welcome');
+    }
+  }     
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await getUser();
     if (!user) {

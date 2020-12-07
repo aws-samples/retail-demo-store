@@ -17,5 +17,5 @@ export default {
     },
     async get_customer_route() {
         return await connection.get(`customer_route`);
-    },
+    }
 }

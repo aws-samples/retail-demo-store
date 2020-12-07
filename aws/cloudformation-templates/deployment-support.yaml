@@ -91,6 +91,13 @@ Parameters:
   CustomizeOffersRecommendationsFunctionArn:
     Type: String
 
+  ProductsServiceExternalUrl:
+    Type: String
+
+  UseDefaultIVSStreams:
+    Type: String
+    Default: Yes
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -103,6 +110,10 @@ Conditions:
   DeployPreCreatePinpointWorkshop: !Equals
     - !Ref PreCreatePinpointWorkshop
     - 'Yes'
+
+  CreateIVSResources: !Equals
+    - !Ref UseDefaultIVSStreams
+    - 'No'
 
 Resources:
 
@@ -128,8 +139,8 @@ Resources:
           csv_bucket: !Ref ResourceBucket
           csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
-          num_to_train: '1'
           Uid: !Ref Uid
+          ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
 
   PersonalizePreCreateLambdaExecutionRole:
     Condition: DeployPreCreateCampaign
@@ -287,6 +298,7 @@ Resources:
 
   IVSCreateChannelsLambdaFunction:
     Type: 'AWS::Lambda::Function'
+    Condition: CreateIVSResources
     Properties:
       Description: 'Retail Demo Store deployment utility function that creates IVS channels.'
       Handler: ivs-create-channels.lambda_handler
@@ -308,6 +320,7 @@ Resources:
 
   IVSCreateChannelsLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
+    Condition: CreateIVSResources
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -366,6 +379,7 @@ Resources:
   # Custom resource to launch IVS create channels function
   CustomLaunchIVSCreateChannelsLambdaFunction:
     Type: Custom::CustomLambdaIVS
+    Condition: CreateIVSResources
     Properties:
       ServiceToken: !GetAtt IVSCreateChannelsLambdaFunction.Arn
 

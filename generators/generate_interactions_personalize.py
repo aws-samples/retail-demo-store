@@ -62,7 +62,7 @@ DISCOUNT_PROBABILITY = 0.2
 DISCOUNT_PROBABILITY_WITH_PREFERENCE = 0.5
 
 IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
-IN_USERS_FILENAME = "src/users/src/users-service/data/users.json.gz"
+IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz"]
 
 PROGRESS_MONITOR_SECONDS_UPDATE = 30
 
@@ -84,7 +84,7 @@ checkout_started_percent = .02
 order_completed_percent = .01
 
 
-def generate_user_items(out_users_filename, out_items_filename, in_users_filename, in_products_filename):
+def generate_user_items(out_users_filename, out_items_filename, in_users_filenames, in_products_filename):
 
     Path(out_items_filename).parents[0].mkdir(parents=True, exist_ok=True)
     Path(out_users_filename).parents[0].mkdir(parents=True, exist_ok=True)
@@ -96,8 +96,10 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
     products_df = pd.DataFrame(products)
 
     # User info is stored in the repository - it was automatically generated
-    with gzip.open(in_users_filename, 'r') as f:
-        users = json.load(f)
+    users = []
+    for in_users_filename in in_users_filenames:
+        with gzip.open(in_users_filename, 'r') as f:
+            users += json.load(f)
 
     users_df = pd.DataFrame(users)
 
@@ -216,41 +218,64 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             # Determine category affinity from user's persona
             persona = user['persona']
-            preferred_categories = persona.split('_')
+            has_subcatgories = ':' in persona
+            preferred_categories_and_subcats = persona.split('_')
+            preferred_highlevel_categories = [catstring.split(':')[0] for catstring in preferred_categories_and_subcats]
 
-            p_normalised = (category_affinity_probs * category_frequencies[preferred_categories].values)
+            p_normalised = (category_affinity_probs * category_frequencies[preferred_highlevel_categories].values)
             p_normalised /= p_normalised.sum()
             p = NORMALISE_PER_PRODUCT_WEIGHT * p_normalised + (1-NORMALISE_PER_PRODUCT_WEIGHT) * category_affinity_probs
 
             # Select category based on weighted preference of category order.
-            category = np.random.choice(preferred_categories, 1, p=p)[0]
+            chosen_category_ind = np.random.choice(list(range(len(preferred_categories_and_subcats))), 1, p=p)[0]
+            category = preferred_categories_and_subcats[chosen_category_ind].split(':')[0]
+            if ':' in preferred_categories_and_subcats[chosen_category_ind]:
+                style = preferred_categories_and_subcats[chosen_category_ind].split(':')[1]
+            else:
+                style = None
             discount_persona = user['discount_persona']
 
             gender = user['gender']
+            if has_subcatgories:
+                # if there is a preferred style we choose from those products with this style and category
+                # but we ignore gender
+                cachekey = ('s', category, style)
+                prods_subset_df = subsets_cache.get(cachekey)
 
-            # Here, in order to keep the number of products that are related to a product,
-            # we restrict the size of the set of products that are recommended to an individual
-            # user - in effect, the available subset for a particular category/gender
-            # depends on the first product selected, which is selected as per previous logic
-            # (looking at category affinities and gender)
-            usercat_key = (user['id'], category)  # has this user already selected a "first" product?
-            if usercat_key in user_category_to_first_prod:
-                # If a first product is already selected, we use the product affinities for that product
-                # To provide the list of products to select from
-                first_prod = user_category_to_first_prod[usercat_key]
-                prods_subset_df = product_affinities_bycatgender[(category, gender)][first_prod]
-
-            if not usercat_key in user_category_to_first_prod:
-                # If the user has not yet selected a first product for this category
-                # we do it according to the old logic of choosing between all products for gender
-                # Check if subset data frame is already cached for category & gender
-                prods_subset_df = subsets_cache.get(category + gender)
                 if prods_subset_df is None:
                     # Select products from selected category without gender affinity or that match user's gender
-                    prods_subset_df = products_df.loc[(products_df['category'] == category) & (
-                                (products_df['gender_affinity'] == gender) | (products_df['gender_affinity'].isnull()))]
+                    prods_subset_df = products_df.loc[(products_df['category'] == category) &
+                                                      (products_df['style'] == style)]
                     # Update cache
-                    subsets_cache[category + gender] = prods_subset_df
+                    subsets_cache[cachekey] = prods_subset_df
+            else:
+                # we use the machinery to keep things balanced - if there is a style (subcategory)
+                # we do not engage that machinery - separate use case
+
+                # Here, in order to keep the number of products that are related to a product,
+                # we restrict the size of the set of products that are recommended to an individual
+                # user - in effect, the available subset for a particular category/gender
+                # depends on the first product selected, which is selected as per previous logic
+                # (looking at category affinities and gender)
+                usercat_key = (user['id'], category)  # has this user already selected a "first" product?
+                if usercat_key in user_category_to_first_prod:
+                    # If a first product is already selected, we use the product affinities for that product
+                    # To provide the list of products to select from
+                    first_prod = user_category_to_first_prod[usercat_key]
+                    prods_subset_df = product_affinities_bycatgender[(category, gender)][first_prod]
+
+                if not usercat_key in user_category_to_first_prod:
+                    # If the user has not yet selected a first product for this category
+                    # we do it according to the old logic of choosing between all products for gender
+                    # Check if subset data frame is already cached for category & gender
+                    cachekey = ('g', category, gender)
+                    prods_subset_df = subsets_cache.get(cachekey)
+                    if prods_subset_df is None:
+                        # Select products from selected category without gender affinity or that match user's gender
+                        prods_subset_df = products_df.loc[(products_df['category'] == category) & (
+                                    (products_df['gender_affinity'] == gender) | (products_df['gender_affinity'].isnull()))]
+                        # Update cache
+                        subsets_cache[cachekey] = prods_subset_df
 
             # Pick a random product from gender filtered subset
             product = prods_subset_df.sample().iloc[0]
@@ -258,10 +283,8 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             interaction_product_counts[product.id] += 1
 
             user_to_product[user['id']].add(product['id'])
-            # if len(user_to_product[user['id']])>8:
-            #     import pdb;pdb.set_trace()
 
-            if not usercat_key in user_category_to_first_prod:
+            if not has_subcatgories and not usercat_key in user_category_to_first_prod:
                 user_category_to_first_prod[usercat_key] = product['id']
 
             # Decide if the product the user is interacting with is discounted
@@ -371,5 +394,5 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
-    users_df, products_df = generate_user_items(out_users_filename, out_items_filename, IN_USERS_FILENAME, IN_PRODUCTS_FILENAME)
+    users_df, products_df = generate_user_items(out_users_filename, out_items_filename, IN_USERS_FILENAMES, IN_PRODUCTS_FILENAME)
     generate_interactions(out_interactions_filename, users_df, products_df)

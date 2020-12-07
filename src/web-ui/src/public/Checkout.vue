@@ -1,5 +1,6 @@
 <template>
-  <div class="content">
+  <Layout>
+    <div class="content">
 
     <!-- Loading Indicator -->
     <div class="container" v-if="!cart">
@@ -14,12 +15,12 @@
       <div v-if="cart.items">
         <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
       </div>
-    </div>    
+    </div>
 
     <div class="container" v-if="showCheckout == false">
       <div class="row justify-content-center">
         <div class="card p-4" style="width: 15rem">
-          <button class="btn btn-success mb-3" v-on:click="signIn">Login to Checkout</button>  
+          <button class="btn btn-success mb-3" v-on:click="signIn">Login to Checkout</button>
           <button class="btn btn-light" v-on:click="guestCheckout">Checkout as Guest</button>
         </div>
       </div>
@@ -51,7 +52,7 @@
             <li class="list-group-item d-flex justify-content-between">
               <span>Total (USD)</span>
               <strong>${{ this.cartTotal.toFixed(2) }}</strong>
-            </li>            
+            </li>
           </ul>
           <form class="card p-2">
             <div class="input-group">
@@ -188,11 +189,13 @@
         </div>
       </div>
     </div>
-    
   </div>
+  </Layout>
 </template>
 
 <script>
+import {mapState} from 'vuex';
+
 import AmplifyStore from '@/store/store'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
@@ -200,6 +203,8 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import swal from 'sweetalert';
 import AmazonPayButton from "@/public/components/AmazonPayButton";
+
+import Layout from '@/components/Layout/Layout'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -212,7 +217,8 @@ if (process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_P
 export default {
   name: 'Checkout',
   components: {
-    AmazonPayButton
+    AmazonPayButton,
+    Layout
   },
   props: {
   },
@@ -295,24 +301,15 @@ export default {
           buttons: {
             cancel: "OK",
           }
-        // eslint-disable-next-line no-unused-vars
-        }).then((value) => {
-          AmplifyStore.commit('setCartID', null)
-          // Add Delete Cart From Service Below
-
-          // End
+        }).then(() => {
+          AmplifyStore.dispatch('getNewCart')
           this.$router.push('/');
         });
      })
     }
   },
   computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },
-    cartID() {
-      return AmplifyStore.state.cartID
-    },
+    ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
     cartSubTotal() {
       var subtotal = 0.00
 

@@ -26,6 +26,10 @@ export default {
       type: Array,
       default: () => [0, 0]
     },
+    zoom: {
+      type: Number,
+      default: () => 14
+    },
   },
   data () {
     return {
@@ -52,7 +56,7 @@ export default {
         container: "mapContainer",
         transformRequest: this.transformMapboxRequest,
         style: `geo://${resourceName}`,
-        zoom: 14
+        zoom: this.zoom
       });
 
       this.map.once('load', async () => {

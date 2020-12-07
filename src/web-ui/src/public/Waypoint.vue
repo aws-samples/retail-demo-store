@@ -1,25 +1,26 @@
 <template>
-  <div class="content">
-    <waypoint-demo-navigation/>
-    <div class="container">
-      <div class="row">
-        <div class="col-2">
-          <button type="button" class="btn btn-primary mb-2 mx-2" v-on:click="this.triggerPurchaseJourney" :disabled="this.journeyInProgress">Purchase Journey</button>
-          <button type="button" class="btn btn-primary m-2" v-on:click="this.triggerCollectionJourney" :disabled="this.journeyInProgress">Collection Journey</button>
-        </div>
-        <div class="col-10">
-          <div style="height: 500px; width: 100%">
-            <amplify-map
-                :device-positions="this.customerPosition ? [this.customerPosition] : [1, 1]"
-                :routes="[this.customerRoute]"
-                :store-position="this.storeLocation"
-            />
+  <Layout>
+    <div class="content">
+      <waypoint-demo-navigation/>
+      <div class="container">
+        <div class="row">
+          <div class="col-2">
+            <button type="button" class="btn btn-primary mb-2 mx-2" v-on:click="this.triggerPurchaseJourney" :disabled="this.journeyInProgress">Purchase Journey</button>
+            <button type="button" class="btn btn-primary m-2" v-on:click="this.triggerCollectionJourney" :disabled="this.journeyInProgress">Collection Journey</button>
+          </div>
+          <div class="col-10">
+            <div style="height: 500px; width: 100%">
+              <amplify-map
+                  :device-positions="this.customerPosition ? [this.customerPosition] : [1, 1]"
+                  :routes="[this.customerRoute]"
+                  :store-position="this.storeLocation"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-  </div>
+  </Layout>
 </template>
 
 <script>
@@ -30,6 +31,7 @@ import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import AmplifyStore from "@/store/store";
 import swal from 'sweetalert';
 import WaypointDemoNavigation from "@/public/WaypointDemoNavigation";
+import Layout from "@/components/Layout/Layout";
 
 const waypointApi = new Waypoint();
 const WaypointRepository = RepositoryFactory.get('waypoint');
@@ -39,7 +41,8 @@ export default {
   name: "Waypoint",
   components: {
     AmplifyMap,
-    WaypointDemoNavigation
+    WaypointDemoNavigation,
+    Layout
   },
   data () {
     return {

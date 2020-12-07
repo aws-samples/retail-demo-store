@@ -27,36 +27,13 @@ STATIC_FOLDER = '/app/static'
 STATIC_URL_PATH = '/static'
 SUBTITLE_FORMAT = 'srt'
 LOCAL_VIDEO_DIR = '/app/video-files/'
+DEFAULT_STREAMS_CONFIG_S3_PATH = 'videos/default_streams/default_streams.json'
 
 # -- Parameterised ffmpeg commands
 FFMPEG_STREAM_CMD = """ffmpeg -loglevel panic -hide_banner -re -stream_loop -1 -i \"{video_filepath}\" \
                            -r 30 -c:v copy -f flv rtmps://{ingest_endpoint}:443/app/{stream_key} -map 0:s -f {subtitle_format} -"""
 FFMPEG_SUBS_COMMAND = "ffmpeg -i \"{video_filepath}\" \"{subtitle_path}\""
 
-# -- Default stream details
-# These details will be returned by the API if the 'use default IVS streams' option is chosen for deployment.
-DEFAULT_STREAM_DETAILS = {
-    0: {
-        "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.0tBjE5G3Y648.m3u8",
-        "products": [71, 72, 73, 74, 75, 81, 82],
-        "thumb_url": STATIC_URL_PATH + '/default_stream0_thumb.png'
-    },
-    1: {
-        "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.Kyr5LYOURnWt.m3u8",
-        "products": [63, 64, 65, 66, 67, 68, 69],
-        "thumb_url": STATIC_URL_PATH + '/default_stream1_thumb.png'
-    },
-    2: {
-        "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.8DVlPzmSylNT.m3u8",
-        "products": [57, 58, 59, 60, 61, 62, 80],
-        "thumb_url": STATIC_URL_PATH + '/default_stream2_thumb.png'
-    },
-    3: {
-        "playback_url": "https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.kFHQJjo6tk1V.m3u8",
-        "products": [76, 77, 78, 79, 71, 57],
-        "thumb_url": STATIC_URL_PATH + '/default_stream3_thumb.png'
-    },
-}
 
 # Globally accessed variable to store stream metadata (URLs & associated product IDs). Returned via `stream_details`
 # endpoint
@@ -65,6 +42,24 @@ stream_details = {}
 ivs_client = boto3.client('ivs')
 ssm_client = boto3.client('ssm')
 s3_client = boto3.client('s3')
+
+
+# -- Load default streams config
+def load_default_streams_config():
+    app.logger.info(f"Downloading default streams config from from bucket {VIDEO_BUCKET} with key {DEFAULT_STREAMS_CONFIG_S3_PATH}.")
+
+    config_response = s3_client.get_object(Bucket=VIDEO_BUCKET, Key=DEFAULT_STREAMS_CONFIG_S3_PATH)
+    config = json.loads(config_response['Body'].read().decode('utf-8'))
+    for (key, entry) in config.items():
+        app.logger.info(f"{key}, {entry}")
+        config[key] = {**entry, 'thumb_url': STATIC_URL_PATH + '/' + entry['thumb_fname']}
+        config[key].pop('thumb_fname', None)
+
+    app.logger.info("Pulled config:")
+    app.logger.info(config)
+
+    return config
+
 
 # -- Video streaming
 def download_video_file(s3_key):
@@ -186,7 +181,7 @@ def start_streams():
 
     else:
         global stream_details
-        stream_details = DEFAULT_STREAM_DETAILS
+        stream_details = load_default_streams_config()
 
 
 def stream(s3_video_key, ivs_channel_arn, channel_id):

@@ -19,9 +19,14 @@ s3 = boto3.resource('s3')
 
 def load_default_geofence_from_s3():
     """ Retrieves GeoJson file containing store Geofence from S3 """
-    route_file_obj = s3.Object(RESOURCE_BUCKET, 'waypoint/store_geofence.json')
-    store_geofence = json.loads(route_file_obj.get()['Body'].read().decode('utf-8'))
-    return store_geofence
+    return load_json_from_s3('waypoint/store_geofence.json')
+
+
+def load_json_from_s3(object_key):
+    """ Loads a JSON object from S3 and returns it as a Python dict """
+    file_obj = s3.Object(RESOURCE_BUCKET, object_key)
+    object_json = json.loads(file_obj.get()['Body'].read().decode('utf-8'))
+    return object_json
 
 
 def get_random_string(length):
@@ -45,15 +50,20 @@ def get_default_geofence_id(resource_name):
 def put_default_geofence(resource_name):
     """ Creates a default Geofence around central London """
     geofence_geojson = load_default_geofence_from_s3()
+    logger.info("Creating default Geofence")
+    put_geofence(resource_name, geofence_geojson, get_default_geofence_id(resource_name))
 
-    default_geofence = {
-        "Polygon": geofence_geojson['features'][0]['geometry']['coordinates']
+
+def put_geofence(resource_name, geojson, geofence_id):
+    """ Creates a Geofence in a given Geofence Collection """
+    geofence = {
+        "Polygon": geojson['features'][0]['geometry']['coordinates']
     }
-    logger.info(f"Creating default Geofence: {default_geofence}")
+    logger.info(f"Creating Geofence: {geofence}")
     response = location.put_geofence(
         CollectionName=resource_name,
-        Geometry=default_geofence,
-        GeofenceId=get_default_geofence_id(resource_name)
+        Geometry=geofence,
+        GeofenceId=geofence_id
     )
     logger.info(response)
 
@@ -108,6 +118,15 @@ def create(event, context):
         ConsumerArn=collection_arn,
         TrackerName=resource_name
     )
+    logger.info(response)
+
+    # Create Place Index
+    logger.info(f"Creating Place Index with name: {resource_name}")
+    response = location.create_place_index(
+          DataSource='Esri',
+          Description=f'Place Index belonging to CloudFormation Stack {stack_name}',
+          IndexName=resource_name
+      )
     logger.info(response)
 
     logger.info("Creation complete.")
@@ -166,6 +185,14 @@ def delete(event, context):
         logger.info(response)
     except location.exceptions.ResourceNotFoundException:
         logger.info(f"Tracker {resource_name} does not exist, nothing to delete")
+
+    # Delete Place Index
+    logger.info(f"Deleting Place Index: {resource_name}")
+    try:
+        response = location.delete_place_index(IndexName=resource_name)
+        logger.info(response)
+    except location.exceptions.ResourceNotFoundException:
+        logger.info(f"Place index {resource_name} does not exist, nothing to delete")
 
     logger.info("Deletion complete.")
     return

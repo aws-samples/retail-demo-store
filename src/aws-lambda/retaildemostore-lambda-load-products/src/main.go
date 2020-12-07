@@ -33,6 +33,7 @@ type Product struct {
 	Category       string  `json:"category" yaml:"category"`
 	Style          string  `json:"style" yaml:"style"`
 	Description    string  `json:"description" yaml:"description"`
+	Aliases        []string `json:"aliases" yaml:"aliases"` // keywords for use with e.g. Alexa
 	Price          float32 `json:"price" yaml:"price"`
 	Image          string  `json:"image" yaml:"image"`
 	Featured       string  `json:"featured,omitempty" yaml:"featured,omitempty"`
