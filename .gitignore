@@ -13,6 +13,10 @@ workshop/generate_interactions_personalize.py
 src/web-ui/node_modules
 src/aws-lambda/amazon-pay-signing/node_modules
 .DS_Store
+src/alexa/.ask/
+src/alexa/ask-resources.json
+src/alexa/lambda/.env
+src/alexa/infrastructure/
 src/aws-lambda/*/bin/
 src/aws-lambda/*/package
 src/aws-lambda/elasticsearch-pre-index/products.yaml

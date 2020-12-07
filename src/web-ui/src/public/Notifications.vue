@@ -42,7 +42,12 @@ export default {
         console.log(messageData)
         if (this.isInstoreView) {
           if (messageData.EventType === "COLLECTION") {
-            const customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`
+            let customerName;
+            if (messageData.Orders[0].billing_address.first_name.length > 0) {
+              customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`;
+            } else {
+              customerName = messageData.Orders[0].username;
+            }
             let orderDetail;
             const orders = messageData.Orders;
             if (orders.length > 1) {
@@ -56,7 +61,7 @@ export default {
             const formattedPickupTime = pickupTime.toLocaleString('en-US');
             swal({
               title: 'New Collection',
-              text: `${customerName} will be at level 3 at ${formattedPickupTime} to collect ${orderDetail}`
+              text: `${customerName} will arrive at ${formattedPickupTime} to collect ${orderDetail}`
             });
           }
         } else if (!this.isWaypointView) {
@@ -94,11 +99,18 @@ export default {
               })
             })
 
+            let collectionText = '';
+            console.log(orders[0]['channel'])
+            if (orders[0]['channel'].toLowerCase() === 'alexa') {
+              collectionText = 'Your order is ready for collection! Staff will meet you at the pump with the following order(s):';
+            } else {
+              collectionText = 'Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):'
+            }
             Promise.all(ordersHtml).then((responses) => {
               orderListDiv.innerHTML = responses.join('')
               swal({
                 title: 'Collection available',
-                text: `Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):`,
+                text: collectionText,
                 content: orderListDiv
               });
             })

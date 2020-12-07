@@ -22,6 +22,11 @@ def load_default_geofence_from_s3():
     return load_json_from_s3('waypoint/store_geofence.json')
 
 
+def load_cstore_geofence_from_s3():
+    """ Retrieves GeoJson file containing C-Store Geofence from S3 """
+    return load_json_from_s3('waypoint/cstore_geofence.json')
+
+
 def load_json_from_s3(object_key):
     """ Loads a JSON object from S3 and returns it as a Python dict """
     file_obj = s3.Object(RESOURCE_BUCKET, object_key)
@@ -47,11 +52,23 @@ def get_default_geofence_id(resource_name):
     return f"{resource_name}-default-geofence"
 
 
+def get_cstore_geofence_id(resource_name):
+    """ Helper to ensure consistency when referring to default Geofence by id (name) """
+    return f"{resource_name}-cstore-geofence"
+
+
 def put_default_geofence(resource_name):
     """ Creates a default Geofence around central London """
     geofence_geojson = load_default_geofence_from_s3()
     logger.info("Creating default Geofence")
     put_geofence(resource_name, geofence_geojson, get_default_geofence_id(resource_name))
+
+
+def put_cstore_geofence(resource_name):
+    """ Creates a default Geofence around an Exxon in Wyoming """
+    geofence_geojson = load_cstore_geofence_from_s3()
+    logger.info("Creating C-Store Geofence")
+    put_geofence(resource_name, geofence_geojson, get_cstore_geofence_id(resource_name))
 
 
 def put_geofence(resource_name, geojson, geofence_id):
@@ -103,6 +120,7 @@ def create(event, context):
     # Create a geofence
     if create_default_geofence:
         put_default_geofence(resource_name)
+    put_cstore_geofence(resource_name)
 
     # Create a tracker
     logger.info(f"Creating Tracker with name: {resource_name}")

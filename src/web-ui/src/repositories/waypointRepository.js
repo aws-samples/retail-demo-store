@@ -17,5 +17,11 @@ export default {
     },
     async get_customer_route() {
         return await connection.get(`customer_route`);
-    }
+    },
+    async get_cstore_location() {
+        return await connection.get(`cstore_location`);
+    },
+    async get_cstore_route() {
+        return await connection.get(`cstore_route`);
+    },
 }

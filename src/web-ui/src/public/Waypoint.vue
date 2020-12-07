@@ -4,6 +4,11 @@
       <waypoint-demo-navigation/>
       <div class="container">
         <div class="row">
+          <div class=col>
+            <h4>Waypoint Geofence</h4>
+          </div>
+        </div>
+        <div class="row">
           <div class="col-2">
             <button type="button" class="btn btn-primary mb-2 mx-2" v-on:click="this.triggerPurchaseJourney" :disabled="this.journeyInProgress">Purchase Journey</button>
             <button type="button" class="btn btn-primary m-2" v-on:click="this.triggerCollectionJourney" :disabled="this.journeyInProgress">Collection Journey</button>

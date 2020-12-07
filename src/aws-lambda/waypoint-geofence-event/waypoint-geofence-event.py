@@ -552,7 +552,7 @@ def get_orders_with_details(username, orders_service, products_service):
     return awaiting_collection_orders
 
 
-def send_pickup_email(to_email, orders):
+def send_pickup_email(to_email, all_orders):
     """
     Take info about a waiting order and send it to customer saying ready for pickup as email
     Args:
@@ -561,60 +561,73 @@ def send_pickup_email(to_email, orders):
     Returns:
         Nothing but sends an email.
     """
+    order_types = set(order['channel'] for order in all_orders)
+    logger.info(f"Email: Order types: {','.join(order_types)}")
+    for order_type in order_types:
+        orders = [order for order in all_orders if order['channel'].lower()==order_type.lower()]
+        if len(orders)==0: continue
+        order_ids = ', '.join(['#'+str(order['id']) for order in orders])
 
-    # Specify content:
-    subject = "Come pick up your order nearby!"
-    heading = "You can pick up your order nearby!"
-    subheading = ""
-    intro_text = """
-    Welcome, 
-    We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s): """
-    html_intro_text = intro_text.replace('\n', '</p><p>')
+        # Specify content:
+        subject = "Come pick up your order nearby!"
+        heading = "You can pick up your order nearby!"
+        subheading = "Your order has been paid for with Amazon Pay."
 
-    # Build the order list in text and HTML at the same time.
-    html_orders = "<ul>"
-    text_orders = ""
-    for order in orders:
-        ordername = f"Order #{order['id']}"
-        html_orders += f"\n  <li>{ordername}:<ul>"
-        text_orders += f'\n{ordername}:'
-        for item in order['items']:
-            img_url = item["details"]["image_url"]
-            url = item["details"]["url"]
-            name = item["details"]["name"]
-            html_orders += F'\n    <li><a href="{url}">{name}</a> - ${item["price"]}<br/><a href="{url}"><img src="{img_url}" width="100px"></a></br></a></li>'
-            text_orders += f'\n  - {item["details"]["name"]}: {item["details"]["url"]}'
-        html_orders += "\n  </ul></li>"
-    html_orders += "\n</ul>"
+        if order_type == 'alexa':
+            intro_text = f"""
+            Welcome, 
+            Staff will be at the pump to deliver your order(s) ({order_ids}):"""
+        else:
+            intro_text = """
+            Welcome, 
+            We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s): """
+        html_intro_text = intro_text.replace('\n', '</p><p>')
 
-    # Build HTML message
-    html = f"""
-    <head></head>
-    <body>
-        <h1>{heading}</h1>
-        <h2>{subheading}</h2>
-        <p>{html_intro_text}
-        {html_orders}
-        <p><a href="{os.environ['WebURL']}">Thank you for shopping!</a></p>
-    </body>
-    """
+        # Build the order list in text and HTML at the same time.
+        html_orders = "<ul>"
+        text_orders = ""
+        for order in orders:
+            ordername = f"Order #<b>{order['id']}</b>"
+            html_orders += f"\n  <li>{ordername}:<ul>"
+            text_orders += f'\n{ordername}:'
+            for item in order['items']:
+                img_url = item["details"]["image_url"]
+                url = item["details"]["url"]
+                name = item["details"]["name"]
+                html_orders += F'\n    <li><a href="{url}">{name}</a> - ${item["price"]}<br/><a href="{url}"><img src="{img_url}" width="100px"></a></br></a></li>'
+                text_orders += f'\n  - {item["details"]["name"]}: {item["details"]["url"]}'
+            html_orders += "\n  </ul></li>"
+        html_orders += "\n</ul>"
 
-    # Build text message
-    text = f"""
-{heading}
-{subheading}
-{intro_text}
-{text_orders}
-Thank you for shopping!
-{os.environ['WebURL']}
-    """
+        # Build HTML message
+        html = f"""
+        <head></head>
+        <body>
+            <h1>{heading}</h1>
+            <h2>{subheading}</h2>
+            <p>{html_intro_text}
+            {html_orders}
+            <p><a href="{os.environ['WebURL']}">Thank you for shopping!</a></p>
+        </body>
+        """
 
-    logger.debug(f"Contents of email to {to_email} html: \n{html}")
-    logger.debug(f"Contents of email to {to_email} text: \n{text}")
-    send_email(to_email, subject, html, text)
+        # Build text message
+        text = f"""
+    {heading}
+    {subheading}
+    {intro_text}
+    {text_orders}
+    Thank you for shopping!
+    {os.environ['WebURL']}
+        """
+
+        logger.info(f"Email: Sending message with order type {order_type} and orders {order_ids} to {to_email}")
+        logger.debug(f"Contents of email to {to_email} html: \n{html}")
+        logger.debug(f"Contents of email to {to_email} text: \n{text}")
+        send_email(to_email, subject, html, text)
 
 
-def send_pickup_sms(to_number, orders, add_order_details=False):
+def send_pickup_sms(to_number, all_orders, add_order_details=False):
     """
     Take info about a waiting order and send it to customer saying ready for pickup as email
     Args:
@@ -624,30 +637,43 @@ def send_pickup_sms(to_number, orders, add_order_details=False):
     Returns:
         Nothing but sends an SMS.
     """
+    order_types = set(order['channel'] for order in all_orders)
+    logger.info(f"SMS: Order types: {','.join(order_types)}")
+    for order_type in order_types:
+        orders = [order for order in all_orders if order['channel'].lower()==order_type.lower()]
+        if len(orders)==0: continue
+        order_ids = ', '.join(['#'+str(order['id']) for order in orders])
 
-    if not add_order_details:
-        if len(orders) > 1:
-            msg = "Your orders are ready for pickup from your local AWS Retail Demo store, level 3, door 2."
+        if not add_order_details:
+            if order_type == 'alexa':
+                msg = "Staff will be at the pump to deliver your order."
+            else:
+                if len(orders) > 1:
+                    msg = "Your orders are ready for pickup from your local AWS Retail Demo store, level 3, door 2."
+                else:
+                    msg = "Your order is ready for pickup from your local AWS Retail Demo Store, level 3, door 2."
         else:
-            msg = "Your order is ready for pickup from your local AWS Retail Demo Store, level 3, door 2."
-    else:
-        msg = ""
-        if len(orders) > 1:
-            msg += "The orders you placed with ids"
-        else:
-            msg += "The order you placed with id"
+            if order_type == 'alexa':
+                msg = f"Staff will be at the pump to deliver your order ({order_ids})."
+            else:
 
-        msg += ",".join(" #" + order['id'] for order in orders)
+                msg = ""
+                if len(orders) > 1:
+                    msg += "The orders you placed with ids"
+                else:
+                    msg += "The order you placed with id"
 
-        if len(orders) > 1:
-            msg += " are "
-        else:
-            msg += " is "
+                msg += order_ids
 
-        msg += "ready for pickup from your local AWS retail demo store."
+                if len(orders) > 1:
+                    msg += " are "
+                else:
+                    msg += " is "
 
-    logger.info(f"Contents of SMS text: {msg} to {to_number}")
-    send_sms(to_number, msg)
+                msg += "ready for pickup from your local AWS retail demo store."
+
+        logger.info(f"Contents of SMS text: {msg} to {to_number}")
+        send_sms(to_number, msg)
 
 
 def remove_connections(user_id, connection_ids):

@@ -774,3 +774,179 @@
   link: https://www.needpix.com/photo/download/1856333/shelf-white-living-world-bookshelf-books-bookshelves-set-up-living-room-book
   current_stock: 3
   aliases: ["bookshelves", "shelves", "book shelves"]
+- id: 85
+  name: Slice of pepperoni pizza
+  category: food service
+  style: pizza
+  description: Slice of delicious pepperoni pizza
+  price: 3.00
+  image: "1.jpg"
+  image_license: AWS Supplied
+  link:
+  current_stock: 90
+  aliases: ["pizza", "slice of pizza", "a pizza slice", "a slice of pizza", "delicious pizza", "pizza slice", "pepperoni pizza"]
+- id: 86
+  name: Deluxe Nachos
+  category: food service
+  style: nachos
+  description: The best nachos north of Mexico
+  price: 5.00
+  image: "2.jpg"
+  image_license: AWS Supplied
+  link:
+  current_stock: 90
+  aliases: ["nachos", "nacho plate", "nachos with meat", "meat nachos", "nacho", "deluxe nachos"]
+- id: 87
+  name: 16oz Soda
+  category: cold dispensed
+  style: fountain-carbonated
+  description: 16oz fountain soda always hits the spot
+  price: 1.50
+  image: "1.jpg"
+  image_license: AWS Supplied
+  link:
+  current_stock: 90
+  aliases: ["soda", "soda pop", "cola", "fizzy drink", "bubbly drink", "coke"]
+- id: 88
+  name: Nummy salted peanuts
+  category: salty snacks
+  style: nuts/seeds
+  description: Meet your daily intake of yum
+  price: 1.60
+  image: "1.jpg"
+  image_license:
+  link: Supplied by Dae.mn
+  current_stock: 90
+  aliases: ["nuts", "peanuts", "pea nuts", "peanut", "nut snack", "salted nuts", "salted peanuts"]
+- id: 89
+  name: Delicious salted cashew nuts
+  category: salty snacks
+  style: nuts/seeds
+  description: You won't be able to stop eating them and you will have to come back for more.
+  price: 2.50
+  image: "2.jpg"
+  image_license:
+  link: Supplied by Dae.mn
+  current_stock: 90
+  aliases: ["cashews", "cashew nuts", "cashew", "salted cashews", "salted cashew nuts"]
+- id: 90
+  name: Moreish almonds
+  category: salty snacks
+  style: nuts/seeds
+  description: A delightful blend of Californian and Oriental almonds
+  price: 1.90
+  image: "3.jpg"
+  image_license:
+  link: Supplied by Dae.mn
+  current_stock: 90
+  aliases: ["almonds", "almond nuts", "almond", "salted almonds", "salted almond nuts"]
+- id: 91
+  name: Healthy stuffed vine leaves
+  category: food service
+  style: sandwiches/wraps
+  description: Exotic and healthy, grape-vine leaves stuffed with rice... and spice
+  price: 3.90
+  image: "3.jpg"
+  image_license:
+  link: Supplied by Dae.mn
+  current_stock: 10
+  aliases: ["vine leaves", "vine rolls", "rice rolls", "sarma", "dolma"]
+- id: 92
+  name: Salmon salad
+  category: food service
+  style: soup and salad
+  description: Full of omega oils and taste
+  price: 4.90
+  image: "4.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=9039&picture=tomato-and-bacon-salad
+  current_stock: 10
+  aliases: ["salmon salad", "salad with salmon", "fish salad"]
+- id: 93
+  name: Mediterranean Salad
+  category: food service
+  style: soup and salad
+  description: The taste of summer and energy
+  price: 4.10
+  image: "5.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=261119&picture=salad-bowl
+  current_stock: 10
+  aliases: ["mediterranean Salad", "leafy salad", "salad", "tomato salad", "cucumber salad"]
+- id: 94
+  name: Tomato soup
+  category: food service
+  style: soup and salad
+  description: Warms you to your bowels and delivers vitamins to your organs
+  price: 2.10
+  image: "6.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=318298&picture=cup-of-vegetable-soup
+  current_stock: 10
+  aliases: ["soup", "tomato soup", "healthy soup"]
+- id: 95
+  name: Fruit smoothy
+  category: cold dispensed
+  style: fountain-non-carbonated
+  description: Thick and fine smoothy, satisfying and healthy
+  price: 2.50
+  image: "2.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=6567&picture=smoothie-drinks
+  current_stock: 10
+  aliases: ["smoothy", "milkshake", "fruit smoothy", "fruit and milk drink"]
+- id: 96
+  name: Herbal iced tea
+  category: cold dispensed
+  style: fountain-non-carbonated
+  description: Made with ginseng and joy
+  price: 2.50
+  image: "3.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=4436&picture=ice-tea
+  current_stock: 10
+  aliases: ["iced tea", "herbal iced tea", "cold tea", "healthy iced tea", "healthy cold tea"]
+- id: 97
+  name: Prawn curry
+  category: food service
+  style: seafood
+  description: Juicy prawns with spicy sauce and rice
+  price: 5.50
+  image: "7.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=331888&picture=shrimp-grilled-thai-foods
+  current_stock: 10
+  aliases: ["curry", "prawns", "prawn curry", "shrimp curry", "shrimps", "prawn meal", "shrimp meal"]
+- id: 98
+  name: Vegetarian lentil dish
+  category: food service
+  style: other cuisine
+  description: Lentils with potatos, carrots and spices; a joy to your palate and super healthy
+  price: 3.50
+  image: "8.jpg"
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/fr/photos/soupe-de-lentilles-lentilles-rago%C3%BBt-3738547/
+  current_stock: 10
+  aliases: ["lentils", "lentil dish", "lentil and potatos", "lentil and carrots", "lentil meal"]
+- id: 99
+  name: Hot chocolate
+  category: hot dispensed
+  style: hot chocolate
+  description: Warm and sweet, get up and go.
+  price: 1.20
+  image: "1.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=222425&picture=hot-cup-of-coffee
+  current_stock: 11
+  aliases: ["hot chocolate", "cocoa", "chocolate drink", "warm drink"]
+- id: 100
+  name: Potato chips
+  category: salty snacks
+  style: potato chips
+  description: Crunchy and yummy! Crumbs in your lap!
+  price: 1.10
+  image: "4.jpg"
+  image_license: CC0
+  link: https://publicdomainpictures.net/en/view-image.php?image=344511&picture=delicious-potato-chips-in-bowl
+  current_stock: 11
+  aliases: ["chips", "crisps", "potato chips", "potato crisps"]

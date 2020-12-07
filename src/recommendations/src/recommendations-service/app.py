@@ -40,6 +40,7 @@ cw_events = boto3.client('events')
 
 # SSM parameter name for the Personalize filter for purchased items
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
+filter_cstore_param_name = 'retaildemostore-personalize-filter-cstore-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 
@@ -295,7 +296,9 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
-    filter_ssm = filter_purchased_param_name
+    filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
@@ -345,7 +348,9 @@ def recommendations():
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
-    filter_ssm =  filter_purchased_param_name
+    filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 

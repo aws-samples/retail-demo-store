@@ -394,6 +394,13 @@ Resources:
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
+  Alexa:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/alexa.yaml
+      Parameters:
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent

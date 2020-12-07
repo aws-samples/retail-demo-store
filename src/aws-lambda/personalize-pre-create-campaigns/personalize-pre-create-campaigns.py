@@ -98,7 +98,10 @@ event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
 filters_config = [
      {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
       'filter_name': 'retaildemostore-filter-purchased-products',
-      'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
+      'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted") | EXCLUDE itemId WHERE ITEMS.CATEGORY NOT IN (%%%CATEGORY_LIST%%%)'},
+      {'arn_param': 'retaildemostore-personalize-filter-cstore-arn',
+       'filter_name': 'retaildemostore-filter-cstore-products',
+       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.CATEGORY IN(%%%CATEGORY_LIST%%%)'}
      ]
 
 datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
@@ -248,6 +251,20 @@ dataset_type_to_detail_offers = {
     'INTERACTIONS': {'schema': {'name': 'retaildemostore-schema-interactions-offers',
                                 'avro': interactions_schema_offers},
                      'filename': offer_interactions_filename}}
+
+
+def get_all_product_categories():
+    service_url = os.environ['ProductsServiceExternalUrl']
+    all_categories_url = service_url + '/categories/all'
+    logger.info(f"Getting full list of categories from URL {all_categories_url}")
+    response = urllib3.PoolManager().request('GET', all_categories_url, retries=False)
+    if response.status == 404:
+        errmsg = f"404: Products service not working - reason: {response.reason} response: {response.data}"
+        logger.error(errmsg)
+        raise Exception(errmsg)
+    else:
+        categories = json.loads(response.data)
+        return categories
 
 
 def create_schema(schema, name):
@@ -700,6 +717,9 @@ def create_filter(dataset_group_arn, arn_param, filter_name, filter_expression):
     """
 
     """"""
+    categories = get_all_product_categories()
+    categories_list_str = ",".join(f'"{c["name"]}"' for c in categories)
+    filter_expression = filter_expression.replace('%%%CATEGORY_LIST%%%', categories_list_str)
     logger.info(f"Making filter with name {filter_name}, SSM arn {arn_param} and expression {filter_expression}")
 
     try:

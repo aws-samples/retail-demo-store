@@ -62,7 +62,8 @@ DISCOUNT_PROBABILITY = 0.2
 DISCOUNT_PROBABILITY_WITH_PREFERENCE = 0.5
 
 IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
-IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz"]
+IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz",
+                      "src/users/src/users-service/data/cstore_users.json.gz"]
 
 PROGRESS_MONITOR_SECONDS_UPDATE = 30
 
@@ -218,7 +219,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             # Determine category affinity from user's persona
             persona = user['persona']
-            has_subcatgories = ':' in persona
+            cstore_user = ':' in persona
             preferred_categories_and_subcats = persona.split('_')
             preferred_highlevel_categories = [catstring.split(':')[0] for catstring in preferred_categories_and_subcats]
 
@@ -236,7 +237,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             discount_persona = user['discount_persona']
 
             gender = user['gender']
-            if has_subcatgories:
+            if cstore_user:
                 # if there is a preferred style we choose from those products with this style and category
                 # but we ignore gender
                 cachekey = ('s', category, style)
@@ -284,7 +285,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             user_to_product[user['id']].add(product['id'])
 
-            if not has_subcatgories and not usercat_key in user_category_to_first_prod:
+            if not cstore_user and not usercat_key in user_category_to_first_prod:
                 user_category_to_first_prod[usercat_key] = product['id']
 
             # Decide if the product the user is interacting with is discounted

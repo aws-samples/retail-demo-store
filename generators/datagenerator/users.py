@@ -38,6 +38,18 @@ category_preference_personas = [
     'beauty_jewelry_accessories', 'beauty_apparel_housewares'
 ]
 
+category_preference_personas_cstore = [
+    'food service:pizza_cold dispensed:fountain-carbonated_salty snacks:nuts/seeds',
+    'food service:nachos_hot dispensed:hot chocolate_salty snacks:potato chips',
+    'food service:pizza_cold dispensed:fountain-carbonated_salty snacks:potato chips',
+    'food service:nachos_cold dispensed:fountain-carbonated_salty snacks:nuts/seeds',
+    'food service:pizza_cold dispensed:fountain-carbonated_cold dispensed:fountain-carbonated',
+    'food service:seafood_cold dispensed:fountain-non-carbonated_salty snacks:nuts/seeds',
+    'food service:seafood_food service:soup and salad_cold dispensed:fountain-non-carbonated',
+    'food service:other cuisine_food service:soup and salad_cold dispensed:fountain-non-carbonated',
+    'food service:other cuisine_food service:sandwiches/wraps_cold dispensed:fountain-non-carbonated'
+]
+
 discount_personas = [
   'discount_indifferent',  # does not care about discounts
   'all_discounts',  # likes discounts all the time
@@ -45,10 +57,10 @@ discount_personas = [
 ]
 
 class UserPool:
-  def __init__(self):
+  def __init__(self, start_user=0):
     self.users = []
     self.active = []
-    self.last_id = 0
+    self.last_id = start_user
     self.file = ''
 
   def size(self):
@@ -57,15 +69,15 @@ class UserPool:
   def active_users(self):
     return len(self.active)
 
-  def grow_pool(self, num_users):
+  def grow_pool(self, num_users, category_preference_personas):
     for i in range(num_users):
       self.last_id += 1
-      user = User(str(self.last_id))
+      user = User(category_preference_personas=category_preference_personas, id_string=str(self.last_id))
       self.users.append(user)
   
-  def user(self, select_active=False):
+  def user(self, select_active=False, category_preference_personas=tuple(category_preference_personas_cstore)):
     if len(self.users) == 0:
-      self.grow_pool(1000)
+      self.grow_pool(1000, category_preference_personas=category_preference_personas)
       self.save(self.file)  # Cache the whole pool back to the file
     if select_active and len(self.active) > 0:
       user = random.choice(self.active)
@@ -99,15 +111,16 @@ class UserPool:
     return user_pool
 
   @classmethod
-  def new_file(cls, filename, num_users):
-    user_pool = cls()
+  def new_file(cls, filename, num_users, start_user=0,
+               category_preference_personas=tuple(category_preference_personas_cstore)):
+    user_pool = cls(start_user=start_user)
     user_pool.file = filename
-    user_pool.grow_pool(num_users)
+    user_pool.grow_pool(num_users, category_preference_personas)
     user_pool.save(filename)
     return user_pool
 
 class User:
-  def __init__(self, id_string=None):
+  def __init__(self, category_preference_personas, id_string=None):
     if(id_string != None):
       self.id = id_string
     else:

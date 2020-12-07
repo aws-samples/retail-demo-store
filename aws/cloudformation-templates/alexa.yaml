@@ -1,0 +1,48 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys the supporting infrastructure for the C-Store Alexa Skill. Currently this is just a role
+  which can be assumed by the Alexa-hosted Lambda function which serves as the backend for the Skill. In future iterations
+  this template could also create the resources.
+
+Parameters:
+  PinpointAppId:
+    Type: String
+
+Resources:
+  AlexaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AlexaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AlexaLambdaExecutionPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:SendMessages
+                Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/messages"
+              - Effect: Allow
+                Action:
+                  - geo:*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: 'arn:aws:logs:*:*:*'
+
+Outputs:
+  AlexaExecutionRoleArn:
+    Description: ARN of execution role required by Alexa-hosted Lambda function.
+    Value: !GetAtt AlexaExecutionRole.Arn

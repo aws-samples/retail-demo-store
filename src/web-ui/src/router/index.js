@@ -26,6 +26,8 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 import { Credentials } from '@aws-amplify/core';
 import Waypoint from "@/public/Waypoint";
 import Collections from "@/public/Collections";
+import Cstore from "@/public/Cstore";
+import WaypointDemoAdmin from "@/public/WaypointDemoAdmin";
 
 
 const UsersRepository = RepositoryFactory.get('users')
@@ -235,6 +237,12 @@ const router = new Router({
       meta: { requiresAuth: true}
     },
     {
+      path: '/cstore',
+      name: 'C-Store',
+      component: Cstore,
+      meta: { requiresAuth: true}
+    },
+    {
       path: '/collections',
       name: 'Collections',
       component: Collections,
@@ -251,45 +259,16 @@ const router = new Router({
       name: 'Admin',
       component: Admin,
       meta: { requiresAuth: true}
-    },      
+    },
+    {
+      path: '/waypointadmin',
+      name: 'Waypoint Demo Admin',
+      component: WaypointDemoAdmin
+    },
     {
       path: '/auth',
       name: 'Authenticator',
-      component: components.Authenticator,
-      props: {
-        authConfig: {
-          signUpConfig: {
-            hideAllDefaults: true,
-            header: 'Create new account',
-            signUpFields: [
-              {
-                label: 'Email',
-                key: 'email',
-                type: 'email',
-                required: true
-              },
-              {
-                label: 'Phone',
-                key: 'phone_number',
-                type: 'phone_number',
-                required: false
-              },
-              {
-                label: 'Password',
-                key: 'password',
-                type: 'password',
-                required: true
-              },
-              {
-                label: 'Username',
-                key: 'username',
-                type: 'string',
-                required: true
-              }
-            ]
-          }
-        }
-      }
+      component: components.Authenticator
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {
