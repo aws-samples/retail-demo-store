@@ -37,6 +37,19 @@ export default {
             throw "identityId required"
         return connection.get(`${resource}/identityid/${identityId}`)
     },
+    claimUser(userId,identityId) {
+        if (!userId || userId.length == 0)
+            throw "userId required"
+        if (!identityId || identityId.length == 0)
+            throw "identityId required"
+        return connection.post(`${resource}/claim`, { "userId" : userId ,"identityId" :identityId  })
+    },
+    getRandomUser() {
+        return connection.get(`${resource}/getRandomUser/`)
+    },
+    getFilteredUser(primaryPersona,ageRange) {
+        return connection.get(`${resource}/filter/`, {"primaryPersona":primaryPersona, "ageRange":ageRange })
+    },
     createUser(provisionalUserId, username, email, identityId) {
         if (!username || username.length == 0)
             throw "username required"
