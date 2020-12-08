@@ -51,7 +51,6 @@ export default {
   methods: {
     ...mapActions(['setUser']),
     async onSubmit() {
-      console.log(`Text alerts form submitted with phone number: ${this.phoneNumber}`);
       const {data} = await UsersRepository.verifyAndUpdateUserPhoneNumber(this.user.id, `+1${this.phoneNumber}`);
       this.setUser(data);
     },
