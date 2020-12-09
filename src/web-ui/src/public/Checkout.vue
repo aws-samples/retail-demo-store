@@ -51,7 +51,7 @@
                     <strong>${{ this.cartTotal.toFixed(2) }}</strong>
                   </li>
                 </ul>
-                <button class="btn btn-primary btn-lg btn-block" v-on:click="submitOrder">Place your Order</button>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your Order</button>
               </div>
             </div>
 
@@ -60,11 +60,11 @@
             </button>
           </div>
           <div class="col-md-8 order-md-1">
-            <div class="alert alert-secondary text-center ml-0" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
+            <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
               <div class="row">
-                <h5 class="p-4 col-md-4 bg-light">Shipping Address</h5>
+                <h5 class="p-4 col-md-4 bg-light font-weight-bold">Shipping Address</h5>
                 <div class="col-md-8">
                   <p class="mb-1">Joe Doe</p>
                   <p class="mb-1">2730 Sample address Ave.</p>
@@ -74,7 +74,7 @@
               <hr class="mb-4">
 
               <div class="row">
-                <h5 class="p-4 col-md-4 bg-light">Payment</h5>
+                <h5 class="p-4 col-md-4 bg-light font-weight-bold">Payment</h5>
                 <div class="col-md-8">
                   <p class="mb-1">VISA ending in 0965</p>
                   <p class="mb-1">Billing address: Same as shipping address</p>
@@ -240,4 +240,31 @@ export default {
 </script>
 
 <style scoped>
+  .not-real-warning {
+    background: var(--blue-100);
+  }
+
+  .checkout-btn {
+    border-color: var(--grey-900);
+    border-width: 2px;
+    font-size: 1rem;
+  }
+
+  .checkout-btn:hover,
+  .checkout-btn:focus {
+    background: var(--grey-900);
+  }
+
+  .abandoned-cart-btn {
+    display: block;
+    background: var(--blue-500);
+    border-color: var(--blue-500);
+    font-size: 1rem;
+  }
+
+  .abandoned-cart-btn:hover,
+  .abandoned-cart-btn:focus {
+    background: var(--blue-600);
+    border-color: var(--blue-600);
+  }
 </style>
