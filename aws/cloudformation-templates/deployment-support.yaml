@@ -88,7 +88,7 @@ Parameters:
   CustomizeRecommendationsFunctionArn:
     Type: String
 
-  UseIVSStreams:
+  UseDefaultIVSStreams:
     Type: String
     Default: Yes
 
@@ -106,8 +106,8 @@ Conditions:
     - 'Yes'
 
   CreateIVSResources: !Equals
-    - !Ref UseIVSStreams
-    - 'Yes'
+    - !Ref UseDefaultIVSStreams
+    - 'No'
 
 Resources:
 
