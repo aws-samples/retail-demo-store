@@ -38,7 +38,7 @@
         </div>
 
         <p class="mb-0">
-          Read full AWS Messaging & Targeting Blog post:
+          Read full AWS Messaging &amp; Targeting Blog post:
           <a
             href="https://aws.amazon.com/blogs/messaging-and-targeting/how-disney-streaming-services-uses-amazon-pinpoint-to-send-personalized-messages-to-millions-of-users-in-real-time/"
             target="_blank"
