@@ -56,15 +56,15 @@ export default {
     copy() {
       switch (this.article) {
         case Articles.SMS_MESSAGING:
-          return 'Click here to learn more about Personalized product recommendations via SMS';
+          return 'Learn more about personalized product recommendations via SMS';
         case Articles.USER_PERSONALIZATION:
-          return 'Click here to learn more about User Personalization';
+          return 'Learn more about sser personalization';
         case Articles.PERSONALIZED_RANKING:
-          return 'Click here to learn more about Personalized rankings';
+          return 'Learn more about personalized rankings';
         case Articles.SIMILAR_ITEM_RECOMMENDATIONS:
-          return 'Click here to learn more about Similar item recommendations';
+          return 'Learn more about similar item recommendations';
         case Articles.PERSONALIZED_EMAILS:
-          return 'Click here to learn more about the Abandoned shopping cart email notifications';
+          return 'Learn more about the abandoned shopping cart email notifications';
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');
