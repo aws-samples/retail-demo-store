@@ -72,7 +72,7 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser = data
     }
     else {
-      const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
+      const { data } = await UsersRepository.getUserByUsername(cognitoUser.attributes.email)
       storeUser = data
     }
 
@@ -83,7 +83,7 @@ AmplifyEventBus.$on('authState', async (state) => {
       console.log('store user does not exist for cognito user... creating on the fly')
       let identityId = credentials ? credentials.identityId : null;
       let provisionalUserId = AmplifyStore.getters.personalizeUserID;
-      const { data } = await UsersRepository.createUser(provisionalUserId, cognitoUser.username, cognitoUser.attributes.email, identityId)
+      const { data } = await UsersRepository.createUser(provisionalUserId, cognitoUser.attributes.email, cognitoUser.attributes.email, identityId)
       storeUser = data
     }
 
@@ -247,7 +247,7 @@ const router = new Router({
             signUpFields: [
               {
                 label: 'Email',
-                key: 'email',
+                key: 'username',
                 type: 'email',
                 required: true
               },
@@ -255,12 +255,6 @@ const router = new Router({
                 label: 'Password',
                 key: 'password',
                 type: 'password',
-                required: true
-              },
-              {
-                label: 'Username',
-                key: 'username',
-                type: 'string',
                 required: true
               }
             ]

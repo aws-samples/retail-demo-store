@@ -43,6 +43,8 @@ Resources:
     Properties:
       UserPoolName: !Sub ${AuthName}-user-pool
       MfaConfiguration: "OFF"
+      UsernameAttributes:
+        - email
       AutoVerifiedAttributes:
         - email
       Schema:
