@@ -1,11 +1,6 @@
 <template>
-  <Layout>
+  <Layout :isLoading="!cart" :previousPageLinkProps="previousPageLinkProps">
     <div class="content">
-
-      <!-- Loading Indicator -->
-      <div class="container" v-if="!cart">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
 
       <div class="container" v-if="cart">
         <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
@@ -17,7 +12,7 @@
         </div>
       </div>
 
-      <div class="container" v-if="showCheckout == false">
+      <div class="container" v-if="cart && showCheckout == false">
         <div class="row justify-content-center">
           <div class="card p-4" style="width: 15rem">
             <button class="btn btn-success mb-3" v-on:click="signIn">Login to Checkout</button>
@@ -128,7 +123,11 @@ export default {
       errors: [],
       cart: null,
       order: null,
-      showCheckout: false
+      showCheckout: false,
+      previousPageLinkProps: {
+        to: '/cart',
+        text: 'Back to shopping cart'
+      }
     }
   },
   async created () {
