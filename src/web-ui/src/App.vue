@@ -20,6 +20,14 @@ export default {
 };
 </script>
 <style>
+@font-face {
+  font-family: Ember;
+  src: url("/ember.woff2");
+}
+
+body {
+  font-family: Ember, sans-serif;
+}
 
 /* Amplify Auth Form Styling */
 
