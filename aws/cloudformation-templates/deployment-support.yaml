@@ -81,9 +81,6 @@ Parameters:
   PinpointEmailFromName:
     Type: String
     Default: "AWS Retail Demo Store"
-  
-  PinpointSMSLongCode:
-    Type: String
 
   PinpointPersonalizeRoleArn:
     Type: String
@@ -479,7 +476,6 @@ Resources:
           pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRoleArn
           email_from_address: !Ref PinpointEmailFromAddress
           email_from_name: !Ref PinpointEmailFromName
-          pinpoint_sms_long_code: !Ref PinpointSMSLongCode
           lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
 
   PinpointPreCreateLambdaExecutionRole:

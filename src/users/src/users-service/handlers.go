@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/pinpoint"
+	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 var MAX_RANDOM_USER_COUNT_PER_REQEUST int = 20
@@ -266,55 +267,55 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 //CreateEndpoint for the user and send confirmation message to opt in for text alerts
-func CreateEndpointAndSendConfirmation(updateEndpointInput *pinpoint.UpdateEndpointInput, phonenumber string) {
+func CreateEndpointAndSendConfirmation(w http.ResponseWriter, r *http.Request, updateEndpointInput *pinpoint.UpdateEndpointInput, phonenumber string) {
+	enableCors(&w)
 	updateEndpointOutput, err := pinpoint_client.UpdateEndpoint(updateEndpointInput)
 	if err!= nil{
 		fmt.Println("Got error calling UpdateEndpoint:")
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println(updateEndpointOutput)
-		// send confirmation to the user
-		var sendMessageAddress = make(map[string] *pinpoint.AddressConfiguration)
-		sendMessageAddress[phonenumber] = &pinpoint.AddressConfiguration {
-			ChannelType: aws.String("SMS"),
-		}
-		var sendMessageInput *pinpoint.SendMessagesInput 
-		if (pinpoint_sms_long_code == "NONE") {
-			fmt.Println("Long code not assigned by user");
-			sendMessageInput = &pinpoint.SendMessagesInput {
-				ApplicationId: &pinpoint_app_id,
-				MessageRequest: &pinpoint.MessageRequest {
-					Addresses: sendMessageAddress,
-					MessageConfiguration: &pinpoint.DirectMessageConfiguration {
-						SMSMessage: &pinpoint.SMSMessage {
-							Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
-							MessageType: aws.String("TRANSACTIONAL"),
-						},
-					},
-				},
-			}
-		} else {
-			sendMessageInput = &pinpoint.SendMessagesInput {
-				ApplicationId: &pinpoint_app_id,
-				MessageRequest: &pinpoint.MessageRequest {
-					Addresses: sendMessageAddress,
-					MessageConfiguration: &pinpoint.DirectMessageConfiguration {
-						SMSMessage: &pinpoint.SMSMessage {
-							Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
-							MessageType: aws.String("TRANSACTIONAL"),
-							OriginationNumber: &pinpoint_sms_long_code,
-						},
-					},
-				},
-			}
-		}
-		sendMessageOutput, err := pinpoint_client.SendMessages(sendMessageInput)
+		//get long code from the ssm param
+		getLongCodeResponse, err := ssm_client.GetParameter(&ssm.GetParameterInput{
+			Name: aws.String("retaildemostore-pinpoint-sms-longcode"),
+		})
 		if err!=nil {
-			fmt.Println("Got error calling SendMessages:")
+			fmt.Println("Got error when getting the value of long code from SSM parameters:")
 			fmt.Println(err.Error())
+			http.Error(w, err.Error(), 409)
 		} else {
-			fmt.Println("Message Sent")
-			fmt.Println(sendMessageOutput)
+			if(aws.StringValue(getLongCodeResponse.Parameter.Value) == "NONE"){
+				var errMessage string = "The value of long code not set. Please set the value for long code parameter and try again."
+				http.Error(w, errMessage, 422)
+				return
+			}
+			// send confirmation to the user if long code is not NONE
+			var sendMessageAddress = make(map[string] *pinpoint.AddressConfiguration)
+			sendMessageAddress[phonenumber] = &pinpoint.AddressConfiguration {
+				ChannelType: aws.String("SMS"),
+			}
+			var sendMessageInput *pinpoint.SendMessagesInput 
+			sendMessageInput = &pinpoint.SendMessagesInput {
+				ApplicationId: &pinpoint_app_id,
+				MessageRequest: &pinpoint.MessageRequest {
+					Addresses: sendMessageAddress,
+					MessageConfiguration: &pinpoint.DirectMessageConfiguration {
+						SMSMessage: &pinpoint.SMSMessage {
+							Body: aws.String("Reply Y to receive one time automated marketing messages at this number. No purchase necessary. T&C apply."),
+							MessageType: aws.String("TRANSACTIONAL"),
+							OriginationNumber: getLongCodeResponse.Parameter.Value,
+						},
+					},
+				},
+			}
+			sendMessageOutput, err := pinpoint_client.SendMessages(sendMessageInput)
+			if err!=nil {
+				fmt.Println("Got error calling SendMessages:")
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("Message Sent")
+				fmt.Println(sendMessageOutput)
+			}
 		}
 	}
 }
@@ -405,7 +406,7 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 					EndpointId: &endpointId,
 					EndpointRequest: endpointRequest,
 				}
-				CreateEndpointAndSendConfirmation(updateEndpointInput, userDetails.PhoneNumber)
+				CreateEndpointAndSendConfirmation(w, r, updateEndpointInput, userDetails.PhoneNumber)
 				}
 			}
 		}

@@ -534,8 +534,6 @@ def lambda_handler(event, context):
     pinpoint_personalize_role_arn = os.environ['pinpoint_personalize_role_arn']
     email_from_address = os.environ['email_from_address']
     email_from_name = os.environ.get('email_from_name', 'AWS Retail Demo Store')
-    pinpoint_sms_long_code = os.environ['pinpoint_sms_long_code']
-
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
 
@@ -591,6 +589,9 @@ def lambda_handler(event, context):
     campaign_config = create_abandoned_cart_campaign(pinpoint_app_id, email_from, users_with_cart_segment_id, users_with_cart_segment_version)
     logger.debug(json.dumps(campaign_config, indent = 2, default = str))
 
+    response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
+    pinpoint_sms_long_code = response['Parameter']['Value']
+
     if(pinpoint_sms_long_code != 'NONE'):
         logger.info('Creating SMS recommendation template template')
         create_recommendation_sms_template(recommender_id)
@@ -612,7 +613,7 @@ def lambda_handler(event, context):
         campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
         logger.debug(json.dumps(campaign_config, indent = 2, default = str))
     else:
-        print('Pinpoint SMS long code value not set. Please go through the manual workshop to enable Pinpoint SMS services.')
+        print('Pinpoint SMS long code value not set. Please set the value for Pinpoint SMS Long code in SSM Parameters. Refer to Messaging workshop to know more details.')
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)
 
