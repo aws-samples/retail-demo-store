@@ -111,7 +111,6 @@ export default {
 
 .select-shoppers {
   grid-area: Select;
-  max-width: 300px;
   justify-self: end;
 }
 
