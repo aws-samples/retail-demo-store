@@ -10,12 +10,19 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+	"math/rand"
+	"time"
 )
 
 var users Users
 var usersById map[string]int
 var usersByUsername map[string]int
 var usersByIdentityId map[string]int
+var usersByPrimaryPersona map[string][]int
+var usersByAgeRange map[string][]int
+var usersClaimedByIdentityId map[int]bool
+
 
 // Init
 func init() {
@@ -34,6 +41,9 @@ func loadUsers(filename string) (Users, error) {
 	usersById = make(map[string]int)
 	usersByUsername = make(map[string]int)
 	usersByIdentityId = make(map[string]int)
+	usersByPrimaryPersona = make(map[string][]int)
+	usersByAgeRange = make(map[string][]int)
+	usersClaimedByIdentityId = make(map[int]bool)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -60,11 +70,99 @@ func loadUsers(filename string) (Users, error) {
 	for i, u := range r {
 		usersById[u.ID] = i
 		usersByUsername[u.Username] = i
+		usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]] = append(usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]],i)
+		usersByAgeRange[getAgeRange(u.Age)] = append(usersByAgeRange[getAgeRange(u.Age)], i)	
 	}
 
 	log.Println("Users successfully loaded into memory structures")
 
 	return r, nil
+}
+
+func getAgeRange(age int) string{
+	if age < 18 {
+	     return ""
+	}else if age < 25 {
+		return "18-24"
+	}else if age < 35 {
+		return "25-34"
+	}else if age < 45 {
+		return "35-44"
+	}else if age < 55 {
+		return "45-54"
+	}else if age < 70 {
+		return "54-70"
+	}else {
+		return "70-and-above"
+	}
+}
+
+// containsInt returns a bool indicating whether the given []int contained the given int
+func containsInt(slice []int, value int) bool {
+	for _, v := range slice {
+		if value == v {
+			return true
+		}
+	}
+	return false
+}
+
+// RepoFindUsersIdByAgeRange Function
+func RepoFindUserIdsByAgeRange(ageRange string) []int {
+	return usersByAgeRange[ageRange]	 
+}
+
+// RepoFindUsersIdByPrimaryPersona Function
+func RepoFindUsersIdByPrimaryPersona(persona string) []int {
+	return usersByPrimaryPersona[persona]
+}
+
+// RepoFindRandomUsersByPrimaryPersonaAndAgeRage Function
+func RepoFindRandomUsersByPrimaryPersonaAndAgeRange (primaryPersona string , ageRange string, count int) Users {
+	var unclaimedUsers Users
+	var primaryPersonaFilteredUserIds = RepoFindUsersIdByPrimaryPersona(primaryPersona)
+	var ageRangeFilteredUserIds = RepoFindUserIdsByAgeRange(ageRange)
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
+	for _, idx := range ageRangeFilteredUserIds {
+			if len(unclaimedUsers) >= count {
+				break
+			}
+			if containsInt(primaryPersonaFilteredUserIds,idx) && !(usersClaimedByIdentityId[idx]) {
+				log.Println("User found matching filter criteria:", idx)
+				unclaimedUsers = append(unclaimedUsers, users[idx])
+			}	
+	}
+	return unclaimedUsers
+}
+
+
+// RepoClaimUser Function
+// Function used to map which shopper user ids have been claimed by the user Id.
+func RepoClaimUser(userId int ) bool{
+	log.Println("An identity has claimed the user id:" , userId)
+	usersClaimedByIdentityId[userId]= true
+	return true
+}
+
+func RepoFindRandomUser(count int) Users {
+	rand.Seed(time.Now().UnixNano())
+	var randomUserId int
+	var randomUsers Users 
+	if len(users)>0  {
+		for (len(randomUsers)< count){
+				randomUserId = rand.Intn(len(users))	
+				log.Println("Random number Selected:",randomUserId)
+				if randomUserId!=0 {
+					if !(usersClaimedByIdentityId[randomUserId]) {
+						log.Println("Random user id selected:",randomUserId)
+						randomUsers = append(randomUsers,RepoFindUserByID(strconv.Itoa(randomUserId)))
+						log.Println("Random users :",randomUsers)
+					} 
+				}
+		}
+	}
+	return randomUsers
 }
 
 // RepoFindUserByID Function
@@ -143,7 +241,6 @@ func RepoCreateUser(t User) (User, error) {
 	users = append(users, t)
 	usersById[t.ID] = idx
 	usersByUsername[t.Username] = idx
-
 	if len(t.IdentityId) > 0 {
 		usersByIdentityId[t.IdentityId] = idx
 	}
