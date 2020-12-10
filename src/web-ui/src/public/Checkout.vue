@@ -29,26 +29,26 @@
                 <h4 class="d-flex justify-content-between align-items-center mb-3 card-title text-muted">
                   Order Summary
                 </h4>
-                <ul class="list-group list-group-flush mb-3">
-                  <li class="list-group-item p-1 d-flex justify-content-between">
-                    <span>{{ this.cartQuantity }} item{{ this.cartQuantity === 1 ? '' : 's' }} in cart</span>
-                    <strong>${{ this.cartTotal.toFixed(2) }}</strong>
-                  </li>
-                </ul>
-                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your Order</button>
+                <div class="p-1 mb-1 d-flex justify-content-between">
+                  <span>{{ cartQuantity }} item{{ cartQuantity === 1 ? '' : 's' }} in cart</span>
+                  <strong>{{ formattedCartTotal }}</strong>
+                </div>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your order</button>
               </div>
             </div>
 
-            <button v-if="true || pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-lg m-4">
-              Trigger Abandoned Cart email
-            </button>
+            <div class="m-4">
+              <button v-if="pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-lg btn-block">
+                Trigger Abandoned Cart email
+              </button>
+            </div>
           </div>
           <div class="col-md-8 order-md-1">
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
               <div class="d-flex">
-                <h5 class="p-4 col-md-4 bg-light font-weight-bold">Shipping Address</h5>
+                <h5 class="p-4 col-md-4 bg-light font-weight-bold d-flex align-items-center">Shipping Address</h5>
                 <div class="col-md-8">
                   <p class="mb-1 font-weight-bold">{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}</p>
                   <p class="mb-1">{{order.shipping_address.address1}}</p>
@@ -59,7 +59,7 @@
               <hr class="mb-4">
 
               <div class="d-flex">
-                <h5 class="p-4 col-md-4 bg-light font-weight-bold">Payment</h5>
+                <h5 class="p-4 col-md-4 bg-light font-weight-bold d-flex align-items-center">Payment</h5>
                 <div class="col-md-8">
                   <p class="mb-1">VISA ending in 0965</p>
                   <p class="mb-1">Billing address: Same as shipping address</p>
@@ -123,7 +123,7 @@ export default {
     }
 
     if (this.cart) {
-      AnalyticsHandler.checkoutStarted(this.user, this.cart, this.cartQuantity, this.cartSubTotal, this.cartTotal)
+      AnalyticsHandler.checkoutStarted(this.user, this.cart, this.cartQuantity, this.cartTotal)
     }
   },
   methods: {
@@ -152,7 +152,7 @@ export default {
         this.order.billing_address = this.order.shipping_address = {
           first_name: 'Joe',
           last_name: 'Doe',
-          email: this.user.email,
+          email: this.user && this.user.email || 'joe.doe@example.com',
           address1: '2730 Sample address Ave.',
           address2: '',
           city: 'Seattle',
