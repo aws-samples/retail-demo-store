@@ -12,20 +12,20 @@
 
           <div class="col-sm-3 col-md-3 col-lg-3 text-left">
             <h4 class="bg-light p-2">Filters</h4>
-            <div class="mb-3 border-bottom">
-                <h5
-                class="card-title mb-0"
+            <div class="border-bottom">
+              <a
+                class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#gender-filter"
                 aria-expanded="true"
                 aria-controls="gender-filter"
-                >
-                  <i class="chevron fa fa-chevron-up ml-2"></i>
-                  Gender
-                </h5>
+              >
+                <i class="chevron fa fa-chevron-up ml-2"></i>
+                Gender
+              </a>
               <div class="collapse show" id="gender-filter">
                 <div class="p-1 pl-2" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
-                  <label class="mb-0">
+                  <label class="mb-1">
                     <input class="mr-1" type="checkbox" :value="gender" v-model="selectedGenders">
                     {{ { M: 'Male', F: 'Female'}[gender] }}
                   </label>
@@ -34,16 +34,16 @@
             </div>
 
             <div>
-                <h5
-                class="card-title mb-0"
+              <a
+                class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#style-filter"
                 aria-expanded="true"
                 aria-controls="style-filter"
-                >
-                  <i class="chevron fa fa-chevron-up ml-2"></i>
-                  Styles
-                </h5>
+              >
+                <i class="chevron fa fa-chevron-up ml-2"></i>
+                Styles
+              </a>
               <div class="collapse show" id="style-filter">
                 <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
                   <label class="mb-0">
@@ -122,9 +122,7 @@ export default {
         intermediate = data
       }
 
-      const shouldPersonalise = false;
-
-      if (shouldPersonalise && this.personalizeUserID && intermediate.length > 0) {
+      if (this.personalizeUserID && intermediate.length > 0) {
         const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
         if (response.headers) {
@@ -211,6 +209,13 @@ export default {
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr) ) ;
+  }
+
+  .filter-title {
+    font-size: 1.2em;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
   }
 
   .chevron {

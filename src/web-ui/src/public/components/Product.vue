@@ -9,7 +9,7 @@
         <div>${{ product.price.toFixed(2) }}</div>
       </div>
       <div v-if="experiment" class="experiment mt-1 d-flex align-items-center text-muted">
-        <i class="fa fa-balance-scale mr-2"></i> {{ getExperimentDescription(experiment) }}
+        <i class="fa fa-balance-scale mr-2"></i> {{ experimentDescription }}
       </div>
     </router-link>
   </div>
