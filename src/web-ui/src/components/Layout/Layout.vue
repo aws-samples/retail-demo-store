@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'layout--has-nav': showNav, 'layout--has-demo-guide': showDemoGuide}">
+  <div :class="{ 'layout--has-nav': showNav, 'layout--has-demo-guide': showDemoGuide }">
     <Navigation v-if="showNav"></Navigation>
 
     <LoadingFallback v-if="isLoading" class="container mb-4"></LoadingFallback>
@@ -34,6 +34,15 @@ import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
 
 export default {
   name: 'Layout',
+  components: {
+    Navigation,
+    LoadingFallback,
+    PreviousPageLink,
+    TextAlerts,
+    Footer,
+    AppModal,
+    DemoGuideButton,
+  },
   props: {
     showNav: {
       type: Boolean,
@@ -64,22 +73,23 @@ export default {
       required: false,
     },
   },
+  methods: {
+    updateBackgroundColor(color) {
+      document.body.style.setProperty('--background-color', color);
+    },
+  },
+  mounted() {
+    this.updateBackgroundColor(this.backgroundColor);
+  },
   watch: {
     backgroundColor: {
-      immediate: true,
       handler(newBg) {
-        document.body.style.setProperty('--background-color', newBg);
+        this.updateBackgroundColor(newBg);
       },
     },
   },
-  components: {
-    Navigation,
-    LoadingFallback,
-    PreviousPageLink,
-    TextAlerts,
-    Footer,
-    AppModal,
-    DemoGuideButton,
+  beforeDestroy() {
+    document.body.style.removeProperty('--background-color');
   },
 };
 </script>

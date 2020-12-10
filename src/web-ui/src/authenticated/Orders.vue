@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
+import { mapState } from 'vuex'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
@@ -61,14 +61,20 @@ export default {
   },
   methods: {
     async getOrders (){
+      this.orders = null;
+
       const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
+      
       this.orders = data
     },    
   },
   computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },
+    ...mapState({user: state => state.user})
+  },
+  watch: {
+    user() {
+      this.getOrders()
+    }
   }
 }
 </script>

@@ -68,8 +68,7 @@ export default {
     ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
   },
   async created() {
-    this.getFeaturedProducts();
-    this.getUserRecommendations();
+    this.fetchData();
   },
   mounted() {
     if (!this.demoWalkthroughShown) {
@@ -79,12 +78,22 @@ export default {
   },
   methods: {
     ...mapActions(['openModal', 'markDemoWalkthroughAsShown']),
+    fetchData() {
+      this.getFeaturedProducts();
+      this.getUserRecommendations();
+    },
     async getFeaturedProducts() {
+      this.featuredProducts = null;
+
       const { data } = await ProductsRepository.getFeatured();
 
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
     async getUserRecommendations() {
+      this.isLoadingRecommendations = true;
+      this.userRecommendationsTitle = null;
+      this.userRecommendations = null;
+
       const response = await RecommendationsRepository.getRecommendationsForUser(
         this.personalizeUserID,
         '',
@@ -124,6 +133,11 @@ export default {
       }
 
       this.isLoadingRecommendations = false;
+    },
+  },
+  watch: {
+    user() {
+      this.fetchData();
     },
   },
 };
