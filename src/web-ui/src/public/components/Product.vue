@@ -1,18 +1,15 @@
 <template>
-  <div class="col-sm-12 col-md-4 col-lg-3 mb-4">
+  <div class="featured-product p-3 d-flex flex-column justify-content-between text-left">
     <!-- Card -->
     <router-link class="link" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
-      <div class="card mx-auto h-100 product-card text-left">
+      <div>
         <img :src="productImageURL" class="card-img-top" :alt="product.name">
-        <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text">{{ product.description }}</p>
-          <five-stars />
-          <p class="card-text">${{ product.price.toFixed(2) }}</p>
-        </div>
-        <div class="card-footer" v-if="experiment">
-          <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
-        </div>
+        <div class="product-name">{{ product.name }}</div>
+        <FiveStars />
+        <div>${{ product.price.toFixed(2) }}</div>
+      </div>
+      <div v-if="experiment" class="experiment mt-1 d-flex align-items-center text-muted">
+        <i class="fa fa-balance-scale mr-2"></i> {{ getExperimentDescription(experiment) }}
       </div>
     </router-link>
   </div>
@@ -91,5 +88,18 @@ export default {
   .card-img-overlay {
     opacity: 0.75;
   }
+
+.featured-product {
+  border: 1px solid var(--grey-500);
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 </style>

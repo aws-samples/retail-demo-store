@@ -1,50 +1,61 @@
 <template>
-  <Layout>
+  <Layout :loading="!products.length">
     <div class="content">
-
-      <!-- Loading Indicator -->
-      <div class="container mb-4" v-if="!products.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
 
       <!-- Product List -->
       <div class="container mt-3" v-if="products.length">
-        <h4 class="text-left">{{ this.display | capitalize }}</h4>
-        <div v-if="explain_recommended" class="text-muted text-center">
+        <h2 class="text-left">{{ this.display | capitalize }}</h2>
+        <div v-if="explain_recommended" class="text-muted text-left">
           <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
         </div>
-        <div class="row">
+        <div class="row mt-4">
 
           <div class="col-sm-3 col-md-3 col-lg-3 text-left">
-            <div class="card mb-3">
-              <div class="card-body">
-                <h5 class="card-title mb-0">Gender</h5>
+            <h4 class="bg-light p-2">Filters</h4>
+            <div class="mb-3 border-bottom">
+                <h5
+                class="card-title mb-0"
+                data-toggle="collapse"
+                data-target="#gender-filter"
+                aria-expanded="true"
+                aria-controls="gender-filter"
+                >
+                  <i class="chevron fa fa-chevron-up ml-2"></i>
+                  Gender
+                </h5>
+              <div class="collapse show" id="gender-filter">
+                <div class="p-1 pl-2" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
+                  <label class="mb-0">
+                    <input class="mr-1" type="checkbox" :value="gender" v-model="selectedGenders">
+                    {{ { M: 'Male', F: 'Female'}[gender] }}
+                  </label>
                 </div>
-                <ul class="list-group list-group-flush">
-              <li class="list-group-item" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
-                <label class="mb-0">
-                  <input type="checkbox" :value="gender" v-model="selectedGenders">
-                  {{ { M: 'Male', F: 'Female'}[gender] }}
-                </label>
-              </li>
-              </ul>
+              </div>
             </div>
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title mb-0">Styles</h5>
+
+            <div>
+                <h5
+                class="card-title mb-0"
+                data-toggle="collapse"
+                data-target="#style-filter"
+                aria-expanded="true"
+                aria-controls="style-filter"
+                >
+                  <i class="chevron fa fa-chevron-up ml-2"></i>
+                  Styles
+                </h5>
+              <div class="collapse show" id="style-filter">
+                <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
+                  <label class="mb-0">
+                    <input class="mr-1" type="checkbox"  :value="style" v-model="selectedStyles">
+                    {{style | capitalize}}
+                  </label>
                 </div>
-                <ul class="list-group list-group-flush">
-              <li class="list-group-item" v-for="style in styles" v-bind:key="style">
-                <label class="mb-0">
-                  <input type="checkbox"  :value="style" v-model="selectedStyles">
-                  {{style | capitalize}}
-                </label>
-              </li>
-              </ul>
+              </div>
             </div>
           </div>
 
-          <div class="card-deck col-sm-9 col-md-9 col-lg-9 mt-4">
+          <div class="card-deck col-sm-9 col-md-9 col-lg-9">
             <Product v-for="product in filteredProducts"
               v-bind:key="product.id"
               :product="product"
@@ -111,7 +122,9 @@ export default {
         intermediate = data
       }
 
-      if (this.personalizeUserID && intermediate.length > 0) {
+      const shouldPersonalise = false;
+
+      if (shouldPersonalise && this.personalizeUserID && intermediate.length > 0) {
         const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
         if (response.headers) {
@@ -192,5 +205,20 @@ export default {
 
   .carousel-item {
     max-height: 600px;
+  }
+
+  .card-deck {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr) ) ;
+  }
+
+  .chevron {
+    transform: rotate(180deg);
+    transition: transform 150ms ease-in-out;
+    font-size: 1.15rem;
+  }
+  [aria-expanded='true'] > .chevron {
+    transform: rotate(0deg);
   }
 </style>
