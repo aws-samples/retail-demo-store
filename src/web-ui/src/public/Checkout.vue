@@ -23,7 +23,7 @@
 
       <div class="container" v-if="cart">
         <div class="row text-left" v-if="showCheckout == true">
-          <div class="col-md-4 order-md-2">
+          <div class="col-md-auto order-md-2 summary-column">
             <div class="card p-1">
               <div class="card-body">
                 <h4 class="d-flex justify-content-between align-items-center mb-3 card-title text-muted">
@@ -43,7 +43,7 @@
               </button>
             </div>
           </div>
-          <div class="col-md-8 order-md-1">
+          <div class="col order-md-1">
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
@@ -230,5 +230,9 @@ export default {
   .abandoned-cart-btn:focus {
     background: var(--blue-600);
     border-color: var(--blue-600);
+  }
+
+  .summary-column {
+    min-width: 20em;
   }
 </style>
