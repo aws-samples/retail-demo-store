@@ -21,7 +21,7 @@ var usersByUsername map[string]int
 var usersByIdentityId map[string]int
 var usersByPrimaryPersona map[string][]int
 var usersByAgeRange map[string][]int
-var usersClaimedByIdentityId map[int]string
+var usersClaimedByIdentityId map[int]bool
 
 
 // Init
@@ -43,7 +43,7 @@ func loadUsers(filename string) (Users, error) {
 	usersByIdentityId = make(map[string]int)
 	usersByPrimaryPersona = make(map[string][]int)
 	usersByAgeRange = make(map[string][]int)
-	usersClaimedByIdentityId = make(map[int]string)
+	usersClaimedByIdentityId = make(map[int]bool)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -117,49 +117,52 @@ func RepoFindUsersIdByPrimaryPersona(persona string) []int {
 	return usersByPrimaryPersona[persona]
 }
 
-// RepoFindRandomUserByPrimaryPersonaAndAgeRage Function
-func RepoFindRandomUserByPrimaryPersonaAndAgeRange (primaryPersona string , ageRange string) User {
+// RepoFindRandomUsersByPrimaryPersonaAndAgeRage Function
+func RepoFindRandomUsersByPrimaryPersonaAndAgeRange (primaryPersona string , ageRange string, count int) Users {
+	var unclaimedUsers Users
 	var primaryPersonaFilteredUserIds = RepoFindUsersIdByPrimaryPersona(primaryPersona)
 	var ageRangeFilteredUserIds = RepoFindUserIdsByAgeRange(ageRange)
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(ageRangeFilteredUserIds), func(i, j int) { ageRangeFilteredUserIds[i], ageRangeFilteredUserIds[j] = ageRangeFilteredUserIds[j], ageRangeFilteredUserIds[i] })
 	for _, idx := range ageRangeFilteredUserIds {
-		if containsInt(primaryPersonaFilteredUserIds,idx) && len(usersClaimedByIdentityId[idx])==0 {
-			log.Println("User found matching filter criteria:", idx)
-			return users[idx]
-		}
+			if len(unclaimedUsers) >= count {
+				break
+			}
+			if containsInt(primaryPersonaFilteredUserIds,idx) && !(usersClaimedByIdentityId[idx]) {
+				log.Println("User found matching filter criteria:", idx)
+				unclaimedUsers = append(unclaimedUsers, users[idx])
+			}	
 	}
-	log.Println("No User found matching filter criteria")
-	return User{}	
+	return unclaimedUsers
 }
 
 
 // RepoClaimUser Function
 // Function used to map which shopper user ids have been claimed by the user Id.
-func RepoClaimUser(userId int , identityID string) bool{
+func RepoClaimUser(userId int ) bool{
 	log.Println("An identity has claimed the user id:" , userId)
-	usersClaimedByIdentityId[userId]= identityID
+	usersClaimedByIdentityId[userId]= true
 	return true
 }
 
-func RepoFindRandomUser () User {
+func RepoFindRandomUser(count int) Users {
 	rand.Seed(time.Now().UnixNano())
-	randomUserFound := false
 	var randomUserId int
-	if len(users)>0 {
-		for !randomUserFound {
-			randomUserId = rand.Intn(len(users))	
-			log.Println("Random number Selected:",randomUserId)
-			if randomUserId!=0 {
-				if len(usersClaimedByIdentityId[randomUserId])==0 {
-					randomUserFound =true;
-				} 
-			}
+	var randomUsers Users 
+	if len(users)>0  {
+		for (len(randomUsers)< count){
+				randomUserId = rand.Intn(len(users))	
+				log.Println("Random number Selected:",randomUserId)
+				if randomUserId!=0 {
+					if !(usersClaimedByIdentityId[randomUserId]) {
+						log.Println("Random user id selected:",randomUserId)
+						randomUsers = append(randomUsers,RepoFindUserByID(strconv.Itoa(randomUserId)))
+						log.Println("Random users :",randomUsers)
+					} 
+				}
 		}
-		log.Println("Random user returned with userId:",randomUserId)
-		return users[randomUserId]
 	}
-	return User{}	
+	return randomUsers
 }
 
 // RepoFindUserByID Function

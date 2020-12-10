@@ -14,6 +14,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var MAX_RANDOM_USER_COUNT_PER_REQEUST int = 20
+
 // Index Handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome to the Users Web Service")
@@ -122,6 +124,7 @@ func UserShowByIdentityId(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
 // ClaimUser handler
 func ClaimUser(w http.ResponseWriter, r *http.Request) {
 	
@@ -130,13 +133,14 @@ func ClaimUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	r.ParseForm()
-	identityId := r.Form.Get("identityId")
-	userId, err := strconv.Atoi(r.Form.Get("userId"))
-		if err != nil {
-			panic(err)
-		}
-	if err := json.NewEncoder(w).Encode(RepoClaimUser(userId,identityId)); err != nil {
+	var userId int
+	vars := mux.Vars(r)
+	userIdVar := vars["userID"]
+	userId, err := strconv.Atoi(userIdVar)
+	if err != nil {
+		panic(err)
+	}
+	if err := json.NewEncoder(w).Encode(RepoClaimUser(userId)); err != nil {
 		panic(err)
 	}
 } 
@@ -145,21 +149,49 @@ func ClaimUser(w http.ResponseWriter, r *http.Request) {
 func GetRandomUser(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 
-	if err := json.NewEncoder(w).Encode(RepoFindRandomUser()); err != nil {
+	var keys = r.URL.Query()
+	var count = 1
+	var countParam = keys.Get("count")
+	if len(countParam) > 0 {
+		i, err := strconv.Atoi(countParam)
+		if err != nil {
+			panic(err)
+		}
+		if i <= 0 || i > MAX_RANDOM_USER_COUNT_PER_REQEUST { 
+			http.Error(w, fmt.Sprintf("Count must be grater than 0 and less than %d", MAX_RANDOM_USER_COUNT_PER_REQEUST) , http.StatusUnprocessableEntity)
+			return
+		}
+		count = i
+	}
+	if err := json.NewEncoder(w).Encode(RepoFindRandomUser(count)); err != nil {
 		panic(err)
 	}
 }
 
 // GetFilteredUser handler
-func GetFilteredUser(w http.ResponseWriter, r *http.Request) {
+func GetUnclaimedUsers(w http.ResponseWriter, r *http.Request) {
+
 	enableCors(&w)
 
 	var keys = r.URL.Query()
 	
 	primaryPersona := keys.Get("primaryPersona")
 	ageRange := keys.Get("ageRange")
+	var count = 1
+	var countParam = keys.Get("count")
+	if len(countParam) > 0 {
+		i, err := strconv.Atoi(countParam)
+		if err != nil {
+			panic(err)
+		}
+		if i <= 0 || i > MAX_RANDOM_USER_COUNT_PER_REQEUST { 
+			http.Error(w, fmt.Sprintf("Count must be greater than 0 and less than %d", MAX_RANDOM_USER_COUNT_PER_REQEUST) , http.StatusUnprocessableEntity)
+			return
+		}
+		count = i
+	}
 	
-	if err := json.NewEncoder(w).Encode(RepoFindRandomUserByPrimaryPersonaAndAgeRange(primaryPersona,ageRange)); err != nil {
+	if err := json.NewEncoder(w).Encode(RepoFindRandomUsersByPrimaryPersonaAndAgeRange(primaryPersona,ageRange,count)); err != nil {
 		panic(err)
 	}
 }
