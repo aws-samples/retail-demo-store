@@ -32,22 +32,6 @@
                 <ul class="list-group list-group-flush mb-3">
                   <li class="list-group-item p-1 d-flex justify-content-between">
                     <span>{{ this.cartQuantity }} item{{ this.cartQuantity === 1 ? '' : 's' }} in cart</span>
-                    <strong>${{ this.cartSubTotal.toFixed(2) }}</strong>
-                  </li>
-                  <li class="list-group-item p-1 d-flex justify-content-between border-top-0">
-                    <span>Shipping & handling:</span>
-                    <strong>${{ this.cartShippingRate.toFixed(2) }}</strong>
-                  </li>
-                  <li class="list-group-item p-1 d-flex justify-content-between">
-                    <span>Total before tax:</span>
-                    <strong>${{ this.cartTotalBeforeTax.toFixed(2) }}</strong>
-                  </li>
-                  <li class="list-group-item p-1 d-flex justify-content-between border-top-0">
-                    <span>Tax to be collected:</span>
-                    <strong>${{ this.cartTaxRate.toFixed(2) }}</strong>
-                  </li>
-                  <li class="list-group-item p-1 d-flex justify-content-between border-bottom-0">
-                    <span>Order total:</span>
                     <strong>${{ this.cartTotal.toFixed(2) }}</strong>
                   </li>
                 </ul>
@@ -55,7 +39,7 @@
               </div>
             </div>
 
-            <button v-if="pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-lg m-4">
+            <button v-if="true || pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-lg m-4">
               Trigger Abandoned Cart email
             </button>
           </div>
@@ -63,17 +47,18 @@
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
-              <div class="row">
+              <div class="d-flex">
                 <h5 class="p-4 col-md-4 bg-light font-weight-bold">Shipping Address</h5>
                 <div class="col-md-8">
-                  <p class="mb-1">Joe Doe</p>
-                  <p class="mb-1">2730 Sample address Ave.</p>
-                  <p class="mb-1">Seattle, WA 98109</p>
+                  <p class="mb-1 font-weight-bold">{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}</p>
+                  <p class="mb-1">{{order.shipping_address.address1}}</p>
+                  <p class="mb-1" v-if="order.shipping_address.address2">{{order.shipping_address.address2}}</p>
+                  <p class="mb-1">{{order.shipping_address.city}}, {{order.shipping_address.state}} {{order.shipping_address.zipcode}}</p>
                 </div>
               </div>
               <hr class="mb-4">
 
-              <div class="row">
+              <div class="d-flex">
                 <h5 class="p-4 col-md-4 bg-light font-weight-bold">Payment</h5>
                 <div class="col-md-8">
                   <p class="mb-1">VISA ending in 0965</p>
@@ -97,7 +82,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapGetters, mapState} from 'vuex';
 
 import AmplifyStore from '@/store/store'
 
@@ -114,7 +99,7 @@ const OrdersRepository = RepositoryFactory.get('orders')
 export default {
   name: 'Checkout',
   components: {
-    Layout,
+    Layout
   },
   props: {
   },
@@ -162,6 +147,19 @@ export default {
         this.order = {}
         this.order.promo_code = ""
       }
+
+      if (!this.order.billing_address) {
+        this.order.billing_address = this.order.shipping_address = {
+          first_name: 'Joe',
+          last_name: 'Doe',
+          email: this.user.email,
+          address1: '2730 Sample address Ave.',
+          address2: '',
+          city: 'Seattle',
+          state: 'WA',
+          zipcode: '98109'
+        }
+      }
     },
     signIn () {
       this.$router.push('/auth')
@@ -199,42 +197,7 @@ export default {
   },
   computed: {
     ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
-    cartSubTotal() {
-      var subtotal = 0.00
-
-      for (var item in this.cart.items) {
-        var cost = this.cart.items[item].quantity * this.cart.items[item].price
-        subtotal = subtotal + cost
-      }
-      return subtotal
-    },
-    cartTaxRate() {
-      const taxRate = 0.05
-      return this.cartSubTotal * taxRate
-    },
-    cartShippingRate() {
-      var shippingRate = 10.00
-
-      if (this.cartSubTotal > 100.00) {
-        shippingRate = 0.00
-      }
-      return shippingRate
-    },
-    cartTotalBeforeTax() {
-      return this.cartSubTotal + this.cartShippingRate
-    },
-    cartTotal() {
-      return this.cartSubTotal + this.cartTaxRate + this.cartShippingRate
-    },
-    cartQuantity() {
-
-      var quantity = 0;
-
-      for (var item in this.cart.items) {
-        quantity = quantity + this.cart.items[item].quantity
-      }
-      return quantity
-    }
+    ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ])
   },
 }
 </script>
