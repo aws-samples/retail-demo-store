@@ -8,4 +8,5 @@ export const isMobileModalMediaQueryList = window.matchMedia(MODAL_BREAKPOINT_MO
 export const Modals = {
   DemoGuide: 'demo-guide',
   DemoWalkthrough: 'demo-walkthrough',
+  ShopperSelect: 'shopper-select'
 };

@@ -50,6 +50,9 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    setUser: ({commit}, user) => {
+      commit('setUser', user)
+    },
     logout: ({ commit, dispatch }) => {
       commit('setLoggedOut');
       dispatch('getNewCart');

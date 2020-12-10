@@ -31,6 +31,10 @@ export const modal = {
           commit('setOpenModal', { name, pageIndex: 0 });
           break;
 
+        case Modals.ShopperSelect:
+          commit('setOpenModal', { name });
+          break;
+
         default:
           throw new Error('Invalid modal name');
       }

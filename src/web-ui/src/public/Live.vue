@@ -174,6 +174,9 @@ export default {
       return data;
     },
     async getRelatedProducts() {
+      this.explainRecommended = null;
+      this.productRecommended = null;
+
       const response = await RecommendationsRepository.getRelatedProducts(
           this.personalizeUserID ?? '',
           this.activeProductId,
@@ -300,6 +303,9 @@ export default {
         document.getElementById('featured-products-scrollable').scrollTop = featuredProductElement.offsetTop;
       }
     },
+    personalizeUserID() {
+      this.getRelatedProducts()
+    }
   }
 }
 </script>

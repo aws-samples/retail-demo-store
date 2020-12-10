@@ -22,6 +22,12 @@ export default {
         }
         return connection.get(`${resource}/all?offset=${offset}&count=${count}`)
     },
+    getUnclaimedUser({primaryInterest, ageRange}) {
+        return connection.get(`${resource}/unclaimed/?primaryPersona=${primaryInterest}&ageRange=${ageRange}`)
+    },
+    getRandomUser() {
+        return connection.get(`${resource}/random/`)
+    },
     getUserByID(userID) {
         if (!userID || userID.length == 0)
             throw "userID required"
@@ -52,5 +58,9 @@ export default {
         if (!user)
             throw "user required"
         return connection.put(`${resource}/id/${user.id}`, user)
-    }
+    },
+    claimUser(userId) {
+        return connection.put(`${resource}/id/${userId}/claim`);
+    },
+
 }

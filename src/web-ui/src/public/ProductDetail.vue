@@ -81,7 +81,7 @@ import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
 import FiveStars from '@/components/FiveStars/FiveStars';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
-import {discountProductPrice} from "@/util/discountProductPrice";
+import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
@@ -104,8 +104,8 @@ export default {
     discount: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -151,6 +151,9 @@ export default {
         this.fetchData();
       },
     },
+    personalizeUserID() {
+      this.getRelatedProducts();
+    },
   },
   methods: {
     ...mapActions(['addToCart']),
@@ -161,7 +164,7 @@ export default {
       await this.addToCart({
         product: {
           ...this.product,
-          price: this.discount ? discountProductPrice(this.product.price) : this.product.price
+          price: this.discount ? discountProductPrice(this.product.price) : this.product.price,
         },
         quantity: this.quantity,
         feature: this.$route.query.feature,
@@ -175,13 +178,14 @@ export default {
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
 
-      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
-      this.relatedProducts = null;
       this.getRelatedProducts();
 
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
     },
     async getRelatedProducts() {
+      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
+      this.relatedProducts = null;
+
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,

@@ -5,5 +5,6 @@ export const demoWalkthroughShown = {
   },
   actions: {
     markDemoWalkthroughAsShown: ({ commit }) => commit('setDemoWalkthroughShown', true),
+    firstTimeSignInDetected: ({ commit }) => commit('setDemoWalkthroughShown', false),
   },
 };
