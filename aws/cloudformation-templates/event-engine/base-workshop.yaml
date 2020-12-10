@@ -49,7 +49,7 @@ Resources:
         PreCreatePinpointWorkshop: 'No' # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
         PinpointEmailFromAddress: 'dummy@dummy.com' # Only change if you change PreCreatePinpointWorkshop to 'Yes'
         PinpointEmailFromName: 'AWS Retail Demo Store'
-        UseDefaultIVSStreams: 'No' # Leave to 'No' until EE supports reaping IVS resources
+        UseDefaultIVSStreams: 'Yes' # Leave to 'Yes' until EE supports reaping IVS resources
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
         SegmentWriteKey: 'NONE'
