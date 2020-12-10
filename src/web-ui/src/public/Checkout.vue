@@ -112,7 +112,8 @@ export default {
       previousPageLinkProps: {
         to: '/cart',
         text: 'Back to shopping cart'
-      }
+      },
+      pinpointEnabled : process.env.VUE_APP_PINPOINT_APP_ID
     }
   },
   async created () {
