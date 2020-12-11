@@ -12,7 +12,7 @@
 
           <div class="col-sm-3 col-md-3 col-lg-3 text-left">
             <h4 class="bg-light p-2">Filters</h4>
-            <div class="border-bottom">
+            <div class="gender-filter-border">
               <a
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
@@ -225,5 +225,9 @@ export default {
   }
   [aria-expanded='true'] > .chevron {
     transform: rotate(0deg);
+  }
+
+  .gender-filter-border {
+    border-bottom: 1px solid var(--grey-300);
   }
 </style>

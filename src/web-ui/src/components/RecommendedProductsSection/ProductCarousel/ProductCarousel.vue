@@ -99,7 +99,7 @@ export default {
 
 <style scoped>
 .featured-product {
-  border: 1px solid var(--grey-500);
+  border: 1px solid var(--grey-300);
   text-decoration: none;
   color: inherit;
 }
