@@ -28,14 +28,12 @@
             <label for="primary-interest" class="label mr-3 mb-0">2</label>
             <select class="form-control" id="primary-interest" v-model="primaryInterest">
               <option value="">Select primary interest</option>
-              <option value="footwear">Footwear</option>
-              <option value="housewares">Housewares</option>
-              <option value="apparel">Apparel</option>
-              <option value="jewelry">Jewelry</option>
-              <option value="beauty">Beauty</option>
-              <option value="electronics">Electronics</option>
-              <option value="accessories">Accessories</option>
-              <option value="outdoors">Outdoors</option>
+
+              <template v-if="categories">
+                <option v-for="(category, i) in categories" :key="category.id" :value="category.name">{{
+                  formattedCategories[i]
+                }}</option>
+              </template>
             </select>
           </div>
 
@@ -65,6 +63,7 @@
 
 <script>
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
+import { mapGetters, mapState } from 'vuex';
 
 const UsersRepository = RepositoryFactory.get('users');
 
@@ -84,6 +83,10 @@ export default {
   beforeDestroy() {
     // eslint-disable-next-line no-undef
     $(this.$refs.learnMore).tooltip('dispose');
+  },
+  computed: {
+    ...mapState({ categories: (state) => state.categories.categories }),
+    ...mapGetters(['formattedCategories']),
   },
   methods: {
     async onSubmit() {
