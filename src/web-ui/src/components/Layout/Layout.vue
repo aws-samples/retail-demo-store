@@ -111,6 +111,12 @@ export default {
   width: 90%;
   max-width: 400px;
 }
+
+@media (min-width: 992px) {
+  .layout--has-nav {
+    padding-top: 150px;
+  }
+}
 </style>
 
 <style>
