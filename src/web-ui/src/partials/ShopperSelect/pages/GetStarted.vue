@@ -4,18 +4,7 @@
     <div class="button-container d-flex justify-content-center">
       <button
         type="button"
-        class="auto-select btn btn-lg btn-outline-primary"
-        @click="autoSelectShopper"
-        data-toggle="tooltip"
-        data-placement="bottom"
-        title="Randomly select a shopper from the available store users in the current Retail Demo Store users dataset"
-        ref="autoSelectShopper"
-      >
-        Auto select shopper
-      </button>
-      <button
-        type="button"
-        class="use-default-profile btn btn-lg btn-outline-primary"
+        class="use-default-profile btn btn-lg"
         @click="useDefaultProfile"
         data-toggle="tooltip"
         data-placement="bottom"
@@ -26,11 +15,22 @@
       </button>
       <button
         type="button"
+        class="auto-select btn btn-lg btn-outline-primary"
+        @click="autoSelectShopper"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Randomly select a shopper from the current Retail Demo Store users dataset"
+        ref="autoSelectShopper"
+      >
+        Auto select shopper
+      </button>
+      <button
+        type="button"
         class="choose-shopper btn btn-lg btn-primary"
         @click="chooseAShopper"
         data-toggle="tooltip"
         data-placement="bottom"
-        title="Select an existing shopper based on demographics and shopping preferences"
+        title="Select a shopper from the current Retail Demo Store users dataset based on demographics and shopping preferences"
         ref="chooseAShopper"
       >
         Choose a shopper
@@ -117,8 +117,11 @@ export default {
 .auto-select,
 .use-default-profile {
   margin-right: 16px;
-  border-color: var(--blue-500);
   color: var(--blue-500);
+}
+
+.auto-select {
+  border-color: var(--blue-500);
 }
 
 .mobile .auto-select,
