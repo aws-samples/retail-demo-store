@@ -64,7 +64,7 @@ export default {
         return this.user.first_name;
       },
       gender() {
-        if (!this.user) return null;
+        if (!this.user || !this.user.gender) return null;
 
         switch (this.user.gender) {
           case 'M':
