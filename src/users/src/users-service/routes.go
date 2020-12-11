@@ -3,7 +3,9 @@
 
 package main
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Route Struct
 type Route struct {
@@ -46,6 +48,30 @@ var routes = Routes{
 		"GET",
 		"/users/identityid/{identityID}",
 		UserShowByIdentityId,
+	},
+	Route{
+		"GetUnclaimedUsers",
+		"GET",
+		"/users/unclaimed/",
+		GetUnclaimedUsers,
+	},
+	Route{
+		"GetRandomUser",
+		"GET",
+		"/users/random/",
+		GetRandomUser,
+	},
+	Route{
+		"ClaimUser",
+		"put",
+		"/users/id/{userID}/claim",
+		ClaimUser,
+	},
+	Route{
+		"ClaimUser",
+		"OPTIONS",
+		"/users/id/{userID}/claim",
+		ClaimUser,
 	},
 	Route{
 		"UserCreate",

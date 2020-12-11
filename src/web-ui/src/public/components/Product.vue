@@ -1,25 +1,26 @@
 <template>
-  <div class="col-sm-12 col-md-4 col-lg-4 mb-4">
+  <div class="featured-product p-3 d-flex flex-column justify-content-between text-left">
     <!-- Card -->
-    <div class="card mx-auto h-100 product-card">
-      <router-link :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
+    <router-link class="link" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">
+      <div>
         <img :src="productImageURL" class="card-img-top" :alt="product.name">
-      </router-link>
-      <div class="card-body">
-        <router-link class="btn btn-secondary btn-block mt-auto" :to="{name:'ProductDetail', params: {id: product.id}, query: {feature: feature, exp: experimentCorrelationId}}">Details</router-link>  
+        <div class="product-name">{{ product.name }}</div>
+        <FiveStars />
+        <div>${{ product.price.toFixed(2) }}</div>
       </div>
-      <div class="card-footer" v-if="experiment">
-        <small class="text-muted"><i class="fa fa-balance-scale"></i> {{ experimentDescription }}</small>
+      <div v-if="experiment" class="experiment mt-1 d-flex align-items-center text-muted">
+        <i class="fa fa-balance-scale mr-2"></i> {{ experimentDescription }}
       </div>
-  </div>
-
+    </router-link>
   </div>
 </template>
 
 <script>
+import FiveStars from '../../components/FiveStars/FiveStars.vue'
 export default {
   name: 'Product',
   components: {
+    FiveStars
   },
   props: {
       product: null,
@@ -27,7 +28,7 @@ export default {
       experiment: null
   },
   data () {
-    return {  
+    return {
       errors: []
     }
   },
@@ -76,8 +77,29 @@ export default {
 
 <style scoped>
 
+  .link {
+    color: inherit;
+  }
+
+  .link:hover {
+    text-decoration: none;
+  }
+
   .card-img-overlay {
     opacity: 0.75;
   }
-  
+
+.featured-product {
+  border: 1px solid var(--grey-500);
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 </style>

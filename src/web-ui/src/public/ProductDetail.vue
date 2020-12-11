@@ -32,7 +32,7 @@
               </button>
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
                 <button
-                  v-for="i in Math.min(9, product.current_stock - quantityInCart)"
+                  v-for="i in Math.max(0, Math.min(9, product.current_stock - quantityInCart))"
                   :key="i"
                   class="dropdown-item"
                   @click="quantity = i"

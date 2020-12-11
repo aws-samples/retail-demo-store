@@ -16,7 +16,7 @@ export default {
 
 <style scoped>
 .quote-container {
-  background: var(--blue-200);
+  background: var(--blue-100);
 }
 
 .quote {
