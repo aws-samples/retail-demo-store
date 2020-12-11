@@ -3,14 +3,17 @@
     <div class="container justify-content-center d-flex align-items-center">
       <div class="rds">Retail Demo Store</div>
       <div class="separator mx-2" aria-hidden></div>
-      <img src="/powered-by-logo.svg" alt="powered by AWS" class="img" />
+      <PoweredByAWS class="img"></PoweredByAWS>
     </div>
   </footer>
 </template>
 
 <script>
+import PoweredByAWS from '@/components/PoweredByAWS/PoweredByAWS';
+
 export default {
   name: 'Footer',
+  components: { PoweredByAWS },
 };
 </script>
 

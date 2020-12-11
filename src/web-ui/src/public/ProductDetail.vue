@@ -58,7 +58,10 @@
           :recommendedProducts="relatedProducts"
           :feature="feature"
         >
-          <template #heading>Compare similar items</template>
+          <template #heading
+            >Compare similar items
+            <DemoGuideBadge :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
+          </template>
         </RecommendedProductsSection>
       </div>
     </template>
@@ -78,7 +81,10 @@ import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
 import FiveStars from '@/components/FiveStars/FiveStars';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
-import {discountProductPrice} from "@/util/discountProductPrice";
+import { discountProductPrice } from '@/util/discountProductPrice';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -91,14 +97,15 @@ export default {
     ProductPrice,
     FiveStars,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   mixins: [product],
   props: {
     discount: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -106,6 +113,7 @@ export default {
       feature: EXPERIMENT_FEATURE,
       relatedProducts: null,
       explainRecommended: null,
+      demoGuideBadgeArticle: Articles.SIMILAR_ITEM_RECOMMENDATIONS,
     };
   },
   computed: {
@@ -143,6 +151,9 @@ export default {
         this.fetchData();
       },
     },
+    personalizeUserID() {
+      this.getRelatedProducts();
+    },
   },
   methods: {
     ...mapActions(['addToCart']),
@@ -153,7 +164,7 @@ export default {
       await this.addToCart({
         product: {
           ...this.product,
-          price: this.discount ? discountProductPrice(this.product.price) : this.product.price
+          price: this.discount ? discountProductPrice(this.product.price) : this.product.price,
         },
         quantity: this.quantity,
         feature: this.$route.query.feature,
@@ -167,13 +178,14 @@ export default {
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
 
-      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
-      this.relatedProducts = null;
       this.getRelatedProducts();
 
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
     },
     async getRelatedProducts() {
+      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
+      this.relatedProducts = null;
+
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,

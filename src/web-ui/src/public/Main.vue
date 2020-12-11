@@ -10,14 +10,16 @@
         :recommendedProducts="userRecommendations"
         :explainRecommended="explainRecommended"
       >
-        <template #heading>
+        <template #heading v-if="userRecommendationsTitle">
           {{ userRecommendationsTitle }}
+          <DemoGuideBadge :article="userRecommendationsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
 
       <RecommendedProductsSection :feature="feature" :recommendedProducts="featuredProducts">
         <template #heading>
           Featured products
+          <DemoGuideBadge :article="featuredProductsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
     </div>
@@ -25,13 +27,17 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
+import { Modals } from '@/partials/AppModal/config';
 
 import Layout from '@/components/Layout/Layout';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -43,29 +49,51 @@ export default {
   components: {
     Layout,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   data() {
     return {
       feature: EXPERIMENT_FEATURE,
       isLoadingRecommendations: true,
+      featuredProductsDemoGuideBadgeArticle: Articles.PERSONALIZED_RANKING,
+      userRecommendationsDemoGuideBadgeArticle: Articles.USER_PERSONALIZATION,
       featuredProducts: null,
       userRecommendationsTitle: null,
       userRecommendations: null,
       explainRecommended: null,
     };
   },
-  computed: { ...mapState(['user']), ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']) },
+  computed: {
+    ...mapState({ user: (state) => state.user, demoWalkthroughShown: (state) => state.demoWalkthroughShown.shown }),
+    ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
+  },
   async created() {
-    this.getFeaturedProducts();
-    this.getUserRecommendations();
+    this.fetchData();
+  },
+  mounted() {
+    if (!this.demoWalkthroughShown) {
+      this.openModal(Modals.DemoWalkthrough);
+      this.markDemoWalkthroughAsShown();
+    }
   },
   methods: {
+    ...mapActions(['openModal', 'markDemoWalkthroughAsShown']),
+    fetchData() {
+      this.getFeaturedProducts();
+      this.getUserRecommendations();
+    },
     async getFeaturedProducts() {
+      this.featuredProducts = null;
+
       const { data } = await ProductsRepository.getFeatured();
 
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
     async getUserRecommendations() {
+      this.isLoadingRecommendations = true;
+      this.userRecommendationsTitle = null;
+      this.userRecommendations = null;
+
       const response = await RecommendationsRepository.getRecommendationsForUser(
         this.personalizeUserID,
         '',
@@ -105,6 +133,11 @@ export default {
       }
 
       this.isLoadingRecommendations = false;
+    },
+  },
+  watch: {
+    user() {
+      this.fetchData();
     },
   },
 };

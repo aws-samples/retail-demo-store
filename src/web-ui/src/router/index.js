@@ -12,8 +12,8 @@ import Cart from '@/public/Cart.vue'
 import Checkout from '@/public/Checkout.vue'
 import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
-import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
+import ShopperSelectPage from '@/authenticated/ShopperSelectPage'
 
 import { components, AmplifyEventBus } from 'aws-amplify-vue';
 import { Auth, Logger, I18n, Analytics, Interactions } from 'aws-amplify';
@@ -65,9 +65,9 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     let storeUser = null
 
-    if (Object.prototype.hasOwnProperty.call(cognitoUser, 'attributes') && 
-        Object.prototype.hasOwnProperty.call(cognitoUser.attributes, 'custom:profile_user_id')) {
+    const hasAssignedShopperProfile = !!cognitoUser.attributes?.['custom:profile_user_id'];
 
+    if (hasAssignedShopperProfile) {
       const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
       storeUser = data
     }
@@ -133,7 +133,13 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     AmplifyStore.commit('setUser', storeUser);
 
-    router.push({path: '/'})
+    if (newSignUp && !hasAssignedShopperProfile) {
+      AmplifyStore.dispatch('firstTimeSignInDetected');
+      
+      router.push({path: '/shopper-select'});
+    } else {
+      router.push({path: '/'});
+    }
   }
   else if (state === 'profileChanged') {
     const cognitoUser = await getCognitoUser()
@@ -224,12 +230,6 @@ const router = new Router({
       meta: { requiresAuth: false}
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: Profile,
-      meta: { requiresAuth: true}
-    },       
-    {
       path: '/admin',
       name: 'Admin',
       component: Admin,
@@ -267,6 +267,12 @@ const router = new Router({
           }
         }
       }
+    },
+    {
+      path: '/shopper-select',
+      name: 'ShopperSelect',
+      component: ShopperSelectPage,
+      meta: { requiresAuth: true },
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {

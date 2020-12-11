@@ -2,7 +2,7 @@
   <section v-if="isEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
-    <form @submit.prevent="onSubmit" class="form d-flex justify-content-center align-items-stretch">
+    <form @submit.prevent="onSubmit" class="mb-2 form d-flex justify-content-center align-items-stretch">
       <input
         type="tel"
         name="phoneNumber"
@@ -13,6 +13,7 @@
       />
       <button type="submit" class="submit btn">Submit</button>
     </form>
+    <DemoGuideBadge :article="demoGuideBadgeArticle"></DemoGuideBadge>
   </section>
 </template>
 
@@ -20,15 +21,20 @@
 import { mapState } from 'vuex';
 import { mask } from 'vue-the-mask';
 
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
+
 export default {
   name: 'TextAlerts',
-    directives: {
-      mask,
-    },
+  directives: {
+    mask,
+  },
+  components: { DemoGuideBadge },
   data() {
     return {
       isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
       phoneNumber: '',
+      demoGuideBadgeArticle: Articles.SMS_MESSAGING,
     };
   },
   computed: {

@@ -28,9 +28,19 @@
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <button v-if="pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg">
-                Trigger Abandoned Cart email
-              </button>
+
+              <template v-if="pinpointEnabled && user">
+                <button
+                  @click="triggerAbandonedCartEmail"
+                  class="abandoned-cart-btn btn btn-primary btn-block btn-lg mb-2"
+                >
+                  Trigger Abandoned Cart email
+                </button>
+
+                <div class="text-center">
+                  <DemoGuideBadge :article="demoGuideBadgeArticle"></DemoGuideBadge>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -42,34 +52,32 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 
-import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import CartItem from './components/CartItem.vue';
 import Layout from '@/components/Layout/Layout';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 export default {
   name: 'Cart',
   components: {
     Layout,
     CartItem,
+    DemoGuideBadge,
   },
-  props: {
-  },
-  data () {
-    return {  
-      pinpointEnabled : process.env.VUE_APP_PINPOINT_APP_ID 
-    }
+  data() {
+    return {
+      pinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID,
+      demoGuideBadgeArticle: Articles.PERSONALIZED_EMAILS,
+    };
   },
   created() {
-    AnalyticsHandler.cartViewed(
-      this.user,
-      this.cart,
-      this.cartQuantity,
-      this.cartTotal,
-    );
+    AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
   },
   computed: {
-    ...mapState({ cart: (state) => state.cart.cart, user: state => state.user }),
+    ...mapState({ cart: (state) => state.cart.cart, user: (state) => state.user }),
     ...mapGetters(['cartQuantity', 'cartTotal', 'formattedCartTotal']),
     isLoading() {
       return !this.cart;
@@ -78,7 +86,6 @@ export default {
       if (this.cartQuantity === null) return null;
 
       return `(${this.cartQuantity}) ${this.cartQuantity === 1 ? 'item' : 'items'} in your cart shopping cart`;
-
     },
     summaryQuantityReadout() {
       if (this.cartQuantity === null) return null;
@@ -87,13 +94,12 @@ export default {
     },
   },
   methods: {
-    async triggerAbandonedCartEmail () {
-      if (this.cart && this.cart.items.length > 0 ){
-      const cartItem = await this.getProductByID(this.cart.items[0].product_id)
-      AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart,cartItem)
-      }
-      else{
-        console.error("No items to export")
+    async triggerAbandonedCartEmail() {
+      if (this.cart && this.cart.items.length > 0) {
+        const cartItem = await this.getProductByID(this.cart.items[0].product_id);
+        AnalyticsHandler.recordAbanonedCartEvent(this.user, this.cart, cartItem);
+      } else {
+        console.error('No items to export');
       }
     },
   },

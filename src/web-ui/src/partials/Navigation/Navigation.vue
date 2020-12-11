@@ -2,7 +2,7 @@
   <nav class="navigation fixed-top pt-2 pb-3 p-lg-1">
     <div class="nav-contents container d-lg-flex align-items-center">
       <HomeLink class="logo"></HomeLink>
-      <CategoriesDropdown class="categories mx-lg-2"></CategoriesDropdown>
+      <ExploreDropdown class="explore mx-lg-2"></ExploreDropdown>
       <Search class="search mx-lg-4"></Search>
       <UserDropdown class="user-dropdown"></UserDropdown>
       <NavSeparator class="d-none d-lg-block mx-2"></NavSeparator>
@@ -15,7 +15,7 @@
 
 <script>
 import HomeLink from './HomeLink/HomeLink';
-import CategoriesDropdown from './CategoriesDropdown/CategoriesDropdown';
+import ExploreDropdown from './ExploreDropdown/ExploreDropdown';
 import Search from './Search/Search';
 import SupportLink from './SupportLink/SupportLink';
 import NavSeparator from './NavSeparator/NavSeparator';
@@ -26,7 +26,7 @@ export default {
   name: 'Navigation',
   components: {
     HomeLink,
-    CategoriesDropdown,
+    ExploreDropdown,
     Search,
     SupportLink,
     NavSeparator,
@@ -48,8 +48,8 @@ export default {
   width: 80px;
 }
 
-.categories {
-  grid-area: Categories;
+.explore {
+  grid-area: Explore;
 }
 
 .search {
@@ -60,6 +60,7 @@ export default {
 .user-dropdown {
   grid-area: UserDropdown;
   justify-self: start;
+  /* max-width: 250px; */
 }
 
 .support {
@@ -78,13 +79,13 @@ export default {
 
 .nav-contents {
   display: grid;
-  grid-template-columns: repeat(2, auto) repeat(2, 1fr) repeat(3, auto);
+  grid-template-columns: repeat(2, auto) auto 1fr auto repeat(3, auto);
   grid-template-rows: repeat(2, auto);
   grid-row-gap: 10px;
   /* let second row components take more space if they need to */
   grid-template-areas:
-    'Categories Logo . . Support Sep2 Cart'
-    'UserDropdown UserDropdown UserDropdown Search Search Search Search';
+    'Explore Logo . . . Support Sep2 Cart'
+    'UserDropdown UserDropdown UserDropdown . Search Search Search Search';
 }
 
 @media (min-width: 992px) {

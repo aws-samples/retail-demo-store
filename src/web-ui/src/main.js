@@ -82,6 +82,7 @@ Auth.currentUserInfo()
   .then(user => logger.debug(user))
   .catch(err => logger.debug(err))
 
+
 new Vue({  
   el: '#app',
   router: router,

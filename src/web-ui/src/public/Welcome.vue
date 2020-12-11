@@ -1,5 +1,5 @@
 <template>
-  <Layout :showNav="false" :showFooter="false" :showTextAlerts="false" backgroundColor="var(--aws-squid-ink)">
+  <Layout :showNav="false" :showFooter="false" :showTextAlerts="false" :showDemoGuide="false" backgroundColor="var(--aws-squid-ink)">
     <div class="container mb-2 text-left">
       <h1 class="heading my-5 text-center">Welcome to the Retail Demo Store!</h1>
 
