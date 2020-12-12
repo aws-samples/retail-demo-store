@@ -8,9 +8,9 @@
         <div v-if="explain_recommended" class="text-muted text-left">
           <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
         </div>
-        <div class="row mt-4">
 
-          <div class="col-sm-3 col-md-3 col-lg-3 text-left">
+        <div class="mt-4 d-flex flex-column flex-lg-row">
+          <div class="filters mb-4 mb-lg-4 mr-lg-4 text-left">
             <h4 class="bg-light p-2">Filters</h4>
             <div class="gender-filter-border">
               <a
@@ -55,7 +55,7 @@
             </div>
           </div>
 
-          <div class="card-deck col-sm-9 col-md-9 col-lg-9">
+          <div class="products">
             <Product v-for="product in filteredProducts"
               v-bind:key="product.id"
               :product="product"
@@ -197,16 +197,9 @@ export default {
     padding-top: 1rem;
   }
 
-  .carousel {
-    max-height: 600px;
-  }
-
-  .carousel-item {
-    max-height: 600px;
-  }
-
-  .card-deck {
-    align-self: flex-start;
+  .products {
+    flex: 1;
+    align-self: center;
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr) ) ;
@@ -230,5 +223,15 @@ export default {
 
   .gender-filter-border {
     border-bottom: 1px solid var(--grey-300);
+  }
+
+  @media(min-width: 992px) {
+    .filters {
+      width: 300px;
+    } 
+
+    .products {
+      align-self: flex-start;
+    }
   }
 </style>
