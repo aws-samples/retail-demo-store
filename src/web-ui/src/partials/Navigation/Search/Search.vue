@@ -126,6 +126,7 @@ export default {
   transform: translateY(-50%);
   color: var(--grey-500);
   transition: color 150ms ease-in-out;
+  pointer-events: none;
 }
 
 .fa-search--focused {
