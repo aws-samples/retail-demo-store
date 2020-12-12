@@ -1,5 +1,5 @@
 <template>
-  <Layout :loading="!products.length">
+  <Layout :isLoading="!products.length">
     <div class="content">
 
       <!-- Product List -->
@@ -206,6 +206,7 @@ export default {
   }
 
   .card-deck {
+    align-self: flex-start;
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr) ) ;
