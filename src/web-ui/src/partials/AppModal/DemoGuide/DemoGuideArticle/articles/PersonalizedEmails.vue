@@ -25,8 +25,7 @@
           send an email with a coupon code encouraging them to finish their order. To see this feature, add a few items
           to your shopping cart. In the shopping cart page, click on the button that says ”Trigger Abandoned Cart
           email”. This action will emulate a signed out event and will trigger the abandoned cart email sent by Amazon
-          Pinpoint. Next, check the email account provided during account creation. The welcome email will be in your
-          inbox. Next, check the email account provided during account creation. The welcome email will be in your
+          Pinpoint. Next, check the email account provided during account creation. The Abandoned Shopping Cart email will be in your
           inbox.
         </li>
       </ol>
