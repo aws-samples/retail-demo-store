@@ -23,7 +23,7 @@
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Gender
               </a>
-              <div class="collapse show" id="gender-filter">
+              <div class="collapse show" id="gender-filter" ref="genderCollapse">
                 <div class="p-1 pl-2" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
                   <label class="mb-1">
                     <input class="mr-1" type="checkbox" :value="gender" v-model="selectedGenders">
@@ -44,7 +44,7 @@
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Styles
               </a>
-              <div class="collapse show" id="style-filter">
+              <div class="collapse show" id="style-filter" ref="styleCollapse">
                 <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
                   <label class="mb-0">
                     <input class="mr-1" type="checkbox"  :value="style" v-model="selectedStyles">
@@ -104,8 +104,21 @@ export default {
       selectedStyles: []
     }
   },
-  async created () {
+  created () {
     this.fetchData()
+  },
+  mounted() {
+    this.mediaQueryList = window.matchMedia('(max-width: 992px)');
+
+    this.listener = () => {
+      // eslint-disable-next-line no-undef
+      $([this.$refs.genderCollapse, this.$refs.styleCollapse]).collapse(this.mediaQueryList.matches ? 'hide' : 'show');
+    };
+
+    this.mediaQueryList.addEventListener('change', this.listener);
+  },
+  beforeDestroy() {
+    this.mediaQueryList.removeEventListener('change', this.listener);
   },
   methods: {
     async fetchData (){
