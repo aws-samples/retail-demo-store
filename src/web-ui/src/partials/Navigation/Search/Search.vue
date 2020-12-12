@@ -135,7 +135,7 @@ export default {
 .input {
   width: 175px;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   border-color: var(--grey-500);
   border-radius: 4px;
   padding-left: 40px;
