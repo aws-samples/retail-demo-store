@@ -17,13 +17,13 @@
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#gender-filter"
-                aria-expanded="true"
+                :aria-expanded="!isInitiallyMobile"
                 aria-controls="gender-filter"
               >
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Gender
               </a>
-              <div class="collapse show" id="gender-filter" ref="genderCollapse">
+              <div :class="['collapse', isInitiallyMobile ? 'hide' : 'show']" id="gender-filter" ref="genderCollapse">
                 <div class="p-1 pl-2" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
                   <label class="mb-1">
                     <input class="mr-1" type="checkbox" :value="gender" v-model="selectedGenders">
@@ -38,13 +38,13 @@
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#style-filter"
-                aria-expanded="true"
+                :aria-expanded="!isInitiallyMobile"
                 aria-controls="style-filter"
               >
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Styles
               </a>
-              <div class="collapse show" id="style-filter" ref="styleCollapse">
+              <div :class="['collapse', isInitiallyMobile ? 'hide' : 'show']" id="style-filter" ref="styleCollapse">
                 <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
                   <label class="mb-0">
                     <input class="mr-1" type="checkbox"  :value="style" v-model="selectedStyles">
@@ -101,7 +101,8 @@ export default {
       active_experiment: false,
       personalized: false,
       selectedGenders: [],
-      selectedStyles: []
+      selectedStyles: [],
+      isInitiallyMobile: window.matchMedia('(max-width: 992px)').matches
     }
   },
   created () {
@@ -110,10 +111,8 @@ export default {
   mounted() {
     this.mediaQueryList = window.matchMedia('(max-width: 992px)');
 
-    this.listener = () => {
-      // eslint-disable-next-line no-undef
-      $([this.$refs.genderCollapse, this.$refs.styleCollapse]).collapse(this.mediaQueryList.matches ? 'hide' : 'show');
-    };
+    // eslint-disable-next-line no-undef
+    this.listener = () => $([this.$refs.genderCollapse, this.$refs.styleCollapse]).collapse(this.mediaQueryList.matches ? 'hide' : 'show');
 
     this.mediaQueryList.addEventListener('change', this.listener);
   },
