@@ -1,5 +1,5 @@
 <template>
-  <Layout :loading="!products.length">
+  <Layout :isLoading="!products.length">
     <div class="content">
 
       <!-- Product List -->
@@ -8,22 +8,22 @@
         <div v-if="explain_recommended" class="text-muted text-left">
           <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
         </div>
-        <div class="row mt-4">
 
-          <div class="col-sm-3 col-md-3 col-lg-3 text-left">
+        <div class="mt-4 d-flex flex-column flex-lg-row">
+          <div class="filters mb-4 mb-lg-4 mr-lg-4 text-left">
             <h4 class="bg-light p-2">Filters</h4>
-            <div class="border-bottom">
+            <div class="gender-filter-border">
               <a
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#gender-filter"
-                aria-expanded="true"
+                :aria-expanded="!isInitiallyMobile"
                 aria-controls="gender-filter"
               >
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Gender
               </a>
-              <div class="collapse show" id="gender-filter">
+              <div :class="['collapse', isInitiallyMobile ? 'hide' : 'show']" id="gender-filter" ref="genderCollapse">
                 <div class="p-1 pl-2" v-for="gender in [ 'M', 'F' ]" v-bind:key="gender">
                   <label class="mb-1">
                     <input class="mr-1" type="checkbox" :value="gender" v-model="selectedGenders">
@@ -38,13 +38,13 @@
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
                 data-target="#style-filter"
-                aria-expanded="true"
+                :aria-expanded="!isInitiallyMobile"
                 aria-controls="style-filter"
               >
                 <i class="chevron fa fa-chevron-up ml-2"></i>
                 Styles
               </a>
-              <div class="collapse show" id="style-filter">
+              <div :class="['collapse', isInitiallyMobile ? 'hide' : 'show']" id="style-filter" ref="styleCollapse">
                 <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
                   <label class="mb-0">
                     <input class="mr-1" type="checkbox"  :value="style" v-model="selectedStyles">
@@ -55,7 +55,7 @@
             </div>
           </div>
 
-          <div class="card-deck col-sm-9 col-md-9 col-lg-9">
+          <div class="products">
             <Product v-for="product in filteredProducts"
               v-bind:key="product.id"
               :product="product"
@@ -101,11 +101,23 @@ export default {
       active_experiment: false,
       personalized: false,
       selectedGenders: [],
-      selectedStyles: []
+      selectedStyles: [],
+      isInitiallyMobile: window.matchMedia('(max-width: 992px)').matches
     }
   },
-  async created () {
+  created () {
     this.fetchData()
+  },
+  mounted() {
+    this.mediaQueryList = window.matchMedia('(max-width: 992px)');
+
+    // eslint-disable-next-line no-undef
+    this.listener = () => $([this.$refs.genderCollapse, this.$refs.styleCollapse]).collapse(this.mediaQueryList.matches ? 'hide' : 'show');
+
+    this.mediaQueryList.addEventListener('change', this.listener);
+  },
+  beforeDestroy() {
+    this.mediaQueryList.removeEventListener('change', this.listener);
   },
   methods: {
     async fetchData (){
@@ -197,15 +209,9 @@ export default {
     padding-top: 1rem;
   }
 
-  .carousel {
-    max-height: 600px;
-  }
-
-  .carousel-item {
-    max-height: 600px;
-  }
-
-  .card-deck {
+  .products {
+    flex: 1;
+    align-self: center;
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr) ) ;
@@ -225,5 +231,19 @@ export default {
   }
   [aria-expanded='true'] > .chevron {
     transform: rotate(0deg);
+  }
+
+  .gender-filter-border {
+    border-bottom: 1px solid var(--grey-300);
+  }
+
+  @media(min-width: 992px) {
+    .filters {
+      width: 300px;
+    } 
+
+    .products {
+      align-self: flex-start;
+    }
   }
 </style>

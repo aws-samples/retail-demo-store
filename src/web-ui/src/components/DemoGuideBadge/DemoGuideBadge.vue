@@ -58,7 +58,7 @@ export default {
         case Articles.SMS_MESSAGING:
           return 'Learn more about personalized product recommendations via SMS';
         case Articles.USER_PERSONALIZATION:
-          return 'Learn more about sser personalization';
+          return 'Learn more about user personalization';
         case Articles.PERSONALIZED_RANKING:
           return 'Learn more about personalized rankings';
         case Articles.SIMILAR_ITEM_RECOMMENDATIONS:

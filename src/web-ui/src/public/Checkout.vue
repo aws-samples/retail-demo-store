@@ -24,7 +24,7 @@
       <div class="container" v-if="cart">
         <div class="row text-left" v-if="showCheckout == true">
           <div class="col-md-auto order-md-2 summary-column">
-            <div class="card p-1">
+            <div class="summary-border-container card p-1">
               <div class="card-body">
                 <h4 class="d-flex justify-content-between align-items-center mb-3 card-title text-muted">
                   Order Summary
@@ -234,5 +234,9 @@ export default {
 
   .summary-column {
     min-width: 20em;
+  }
+
+  .summary-border-container {
+    border-color: var(--grey-300);
   }
 </style>

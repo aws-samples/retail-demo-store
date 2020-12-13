@@ -11,19 +11,23 @@
           params: { id: recommendation.product.id },
           query: { exp: getExperimentCorrelationId(recommendation.experiment), feature },
         }"
-        class="featured-product p-3 d-flex flex-column justify-content-between"
+        class="featured-product d-flex flex-column justify-content-between"
       >
         <div>
-          <img :src="getProductImageUrl(recommendation.product)" alt="" class="mb-2 img-fluid" />
-          <div class="product-name">
-            {{ recommendation.product.name }}
-          </div>
+          <div class="mb-2"><img :src="getProductImageUrl(recommendation.product)" alt="" class="img-fluid" /></div>
 
-          <FiveStars class="my-1"></FiveStars>
-          <div>{{ formatPrice(recommendation.product.price) }}</div>
+          <div class="px-3 pb-3">
+            <div class="product-name">
+              {{ recommendation.product.name }}
+            </div>
+
+            <FiveStars class="my-1"></FiveStars>
+            <div>{{ formatPrice(recommendation.product.price) }}</div>
+          </div>
         </div>
-        <div v-if="recommendation.experiment" class="experiment mt-1 d-flex align-items-center text-muted">
-          <i class="fa fa-balance-scale mr-2"></i> {{ getExperimentDescription(recommendation.experiment) }}
+
+        <div v-if="recommendation.experiment" class="experiment mt-1 p-3 d-flex align-items-center text-muted">
+          <i class="icon-scale fa fa-balance-scale mr-2"></i> {{ getExperimentDescription(recommendation.experiment) }}
         </div>
       </router-link>
     </div>
@@ -99,19 +103,23 @@ export default {
 
 <style scoped>
 .featured-product {
-  border: 1px solid var(--grey-500);
+  border: 1px solid var(--grey-300);
   text-decoration: none;
   color: inherit;
 }
 
 .product-name {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .experiment {
   font-size: 0.95rem;
+}
+
+.scale-icon { 
+  color: var(--blue-600);
 }
 </style>
