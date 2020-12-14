@@ -54,7 +54,7 @@ export default {
     }
   },
   mounted() {
-    this.$refs['authenticator'].$watch('displayMap', (newVal) => {
+    this.$refs.authenticator.$watch('displayMap', (newVal) => {
       // since the first displayMap update happens asynchronously on mount,
       // it may not have picked up the authState emit below. So in the
       // very first update, check and pull the value from query if set
