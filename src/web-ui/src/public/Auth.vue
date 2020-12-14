@@ -2,14 +2,14 @@
   <secondary-layout>
     <div v-if="showingSignUp" class="sign-up-notice">
       <p>A verification code will be sent to the email address entered.</p>
-      <p>Passwords must contain at least 8 characters, including an uppercase latter, a lowercase latter, a special character, and a number.</p>
+      <p>Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.</p>
     </div>
     <AmplifyAuthenticator :authConfig="authConfig" ref="authenticator" />
   </secondary-layout>
 </template>
 
 <script>
-import { components } from 'aws-amplify-vue';
+import { components, AmplifyEventBus } from 'aws-amplify-vue';
 import SecondaryLayout from '../components/SecondaryLayout/SecondaryLayout.vue';
 
 
@@ -21,7 +21,7 @@ export default {
   },
   data() {
     return {
-      showingSignUp: false,
+      showingSignUp: undefined,
       authConfig: {
         signInConfig: {
           header: 'Sign In'
@@ -55,8 +55,26 @@ export default {
   },
   mounted() {
     this.$refs['authenticator'].$watch('displayMap', (newVal) => {
-      this.showingSignUp = newVal.showSignUp
+      // since the first displayMap update happens asynchronously on mount,
+      // it may not have picked up the authState emit below. So in the
+      // very first update, check and pull the value from query if set
+      if (this.showingSignUp === undefined && this.$route.query.signup) {
+        this.showingSignUp = true
+        AmplifyEventBus.$emit('authState', 'signUp')
+      } else {
+        this.showingSignUp = newVal.showSignUp
+      }
     })
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler() {
+        if (this.$route.query.signup) {
+          AmplifyEventBus.$emit('authState', 'signUp')
+        }
+      }
+    }
   }
 }
 </script>
