@@ -1,7 +1,7 @@
 <template>
   <SecondaryLayout>
     <div v-if="showingSignUp" class="sign-up-notice">
-      <p>A verification code will be sent to the email address entered.</p>
+      <p>We require you to enter an email address to send a code to verify your account.</p>
       <p>Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.</p>
     </div>
     <AmplifyAuthenticator :authConfig="authConfig" ref="authenticator" />
