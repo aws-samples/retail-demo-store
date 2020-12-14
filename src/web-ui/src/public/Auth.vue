@@ -1,16 +1,16 @@
 <template>
-  <secondary-layout>
+  <SecondaryLayout>
     <div v-if="showingSignUp" class="sign-up-notice">
       <p>A verification code will be sent to the email address entered.</p>
       <p>Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.</p>
     </div>
     <AmplifyAuthenticator :authConfig="authConfig" ref="authenticator" />
-  </secondary-layout>
+  </SecondaryLayout>
 </template>
 
 <script>
 import { components, AmplifyEventBus } from 'aws-amplify-vue';
-import SecondaryLayout from '../components/SecondaryLayout/SecondaryLayout.vue';
+import SecondaryLayout from '@/components/SecondaryLayout/SecondaryLayout';
 
 
 export default {
