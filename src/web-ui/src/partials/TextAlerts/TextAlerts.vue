@@ -22,7 +22,7 @@
         <input type="checkbox" class="consent-checkbox mr-2" id="text-alerts-consent" v-model="hasConsented" />
         <label class="" for="text-alerts-consent"
           >I consent to receive automated text messages (including marketing messages) from or on behalf of Amazon Web
-          Services about Retail Demo Store, including Amazon Pinpoint, at my mobile number above. Consent is not a
+          Services about the Retail Demo Store, including Amazon Pinpoint, at my mobile number above. Consent is not a
           condition of any purchase. Message and data rates may apply.</label
         >
       </div>
