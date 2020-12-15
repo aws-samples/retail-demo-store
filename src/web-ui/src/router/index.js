@@ -286,7 +286,9 @@ const router = new Router({
 
 // Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
-router.beforeResolve(async (to, _from, next) => {
+router.beforeResolve(async (to, from, next) => {
+  AmplifyStore.dispatch('pageVisited', from.fullPath);
+
   if (!AmplifyStore.state.welcomePageVisited.visited) {
     const user = await getUser();
 
