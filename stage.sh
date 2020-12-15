@@ -12,7 +12,7 @@ BUCKET=$1
 S3PATH=$2
 
 # remove this line if you want to keep the objects private in your S3 bucket
-#export S3PUBLIC=" --acl public-read"
+export S3PUBLIC=" --acl public-read"
 
 if [ ! -d "local" ]; then
     mkdir local

@@ -560,7 +560,3 @@ Resources:
         Fn::GetAtt:
           - "PinpointPreCreateRule"
           - "Arn"
-
-
-
-
