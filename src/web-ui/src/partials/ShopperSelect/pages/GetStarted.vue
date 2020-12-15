@@ -1,18 +1,8 @@
 <template>
-  <div :class="{ mobile: isMobile }">
+  <div :class="{ 'get-started-container': true, mobile: isMobile }">
     <h1 class="heading mb-5 text-center">Select A Shopper</h1>
-    <div class="button-container d-flex justify-content-center">
-      <button
-        type="button"
-        class="use-default-profile btn btn-lg"
-        @click="useDefaultProfile"
-        data-toggle="tooltip"
-        data-placement="bottom"
-        title="Switch back to the profile associated with your login credentials"
-        ref="useDefaultProfile"
-      >
-        Use default profile
-      </button>
+
+    <div class="button-container mb-5 d-flex justify-content-center">
       <button
         type="button"
         class="auto-select btn btn-lg btn-outline-primary"
@@ -36,6 +26,16 @@
         Choose a shopper
       </button>
     </div>
+
+    <hr class="mb-5" />
+
+    <div>
+      <p>
+        Alternatively, you can use your
+        <a href="#" @click="useDefaultProfile" class="default-profile">default profile</a> to go through the cold user
+        path to see how recommendations are personalized throughout based no browsing behavior.
+      </p>
+    </div>
   </div>
 </template>
 
@@ -55,11 +55,11 @@ export default {
   },
   mounted() {
     // eslint-disable-next-line no-undef
-    $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper, this.$refs.useDefaultProfile]).tooltip();
+    $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper]).tooltip();
   },
   beforeDestroy() {
     // eslint-disable-next-line no-undef
-    $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper, this.$refs.useDefaultProfile]).tooltip('dispose');
+    $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper]).tooltip('dispose');
   },
   methods: {
     ...mapActions(['setUser']),
@@ -91,6 +91,11 @@ export default {
 </script>
 
 <style scoped>
+.get-started-container {
+  max-width: 800px;
+  margin: auto;
+}
+
 .heading {
   margin-top: 20%;
   font-size: 1.75rem;
@@ -102,20 +107,17 @@ export default {
 }
 
 .auto-select,
-.choose-shopper,
-.use-default-profile {
-  width: 300px;
+.choose-shopper {
+  flex: 1;
 }
 
 .mobile .auto-select,
-.mobile .choose-shopper,
-.mobile .use-default-profile {
+.mobile .choose-shopper {
   width: 100%;
   max-width: 350px;
 }
 
-.auto-select,
-.use-default-profile {
+.auto-select {
   margin-right: 16px;
   color: var(--blue-500);
 }
@@ -124,8 +126,7 @@ export default {
   border-color: var(--blue-500);
 }
 
-.mobile .auto-select,
-.mobile .use-default-profile {
+.mobile .auto-select {
   margin-right: 0px;
   margin-bottom: 16px;
 }
@@ -138,11 +139,13 @@ export default {
 .auto-select:hover,
 .auto-select:focus,
 .choose-shopper:hover,
-.choose-shopper:focus,
-.use-default-profile:hover,
-.use-default-profile:focus {
+.choose-shopper:focus {
   background-color: var(--blue-600);
   border-color: var(--blue-600);
   color: var(--white);
+}
+
+.default-profile {
+  color: var(--blue-600);
 }
 </style>
