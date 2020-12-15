@@ -57,7 +57,6 @@ const store = new Vuex.Store({
       commit('setLoggedOut');
       dispatch('getNewCart');
     },
-    setUser: ({commit}, newUser) => commit('setUser', newUser)
   },
   plugins: [
     createPersistedState({

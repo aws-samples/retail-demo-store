@@ -2,13 +2,8 @@
   <section v-if="isPinpointEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="disclaimer mb-2">Message and data rates may apply. See details.</p>
-<<<<<<< HEAD
-    <form @submit.prevent="onSubmit" class="mb-2 form d-flex justify-content-center align-items-stretch">
-      <input
-=======
     <form @submit.prevent="onSubmit" class="form d-flex justify-content-center align-items-stretch">
       <TheMask
->>>>>>> Added about lambda function in pinpoint workshop. Made the latest frontend changes to work with backend.
         type="tel"
         name="phoneNumber"
         placeholder="Enter cellphone number"
