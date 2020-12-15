@@ -19,6 +19,8 @@
 
     <AppModal></AppModal>
 
+    <ConfirmationModal></ConfirmationModal>
+
     <DemoGuideButton v-if="showDemoGuide" class="demo-guide-button"></DemoGuideButton>
   </div>
 </template>
@@ -31,6 +33,7 @@ import TextAlerts from '@/partials/TextAlerts/TextAlerts';
 import Navigation from '@/partials/Navigation/Navigation';
 import AppModal from '@/partials/AppModal/AppModal';
 import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
+import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
 
 export default {
   name: 'Layout',
@@ -42,6 +45,7 @@ export default {
     Footer,
     AppModal,
     DemoGuideButton,
+    ConfirmationModal
   },
   props: {
     showNav: {
