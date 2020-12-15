@@ -1,5 +1,5 @@
 <template>
-  <div v-if="pinpointEnabled && user">
+  <div v-if="pinpointEnabled && user" class="abandon-cart">
     <button @click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg mb-2">
       Trigger Abandoned Cart email
     </button>
@@ -36,10 +36,13 @@ export default {
 </script>
 
 <style>
+.abandon-cart {
+  font-size: 1rem;
+}
+
 .abandoned-cart-btn {
   background: var(--blue-500);
   border-color: var(--blue-500);
-  font-size: 1rem;
 }
 
 .abandoned-cart-btn:hover,
@@ -49,7 +52,7 @@ export default {
 }
 
 @media (min-width: 768px) {
-  .abandoned-cart-btn {
+  .abandon-cart {
     font-size: 1.25rem;
   }
 }
