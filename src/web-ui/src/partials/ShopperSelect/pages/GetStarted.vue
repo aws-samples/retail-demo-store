@@ -1,6 +1,15 @@
 <template>
   <div :class="{ 'get-started-container': true, mobile: isMobile }">
-    <h1 class="heading mb-5 text-center">Select A Shopper</h1>
+    <h1 class="heading mb-4 text-center">Select A Shopper</h1>
+
+    <div class="explanation mb-5">
+      <p>
+        The dataset used to power the Retail Demo Store has over 6,000 shoppers, each one with different age, gender,
+        shopping interests, and browsing history. This demo allows you to select shoppers from this dataset.
+      </p>
+
+      <p>Select a fictitious shopper by using one of the options below.</p>
+    </div>
 
     <div class="button-container mb-5 d-flex justify-content-center">
       <button
@@ -97,8 +106,12 @@ export default {
 }
 
 .heading {
-  margin-top: 20%;
+  margin-top: 15%;
   font-size: 1.75rem;
+}
+
+.explanation {
+  font-size: 1.15rem;
 }
 
 .mobile .button-container {
