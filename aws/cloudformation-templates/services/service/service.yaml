@@ -42,6 +42,10 @@ Parameters:
   ServiceDiscoveryNamespace:
     Type: String
 
+  EnvEventBusArn:
+    Type: String
+    Default: none
+
   EnvPersonalizeCampaignArn:
     Type: String
     Default: none
@@ -316,6 +320,8 @@ Resources:
               Value: none
             - Name: RESOURCE_BUCKET
               Value: !Ref ResourceBucket
+            - Name: EVENT_BUS
+              Value: !Ref EnvEventBusArn
             - Name: PARAMETER_IVS_VIDEO_CHANNEL_MAP
               Value: !Ref ParameterIVSVideoChannelMap
             - Name: USE_DEFAULT_IVS_STREAMS

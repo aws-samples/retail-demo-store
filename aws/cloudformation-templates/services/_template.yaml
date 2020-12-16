@@ -126,6 +126,11 @@ Parameters:
 
 Resources:
 
+  RetailEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: RetailEventBus
+
   ProductsService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -213,6 +218,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        EnvEventBusArn: !GetAtt RetailEventBus.Arn
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
