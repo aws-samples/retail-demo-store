@@ -22,7 +22,7 @@ export const confirmationModal = {
       const { user } = rootState;
 
       if (cart && cart.items.length > 0) {
-        const cartItem = await ProductsRepository.getProduct(cart.items[0].product_id);
+        const {data: cartItem} = await ProductsRepository.getProduct(cart.items[0].product_id);
 
         commit('setProgress', 20);
 

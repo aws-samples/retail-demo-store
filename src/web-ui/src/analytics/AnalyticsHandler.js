@@ -255,6 +255,10 @@ export const AnalyticsHandler = {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
                 }
             })
+
+
+            console.log({cartProduct})
+
         return AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 attributes: {
