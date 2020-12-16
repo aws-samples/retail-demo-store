@@ -8,7 +8,8 @@
       <div class="consent d-flex align-items-start text-left">
         <input type="checkbox" class="consent-checkbox mr-2" id="abandon-cart-consent" v-model="hasConsented" />
         <label for="abandon-cart-consent"
-          >Yes, I’d like Amazon Web Services (AWS) to share information about the Retail Demo Store, including Amazon Pinpoint, with me by email.</label
+          >Yes, I’d like Amazon Web Services (AWS) to share information about the Retail Demo Store, including Amazon
+          Pinpoint, with me by email.</label
         >
       </div>
     </form>
@@ -45,14 +46,11 @@ export default {
 };
 </script>
 
-<style>
-.abandon-cart {
-  font-size: 1rem;
-}
-
+<style scoped>
 .abandoned-cart-btn {
   background: var(--blue-500);
   border-color: var(--blue-500);
+  font-size: 1rem;
 }
 
 .abandoned-cart-btn:hover:not([disabled]),
@@ -71,7 +69,7 @@ export default {
 }
 
 @media (min-width: 768px) {
-  .abandon-cart {
+  .abandoned-cart-btn {
     font-size: 1.25rem;
   }
 }
