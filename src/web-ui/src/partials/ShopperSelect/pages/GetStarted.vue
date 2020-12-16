@@ -4,7 +4,7 @@
 
     <div class="explanation mb-5">
       <p>
-        The dataset used to power the Retail Demo Store has over 6,000 shoppers, each one with different age, gender,
+        The dataset used to power the Retail Demo Store has thousands of shoppers, each one with different age, gender,
         shopping interests, and browsing history. This demo allows you to select shoppers from this dataset.
       </p>
 
