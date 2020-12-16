@@ -28,7 +28,7 @@
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <AbandonCartButton></AbandonCartButton>
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
         </div>
@@ -139,6 +139,10 @@ export default {
   .summary {
     position: sticky;
     top: 120px;
+  }
+
+  .abandon-cart {
+    max-width: 400px;
   }
 }
 </style>

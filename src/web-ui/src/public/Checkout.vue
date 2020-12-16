@@ -38,7 +38,7 @@
             </div>
 
             <div class="m-4">
-              <AbandonCartButton></AbandonCartButton>
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
           <div class="col order-lg-1">
@@ -208,6 +208,7 @@ export default {
     background: var(--grey-900);
   }
 
+
   .summary-column {
     min-width: 20em;
   }
@@ -219,6 +220,12 @@ export default {
   @media (min-width: 768px) {
     .checkout-btn {
       font-size: 1.25rem;
+    }    
+  }
+
+  @media (min-width: 992px) {
+    .abandon-cart {
+      max-width: 400px;
     }
   }
 </style>

@@ -1,8 +1,17 @@
 <template>
   <div v-if="pinpointEnabled && user" class="abandon-cart">
-    <button @click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg mb-2">
-      Trigger Abandoned Cart email
-    </button>
+    <form @submit.prevent="triggerAbandonedCartEmail">
+      <button type="submit" :disabled="!hasConsented" class="abandoned-cart-btn btn btn-primary btn-block btn-lg mb-2">
+        Trigger Abandoned Cart email
+      </button>
+
+      <div class="consent d-flex align-items-start text-left">
+        <input type="checkbox" class="consent-checkbox mr-2" id="abandon-cart-consent" v-model="hasConsented" />
+        <label for="abandon-cart-consent"
+          >Yes, I’d like Amazon Web Services (AWS) to share information about the Retail Demo Store, including Amazon Pinpoint, with me by email.</label
+        >
+      </div>
+    </form>
 
     <div class="text-center">
       <DemoGuideBadge :article="demoGuideBadgeArticle"></DemoGuideBadge>
@@ -24,6 +33,7 @@ export default {
     return {
       pinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID,
       demoGuideBadgeArticle: Articles.PERSONALIZED_EMAILS,
+      hasConsented: false,
     };
   },
   computed: {
@@ -45,10 +55,19 @@ export default {
   border-color: var(--blue-500);
 }
 
-.abandoned-cart-btn:hover,
+.abandoned-cart-btn:hover:not([disabled]),
 .abandoned-cart-btn:focus {
   background: var(--blue-600);
   border-color: var(--blue-600);
+}
+
+.consent {
+  font-size: 0.85rem;
+}
+
+.consent-checkbox {
+  /* fine-tuning for alignment */
+  margin-top: 4px;
 }
 
 @media (min-width: 768px) {
