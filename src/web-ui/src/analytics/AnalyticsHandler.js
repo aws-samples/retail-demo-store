@@ -256,9 +256,6 @@ export const AnalyticsHandler = {
                 }
             })
 
-
-            console.log({cartProduct})
-
         return AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 attributes: {
