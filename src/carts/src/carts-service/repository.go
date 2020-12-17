@@ -9,41 +9,37 @@ import (
 
 var currentID int
 
-var carts Carts = Carts{}
+var carts = map[string]Cart{}
 
-func init() {
-}
 
 // RepoFindCartByID Function
 func RepoFindCartByID(id string) Cart {
-	for _, t := range carts {
-		if t.ID == id {
-			return t
-		}
+	cart, ok := carts[id]
+	if !ok {
+		return Cart{}
 	}
-	// return empty Cart if not found
-	return Cart{}
+	return cart
 }
 
 // RepoUpdateCart Function
-func RepoUpdateCart(t Cart) Cart {
+func RepoUpdateCart(id string, cart Cart) Cart {
+	_, ok := carts[id]
 
-	for i := 0; i < len(carts); i++ {
-		c := &carts[i]
-		if c.ID == t.ID {
-			c.Items = t.Items
-			return RepoFindCartByID(t.ID)
-		}
+	if !ok {
+		// return empty Cart if not found
+		return Cart{}
 	}
 
-	// return empty Cart if not found
-	return Cart{}
+	cart.ID = id
+	carts[id] = cart
+
+	return cart
 }
 
 // RepoCreateCart Function
 func RepoCreateCart(t Cart) Cart {
 	currentID++
 	t.ID = strconv.Itoa(currentID)
-	carts = append(carts, t)
-	return RepoFindCartByID(t.ID)
+	carts[t.ID] = t
+	return t
 }

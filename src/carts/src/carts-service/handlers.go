@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"path"
 
 	"github.com/gorilla/mux"
 )
@@ -25,7 +26,12 @@ func CartIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(carts); err != nil {
+	var values []Cart
+	for _, value := range carts {
+		values = append(values, value)
+	}
+
+	if err := json.NewEncoder(w).Encode(values); err != nil {
 		panic(err)
 	}
 }
@@ -66,7 +72,10 @@ func CartUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoUpdateCart(cart)
+	id := path.Base(r.URL.Path)
+
+	t := RepoUpdateCart(id, cart)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
@@ -99,6 +108,7 @@ func CartCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := RepoCreateCart(cart)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
