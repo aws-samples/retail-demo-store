@@ -1,24 +1,66 @@
 - id: 1
   name: apparel
-  image: 5.jpg
+  image: 6bd74f2d-90c0-4ca6-9663-f3bbe9bf405b.jpg
+  has_gender_affinity: true
 - id: 2
   name: footwear
-  image: 5.jpg
+  image: 22552eb1-57f1-4fa3-a93a-a9fa22851f9f.jpg
+  has_gender_affinity: true
 - id: 3
   name: outdoors
-  image: 5.jpg
+  image: 7160b264-e3ed-4ac3-9dd7-2c537b00e5ed.jpg
+  has_gender_affinity: false
 - id:  4
   name: electronics
-  image: 5.jpg
+  image: 3b145528-d5fc-4c2a-b2a5-e119128caa5f.jpg
+  has_gender_affinity: false
 - id: 5
   name: beauty
-  image: 5.jpg
+  image: b87da3f8-9a3e-417d-abd7-16329c5be1ba.jpg
+  has_gender_affinity: true
 - id: 6
   name: jewelry
-  image: 5.jpg
+  image: 2ad09e8e-fd41-4d29-953e-546b924d7cb8.jpg
+  has_gender_affinity: true
 - id: 7
   name: accessories
-  image: 5.jpg
+  image: 2b67230f-dc22-462e-9afe-c9e459f74093.jpg
+  has_gender_affinity: true
 - id: 8
   name: housewares
-  image: 5.jpg
+  image: 1e96e374-be23-4c97-b87e-b5c45cb8999f.jpg
+  has_gender_affinity: false
+- id: 9
+  name: homedecor
+  image: 01a8978b-2a84-4dbd-acc4-aff74a468681.jpg
+  has_gender_affinity: false
+- id: 10
+  name: furniture
+  image: 8b9733b9-cbea-4de3-978b-5e3f0e8c796c.jpg
+  has_gender_affinity: false
+- id: 11
+  name: seasonal
+  image: 6f04daee-7387-442f-bc99-a9b0072b29ce.jpg
+  has_gender_affinity: false
+- id: 12
+  name: floral
+  image: 4bb66b8a-cf13-4959-87ce-ca506fa568a2.jpg
+  has_gender_affinity: false
+- id: 13
+  name: books
+  image: 5d37a44b-d121-426e-b528-59e603ba5923.jpg
+  has_gender_affinity: false
+- id: 14
+  name: groceries
+  image: a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec.jpg
+  has_gender_affinity: false
+- id: 15
+  name: instruments
+  image: 3f9a39b2-0d63-4751-b6ee-4ecd08dd2276.jpg
+  has_gender_affinity: false
+- id: 16
+  name: tools
+  image: 8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg
+  has_gender_affinity: false
+
+

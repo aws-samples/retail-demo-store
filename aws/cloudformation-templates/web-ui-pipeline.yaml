@@ -168,7 +168,7 @@ Resources:
 
       Handler: index.handler
       Runtime: python3.7
-      Timeout: 300
+      Timeout: 900
       Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
 
   CustomCopyImagesLambdaFunction:

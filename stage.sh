@@ -86,7 +86,7 @@ done
 
 # Sync product images
 echo " + Copying product images"
-aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
+aws s3 sync s3://rds-dataset-releases/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC
 
 echo " + Creating CSVs for Personalize model pre-create training"
 PYTHONPATH=. python3 generators/generate_interactions_personalize.py
