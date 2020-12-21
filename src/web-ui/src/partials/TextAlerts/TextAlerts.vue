@@ -23,7 +23,8 @@
         <label class="" for="text-alerts-consent"
           >I consent to receive automated text messages (including marketing messages) from or on behalf of Amazon Web
           Services about the Retail Demo Store, including Amazon Pinpoint, at my mobile number above. Consent is not a
-          condition of any purchase. Message and data rates may apply.</label
+          condition of any purchase. Message and data rates may apply. Amazon Web Services will only use data entered
+          for demonstrating features within the Retail Demo Store.</label
         >
       </div>
     </form>
