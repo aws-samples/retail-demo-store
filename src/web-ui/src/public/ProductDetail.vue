@@ -84,7 +84,7 @@ import RecommendedProductsSection from '@/components/RecommendedProductsSection/
 import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
-import { Articles } from '@/partials/AppModal/DemoGuide/config';
+import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -185,7 +185,7 @@ export default {
     async getRelatedProducts() {
       // reset in order to trigger recalculation in carousel - carousel UI breaks without this
       this.relatedProducts = null;
-      
+
       this.experiment = null;
       this.demoGuideBadgeArticle = null;
 
@@ -201,7 +201,7 @@ export default {
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
-        if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.SIMILAR_ITEM_RECOMMENDATIONS;
+        if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
       }
 
       this.relatedProducts = response.data;

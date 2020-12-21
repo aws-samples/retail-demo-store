@@ -121,8 +121,9 @@ import RecommendedProductsSection from "@/components/RecommendedProductsSection/
 import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
 import {formatPrice} from "@/util/formatPrice";
 import {discountProductPrice} from "@/util/discountProductPrice";
-import { Articles } from '@/partials/AppModal/DemoGuide/config';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import {getDemoGuideArticleFromPersonalizeARN} from '@/partials/AppModal/DemoGuide/config'
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -195,7 +196,7 @@ export default {
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`
 
-        if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.SIMILAR_ITEM_RECOMMENDATIONS
+        if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe)
       }
 
       this.productRecommended = response.data;

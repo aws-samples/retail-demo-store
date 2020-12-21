@@ -75,7 +75,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 import Product from './components/Product.vue'
 import Layout from '@/components/Layout/Layout'
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
-import { Articles } from '@/partials/AppModal/DemoGuide/config';
+import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -143,7 +143,7 @@ export default {
           const personalizeRecipe = response.headers['x-personalize-recipe'];
           const experimentName = response.headers['x-experiment-name'];
 
-          if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.PERSONALIZED_RANKING;
+          if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
 
           if (experimentName) this.experiment = `Active experiment: ${experimentName}`
         }

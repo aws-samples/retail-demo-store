@@ -45,7 +45,7 @@ import Layout from '@/components/Layout/Layout';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
-import { Articles } from '@/partials/AppModal/DemoGuide/config';
+import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -96,7 +96,10 @@ export default {
 
       const { data, headers } = await ProductsRepository.getFeatured();
 
-      if (headers['x-personalize-recipe']) this.featuredProductsDemoGuideBadgeArticle = Articles.PERSONALIZED_RANKING;
+      const personalizeRecipe = headers['x-personalize-recipe'];
+
+      if (personalizeRecipe)
+        this.featuredProductsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
 
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
@@ -126,7 +129,7 @@ export default {
               ? 'Inspired by your shopping trends'
               : 'Trending products';
 
-            this.userRecommendationsDemoGuideBadgeArticle = Articles.USER_PERSONALIZATION;
+            this.userRecommendationsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
           } else if (experimentName) {
             this.userRecommendationsTitle = 'Recommended for you';
           }

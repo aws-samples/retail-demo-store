@@ -79,3 +79,11 @@ sections.forEach((section) => {
 });
 
 export const getSectionIdFromArticleId = (articleId) => articleIdToSectionIdMap[articleId];
+
+const personalizeARNToDemoGuideArticleMap = {
+  'arn:aws:personalize:::recipe/aws-sims': Articles.SIMILAR_ITEM_RECOMMENDATIONS,
+  'arn:aws:personalize:::recipe/aws-personalized-ranking': Articles.PERSONALIZED_RANKING,
+  'arn:aws:personalize:::recipe/aws-user-personalization': Articles.USER_PERSONALIZATION,
+};
+
+export const getDemoGuideArticleFromPersonalizeARN = (arn) => personalizeARNToDemoGuideArticleMap[arn];
