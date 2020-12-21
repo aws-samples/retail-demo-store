@@ -2,10 +2,9 @@
   <section>
     <div class="mb-3 text-left">
       <h2 class="recommendations-heading"><slot name="heading"></slot></h2>
-      <div v-if="explainRecommended" class="recommendation-explanation text-muted">
-        <i v-if="explainRecommended.activeExperiment" class="fa fa-balance-scale px-1"></i>
-        <i v-if="explainRecommended.personalized" class="fa fa-user-check px-1"></i>
-        {{ explainRecommended.explanation }}
+      <div v-if="experiment" class="recommendation-explanation text-muted">
+        <i class="fa fa-balance-scale px-1"></i>
+        {{ experiment }}
       </div>
     </div>
 
@@ -29,8 +28,8 @@ import ProductCarousel from './ProductCarousel/ProductCarousel';
 export default {
   name: 'RecommendedProductsSection',
   props: {
-    explainRecommended: {
-      type: Object,
+    experiment: {
+      type: String,
       required: false,
     },
     recommendedProducts: {

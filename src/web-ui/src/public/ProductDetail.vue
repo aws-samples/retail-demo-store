@@ -53,14 +53,14 @@
           </div>
         </main>
 
-        <RecommendedProductsSection
-          :explainRecommended="explainRecommended"
-          :recommendedProducts="relatedProducts"
-          :feature="feature"
-        >
+        <RecommendedProductsSection :experiment="experiment" :recommendedProducts="relatedProducts" :feature="feature">
           <template #heading
             >Compare similar items
-            <DemoGuideBadge :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
+            <DemoGuideBadge
+              v-if="demoGuideBadgeArticle"
+              :article="demoGuideBadgeArticle"
+              hideTextOnSmallScreens
+            ></DemoGuideBadge>
           </template>
         </RecommendedProductsSection>
       </div>
@@ -112,8 +112,8 @@ export default {
       quantity: 1,
       feature: EXPERIMENT_FEATURE,
       relatedProducts: null,
-      explainRecommended: null,
-      demoGuideBadgeArticle: Articles.SIMILAR_ITEM_RECOMMENDATIONS,
+      demoGuideBadgeArticle: null,
+      experiment: null,
     };
   },
   computed: {
@@ -185,6 +185,9 @@ export default {
     async getRelatedProducts() {
       // reset in order to trigger recalculation in carousel - carousel UI breaks without this
       this.relatedProducts = null;
+      
+      this.experiment = null;
+      this.demoGuideBadgeArticle = null;
 
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
@@ -197,17 +200,8 @@ export default {
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
-        if (experimentName || personalizeRecipe) {
-          const explanation = experimentName
-            ? `Active experiment: ${experimentName}`
-            : `Personalize recipe: ${personalizeRecipe}`;
-
-          this.explainRecommended = {
-            activeExperiment: !!experimentName,
-            personalized: !!personalizeRecipe,
-            explanation,
-          };
-        }
+        if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
+        if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.SIMILAR_ITEM_RECOMMENDATIONS;
       }
 
       this.relatedProducts = response.data;

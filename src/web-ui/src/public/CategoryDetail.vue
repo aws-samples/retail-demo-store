@@ -2,9 +2,9 @@
   <Layout :isLoading="!products.length">
       <!-- Product List -->
       <div class="container" v-if="products.length">
-        <h2 class="text-left">{{ this.display | capitalize }} <DemoGuideBadge :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></h2>
-        <div v-if="explain_recommended" class="text-muted text-left">
-          <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
+        <h2 class="text-left">{{ this.display | capitalize }} <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></h2>
+        <div v-if="experiment" class="text-muted text-left">
+          <small><em><i v-if="experiment" class="fa fa-balance-scale"></i> {{ experiment }}</em></small>
         </div>
 
         <div class="mt-4 d-flex flex-column flex-lg-row">
@@ -93,13 +93,11 @@ export default {
   data() {
     return {
       feature: ExperimentFeature,
-      demoGuideBadgeArticle: Articles.PERSONALIZED_RANKING,
+      demoGuideBadgeArticle: null,
+      experiment: null,
       products: [],
       errors: [],
       display: '',
-      explain_recommended: '',
-      active_experiment: false,
-      personalized: false,
       selectedGenders: [],
       selectedStyles: [],
       isInitiallyMobile: window.matchMedia('(max-width: 992px)').matches
@@ -124,6 +122,9 @@ export default {
       this.getProductsByCategory(this.$route.params.id)
     },
     async getProductsByCategory(categoryName) {
+      this.demoGuideBadgeArticle = null
+      this.experiment = null
+
       let intermediate = null
       if (categoryName == 'featured') {
         const { data } = await ProductsRepository.getFeatured()
@@ -137,15 +138,14 @@ export default {
       if (this.personalizeUserID && intermediate.length > 0) {
         const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
+
         if (response.headers) {
-          if (response.headers['x-personalize-recipe']) {
-            this.personalized = true
-            this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
-          }
-          if (response.headers['x-experiment-name']) {
-            this.active_experiment = true
-            this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
-          }
+          const personalizeRecipe = response.headers['x-personalize-recipe'];
+          const experimentName = response.headers['x-experiment-name'];
+
+          if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.PERSONALIZED_RANKING;
+
+          if (experimentName) this.experiment = `Active experiment: ${experimentName}`
         }
 
         this.products = response.data.slice(0, MaxProducts)

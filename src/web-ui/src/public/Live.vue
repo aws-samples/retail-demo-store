@@ -100,12 +100,12 @@
 
       <RecommendedProductsSection
           :key="`rec-products-${(new Date()).getTime()}`"
-          :explainRecommended="explainRecommended"
+          :experiment="experiment"
           :recommendedProducts="productRecommended"
           :feature="feature"
           class="mt-5"
       >
-        <template #heading>Compare similar items <DemoGuideBadge :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></template>
+        <template #heading>Compare similar items <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></template>
       </RecommendedProductsSection>
 
     </div>
@@ -143,13 +143,13 @@ export default {
   },
   data() {
     return {
-      demoGuideBadgeArticle: Articles.SIMILAR_ITEM_RECOMMENDATIONS,
       streamDetails: [],
       activeStreamId: 0,
       productDetails: [],
       activeProductId: 0,
       productRecommended: null,
-      explainRecommended: null,
+      experiment: null,
+      demoGuideBadgeArticle: null,
       productActiveExperiment: false,
       feature: PRODUCT_EXPERIMENT_FEATURE,
       metadata: [],
@@ -178,8 +178,9 @@ export default {
       return data;
     },
     async getRelatedProducts() {
-      this.explainRecommended = null;
+      this.experiemnt = null
       this.productRecommended = null;
+      this.demoGuideBadgeArticle = null;
 
       const response = await RecommendationsRepository.getRelatedProducts(
           this.personalizeUserID ?? '',
@@ -192,17 +193,9 @@ export default {
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
-        if (experimentName || personalizeRecipe) {
-          const explanation = experimentName
-              ? `Active experiment: ${experimentName}`
-              : `Personalize recipe: ${personalizeRecipe}`;
+        if (experimentName) this.experiment = `Active experiment: ${experimentName}`
 
-          this.explainRecommended = {
-            activeExperiment: !!experimentName,
-            personalized: !!personalizeRecipe,
-            explanation,
-          };
-        }
+        if (personalizeRecipe) this.demoGuideBadgeArticle = Articles.SIMILAR_ITEM_RECOMMENDATIONS
       }
 
       this.productRecommended = response.data;

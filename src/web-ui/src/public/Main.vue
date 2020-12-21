@@ -8,18 +8,26 @@
         "
         :feature="feature"
         :recommendedProducts="userRecommendations"
-        :explainRecommended="explainRecommended"
+        :experiment="recommendationsExperiment"
       >
         <template #heading v-if="userRecommendationsTitle">
           {{ userRecommendationsTitle }}
-          <DemoGuideBadge :article="userRecommendationsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
+          <DemoGuideBadge
+            v-if="userRecommendationsDemoGuideBadgeArticle"
+            :article="userRecommendationsDemoGuideBadgeArticle"
+            hideTextOnSmallScreens
+          ></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
 
       <RecommendedProductsSection :feature="feature" :recommendedProducts="featuredProducts">
         <template #heading>
           Featured products
-          <DemoGuideBadge :article="featuredProductsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
+          <DemoGuideBadge
+            v-if="featuredProductsDemoGuideBadgeArticle"
+            :article="featuredProductsDemoGuideBadgeArticle"
+            hideTextOnSmallScreens
+          ></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
     </div>
@@ -55,12 +63,12 @@ export default {
     return {
       feature: EXPERIMENT_FEATURE,
       isLoadingRecommendations: true,
-      featuredProductsDemoGuideBadgeArticle: Articles.PERSONALIZED_RANKING,
-      userRecommendationsDemoGuideBadgeArticle: Articles.USER_PERSONALIZATION,
+      featuredProductsDemoGuideBadgeArticle: null,
+      userRecommendationsDemoGuideBadgeArticle: null,
+      recommendationsExperiment: null,
       featuredProducts: null,
       userRecommendationsTitle: null,
       userRecommendations: null,
-      explainRecommended: null,
     };
   },
   computed: {
@@ -83,9 +91,12 @@ export default {
       this.getUserRecommendations();
     },
     async getFeaturedProducts() {
+      this.featuredProductsDemoGuideBadgeArticle = null;
       this.featuredProducts = null;
 
-      const { data } = await ProductsRepository.getFeatured();
+      const { data, headers } = await ProductsRepository.getFeatured();
+
+      if (headers['x-personalize-recipe']) this.featuredProductsDemoGuideBadgeArticle = Articles.PERSONALIZED_RANKING;
 
       this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
     },
@@ -93,6 +104,8 @@ export default {
       this.isLoadingRecommendations = true;
       this.userRecommendationsTitle = null;
       this.userRecommendations = null;
+      this.recommendationsExperiment = null;
+      this.userRecommendationsDemoGuideBadgeArticle = null;
 
       const response = await RecommendationsRepository.getRecommendationsForUser(
         this.personalizeUserID,
@@ -106,20 +119,14 @@ export default {
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
         if (experimentName || personalizeRecipe) {
-          const explanation = experimentName
-            ? `Active experiment: ${experimentName}`
-            : `Personalize recipe: ${personalizeRecipe}`;
-
-          this.explainRecommended = {
-            activeExperiment: !!experimentName,
-            personalized: !!personalizeRecipe,
-            explanation,
-          };
+          if (experimentName) this.recommendationsExperiment = `Active experiment: ${experimentName}`;
 
           if (personalizeRecipe) {
             this.userRecommendationsTitle = this.personalizeRecommendationsForVisitor
               ? 'Inspired by your shopping trends'
               : 'Trending products';
+
+            this.userRecommendationsDemoGuideBadgeArticle = Articles.USER_PERSONALIZATION;
           } else if (experimentName) {
             this.userRecommendationsTitle = 'Recommended for you';
           }
