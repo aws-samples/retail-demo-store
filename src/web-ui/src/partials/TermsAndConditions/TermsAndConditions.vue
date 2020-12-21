@@ -6,7 +6,7 @@
     </p>
 
     <p class="mb-1">
-      All images shown are from the open source website, Unsplash.
+      All images shown are from <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Unsplash</a>.
     </p>
   </div>
 </template>
