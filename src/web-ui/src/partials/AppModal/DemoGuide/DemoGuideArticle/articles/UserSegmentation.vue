@@ -10,7 +10,7 @@
       bus of all these interactions to inform segmentation, personalized messaging, and analytics.
     </p>
 
-    <p>
+    <p class="real-time-segments">
       These segments can often be created and responded to in real-time. Here, your clickstreams in the Retail Demo
       Store application are ingested by Amazon Pinpoint to create new user segments in real-time. These segments are
       then used to deliver the targeted messages that receive throughout the demo.
@@ -67,6 +67,10 @@ export default {
 </script>
 
 <style scoped>
+.real-time-segments {
+  margin-bottom: 9rem;
+}
+
 .logo-and-quote--mobile {
   flex-direction: column;
   align-items: center;

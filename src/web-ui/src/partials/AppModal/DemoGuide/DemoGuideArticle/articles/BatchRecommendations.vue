@@ -9,7 +9,7 @@
       notifications.
     </p>
 
-    <div>
+    <div class="architecture">
       <img src="/batch-recommendations-architecture.png" alt="batch recommendations architecture" class="img-fluid" />
     </div>
 
@@ -64,5 +64,9 @@ export default {
 
 .author {
   font-size: 0.8rem;
+}
+
+.architecture {
+  margin-bottom: 9rem;
 }
 </style>

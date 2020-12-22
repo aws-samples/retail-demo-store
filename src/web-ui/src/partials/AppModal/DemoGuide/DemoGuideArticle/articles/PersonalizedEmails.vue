@@ -11,7 +11,7 @@
       unified, omni-channel personalization experience.
     </p>
 
-    <div class="mb-4">
+    <div class="bullet-container">
       Here,
       <ol class="bullets">
         <li class="bullet-point">
@@ -74,6 +74,10 @@ export default {
 </script>
 
 <style scoped>
+.bullet-container {
+  margin-bottom: 9rem;
+}
+
 .bullets {
   padding-left: 20px;
 }
