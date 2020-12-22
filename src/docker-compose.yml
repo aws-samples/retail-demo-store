@@ -132,10 +132,10 @@ services:
     ports:
       - "8008:80"
 
-  waypoint:
-    container_name: waypoint
+  location:
+    container_name: location
     build:
-      context: waypoint
+      context: location
     networks:
       - dev-net
     environment:

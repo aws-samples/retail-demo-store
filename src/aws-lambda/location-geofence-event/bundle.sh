@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e 
 
-LAMBDA_SOURCE=waypoint-geofence-event.py
-PACKAGE_FILE=waypoint-geofence-event.zip
+LAMBDA_SOURCE=location-geofence-event.py
+PACKAGE_FILE=location-geofence-event.zip
 
 echo "Cleaning up intermediate files"
 [ -e ${PACKAGE_FILE} ] && rm ${PACKAGE_FILE}

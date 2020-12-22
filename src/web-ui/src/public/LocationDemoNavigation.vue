@@ -9,7 +9,7 @@
           <router-link class="nav-link" :to="{name:'Collections'}">In-Store View</router-link>
         </li>
         <li class="nav-item" >
-          <router-link class="nav-link" :to="{name:'Waypoint'}">Waypoint Geofence</router-link>
+          <router-link class="nav-link" :to="{name:'Location'}">Location Geofence</router-link>
         </li>
       </ul>
     </div>
@@ -18,7 +18,7 @@
 
 <script>
 export default {
-  name: "WaypointDemoNavigation"
+  name: "LocationDemoNavigation"
 }
 </script>
 

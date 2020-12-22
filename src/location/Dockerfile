@@ -1,6 +1,6 @@
 FROM python:3.8-slim
 
-COPY /src/waypoint-service /app
+COPY /src/location-service /app
 
 WORKDIR /app
 

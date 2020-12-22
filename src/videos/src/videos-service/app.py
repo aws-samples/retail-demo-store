@@ -131,6 +131,11 @@ def is_ssm_parameter_set(parameter_name):
         return False
 
 
+def log_ffmpeg_processes():
+    logger.info('Running ffmpeg processes:')
+    logger.info(os.system("ps aux|grep 'PID\|ffmpeg'"))
+
+
 def put_ivs_metadata(channel_arn, line):
     """
         Sends metadata to a given IVS stream. Metadata can be any string, but the AWS Retail Demo Store UI expects
@@ -142,11 +147,14 @@ def put_ivs_metadata(channel_arn, line):
             channelArn=channel_arn,
             metadata=line
         )
-    except ivs_client.exceptions.ChannelNotBroadcasting:
-        app.logger.warning(f'Channel not broadcasting. Waiting for 5 seconds.')
-        app.logger.info('Running ffmpeg processes:')
-        app.logger.info(os.system("ps aux|grep 'PID\|ffmpeg'"))
+    except ivs_client.exceptions.ChannelNotBroadcasting as ex:
+        logger.warning(f'Channel not broadcasting. Waiting for 5 seconds. Exception: {ex}')
+        log_ffmpeg_processes()
         time.sleep(5)
+    except ivs_client.exceptions.InternalServerException as ex:
+        logger.error(f'We have an internal error exception. Waiting for 30 seconds. Exception: {ex}')
+        log_ffmpeg_processes()
+        time.sleep(30)
 
 
 def get_stream_state(channel_arn):

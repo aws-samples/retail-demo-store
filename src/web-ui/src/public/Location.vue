@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <div class="content">
-      <waypoint-demo-navigation/>
+      <location-demo-navigation/>
       <div class="container">
         <div class="row">
           <div class="col-2">
@@ -25,23 +25,23 @@
 
 <script>
 import AmplifyMap from "@/public/components/AmplifyMap";
-import Waypoint from "@/waypoint/Waypoint";
+import Location from "@/location/Location";
 import { Auth } from 'aws-amplify';
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import AmplifyStore from "@/store/store";
 import swal from 'sweetalert';
-import WaypointDemoNavigation from "@/public/WaypointDemoNavigation";
+import LocationDemoNavigation from "@/public/LocationDemoNavigation";
 import Layout from "@/components/Layout/Layout";
 
-const waypointApi = new Waypoint();
-const WaypointRepository = RepositoryFactory.get('waypoint');
+const locationApi = new Location();
+const LocationRepository = RepositoryFactory.get('location');
 const OrdersRepository = RepositoryFactory.get('orders');
 
 export default {
-  name: "Waypoint",
+  name: "Location",
   components: {
     AmplifyMap,
-    WaypointDemoNavigation,
+    LocationDemoNavigation,
     Layout
   },
   data () {
@@ -61,7 +61,7 @@ export default {
     this.fetchCustomerRoute()
         .then(() => {
           this.customerPosition = this.customerRoute[0];
-          waypointApi.updateDevicePositions([{
+          locationApi.updateDevicePositions([{
             'DeviceId': this.cognitoUser.username,
             'Position': this.customerRoute[0]
           }])
@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     async fetchCustomerRoute() {
-      const customerRouteGeojson = (await WaypointRepository.get_customer_route()).data
+      const customerRouteGeojson = (await LocationRepository.get_customer_route()).data
       if (customerRouteGeojson.type === "FeatureCollection") {
         if (customerRouteGeojson.features.length > 1) {
           console.log("Found more than one route in response. Only the first route will be used")
@@ -80,7 +80,7 @@ export default {
       }
     },
     async fetchStoreLocation() {
-      const storeLocationGeojson = (await WaypointRepository.get_store_location()).data
+      const storeLocationGeojson = (await LocationRepository.get_store_location()).data
       if (storeLocationGeojson.type === "FeatureCollection") {
         if (storeLocationGeojson.features.length > 1) {
           console.log("Found more than one location in response. Only the first route will be used")
@@ -161,12 +161,12 @@ export default {
     },
     animateJourney() {
       const journeySteps = this.customerRoute.length;
-      this.customerRoute.forEach((waypoint, index) => {
+      this.customerRoute.forEach((location, index) => {
         setTimeout(() => {
-          this.customerPosition = waypoint;
-          waypointApi.updateDevicePositions([{
+          this.customerPosition = location;
+          locationApi.updateDevicePositions([{
             'DeviceId': this.cognitoUser.username,
-            'Position': waypoint
+            'Position': location
           }]);
           if (journeySteps === index + 1) {
             this.journeyInProgress = false;

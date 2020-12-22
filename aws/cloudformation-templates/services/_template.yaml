@@ -317,13 +317,13 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
-  WaypointService:
+  LocationService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: waypoint
-        ServicePath: src/waypoint
+        ServiceName: location
+        ServicePath: src/location
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
@@ -534,9 +534,9 @@ Outputs:
     Description: Orders load balancer URL.
     Value: !GetAtt OrdersService.Outputs.ServiceUrl
 
-  WaypointServiceUrl:
-    Description: Waypoint load balancer URL.
-    Value: !GetAtt WaypointService.Outputs.ServiceUrl
+  LocationServiceUrl:
+    Description: Location load balancer URL.
+    Value: !GetAtt LocationService.Outputs.ServiceUrl
 
   RecommendationsServiceUrl: 
     Description: Recommendations load balancer URL.

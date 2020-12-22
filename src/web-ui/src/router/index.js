@@ -24,7 +24,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
-import Waypoint from "@/public/Waypoint";
+import Location from "@/public/Location";
 import Collections from "@/public/Collections";
 
 
@@ -229,9 +229,9 @@ const router = new Router({
       meta: { requiresAuth: false}
     },
     {
-      path: '/waypoint',
-      name: 'Waypoint',
-      component: Waypoint,
+      path: '/location',
+      name: 'Location',
+      component: Location,
       meta: { requiresAuth: true}
     },
     {

@@ -1,9 +1,9 @@
 import { RestClient } from '@aws-amplify/api-rest';
 
-const resourceName = process.env.VUE_APP_WAYPOINT_RESOURCE_NAME;
+const resourceName = process.env.VUE_APP_LOCATION_RESOURCE_NAME;
 const awsRegion = process.env.VUE_APP_AWS_REGION
 
-class Waypoint {
+class Location {
     region = awsRegion
     api = new RestClient({
         headers: { accept: 'application/json' },
@@ -65,4 +65,4 @@ class Waypoint {
     }
 }
 
-export default Waypoint;
+export default Location;

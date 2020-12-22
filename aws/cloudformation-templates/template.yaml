@@ -37,9 +37,9 @@ Metadata:
         Parameters:
           - UseDefaultIVSStreams
       - Label:
-          default: "Create Waypoint resources"
+          default: "Create Location resources"
         Parameters:
-          - DeployWaypoint
+          - DeployLocation
           - DeployDefaultGeofence
       - Label:
           default: "Amazon Pay"
@@ -83,10 +83,10 @@ Metadata:
         default: "Reply-To name"
       UseDefaultIVSStreams:
         default: "Use default IVS streams"
-      DeployWaypoint:
-        default: "Deploy waypoint resources"
+      DeployLocation:
+        default: "Deploy location resources"
       DeployDefaultGeofence:
-        default: "Create a default geofence in the created Amazon Waypoint geofence collection"
+        default: "Create a default geofence in the created Amazon Location geofence collection"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -224,9 +224,9 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
-  DeployWaypoint:
+  DeployLocation:
     Type: String
-    Description: Deploy any Waypoint Resources
+    Description: Deploy any Location Resources
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -234,7 +234,7 @@ Parameters:
 
   DeployDefaultGeofence:
     Type: String
-    Description: Create a default geofence in the created Amazon Waypoint geofence collection
+    Description: Create a default geofence in the created Amazon Location geofence collection
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -341,14 +341,14 @@ Resources:
         CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        WaypointServiceExternalUrl: !GetAtt Services.Outputs.WaypointServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        WaypointResourceName: !GetAtt Waypoint.Outputs.WaypointResourceName
-        WaypointNotificationEndpoint: !GetAtt Waypoint.Outputs.WaypointNotificationEndpoint
+        LocationResourceName: !GetAtt Location.Outputs.LocationResourceName
+        LocationNotificationEndpoint: !GetAtt Location.Outputs.LocationNotificationEndpoint
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -371,17 +371,17 @@ Resources:
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
 
-  # Amazon Waypoint Resources
-  Waypoint:
+  # Amazon Location Resources
+  Location:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/waypoint.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/location.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         DeployDefaultGeofence: !Ref DeployDefaultGeofence
-        DeployWaypoint: !Ref DeployWaypoint
+        DeployLocation: !Ref DeployLocation
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl

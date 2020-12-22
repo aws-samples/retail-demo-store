@@ -75,9 +75,9 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 
 The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
 
-## Using the Amazon Waypoint Integration Demo
+## Using the Amazon Location Integration Demo
 
-[Amazon Waypoint](https://console.aws.amazon.com/location/) is an amazon service providing maps, location indexing,
+[Amazon Location Services](https://console.aws.amazon.com/location/) is an amazon provision of maps, location indexing,
 geofencing and user tracking. Built into this demo is a simulation of a user moving nearby to a physical store.
 The user provides personalized recommendations and offers and other messaging as they get close to the store (when they
 "trigger" a geofence around the store). There is
@@ -85,19 +85,19 @@ also an in-store interface that shows a sample view for store staff showing orde
 and transactional messaging for user and store staff around pickup that is triggered by the user approaching the
 store for pickup.
 
-To use the Amazon Waypoint functionality, Waypoint must be enabled in your region. First, deploy in a region in which 
-Waypoint is enabled. Next, to enable the demo functionality, ensure that the "Deploy waypoint resources" and
-"Create a default geofence in the created Amazon Waypoint geofence collection" options are set to "Yes" when you run
-the deployment CloudFormation. A Waypoint geofence will be set up for you. You can access the Waypoint "In-Store View"
-where you can see orders made to be collected from in-store and "Waypoint Geofence" where you can see the Waypoint
+To use the Amazon Location functionality, Location must be enabled in your region. First, deploy in a region in which 
+Location is enabled. Next, to enable the demo functionality, ensure that the "Deploy location resources" and
+"Create a default geofence in the created Amazon Location geofence collection" options are set to "Yes" when you run
+the deployment CloudFormation. A Location geofence will be set up for you. You can access the Location "In-Store View"
+where you can see orders made to be collected from in-store and "Location Geofence" where you can see the Location
 map and simulated user - from here you can initiate simulations of users travelling close to the default configured
 store either.
 
-### Amazon Waypoint and Pinpoint 
+### Amazon Location and Pinpoint 
 
-We use Amazon Waypoint integrated with Pinpoint transactional messaging for sending SMS messages and email to shoppers 
+We use Amazon Location integrated with Pinpoint transactional messaging for sending SMS messages and email to shoppers 
 when they enter the shopping geofence. These email and SMS channels are enabled when "Auto-Configure Pinpoint" is 
-enabled, along with the Waypoint-attached Pinpoint campaigns. If this is not enabled there will not be any email and
+enabled, along with the Location-attached Pinpoint campaigns. If this is not enabled there will not be any email and
   SMS notifications, just in-browser popups.
   
 There is one more manual job, which is to ensure that the emails will be sent. Note that if you are in the email

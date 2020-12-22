@@ -96,9 +96,9 @@ PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
 echo " + Copying CSVs for Personalize model pre-create training"
 aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
 
-# Sync waypoint data files
-echo " + Copying waypoint location data"
-aws s3 sync ./waypoint s3://${BUCKET}/${S3PATH}waypoint --only-show-errors $S3PUBLIC
+# Sync location data files
+echo " + Copying location location data"
+aws s3 sync ./location_services s3://${BUCKET}/${S3PATH}location_services --only-show-errors $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

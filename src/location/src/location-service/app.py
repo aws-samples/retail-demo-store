@@ -20,11 +20,11 @@ customer_route = {}
 
 def load_s3_data():
     global customer_route
-    route_file_obj = s3.Object(RESOURCE_BUCKET, 'waypoint/customer_route.json')
+    route_file_obj = s3.Object(RESOURCE_BUCKET, 'location_services/customer_route.json')
     customer_route = json.loads(route_file_obj.get()['Body'].read().decode('utf-8'))
 
     global store_location
-    location_file_obj = s3.Object(RESOURCE_BUCKET, 'waypoint/store_location.json')
+    location_file_obj = s3.Object(RESOURCE_BUCKET, 'location_services/store_location.json')
     store_location = json.loads(location_file_obj.get()['Body'].read().decode('utf-8'))
 
 
@@ -52,7 +52,7 @@ corps = CORS(app)
 
 @app.route('/')
 def index():
-    return 'Waypoint Service'
+    return 'Location Service Service'
 
 
 @app.route('/store_location')

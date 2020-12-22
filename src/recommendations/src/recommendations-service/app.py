@@ -296,7 +296,8 @@ def related():
         raise BadRequest('numResults must be less than 100')
 
     filter_ssm = filter_purchased_param_name
-
+    app.logger.info(f"Filter SSM for /related: {filter_ssm}")
+    
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 

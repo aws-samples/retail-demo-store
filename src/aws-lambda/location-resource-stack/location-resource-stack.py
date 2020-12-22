@@ -19,7 +19,7 @@ s3 = boto3.resource('s3')
 
 def load_default_geofence_from_s3():
     """ Retrieves GeoJson file containing store Geofence from S3 """
-    return load_json_from_s3('waypoint/store_geofence.json')
+    return load_json_from_s3('location_services/store_geofence.json')
 
 
 def load_json_from_s3(object_key):
@@ -75,10 +75,10 @@ def create(event, context):
     account_id = event['AccountId']
     create_default_geofence = event['ResourceProperties']['CreateDefaultGeofence'].lower() == 'true'
 
-    # Generate the resource name to be used for all Waypoint resources
+    # Generate the resource name to be used for all Location resources
     resource_name = stack_name + '-' + get_random_string(8)
     helper.PhysicalResourceId = resource_name
-    helper.Data.update({'WaypointResourceName': resource_name})
+    helper.Data.update({'LocationResourceName': resource_name})
 
     # Create a map
     logger.info(f"Creating Map with name: {resource_name}")
@@ -87,7 +87,8 @@ def create(event, context):
         Configuration={
             'Style': 'VectorEsriNavigation'
         },
-        Description=f'Map belonging to CloudFormation Stack {stack_name}'
+        Description=f'Map belonging to CloudFormation Stack {stack_name}',
+        PricingPlan='RequestBasedUsage'
     )
     logger.info(response)
 
@@ -95,7 +96,8 @@ def create(event, context):
     logger.info(f"Creating Geofence Collection with name: {resource_name}")
     response = location.create_geofence_collection(
         CollectionName=resource_name,
-        Description=f'Collection belonging to CloudFormation Stack {stack_name}'
+        Description=f'Collection belonging to CloudFormation Stack {stack_name}',
+        PricingPlan='RequestBasedUsage'
     )
     logger.info(response)
     collection_arn = get_geofence_collection_arn(region, account_id, resource_name)
@@ -108,7 +110,8 @@ def create(event, context):
     logger.info(f"Creating Tracker with name: {resource_name}")
     response = location.create_tracker(
         TrackerName=resource_name,
-        Description=f'Tracker belonging to CloudFormation Stack {stack_name}'
+        Description=f'Tracker belonging to CloudFormation Stack {stack_name}',
+        PricingPlan='RequestBasedUsage'
     )
     logger.info(response)
 
@@ -125,7 +128,8 @@ def create(event, context):
     response = location.create_place_index(
           DataSource='Esri',
           Description=f'Place Index belonging to CloudFormation Stack {stack_name}',
-          IndexName=resource_name
+          IndexName=resource_name,
+        PricingPlan='RequestBasedUsage'
       )
     logger.info(response)
 

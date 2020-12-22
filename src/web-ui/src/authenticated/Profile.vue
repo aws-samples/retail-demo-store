@@ -79,10 +79,10 @@
             </button>
           </div>
         </div>
-        <h4>Waypoint Demo</h4>
+        <h4>Location Demo</h4>
         <hr/>
         <router-link type="button" class="btn btn-primary" :to="{name:'Collections'}">
-          Access Waypoint Demo
+          Access Location Demo
         </router-link>
 
         <h4>Admin</h4>

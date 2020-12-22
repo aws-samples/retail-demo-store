@@ -25,7 +25,7 @@ from botocore.exceptions import ClientError
 from collections import defaultdict
 import time
 
-GEOFENCE_PINPOINT_EVENTTYPE = 'WaypointApproachLocalShop'
+GEOFENCE_PINPOINT_EVENTTYPE = 'LocationApproachLocalShop'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -42,8 +42,8 @@ recommendations_template_name = 'RetailDemoStore-Recommendations'
 recommender_name = 'retaildemostore-recommender'
 offers_recommender_name = 'retaildemooffers-recommender'
 
-waypoint_abandoned_cart_template_name = 'RetailDemoStore-WaypointAbandonedCart'
-waypoint_offers_recommendations_template_name = 'RetailDemoStore-WaypointOfferRecommendations'
+location_abandoned_cart_template_name = 'RetailDemoStore-LocationAbandonedCart'
+location_offers_recommendations_template_name = 'RetailDemoStore-LocationOfferRecommendations'
 
 
 def create_email_template(template_name, template_fname_root, subject, description, recommender_id=None):
@@ -165,30 +165,30 @@ def create_recommendations_email_template(recommender_id):
                                  recommender_id=recommender_id)
 
 
-def create_waypoint_abandoned_cart_email_template():
-    return create_email_template(waypoint_abandoned_cart_template_name, 'waypoint-abandoned-cart-email-template',
+def create_location_abandoned_cart_email_template():
+    return create_email_template(location_abandoned_cart_template_name, 'location-abandoned-cart-email-template',
                                  subject='Your local store has the products you were looking at!',
-                                 description='Abandoned cart email template - for waypoint',
+                                 description='Abandoned cart email template - for location',
                                  recommender_id=None)
 
 
-def create_waypoint_offers_email_template(recommender_id):
-    return create_email_template(waypoint_offers_recommendations_template_name, 'waypoint-offers-email-template',
+def create_location_offers_email_template(recommender_id):
+    return create_email_template(location_offers_recommendations_template_name, 'location-offers-email-template',
                                  subject="You're close to Retail Demo Store! -"
                                          " visit our store today to redeem this offer",
                                  description='Personalized recommendations email template',
                                  recommender_id=recommender_id)
 
 
-def create_waypoint_abandoned_cart_sms_template():
-    return create_sms_template(waypoint_abandoned_cart_template_name,
+def create_location_abandoned_cart_sms_template():
+    return create_sms_template(location_abandoned_cart_template_name,
                                body='Hi {{User.UserAttributes.FirstName}}! You have items in your shopping cart. '
                                     'Grab them now at your local AWS Retail Demo store!',
                                description='Abandoned cart SMS template', recommender_id=None)
 
 
-def create_waypoint_offers_sms_template(recommender_id):
-    return create_sms_template(waypoint_offers_recommendations_template_name,
+def create_location_offers_sms_template(recommender_id):
+    return create_sms_template(location_offers_recommendations_template_name,
                                body='Hi {{User.UserAttributes.FirstName}}! Pop into our store near you, use the code '
                                     '{{Recommendations.OfferCode.[0]}} for any purchase and get '
                                     '{{Recommendations.OfferDescription.[0]}}. We are looking forward to seeing you.',
@@ -562,10 +562,10 @@ def lambda_handler(event, context):
     create_abandoned_cart_email_template()
     create_recommendations_email_template(recommender_id)
 
-    create_waypoint_offers_email_template(offers_recommender_id)
-    create_waypoint_offers_sms_template(offers_recommender_id)
-    create_waypoint_abandoned_cart_sms_template()
-    create_waypoint_abandoned_cart_email_template()
+    create_location_offers_email_template(offers_recommender_id)
+    create_location_offers_sms_template(offers_recommender_id)
+    create_location_abandoned_cart_sms_template()
+    create_location_abandoned_cart_email_template()
 
     # Enable email for Pinpoint project
     email_from = email_from_address
@@ -624,38 +624,38 @@ def lambda_handler(event, context):
 
     # ##############
 
-    # Create Abandoned Cart campaign with Waypoint geofence
-    waypoint_abandoned_cart_campaign_config = create_campaign(
+    # Create Abandoned Cart campaign with Location geofence
+    location_abandoned_cart_campaign_config = create_campaign(
         pinpoint_app_id, segments['Cart']['INCLUSIVE']['EMAIL']['Id'], segments['Cart']['INCLUSIVE']['EMAIL']['Version'],
-        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='WaypointAbandonedCartCampaign',
-        email_from=email_from, email_template_name=waypoint_abandoned_cart_template_name, sms_template_name=None)
-    logger.debug('waypoint_abandoned_cart_campaign_config:'+json.dumps(waypoint_abandoned_cart_campaign_config,
+        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationAbandonedCartCampaign',
+        email_from=email_from, email_template_name=location_abandoned_cart_template_name, sms_template_name=None)
+    logger.debug('location_abandoned_cart_campaign_config:'+json.dumps(location_abandoned_cart_campaign_config,
                                                                        indent=2, default=str))
 
     # When there is no cart waiting we want to send a recommendation
-    waypoint_recommender_campaign_config = create_campaign(
+    location_recommender_campaign_config = create_campaign(
         pinpoint_app_id, segments['AllUsers']['EMAIL']['Id'], segments['AllUsers']['EMAIL']['Version'],
-        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='WaypointRecommendationsCampaign',
-        email_from=email_from, email_template_name=waypoint_offers_recommendations_template_name, sms_template_name=None)
-    logger.debug('waypoint_recommender_campaign_config:'+json.dumps(waypoint_recommender_campaign_config,
+        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationRecommendationsCampaign',
+        email_from=email_from, email_template_name=location_offers_recommendations_template_name, sms_template_name=None)
+    logger.debug('location_recommender_campaign_config:'+json.dumps(location_recommender_campaign_config,
                                                                     indent=2, default = str))
 
-    # Waypoint demo: When the user gets near our geofence (local store) and they have products in their cart
+    # Location demo: When the user gets near our geofence (local store) and they have products in their cart
     # we tell them to come pick them up.
-    waypoint_abandoned_cart_campaign_config_sms = create_campaign(
+    location_abandoned_cart_campaign_config_sms = create_campaign(
         pinpoint_app_id, segments['Cart']['INCLUSIVE']['SMS']['Id'], segments['Cart']['INCLUSIVE']['SMS']['Version'],
-        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='WaypointAbandonedCartCampaignSMS',
-        email_from=None, email_template_name=None, sms_template_name=waypoint_abandoned_cart_template_name)
-    logger.debug('waypoint_abandoned_cart_campaign_config sms:'+json.dumps(waypoint_abandoned_cart_campaign_config_sms,
+        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationAbandonedCartCampaignSMS',
+        email_from=None, email_template_name=None, sms_template_name=location_abandoned_cart_template_name)
+    logger.debug('location_abandoned_cart_campaign_config sms:'+json.dumps(location_abandoned_cart_campaign_config_sms,
                                                                        indent=2, default=str))
 
-    # Waypoint demo: When there is no cart waiting we want to send a recommendation of an offer instead
-    waypoint_recommender_campaign_config_sms = create_campaign(
+    # Location demo: When there is no cart waiting we want to send a recommendation of an offer instead
+    location_recommender_campaign_config_sms = create_campaign(
         pinpoint_app_id, segments['AllUsers']['SMS']['Id'],
         segments['AllUsers']['SMS']['Version'],
-        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='WaypointRecommendationsCampaignSMS',
-        email_from=None, email_template_name=None, sms_template_name=waypoint_offers_recommendations_template_name)
-    logger.debug('waypoint_recommender_campaign_config sms:' + json.dumps(waypoint_recommender_campaign_config_sms,
+        event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationRecommendationsCampaignSMS',
+        email_from=None, email_template_name=None, sms_template_name=location_offers_recommendations_template_name)
+    logger.debug('location_recommender_campaign_config sms:' + json.dumps(location_recommender_campaign_config_sms,
                                                                       indent=2, default=str))
 
     return {
