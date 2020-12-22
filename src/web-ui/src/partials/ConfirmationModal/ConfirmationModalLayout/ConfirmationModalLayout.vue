@@ -8,7 +8,7 @@
           </button>
         </div>
 
-        <div class="modal-body pb-5">
+        <div class="modal-body px-5 pb-5">
           <Progress class="mb-4"></Progress>
 
           <slot></slot>
