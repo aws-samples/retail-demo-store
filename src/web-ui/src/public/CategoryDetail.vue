@@ -1,9 +1,7 @@
 <template>
   <Layout :isLoading="!products.length">
-    <div class="content">
-
       <!-- Product List -->
-      <div class="container mt-3" v-if="products.length">
+      <div class="container" v-if="products.length">
         <h2 class="text-left">{{ this.display | capitalize }}</h2>
         <div v-if="explain_recommended" class="text-muted text-left">
           <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
@@ -65,8 +63,6 @@
           </div>
         </div>
       </div>
-
-    </div>
   </Layout>
 </template>
 
@@ -205,10 +201,6 @@ export default {
 </script>
 
 <style scoped>
-  .content {
-    padding-top: 1rem;
-  }
-
   .products {
     flex: 1;
     align-self: center;
