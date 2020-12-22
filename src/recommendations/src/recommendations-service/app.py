@@ -170,7 +170,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
 
         if campaign_arn and (user_id or not user_reqd_for_campaign):
 
-            logger.info(f"get_products: Supplied campaign: {campaign_arn} Supplied filter: {filter_arn} Supplied user: {user_id}")
+            logger.info(f"get_products: Supplied campaign: {campaign_arn} (from {default_campaign_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
 
             if filter_arn is not None and (user_id is None or len(user_id.strip()) == 0):
                 logger.warning(f"userID is required if using filter - filter Arn: {filter_arn} - spoofing user to 0")
@@ -299,6 +299,7 @@ def related():
     filter_ssm = request.args.get('filter', filter_purchased_param_name)
     if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
     elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    app.logger.info(f"Filter SSM for /related: {filter_ssm}")
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-  This template deploys Waypoint & associated resources for the Waypoint NRF 2021 demo.
+  This template deploys Location & associated resources for the Location NRF 2021 demo.
 
 Parameters:
   ResourceBucket:
@@ -24,9 +24,9 @@ Parameters:
     Type: String
     Description: Whether the default Geofence should be added to the Geofence Collection.
 
-  DeployWaypoint:
+  DeployLocation:
     Type: String
-    Description: Whether any waypoint resources at all should be deployed.
+    Description: Whether any location resources at all should be deployed.
 
   PinpointAppId:
     Type: String
@@ -77,43 +77,43 @@ Conditions:
       - !Ref DeployDefaultGeofence
       - 'Yes'
     - !Equals
-      - !Ref DeployWaypoint
+      - !Ref DeployLocation
       - 'Yes'
 
-  Waypoint: !Equals
-    - !Ref DeployWaypoint
+  Location: !Equals
+    - !Ref DeployLocation
     - 'Yes'
 
   CreateAmazonPayResources: !And
-    - !Condition Waypoint
+    - !Condition Location
     - !Not [!Equals [!Ref AmazonPayPrivateKey, ""]]
 
 Resources:
 
-  # Custom resource for managing Amazon Waypoint resources (1 each of map, geofence collection, tracker, geofence)
-  WaypointResourceStackLambdaFunction:
+  # Custom resource for managing Amazon Location resources (1 each of map, geofence collection, tracker, geofence)
+  LocationResourceStackLambdaFunction:
     Type: 'AWS::Lambda::Function'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Waypoint resources used in the Waypoint NRF Demo'
-      Handler: waypoint-resource-stack.lambda_handler
+      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location NRF Demo'
+      Handler: location-resource-stack.lambda_handler
       Role: !GetAtt
-        - WaypointResourceStackLambdaExecutionRole
+        - LocationResourceStackLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/waypoint-resource-stack.zip'
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-resource-stack.zip'
       Runtime: python3.8
       Timeout: 900
-      FunctionName: WaypointNrfDemoWaypointResourceStack
+      FunctionName: LocationNrfDemoLocationResourceStack
       Environment:
         Variables:
           RESOURCE_BUCKET: !Ref ResourceBucket
 
 
-  WaypointResourceStackLambdaExecutionRole:
+  LocationResourceStackLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Waypoint
+    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -135,8 +135,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoWaypointResourceStack:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoWaypointResourceStack'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoLocationResourceStack:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoLocationResourceStack'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -152,31 +152,31 @@ Resources:
                   - geo:*
                 Resource: '*'
 
-  CustomWaypointResourceStackLambdaFunction:
-    Type: Custom::WaypointResourceStack
-    Condition: Waypoint
+  CustomLocationResourceStackLambdaFunction:
+    Type: Custom::LocationResourceStack
+    Condition: Location
     Properties:
-      ServiceToken: !GetAtt WaypointResourceStackLambdaFunction.Arn
+      ServiceToken: !GetAtt LocationResourceStackLambdaFunction.Arn
       CreateDefaultGeofence: !If [DefaultGeofence, "true", "false"]
 
-  # Waypoint Events handling
-  WaypointGeofenceEventLogGroup:
+  # Location Events handling
+  LocationGeofenceEventLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      LogGroupName: !Sub /aws/events/${CustomWaypointResourceStackLambdaFunction.WaypointResourceName}-Monitor
+      LogGroupName: !Sub /aws/events/${CustomLocationResourceStackLambdaFunction.LocationResourceName}-Monitor
 
-  WaypointGeofenceEventRule:
+  LocationGeofenceEventRule:
     Type: 'AWS::Events::Rule'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Description: Rule for Waypoint NRF demo to trigger when devices enter/exit a geofence
+      Description: Rule for Location NRF demo to trigger when devices enter/exit a geofence
       EventPattern: {
         "source": [
             "aws.geo"
         ],
         "resources": [
-            !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/${CustomWaypointResourceStackLambdaFunction.WaypointResourceName}"
+            !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/${CustomLocationResourceStackLambdaFunction.LocationResourceName}"
         ],
         "detail": {
           "EventType": ["ENTER"]
@@ -187,24 +187,24 @@ Resources:
       }
       Targets:
         -
-          Id: WaypointEventLogging
-          Arn: !GetAtt WaypointGeofenceEventLogGroup.Arn
+          Id: LocationEventLogging
+          Arn: !GetAtt LocationGeofenceEventLogGroup.Arn
         -
           Id: GeofenceEventHandlerLambda
-          Arn: !GetAtt WaypointGeofenceEventHandler.Arn
+          Arn: !GetAtt LocationGeofenceEventHandler.Arn
 
-  WaypointGeofenceEventRuleInvokeLambdaPermission:
+  LocationGeofenceEventRuleInvokeLambdaPermission:
     Type: AWS::Lambda::Permission
-    Condition: Waypoint
+    Condition: Location
     Properties:
       Action: "lambda:InvokeFunction"
-      FunctionName: !GetAtt WaypointGeofenceEventHandler.Arn
+      FunctionName: !GetAtt LocationGeofenceEventHandler.Arn
       Principal: "events.amazonaws.com"
-      SourceArn: !GetAtt WaypointGeofenceEventRule.Arn
+      SourceArn: !GetAtt LocationGeofenceEventRule.Arn
 
-  WaypointGeofenceEventHandlerLambdaExecutionRole:
+  LocationGeofenceEventHandlerLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Waypoint
+    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -226,8 +226,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoGeofenceEventHandler:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoGeofenceEventHandler'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -262,23 +262,23 @@ Resources:
                 Action:
                   - execute-api:ManageConnections
                 Resource:
-                  - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WaypointGeofenceBrowserNotificationApi}/*'
+                  - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LocationGeofenceBrowserNotificationApi}/*'
 
-  WaypointGeofenceEventHandler:
+  LocationGeofenceEventHandler:
     Type: 'AWS::Lambda::Function'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Description: 'Handles Amazon Waypoint geofence entry/exit events in Waypoint NRF demo '
-      Handler: waypoint-geofence-event.lambda_handler
+      Description: 'Handles Amazon Location geofence entry/exit events in Location NRF demo '
+      Handler: location-geofence-event.lambda_handler
       Role: !GetAtt
-        - WaypointGeofenceEventHandlerLambdaExecutionRole
+        - LocationGeofenceEventHandlerLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/waypoint-geofence-event.zip'
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-geofence-event.zip'
       Runtime: python3.8
       Timeout: 900
-      FunctionName: WaypointNrfDemoGeofenceEventHandler
+      FunctionName: LocationNrfDemoGeofenceEventHandler
       Environment:
         Variables:
           UserPoolId: !Ref UserPoolId
@@ -290,90 +290,90 @@ Resources:
           OffersServiceExternalUrl: !Ref OffersServiceExternalUrl
           UsersServiceExternalUrl: !Ref UsersServiceExternalUrl
           WebURL: !Ref WebURL
-          NotificationEndpointUrl: !Sub "${WaypointGeofenceBrowserNotificationApi.ApiEndpoint}/${WaypointGeofenceBrowserNotificationApiStage}"
+          NotificationEndpointUrl: !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}"
           WebsocketDynamoTableName: !Ref WebSocketConnectionTable
 
-  WaypointGeofenceEventHandlerEventConfig:
+  LocationGeofenceEventHandlerEventConfig:
     Type: 'AWS::Lambda::EventInvokeConfig'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      FunctionName: !Ref WaypointGeofenceEventHandler
+      FunctionName: !Ref LocationGeofenceEventHandler
       MaximumRetryAttempts: 0
       Qualifier: $LATEST
 
   # API Gateway & associated resources to support browser notifications via WebSockets
-  WaypointGeofenceBrowserNotificationApi:
+  LocationGeofenceBrowserNotificationApi:
     Type: 'AWS::ApiGatewayV2::Api'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Name: WaypointNrfDemo
+      Name: LocationNrfDemo
       ProtocolType: WEBSOCKET
       RouteSelectionExpression: $request.body.action
 
-  WaypointGeofenceBrowserNotificationApiDeployment:
+  LocationGeofenceBrowserNotificationApiDeployment:
     Type: 'AWS::ApiGatewayV2::Deployment'
-    Condition: Waypoint
+    Condition: Location
     DependsOn:
-      - WaypointGeofenceBrowserNotificationApiConnectRoute
-      - WaypointGeofenceBrowserNotificationApiDisconnectRoute
+      - LocationGeofenceBrowserNotificationApiConnectRoute
+      - LocationGeofenceBrowserNotificationApiDisconnectRoute
     Properties:
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
 
-  WaypointGeofenceBrowserNotificationApiStage:
+  LocationGeofenceBrowserNotificationApiStage:
     Type: 'AWS::ApiGatewayV2::Stage'
-    Condition: Waypoint
+    Condition: Location
     Properties:
       StageName: Prod
-      DeploymentId: !Ref WaypointGeofenceBrowserNotificationApiDeployment
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      DeploymentId: !Ref LocationGeofenceBrowserNotificationApiDeployment
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
 
-  WaypointGeofenceBrowserNotificationApiConnectRoute:
+  LocationGeofenceBrowserNotificationApiConnectRoute:
     Type: 'AWS::ApiGatewayV2::Route'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
       RouteKey: $connect
       AuthorizationType: NONE
       OperationName: ConnectRoute
       Target: !Join
         - '/'
         - - 'integrations'
-          - !Ref WaypointGeofenceWebsocketConnectionIntegration
+          - !Ref LocationGeofenceWebsocketConnectionIntegration
 
-  WaypointGeofenceWebsocketConnectionIntegration:
+  LocationGeofenceWebsocketConnectionIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
       IntegrationType: AWS_PROXY
       IntegrationUri:
-        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaypointGeofenceWebsocketConnectLambda.Arn}/invocations"
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LocationGeofenceWebsocketConnectLambda.Arn}/invocations"
 
-  WaypointGeofenceBrowserNotificationApiDisconnectRoute:
+  LocationGeofenceBrowserNotificationApiDisconnectRoute:
     Type: AWS::ApiGatewayV2::Route
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
       RouteKey: $disconnect
       AuthorizationType: NONE
       OperationName: DisconnectRoute
       Target: !Join
         - '/'
         - - 'integrations'
-          - !Ref WaypointGeofenceWebsocketDisconnectIntegration
+          - !Ref LocationGeofenceWebsocketDisconnectIntegration
 
-  WaypointGeofenceWebsocketDisconnectIntegration:
+  LocationGeofenceWebsocketDisconnectIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      ApiId: !Ref WaypointGeofenceBrowserNotificationApi
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
       IntegrationType: AWS_PROXY
       IntegrationUri:
-        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaypointGeofenceWebsocketDisconnectLambda.Arn}/invocations"
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LocationGeofenceWebsocketDisconnectLambda.Arn}/invocations"
 
-  WaypointGeofenceWebsocketConnectLambdaExecutionRole:
+  LocationGeofenceWebsocketConnectLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Waypoint
+    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -395,8 +395,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoNotificationApiConnect:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoNotificationApiConnect'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiConnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiConnect'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -408,38 +408,38 @@ Resources:
                   - dynamodb:PutItem
                 Resource: !GetAtt WebSocketConnectionTable.Arn
 
-  WaypointGeofenceWebsocketConnectLambda:
+  LocationGeofenceWebsocketConnectLambda:
     Type: 'AWS::Lambda::Function'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Description: 'Handles connections to the WebSocket API processing Waypoint Geofence notifications'
+      Description: 'Handles connections to the WebSocket API processing Location Geofence notifications'
       Handler: websocket-connect.lambda_handler
       Role: !GetAtt
-        - WaypointGeofenceWebsocketConnectLambdaExecutionRole
+        - LocationGeofenceWebsocketConnectLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-connect.zip'
       Runtime: python3.8
       Timeout: 30
-      FunctionName: WaypointNrfDemoNotificationApiConnect
+      FunctionName: LocationNrfDemoNotificationApiConnect
       Environment:
         Variables:
           WebsocketDynamoTableName: !Ref WebSocketConnectionTable
 
   ConnectionLambdaInvokePermission:
     Type: AWS::Lambda::Permission
-    Condition: Waypoint
+    Condition: Location
     DependsOn:
-      - WaypointGeofenceBrowserNotificationApi
+      - LocationGeofenceBrowserNotificationApi
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref WaypointGeofenceWebsocketConnectLambda
+      FunctionName: !Ref LocationGeofenceWebsocketConnectLambda
       Principal: apigateway.amazonaws.com
 
-  WaypointGeofenceWebsocketDisconnectLambdaExecutionRole:
+  LocationGeofenceWebsocketDisconnectLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Waypoint
+    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -461,8 +461,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoNotificationApiDisconnect:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoNotificationApiDisconnect'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiDisconnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiDisconnect'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -474,39 +474,39 @@ Resources:
                   - dynamodb:DeleteItem
                 Resource: !GetAtt WebSocketConnectionTable.Arn
 
-  WaypointGeofenceWebsocketDisconnectLambda:
+  LocationGeofenceWebsocketDisconnectLambda:
     Type: 'AWS::Lambda::Function'
-    Condition: Waypoint
+    Condition: Location
     Properties:
-      Description: 'Handles disconnection from the WebSocket API processing Waypoint Geofence notifications'
+      Description: 'Handles disconnection from the WebSocket API processing Location Geofence notifications'
       Handler: websocket-disconnect.lambda_handler
       Role: !GetAtt
-        - WaypointGeofenceWebsocketDisconnectLambdaExecutionRole
+        - LocationGeofenceWebsocketDisconnectLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-disconnect.zip'
       Runtime: python3.8
       Timeout: 30
-      FunctionName: WaypointNrfDemoNotificationApiDisconnect
+      FunctionName: LocationNrfDemoNotificationApiDisconnect
       Environment:
         Variables:
           WebsocketDynamoTableName: !Ref WebSocketConnectionTable
 
   DisconnectLambdaInvokePermission:
     Type: AWS::Lambda::Permission
-    Condition: Waypoint
+    Condition: Location
     DependsOn:
-      - WaypointGeofenceBrowserNotificationApi
+      - LocationGeofenceBrowserNotificationApi
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref WaypointGeofenceWebsocketDisconnectLambda
+      FunctionName: !Ref LocationGeofenceWebsocketDisconnectLambda
       Principal: apigateway.amazonaws.com
 
   # Dynamo table for handling WebSockets backend
   WebSocketConnectionTable:
     Type: AWS::DynamoDB::Table
-    Condition: Waypoint
+    Condition: Location
     Properties:
       AttributeDefinitions:
         - AttributeName: "userId"
@@ -541,8 +541,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoGeofenceEventHandler:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNrfDemoGeofenceEventHandler'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -566,7 +566,7 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/amazon-pay-signing.zip'
       Runtime: nodejs12.x
       Timeout: 30
-      FunctionName: WaypointNrfDemoAmazonPaySigningLambda
+      FunctionName: LocationNrfDemoAmazonPaySigningLambda
       Environment:
         Variables:
           AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
@@ -577,15 +577,15 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Condition: CreateAmazonPayResources
     Properties:
-      Name: WaypointNrfDemoAmazonPayPrivateKey
+      Name: LocationNrfDemoAmazonPayPrivateKey
       SecretString: !Ref AmazonPayPrivateKey
 
 
 Outputs:
-  WaypointResourceName:
-    Description: Name of all created Waypoint resources
-    Value:  !If [Waypoint, !GetAtt CustomWaypointResourceStackLambdaFunction.WaypointResourceName, "NotDeployed"]
+  LocationResourceName:
+    Description: Name of all created Location resources
+    Value:  !If [Location, !GetAtt CustomLocationResourceStackLambdaFunction.LocationResourceName, "NotDeployed"]
 
-  WaypointNotificationEndpoint:
+  LocationNotificationEndpoint:
     Description: URL of WebSocket API for Geofence notifications
-    Value: !If [Waypoint, !Sub "${WaypointGeofenceBrowserNotificationApi.ApiEndpoint}/${WaypointGeofenceBrowserNotificationApiStage}", "NotDeployed"]
+    Value: !If [Location, !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}", "NotDeployed"]

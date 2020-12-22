@@ -57,6 +57,8 @@ These instructions assume that the Retail Demo Store has been deployed
     - `WAYPOINT_PLACE_INDEX_NAME`: Value found in the 'Outputs' of the 'Waypoint' as the variable 'WaypointResourceName'
     - `ASSUME_ROLE_ARN`: Value found in the 'Outputs' of the 'Alexa' sub-stack of the Demo Store CloudFormation stack. Ensure you get the **ARN** and not just the name of the Role. If this has not been created, ensure that the `CreateAlexaResources` parameter on the Demo Store CloudFormation stack is set to 'Yes'.
     - `COGNITO_DOMAIN`: Leave blank. Populated in the **Cognito Authentication Setup** section. 
+    - `AMAZON_PAY_MERCHANT_ID` - Fill this in when you enable Amazon Pay purchasing (see below).
+    - `SANDBOX_CUSTOMER_EMAIL` - Fill this in when you enable Amazon Pay purchasing (see below).
 
 - Deploy the Skill with the following step (it may take a few minutes):
     - `ask deploy`
@@ -150,10 +152,81 @@ These instructions are based on the blog [Amazon Cognito for Alexa Skills User M
 
 - You Alexa Skill should now be ready for full usage with account linking to the Demo Store back-end.  
 
-## Testing & Usage
-Before testing or using the Alexa Skill, please ensure you have followed & completed the steps in the **Pre-Requisites**, **Skill Deployment** and **Cognito Authentication Setup** sections.
+## Amazon Pay integration setup.
 
-To test the Skill, install the Alexa application on a mobile device and log in using your Amazon Developer credentials (alternatively, test through the [Web UI](https://developer.amazon.com/alexa/console/ask/test).
+Without this Amazon Pay setup, your checkout experience will be truncated.
+
+- Obtain your Skill ID from the [Alexa developer console](https://developer.amazon.com/alexa/console/ask) by finding
+  your skill and clicking "Copy Skill ID":
+   
+> ![](./setup_images/11.png) 
+
+- Ensure that "Amazon Pay" is enabled. **Do not forget to re-enable Amazon Pay if you redeploy the skill.**
+  It should be enabled by default.
+
+> ![](./setup_images/12.png) 
+
+---
+
+> ![](./setup_images/13.png) 
+
+- Create/login to your Amazon Pay account in Seller Central. As this is a demo skill we will use the Sandbox so ensure 
+your sandbox environment is active in your [Payments UI console](https://sellercentral.amazon.com/external-payments/integration/alexa/):
+
+> ![](./setup_images/14.png) 
+
+- Link your skill from your Amazon Pay account by visiting Integration > Alexa, choosing `Connect an Alexa Skill` 
+  and entering the skill ID you obtained above, and clicking "Connect". If you accidentally link your skill to
+  your production view you should unlink it and relink it in the sandbox view. 
+
+> ![](./setup_images/15.png) 
+
+---
+
+> ![](./setup_images/16.png) 
+
+---
+
+> ![](./setup_images/17.png) 
+
+- Create a test account for testing Amazon Pay by going to Integration > Test Accounts and clicking 
+  "Create a new test account". Choose an appropriate shipping address, use an email address you ahve access
+  to, and enter a password you can remember. Take not of the email address.
+  
+> ![](./setup_images/18.png) 
+
+---
+
+> ![](./setup_images/19.png) 
+
+- Obtain your MWS Seller ID, also known as Merchant ID, from your [Amazon Pay UI](https://sellercentral.amazon.com/gp/pyop/seller/mwsaccess/).
+
+- Go to the `.env` file at `src/alexa/lambda/.env` and set your `MERCHANT_ID` from the seller Id you
+  just found in the previous step, and add your test user's email you entered in your test user
+  in the step before in the key `SANDBOX_CUSTOMER_EMAIL`. 
+  
+- Again change directory to `src/alexa/` and run `ask deploy` to update your Lambda. You'll need to again go in
+  to your Alexa skill and enable Amazon Pay (see the second step above).
+
+- Test your skill now with Amazon Pay enabled (see below). You should be receiving Amazon Pay
+  confirmation emails at your test user's email address - these are separate from emails sent by
+  the demo - they are sent by Amazon Pay. They look like this:
+  
+> ![](./setup_images/20.png) 
+
+Note that if you are not using the Cognito
+integration (for example, because you are testing from the web simulator of Alexa),
+if you want system generated emails to go to your email address entered in `SANDBOX_CUSTOMER_EMAIL`,
+ensure that email address is verified in Pinpoint as a sender address (because we are using the Pinpoint sandbox).
+
+## Testing & Usage
+Before testing or using the Alexa Skill, please ensure you have followed & completed the steps 
+in the **Pre-Requisites**, **Skill Deployment** and **Cognito Authentication Setup** sections.
+
+To test the Skill, install the Alexa application on a mobile device and log in 
+using your Amazon Developer credentials (alternatively, test through the 
+[Web UI](https://developer.amazon.com/alexa/console/ask/test) without Cognito integration -
+a .
  The Skill can be found by going to 'More' > 'Skills & Games' > 'Your Skills' > 'Dev'. Select the created Skill & authenticate with the Demo Store back-end (under 'Settings') to enable full functionality. 
 
 Start the demo by this phrase:

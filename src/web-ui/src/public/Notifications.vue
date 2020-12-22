@@ -29,7 +29,7 @@ export default {
       this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
     openWebsocketConnection() {
-      this.connection = new WebSocket(`${process.env.VUE_APP_WAYPOINT_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
+      this.connection = new WebSocket(`${process.env.VUE_APP_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
 
       this.connection.onopen = (e) => {
         console.log(e)
@@ -64,7 +64,7 @@ export default {
               text: `${customerName} will arrive at ${formattedPickupTime} to collect ${orderDetail}`
             });
           }
-        } else if (!this.isWaypointView) {
+        } else if (!this.isLocationView) {
           if (messageData.EventType === "PURCHASE") {
             RecommendationsRepository.getCouponOffer(this.user.id)
                 .then((offer_recommendation) => {
@@ -131,8 +131,8 @@ export default {
     isInstoreView() {
       return this.$route.name.toLowerCase() === 'collections';
     },
-    isWaypointView() {
-      return this.$route.name.toLowerCase() === 'waypoint';
+    isLocationView() {
+      return this.$route.name.toLowerCase() === 'location';
     },
     user() {
       return AmplifyStore.state.user

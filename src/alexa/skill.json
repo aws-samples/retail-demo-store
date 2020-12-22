@@ -19,18 +19,26 @@
         "isActive": false
       },
       "isAvailableWorldwide": true,
-      "testingInstructions": "",
-      "category": "CONNECTED_CAR",
+      "testingInstructions": "Alexa, ask the C-Store Demo if there is an Exxon nearby",
+      "category": "SHOPPING",
       "distributionCountries": []
     },
     "apis": {
       "custom": {}
     },
     "manifestVersion": "1.0",
+    "permissions": [
+      {
+        "name": "payments:autopay_consent"
+      }
+    ],
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "locales": {
-        "en-US": {}
+        "en-US": {
+          "termsOfUseUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=201809740",
+          "privacyPolicyUrl": "https://www.alexa.com/help/privacy"
+        }
       },
       "containsAds": false,
       "isExportCompliant": true,

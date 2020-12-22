@@ -6,10 +6,10 @@
 import mapbox from 'mapbox-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
 import {Credentials, Signer} from "@aws-amplify/core";
-import Waypoint from "@/waypoint/Waypoint";
+import Location from "@/location/Location";
 
-const resourceName = process.env.VUE_APP_WAYPOINT_RESOURCE_NAME;
-const waypointApi = new Waypoint();
+const resourceName = process.env.VUE_APP_LOCATION_RESOURCE_NAME;
+const locationApi = new Location();
 
 export default {
   name: "AmplifyMap",
@@ -70,7 +70,7 @@ export default {
 
     },
     async loadGeofence() {
-      const geofences = await waypointApi.getGeofences();
+      const geofences = await locationApi.getGeofences();
 
       const source = this.map.getSource('geofences');
       // Remove source & layer when there aren't geofences

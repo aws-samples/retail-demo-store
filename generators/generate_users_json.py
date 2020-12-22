@@ -27,7 +27,7 @@ num_users = 6000
 print('Generating {} random users...'.format(num_users))
 
 pool = UserPool.new_file('users.json.gz', num_users//2, category_preference_personas=datagenerator.users.category_preference_personas)
-pool = UserPool.new_file('cstore_users.json.gz', num_users, category_preference_personas=datagenerator.users.category_preference_personas_cstore,
+pool = UserPool.new_file('cstore_users.json.gz', num_users//2, category_preference_personas=datagenerator.users.category_preference_personas_cstore,
                          start_user=num_users//2)
 
 print('Done')

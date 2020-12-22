@@ -95,7 +95,7 @@ Parameters:
     Type: String
     Default: none
 
-  WaypointServiceExternalUrl:
+  LocationServiceExternalUrl:
     Type: String
     Default: none
 
@@ -134,11 +134,11 @@ Parameters:
     Type: String
     Description: Lambda Arn for cleanup function
 
-  WaypointResourceName:
+  LocationResourceName:
     Type: String
-    Description: Name of Waypoint resources (Map, Geofence collection, Tracker)
+    Description: Name of Location resources (Map, Geofence collection, Tracker)
 
-  WaypointNotificationEndpoint:
+  LocationNotificationEndpoint:
     Type: String
     Description: URL of WebSocket API for Geofence notifications
 
@@ -379,8 +379,8 @@ Resources:
             Value: !Sub ${OrdersServiceExternalUrl}        
           - Name: RECOMMENDATIONS_SERVICE_URL
             Value: !Sub ${RecommendationsServiceExternalUrl}
-          - Name: WAYPOINT_SERVICE_URL
-            Value: !Sub ${WaypointServiceExternalUrl}
+          - Name: LOCATION_SERVICE_URL
+            Value: !Sub ${LocationServiceExternalUrl}
           - Name: SEARCH_SERVICE_URL
             Value: !Sub ${SearchServiceExternalUrl}
           - Name: VIDEOS_SERVICE_URL
@@ -398,10 +398,10 @@ Resources:
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey
-          - Name: WAYPOINT_RESOURCE_NAME
-            Value: !Ref WaypointResourceName
-          - Name: WAYPOINT_NOTIFICATION_URL
-            Value: !Ref WaypointNotificationEndpoint
+          - Name: LOCATION_RESOURCE_NAME
+            Value: !Ref LocationResourceName
+          - Name: LOCATION_NOTIFICATION_URL
+            Value: !Ref LocationNotificationEndpoint
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterSegmentWriteKey 

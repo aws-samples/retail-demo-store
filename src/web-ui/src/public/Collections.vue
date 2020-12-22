@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <div>
-      <waypoint-demo-navigation/>
+      <location-demo-navigation/>
       <div class="container">
         <div class="row">
           <div class=col>
@@ -33,7 +33,7 @@
 
 <script>
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
-import WaypointDemoNavigation from "@/public/WaypointDemoNavigation";
+import LocationDemoNavigation from "@/public/LocationDemoNavigation";
 import Layout from "@/components/Layout/Layout";
 
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -42,7 +42,7 @@ export default {
   name: "Collections",
   components: {
     Layout,
-    WaypointDemoNavigation
+    LocationDemoNavigation
   },
   data () {
     return {

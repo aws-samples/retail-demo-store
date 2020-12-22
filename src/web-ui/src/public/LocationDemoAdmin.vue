@@ -1,7 +1,7 @@
 <template>
  <Layout>
    <div class="content">
-     <waypoint-demo-navigation/>
+     <location-demo-navigation/>
      <div class="container">
        <div class="row">
          <div class=col>
@@ -42,16 +42,16 @@
 
 <script>
 import Layout from "@/components/Layout/Layout";
-import WaypointDemoNavigation from "@/public/WaypointDemoNavigation";
+import LocationDemoNavigation from "@/public/LocationDemoNavigation";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 
 export default {
-name: "DemoAdmin",
+name: "LocationDemoAdmin",
   components: {
     Layout,
-    WaypointDemoNavigation
+    LocationDemoNavigation
   },
   methods: {
    async resetCampaigns() {

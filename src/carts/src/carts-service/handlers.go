@@ -135,7 +135,7 @@ func SignAmazonPayPayload(w http.ResponseWriter, r *http.Request) {
 	var requestBody map[string]interface{}
 	json.Unmarshal(body, &requestBody)
 
-	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("WaypointNrfDemoAmazonPaySigningLambda"), Payload: body})
+	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("locationNrfDemoAmazonPaySigningLambda"), Payload: body})
 	if err != nil {
 		panic(err)
 	}

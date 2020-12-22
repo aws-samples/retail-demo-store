@@ -12,7 +12,7 @@ BUCKET=$1
 S3PATH=$2
 
 # remove this line if you want to keep the objects private in your S3 bucket
-#export S3PUBLIC=" --acl public-read"
+export S3PUBLIC=" --acl public-read"
 
 if [ ! -d "local" ]; then
     mkdir local
@@ -40,42 +40,42 @@ echo " + Staging to $BUCKET in $S3PATH"
 echo " + Uploading CloudFormation Templates"
 aws s3 cp aws/cloudformation-templates/ s3://${BUCKET}/${S3PATH}cloudformation-templates --recursive $S3PUBLIC
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
-#
-#echo " + Copying Notebook Dependencies"
-#[ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
-#rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
-#
-#cp ./generators/generate_interactions_personalize.py ./workshop/1-Personalization/
-#cp ./generators/requirements.txt ./workshop
-#
-#[ ! -d "./workshop/data" ] && mkdir ./workshop/data
-#cp ./src/products/src/products-service/data/products.yaml ./workshop/data
-#cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
-#
-#echo " + Packaging Notebooks"
-#zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
-#
-#echo " + Uploading Notebooks"
-#aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip $S3PUBLIC
-#
-#echo " + Packaging Source"
-#[ -e "retaildemostore-source.zip" ] && rm retaildemostore-source.zip
-#zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip"
-#
-#echo " + Uploading Source"
-#aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip $S3PUBLIC
-#
-#echo " + Upload seed data"
-#aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
-#aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
-#
-#echo " + Upload IVS videos"
-#aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
-#
-## Stage AWS Lambda functions
-#echo " + Staging AWS Lambda functions"
-#
-for function in  ./src/aws-lambda/personalize*
+
+echo " + Copying Notebook Dependencies"
+[ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
+rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
+
+cp ./generators/generate_interactions_personalize.py ./workshop/1-Personalization/
+cp ./generators/requirements.txt ./workshop
+
+[ ! -d "./workshop/data" ] && mkdir ./workshop/data
+cp ./src/products/src/products-service/data/products.yaml ./workshop/data
+cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
+
+echo " + Packaging Notebooks"
+zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
+
+echo " + Uploading Notebooks"
+aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip $S3PUBLIC
+
+echo " + Packaging Source"
+[ -e "retaildemostore-source.zip" ] && rm retaildemostore-source.zip
+zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip"
+
+echo " + Uploading Source"
+aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip $S3PUBLIC
+
+echo " + Upload seed data"
+aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
+aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
+
+echo " + Upload IVS videos"
+aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
+
+# Stage AWS Lambda functions
+echo " + Staging AWS Lambda functions"
+
+for function in  ./src/aws-lambda/*
 do
     echo "  + Staging $function"
     cd $function
@@ -83,22 +83,22 @@ do
     ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
     cd -
 done
-#
-## Sync product images
-#echo " + Copying product images"
-#aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
-#
-#echo " + Creating CSVs for Personalize model pre-create training"
-#PYTHONPATH=. python3 generators/generate_interactions_personalize.py
-#PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
-#
-## Sync CSVs used for Personalize pre-create campaign Lambda function
-#echo " + Copying CSVs for Personalize model pre-create training"
-#aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
 
-# Sync waypoint data files
-echo " + Copying waypoint location data"
-aws s3 sync ./waypoint s3://${BUCKET}/${S3PATH}waypoint --only-show-errors $S3PUBLIC
+# Sync product images
+echo " + Copying product images"
+aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
+
+echo " + Creating CSVs for Personalize model pre-create training"
+PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
+
+# Sync CSVs used for Personalize pre-create campaign Lambda function
+echo " + Copying CSVs for Personalize model pre-create training"
+aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
+
+# Sync location data files
+echo " + Copying location location data"
+aws s3 sync ./location_services s3://${BUCKET}/${S3PATH}location_services --only-show-errors $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

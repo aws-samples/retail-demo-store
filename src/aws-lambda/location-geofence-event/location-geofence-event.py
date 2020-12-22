@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 from collections import defaultdict
 
-GEOFENCE_PINPOINT_EVENTTYPE = 'WaypointApproachLocalShop'
+GEOFENCE_PINPOINT_EVENTTYPE = 'LocationApproachLocalShop'
 
 DISABLE_SEND_EMAIL = os.environ.get('DISABLE_SEND_EMAIL', "").lower() in ["yes", "true", "1"]
 DISABLE_SEND_SMS = os.environ.get('DISABLE_SEND_SMS', "").lower() in ["yes", "true", "1"]
@@ -130,11 +130,11 @@ def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_chan
     )
 
 
-def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso=None, restrict_to_endpoint_types=None,
+def pinpoint_fire_location_approached_event(shopper_user_id, event_timestamp_iso=None, restrict_to_endpoint_types=None,
                                             restrict_number=None):
     """
     We fire an event in Pinpoint with name parametrised by GEOFENCE_PINPOINT_EVENTTYPE for all endpoints
-    associated with this user. This enables campaigns based on waypoint events.
+    associated with this user. This enables campaigns based on location events.
     Args:
         shopper_user_id (str): Shopper User ID which Pinpoint uses internally.
         event_timestamp_iso (Optional[str]): If null current timestamp is used otherwise stamps the event with this.
@@ -150,7 +150,7 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
         endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
         endpoints = endpoints['EndpointsResponse']['Item']
     except pinpoint.exceptions.NotFoundException:
-        logger.warning(f"No endoints found for user {shopper_user_id} - no waypoint event fire")
+        logger.warning(f"No endoints found for user {shopper_user_id} - no location event fire")
         return
 
     if restrict_number is not None:
@@ -205,7 +205,7 @@ def pinpoint_fire_waypoint_approached_event(shopper_user_id, event_timestamp_iso
             }
         )
     else:
-        logger.warning(f'Did not fire any waypoint events for user {shopper_user_id} in app {pinpoint_app_id}')
+        logger.warning(f'Did not fire any location events for user {shopper_user_id} in app {pinpoint_app_id}')
 
 
 def pinpoint_add_current_cart_details_to_user(shopper_user_id, username, carts_service, products_service):
@@ -767,7 +767,7 @@ def handle_geofence_enter(event):
     Returns:
         None.
     """
-    waypoint_device_id = event['detail']['DeviceId']
+    location_device_id = event['detail']['DeviceId']
     # If there are multiple geofences, it is possible to learn which geofence by inspecting the event
     # at event['detail']['GeofenceID']
     # and event['detail']['GeofenceCollectionARN']
@@ -777,7 +777,7 @@ def handle_geofence_enter(event):
     # geofence service.
 
     # Here we trust the sending party to not be sending us the wrong user ID.
-    cognito_user_id = waypoint_device_id
+    cognito_user_id = location_device_id
 
     user_pool_id = os.environ['UserPoolId']  # Cognito user pool for retail demo store.
 
@@ -837,10 +837,10 @@ def handle_geofence_enter(event):
         if phone_number is not None:
             pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL')
 
-        # If there are any Pinpoint campaigns waiting for Waypoint events of type parametrised
+        # If there are any Pinpoint campaigns waiting for Location events of type parametrised
         # by GEOFENCE_PINPOINT_EVENTTYPE (see defined at top)
         # They should get triggered for all endpoints for this user:
-        pinpoint_fire_waypoint_approached_event(shopper_user_id, event['detail']['SampleTime'])
+        pinpoint_fire_location_approached_event(shopper_user_id, event['detail']['SampleTime'])
         send_purchase_browser_notification(cognito_user_id)
 
     elif demo_journey == 'COLLECTION':
@@ -860,7 +860,7 @@ def lambda_handler(event, context):
     """
     Lambda function to handle geofence enter exit events for retail demo store.
 
-    Here is the structure of a Waypoint enter event (an exit event also exists):
+    Here is the structure of a Location enter event (an exit event also exists):
 
         {
             "version": "0",
@@ -899,7 +899,7 @@ def lambda_handler(event, context):
     logger.info(event)
 
     if float(event['version']) != 0:
-        logger.warning(f"Getting event structure for Waypoint event of non-known version: {event}")
+        logger.warning(f"Getting event structure for Location event of non-known version: {event}")
 
     if event['detail-type'] == 'Location Geofence Event':
         if event['detail']['EventType'] != 'ENTER':

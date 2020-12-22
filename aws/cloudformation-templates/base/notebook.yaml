@@ -227,7 +227,7 @@ Resources:
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'
         -
-          PolicyName: "6-Waypoint"
+          PolicyName: "6-Location"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -256,20 +256,20 @@ Resources:
                   - lambda:CreateFunction
                   - lambda:DeleteFunction
                 Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:WaypointNotebookEventHandler'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LocationNotebookEventHandler'
               -
                 Effect: "Allow"
                 Action:
                   - iam:PassRole
                 Resource:
-                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/waypoint-nrf-demo-Base-*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNotebookEventHandler:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/WaypointNotebookEventHandler'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNotebookEventHandler:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNotebookEventHandler'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

@@ -24,10 +24,10 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
-import Waypoint from "@/public/Waypoint";
+import Location from "@/public/Location";
 import Collections from "@/public/Collections";
 import Cstore from "@/public/Cstore";
-import WaypointDemoAdmin from "@/public/WaypointDemoAdmin";
+import LocationDemoAdmin from "@/public/LocationDemoAdmin";
 
 
 const UsersRepository = RepositoryFactory.get('users')
@@ -231,9 +231,9 @@ const router = new Router({
       meta: { requiresAuth: false}
     },
     {
-      path: '/waypoint',
-      name: 'Waypoint',
-      component: Waypoint,
+      path: '/location',
+      name: 'Location',
+      component: Location,
       meta: { requiresAuth: true}
     },
     {
@@ -261,9 +261,9 @@ const router = new Router({
       meta: { requiresAuth: true}
     },
     {
-      path: '/waypointadmin',
-      name: 'Waypoint Demo Admin',
-      component: WaypointDemoAdmin
+      path: '/locationadmin',
+      name: 'Location Demo Admin',
+      component: LocationDemoAdmin
     },
     {
       path: '/auth',

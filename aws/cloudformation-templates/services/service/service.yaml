@@ -255,7 +255,7 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:WaypointNrfDemoAmazonPaySigningLambda'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LocationNrfDemoAmazonPaySigningLambda'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
