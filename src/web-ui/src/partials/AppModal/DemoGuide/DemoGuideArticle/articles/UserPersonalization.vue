@@ -5,7 +5,7 @@
     <template #recipe>
       Amazon Personalize Recipe:
       <a
-        href="https://docs.aws.amazon.com/personalize/latest/dg/native-recipe-hrnn-metadata.html"
+        href="https://docs.aws.amazon.com/personalize/latest/dg/native-recipe-new-item-USER_PERSONALIZATION.html"
         target="_blank"
         rel="noreferrer noopener"
         >User-Personalization</a
