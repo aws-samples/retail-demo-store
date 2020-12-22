@@ -42,7 +42,7 @@
       <p>
         Alternatively, you can use your
         <a href="#" @click="useDefaultProfile" class="default-profile">default profile</a> to go through the cold user
-        path to see how recommendations are personalized throughout based no browsing behavior.
+        path to see how recommendations are personalized throughout based on browsing behavior.
       </p>
     </div>
   </div>
