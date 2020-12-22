@@ -25,6 +25,11 @@ export default {
   src: url("/ember.woff2");
 }
 
+@font-face {
+  font-family: Ember-Serif;
+  src: url("/ember-serif.ttf");
+}
+
 body {
   font-family: Ember, sans-serif;
 }
