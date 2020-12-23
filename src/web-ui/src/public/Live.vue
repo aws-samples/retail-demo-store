@@ -179,7 +179,7 @@ export default {
       return data;
     },
     async getRelatedProducts() {
-      this.experiemnt = null
+      this.experiment = null
       this.productRecommended = null;
       this.demoGuideBadgeArticle = null;
 
