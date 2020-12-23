@@ -8,7 +8,7 @@
       omni-channel ML model retraining.
     </p>
 
-    <p>
+    <p class="digital-interactions">
       This enables organizations to utilize all of their customers’ digital interactions within a centralized ML model
       to get smarter, faster. This also enables organizations to deliver personalized experiences in an omni-channel
       fashion, meaning the experiences are harmonized and responsive across their channels of engagement.
@@ -70,6 +70,10 @@ export default {
 </script>
 
 <style scoped>
+.digital-interactions {
+  margin-bottom: 9rem;
+}
+
 .logo-and-quote--mobile {
   margin-bottom: 20px;
   flex-direction: column;

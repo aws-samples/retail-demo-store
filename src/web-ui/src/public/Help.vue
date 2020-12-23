@@ -125,4 +125,8 @@ export default {
   .card-recommend {
     min-width: 250px;
   }
+
+  .error {
+    margin-bottom: 150px;
+  }
 </style>

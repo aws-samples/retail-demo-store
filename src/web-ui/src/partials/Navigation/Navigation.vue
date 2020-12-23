@@ -2,7 +2,7 @@
   <nav class="navigation fixed-top pt-2 pb-3 p-lg-1">
     <div class="nav-contents container d-lg-flex align-items-center">
       <HomeLink class="logo"></HomeLink>
-      <ExploreDropdown class="explore mx-lg-2"></ExploreDropdown>
+      <ShopDropdown class="shop mx-lg-2"></ShopDropdown>
       <Search class="search mx-lg-4"></Search>
       <UserDropdown class="user-dropdown"></UserDropdown>
       <NavSeparator class="d-none d-lg-block mx-2"></NavSeparator>
@@ -15,7 +15,7 @@
 
 <script>
 import HomeLink from './HomeLink/HomeLink';
-import ExploreDropdown from './ExploreDropdown/ExploreDropdown';
+import ShopDropdown from './ShopDropdown/ShopDropdown';
 import Search from './Search/Search';
 import SupportLink from './SupportLink/SupportLink';
 import NavSeparator from './NavSeparator/NavSeparator';
@@ -26,7 +26,7 @@ export default {
   name: 'Navigation',
   components: {
     HomeLink,
-    ExploreDropdown,
+    ShopDropdown,
     Search,
     SupportLink,
     NavSeparator,
@@ -48,8 +48,8 @@ export default {
   width: 80px;
 }
 
-.explore {
-  grid-area: Explore;
+.shop {
+  grid-area: Shop;
 }
 
 .search {
@@ -84,7 +84,7 @@ export default {
   grid-row-gap: 10px;
   /* let second row components take more space if they need to */
   grid-template-areas:
-    'Explore Logo . . . Support Sep2 Cart'
+    'Shop Logo . . . Support Sep2 Cart'
     'UserDropdown UserDropdown UserDropdown . Search Search Search Search';
 }
 

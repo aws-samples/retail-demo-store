@@ -21,7 +21,7 @@
     <p>
       The user and item data are metadata types and only used in certain use cases. Please see
       <a
-        href="https://docs.aws.amazon.com/personalize/latest/dg/working-with-predefined-recipes.html"
+        href="https://docs.aws.amazon.com/personalize/latest/dg/how-it-works-dataset-schema.html"
         target="_blank"
         rel="noreferrer noopener"
         >the documentation</a

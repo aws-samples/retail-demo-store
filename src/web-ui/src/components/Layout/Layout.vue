@@ -15,7 +15,7 @@
 
     <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
-    <Footer v-if="showFooter" class="my-4"></Footer>
+    <Footer v-if="showFooter" class="my-4 container"></Footer>
 
     <AppModal></AppModal>
 
@@ -100,7 +100,7 @@ export default {
 
 <style scoped>
 .layout--has-nav {
-  padding-top: 200px;
+  padding-top: 250px;
 }
 
 .layout--has-demo-guide {

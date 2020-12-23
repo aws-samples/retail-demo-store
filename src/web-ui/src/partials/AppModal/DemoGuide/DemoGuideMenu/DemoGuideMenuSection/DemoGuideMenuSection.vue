@@ -64,9 +64,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .section {
-  border: 1px solid var(--white);
+  border: 1px solid var(--grey-600);
 }
 
 .heading-button {

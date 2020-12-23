@@ -1,5 +1,5 @@
 <template>
-  <Layout :isLoading="isLoading">
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
     <template #default>
       <div class="container text-left">
         <div class="row">
@@ -58,10 +58,19 @@ export default {
     AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
   },
   computed: {
-    ...mapState({ cart: (state) => state.cart.cart, user: (state) => state.user }),
+    ...mapState({
+      cart: (state) => state.cart.cart,
+      user: (state) => state.user,
+      lastVisitedPage: (state) => state.lastVisitedPage.route,
+    }),
     ...mapGetters(['cartQuantity', 'cartTotal', 'formattedCartTotal']),
     isLoading() {
       return !this.cart;
+    },
+    previousPageLinkProps() {
+      if (!this.lastVisitedPage) return null;
+
+      return { text: 'Continue Shopping', to: this.lastVisitedPage };
     },
     cartQuantityReadout() {
       if (this.cartQuantity === null) return null;
@@ -90,7 +99,7 @@ export default {
 }
 
 .summary {
-  border: 1px solid var(--grey-600);
+  border: 1px solid var(--grey-300);
   border-radius: 2px;
 }
 

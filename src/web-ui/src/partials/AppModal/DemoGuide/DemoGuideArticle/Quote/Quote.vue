@@ -20,6 +20,6 @@ export default {
 }
 
 .quote {
-  font-family: Georgia, serif;
+  font-family: Ember-Serif, Georgia, serif;
 }
 </style>

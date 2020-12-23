@@ -8,15 +8,20 @@
     </div>
 
     <slot></slot>
+
+    <footer class="mt-5 container">
+      <TermsAndConditions></TermsAndConditions>
+    </footer>
   </div>
 </template>
 
 <script>
 import PoweredByAWS from '@/components/PoweredByAWS/PoweredByAWS';
+import TermsAndConditions from '@/partials/TermsAndConditions/TermsAndConditions.vue';
 
 export default {
   name: 'SecondaryLayout',
-  components: { PoweredByAWS },
+  components: { PoweredByAWS, TermsAndConditions },
 };
 </script>
 
