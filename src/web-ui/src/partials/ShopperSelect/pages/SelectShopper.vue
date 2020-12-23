@@ -77,7 +77,6 @@ export default {
     return {
       ageRange: '',
       primaryInterest: '',
-      isFetchingShopper: false,
       shopperNotFound: false,
     };
   },
@@ -97,13 +96,10 @@ export default {
     async onSubmit() {
       const { primaryInterest, ageRange } = this;
 
-      this.isFetchingShopper = true;
-
       const { data } = await UsersRepository.getUnclaimedUser({ primaryInterest, ageRange });
 
       if (!data) {
         this.isFetchingShopper = false;
-        this.shopperNotFound = true;
       } else {
         this.$emit('shopperSelected', {
           selection: { primaryInterest, ageRange },
