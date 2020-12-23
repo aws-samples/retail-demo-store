@@ -16,7 +16,7 @@
       models, calculated against historical data.
     </p>
 
-    <p>
+    <p class="offline-metrics">
       Amazon Personalize generates offline metrics using test datasets derived from the historical data you provide.
       These metrics showcase how the model recommendations performed against historical data. Offline metrics are a
       great representation of how your hyperparameters and data features influence your model’s performance against
@@ -25,7 +25,7 @@
       environment, getting them in front of your customers.
     </p>
 
-    <ArticleFeature class="my-5">
+    <ArticleFeature class="mb-5">
       <template #title>AWS Machine Learning Blog</template>
 
       <template #default>
@@ -127,6 +127,10 @@ export default {
 </script>
 
 <style scoped>
+.offline-metrics {
+  margin-bottom: 9rem;
+}
+
 .blog-post-title {
   font-size: 1rem;
 }

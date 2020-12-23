@@ -2,10 +2,10 @@
   <DemoWalkthroughPageLayout :drawArrows="drawArrows">
     <h1 class="heading">Use cases integrated in this demo</h1>
 
-    <p>There are three personalization use case implemented across several places within the Retail Demo Store</p>
+    <p>There are three personalization use cases implemented across several places within the Retail Demo Store</p>
 
     <ul>
-      <li>User personalziation</li>
+      <li>User personalization</li>
       <li>Personalized rankings</li>
       <li>Similar item recommendations</li>
     </ul>
@@ -19,7 +19,7 @@
 
         <p>User personalization is implemented in the "Inspired by your shopping trends" section.</p>
 
-        <p>Try using different shoppers to experience the difference in personalized product recommendations offered</p>
+        <p>Try using different shoppers to experience the difference in personalized product recommendations offered.</p>
       </div>
 
       <div class="personalize-img-container">

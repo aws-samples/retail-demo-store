@@ -96,7 +96,7 @@ export default {
 
 <style scoped>
 .layout--has-nav {
-  padding-top: 200px;
+  padding-top: 250px;
 }
 
 .layout--has-demo-guide {

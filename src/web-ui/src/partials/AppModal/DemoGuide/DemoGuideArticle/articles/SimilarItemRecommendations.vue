@@ -24,7 +24,7 @@
       Not user specific at all.
     </p>
 
-    <p>
+    <p class="similar-item-recommendations">
       The similar item recommendations use case is implemented in all the product detail pages under “What other items
       do customers view related to this product?”.
     </p>
@@ -80,3 +80,9 @@ export default {
   components: { ArticleLayout, ArticleFeature, Quote },
 };
 </script>
+
+<style scoped>
+.similar-item-recommendations {
+  margin-bottom: 9rem;
+}
+</style>

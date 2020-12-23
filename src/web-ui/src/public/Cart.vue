@@ -128,7 +128,7 @@ export default {
 }
 
 .summary {
-  border: 1px solid var(--grey-600);
+  border: 1px solid var(--grey-300);
   border-radius: 2px;
 }
 

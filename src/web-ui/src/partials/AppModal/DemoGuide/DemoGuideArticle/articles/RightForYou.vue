@@ -2,7 +2,7 @@
   <ArticleLayout>
     <template #heading>Find out why Amazon Personalize is right for your business</template>
 
-    <ol class="reasons mb-5">
+    <ol class="reasons">
       <li class="reason">
         Experience from Amazon: Over 20 years of personalization research and experience at
         <a href="https://amazon.com" target="_blank" rel="noreferrer noopener">Amazon.com</a>.
@@ -78,6 +78,7 @@ export default {
 
 <style scoped>
 .reasons {
+  margin-bottom: 9rem;
   padding-left: 20px;
 }
 
