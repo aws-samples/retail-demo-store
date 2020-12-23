@@ -56,6 +56,10 @@
             Submit
           </button>
         </div>
+
+        <div v-if="shopperNotFound" class="alert alert-warning mt-4" role="alert">
+          A shopper with the selected attributes was not found. Please try a different combination.
+        </div>
       </form>
     </div>
   </div>
@@ -74,6 +78,7 @@ export default {
       ageRange: '',
       primaryInterest: '',
       isFetchingShopper: false,
+      shopperNotFound: false,
     };
   },
   mounted() {
@@ -96,10 +101,26 @@ export default {
 
       const { data } = await UsersRepository.getUnclaimedUser({ primaryInterest, ageRange });
 
-      this.$emit('shopperSelected', {
-        selection: { primaryInterest, ageRange },
-        assignedShopper: data[0],
-      });
+      if (!data) {
+        this.isFetchingShopper = false;
+        this.shopperNotFound = true;
+      } else {
+        this.$emit('shopperSelected', {
+          selection: { primaryInterest, ageRange },
+          assignedShopper: data[0],
+        });
+      }
+    },
+    resetShopperNotFound() {
+      if (this.shopperNotFound) this.shopperNotFound = false;
+    },
+  },
+  watch: {
+    primaryInterest() {
+      this.resetShopperNotFound();
+    },
+    ageRange() {
+      this.resetShopperNotFound();
     },
   },
 };
