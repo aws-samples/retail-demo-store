@@ -23,7 +23,7 @@
 
       <div class="container" v-if="cart">
         <div class="row text-left" v-if="showCheckout == true">
-          <div class="col-md-auto order-md-2 summary-column">
+          <div class="col-lg-auto order-lg-2 summary-column">
             <div class="summary-border-container card p-1">
               <div class="card-body">
                 <h4 class="d-flex justify-content-between align-items-center mb-3 card-title text-muted">
@@ -38,18 +38,16 @@
             </div>
 
             <div class="m-4">
-              <button v-if="pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-lg btn-block">
-                Trigger Abandoned Cart email
-              </button>
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
-          <div class="col order-md-1">
+          <div class="col order-lg-1">
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
               <div class="d-flex">
-                <h5 class="p-4 col-md-4 bg-light font-weight-bold d-flex align-items-center">Shipping Address</h5>
-                <div class="col-md-8">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Shipping Address</h5>
+                <div class="col-lg-8">
                   <p class="mb-1 font-weight-bold">{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}</p>
                   <p class="mb-1">{{order.shipping_address.address1}}</p>
                   <p class="mb-1" v-if="order.shipping_address.address2">{{order.shipping_address.address2}}</p>
@@ -59,8 +57,8 @@
               <hr class="mb-4">
 
               <div class="d-flex">
-                <h5 class="p-4 col-md-4 bg-light font-weight-bold d-flex align-items-center">Payment</h5>
-                <div class="col-md-8">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Payment</h5>
+                <div class="col-lg-8">
                   <p class="mb-1">VISA ending in 0965</p>
                   <p class="mb-1">Billing address: Same as shipping address</p>
 
@@ -89,9 +87,11 @@ import AmplifyStore from '@/store/store'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
+
 import swal from 'sweetalert';
 
 import Layout from '@/components/Layout/Layout'
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -99,9 +99,8 @@ const OrdersRepository = RepositoryFactory.get('orders')
 export default {
   name: 'Checkout',
   components: {
-    Layout
-  },
-  props: {
+    Layout,
+    AbandonCartButton
   },
   data () {
     return {
@@ -113,7 +112,6 @@ export default {
         to: '/cart',
         text: 'Back to shopping cart'
       },
-      pinpointEnabled : process.env.VUE_APP_PINPOINT_APP_ID
     }
   },
   async created () {
@@ -186,15 +184,6 @@ export default {
         });
      })
     },
-    async triggerAbandonedCartEmail () {
-      if (this.cart && this.cart.items.length > 0 ){
-        const cartItem = await this.getProductByID(this.cart.items[0].product_id)
-        AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart,cartItem)
-      }
-      else{
-        console.error("No items to export")
-      }
-    }
   },
   computed: {
     ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
@@ -219,18 +208,6 @@ export default {
     background: var(--grey-900);
   }
 
-  .abandoned-cart-btn {
-    display: block;
-    background: var(--blue-500);
-    border-color: var(--blue-500);
-    font-size: 1rem;
-  }
-
-  .abandoned-cart-btn:hover,
-  .abandoned-cart-btn:focus {
-    background: var(--blue-600);
-    border-color: var(--blue-600);
-  }
 
   .summary-column {
     min-width: 20em;
@@ -238,5 +215,17 @@ export default {
 
   .summary-border-container {
     border-color: var(--grey-300);
+  }
+
+  @media (min-width: 768px) {
+    .checkout-btn {
+      font-size: 1.25rem;
+    }    
+  }
+
+  @media (min-width: 992px) {
+    .abandon-cart {
+      max-width: 400px;
+    }
   }
 </style>
