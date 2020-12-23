@@ -107,7 +107,7 @@ export default {
   flex: 1;
   /* use bootstrap modal border radius */
   border-bottom-right-radius: 0.3rem;
-  padding: 16px;
+  padding: 32px;
 }
 
 .mobile-article,
