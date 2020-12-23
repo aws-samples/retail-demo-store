@@ -9,7 +9,7 @@
         </h2>
         <dl class="selections">
           <dt class="key">Age range:</dt>
-          <dd>{{ selection.ageRange }}</dd>
+          <dd>{{ selection.ageRange === '70-and-above' ? '70 and above' : selection.ageRange }}</dd>
 
           <dt class="key">Primary interest:</dt>
           <dd>
