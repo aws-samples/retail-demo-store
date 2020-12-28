@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <svg ref="svg" style="position: absolute; left: 0; width: 100%; top: 0; height: 100%; pointer-events: none;">
+    <svg ref="svg" class="arrow-svg">
       <defs>
         <marker id="arrow" refX="1.5" refY="1.5" markerWidth="2" markerHeight="3" orient="auto">
           <path d="M 0 0 L 2 1.5 L 0 3 z" />
@@ -62,7 +62,7 @@ export default {
     drawArrows: { type: [Array, Object], required: false },
   },
   data() {
-    return { arrowPoints: null };
+    return { arrowPoints: null, isDestroyed: false };
   },
   computed: {
     ...mapState({ isMobile: (state) => state.modal.isMobile }),
@@ -94,49 +94,115 @@ export default {
 
       throw new Error('Invalid side provided');
     },
-    drawArrowElements() {
-      if (this.arrowConfigs) {
-        const svgBox = this.$refs.svg.getBoundingClientRect();
+    getArrowLines() {
+      return [...this.$refs.svg.children].filter((elem) => elem instanceof SVGPolylineElement);
+    },
+    async drawArrowElements() {
+      if (!this.arrowConfigs) return;
 
-        this.arrowPoints = this.arrowConfigs.map(({ from, to, drawPoints }) => {
-          const fromBox = this.$parent.$refs[from.ref].getBoundingClientRect();
-          const [fromX, fromY] =
-            typeof from.target === 'function'
-              ? from.target(fromBox)
-              : this.getCoordinatesFromSide(fromBox, from.target);
-          const fromWidth = fromBox.width;
-          const fromHeight = fromBox.height;
+      const svgBox = this.$refs.svg.getBoundingClientRect();
 
-          const toBox = this.$parent.$refs[to.ref].getBoundingClientRect();
-          const [toX, toY] =
-            typeof to.target === 'function' ? to.target(toBox) : this.getCoordinatesFromSide(toBox, to.target);
-          const toWidth = toBox.width;
-          const toHeight = toBox.height;
+      this.arrowPoints = this.arrowConfigs.map(({ from, to, drawPoints }) => {
+        const fromBox = this.$parent.$refs[from.ref].getBoundingClientRect();
+        const [fromX, fromY] =
+          typeof from.target === 'function' ? from.target(fromBox) : this.getCoordinatesFromSide(fromBox, from.target);
+        const fromWidth = fromBox.width;
+        const fromHeight = fromBox.height;
 
-          return drawPoints({
-            fromX,
-            fromY,
-            fromWidth,
-            fromHeight,
-            toX,
-            toY,
-            toWidth,
-            toHeight,
-          }).map(([x, y]) => [x - svgBox.left, y - svgBox.top]); // normalize coordinates to be relative to svg element location
-        });
-      }
+        const toBox = this.$parent.$refs[to.ref].getBoundingClientRect();
+        const [toX, toY] =
+          typeof to.target === 'function' ? to.target(toBox) : this.getCoordinatesFromSide(toBox, to.target);
+        const toWidth = toBox.width;
+        const toHeight = toBox.height;
+
+        return drawPoints({
+          fromX,
+          fromY,
+          fromWidth,
+          fromHeight,
+          toX,
+          toY,
+          toWidth,
+          toHeight,
+        }).map(([x, y]) => [x - svgBox.left, y - svgBox.top]); // normalize coordinates to be relative to svg element location
+      });
+
+      await this.$nextTick();
+
+      this.getArrowLines().forEach((line) => {
+        const length = line.getTotalLength();
+
+        line.style.strokeDasharray = `${length} ${length}`;
+      });
+    },
+    animateArrows() {
+      this.getArrowLines().forEach((line) => {
+        const length = line.getTotalLength();
+
+        // Set up the starting positions
+        line.style.strokeDasharray = `${length} ${length}`;
+        line.style.strokeDashoffset = length;
+
+        // Trigger a layout so styles are calculated & the browser
+        // picks up the starting position before animating
+        line.getBoundingClientRect();
+
+        // Define our transition
+        const transition = 'stroke-dashoffset 300ms';
+
+        line.style.transition = transition;
+        line.style.WebkitTransition = transition;
+
+        // Go!
+        line.style.strokeDashoffset = '0';
+      });
+    },
+    async initializeArrowDrawing() {
+      if (!this.arrowConfigs) return;
+
+      const allImagesLoadedPromise = Promise.all(
+        this.arrowConfigs.map(
+          ({ to }) =>
+            new Promise((resolve) => {
+              const image = this.$parent.$refs[to.ref];
+
+              if (image.complete) return resolve();
+
+              image.addEventListener('load', resolve);
+            }),
+        ),
+      );
+
+      await allImagesLoadedPromise;
+
+      if (this.isDestroyed) return;
+
+      await this.drawArrowElements();
+
+      window.addEventListener('resize', this.drawArrowElements);
+      this.$refs.main.addEventListener('scroll', this.drawArrowElements);
+
+      // defer returning control until after DOM has updated
+      await this.$nextTick();
+    },
+    cleanupArrowDrawings() {
+      window.removeEventListener('resize', this.drawArrowElements);
+      this.$refs.main.removeEventListener('scroll', this.drawArrowElements);
     },
   },
-  mounted() {
-    setTimeout(this.drawArrowElements, 300);
-
-    window.addEventListener('resize', this.drawArrowElements);
-    this.$refs.main.addEventListener('scroll', this.drawArrowElements);
+  async mounted() {
+    await this.initializeArrowDrawing();
+    if (!this.isDestroyed) this.animateArrows();
   },
-
   beforeDestroy() {
-    window.removeEventListener('resize', this.drawArrowElements);
-    this.$refs.main.removeEventListener('scroll', this.drawArrowElements);
+    this.isDestroyed = true;
+    this.cleanupArrowDrawings();
+  },
+  watch: {
+    arrowConfigs() {
+      this.cleanupArrowDrawings();
+      this.initializeArrowDrawing();
+    },
   },
 };
 </script>
@@ -205,35 +271,32 @@ export default {
   width: 90px;
 }
 
+.arrow-svg {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
 .arrow-line {
   stroke: var(--grey-500);
 }
 
-.arrow-line {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: dash 1000ms ease-in-out forwards;
-}
-
-@keyframes dash {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
 #arrow {
   fill: var(--grey-500);
-  animation: arrow-dash 800ms ease-in-out forwards;
+  animation: arrow-dash 300ms;
 }
 
 @keyframes arrow-dash {
-  0% {
+  from {
     opacity: 0;
   }
-  90% {
+  99% {
     opacity: 0;
   }
-  100% {
+  to {
     opacity: 1;
   }
 }
