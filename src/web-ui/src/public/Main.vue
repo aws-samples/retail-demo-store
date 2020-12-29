@@ -20,7 +20,11 @@
         </template>
       </RecommendedProductsSection>
 
-      <RecommendedProductsSection :feature="feature" :recommendedProducts="featuredProducts">
+      <RecommendedProductsSection
+        :feature="feature"
+        :recommendedProducts="featuredProducts"
+        :experiment="featuredProductsExperiment"
+      >
         <template #heading>
           Featured products
           <DemoGuideBadge
@@ -63,12 +67,13 @@ export default {
     return {
       feature: EXPERIMENT_FEATURE,
       isLoadingRecommendations: true,
-      featuredProductsDemoGuideBadgeArticle: null,
-      userRecommendationsDemoGuideBadgeArticle: null,
-      recommendationsExperiment: null,
       featuredProducts: null,
-      userRecommendationsTitle: null,
+      featuredProductsDemoGuideBadgeArticle: null,
+      featuredProductsExperiment: null,
+      userRecommendationsDemoGuideBadgeArticle: null,
       userRecommendations: null,
+      recommendationsExperiment: null,
+      userRecommendationsTitle: null,
     };
   },
   computed: {
@@ -92,16 +97,30 @@ export default {
     },
     async getFeaturedProducts() {
       this.featuredProductsDemoGuideBadgeArticle = null;
+      this.featuredProductsExperiment = null;
       this.featuredProducts = null;
 
-      const { data, headers } = await ProductsRepository.getFeatured();
+      const { data: featuredProducts } = await ProductsRepository.getFeatured();
 
-      const personalizeRecipe = headers['x-personalize-recipe'];
+      if (this.personalizeUserID && featuredProducts.length > 0) {
+        const { data: rerankedProducts, headers } = await RecommendationsRepository.getRerankedItems(
+          this.personalizeUserID,
+          featuredProducts,
+          EXPERIMENT_FEATURE,
+        );
 
-      if (personalizeRecipe)
-        this.featuredProductsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
+        const personalizeRecipe = headers['x-personalize-recipe'];
+        const experimentName = headers['x-experiment-name'];
 
-      this.featuredProducts = data.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
+        if (personalizeRecipe)
+          this.featuredProductsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
+
+        if (experimentName) this.featuredProductsExperiment = `Active experiment: ${experimentName}`;
+
+        this.featuredProducts = rerankedProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
+      } else {
+        this.featuredProducts = featuredProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
+      }
     },
     async getUserRecommendations() {
       this.isLoadingRecommendations = true;
