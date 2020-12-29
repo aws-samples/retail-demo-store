@@ -10,7 +10,7 @@
         <div class="mt-4 d-flex flex-column flex-lg-row">
           <div class="filters mb-4 mb-lg-4 mr-lg-4 text-left">
             <h4 class="bg-light p-2">Filters</h4>
-            <div class="gender-filter-border">
+            <div class="gender-filter-border" v-if="showGenderFilter">
               <a
                 class="filter-title mb-1 mt-1"
                 data-toggle="collapse"
@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
+import {mapState, mapGetters} from 'vuex'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
@@ -162,11 +162,14 @@ export default {
     }
   },
   computed: {
-    user() {
-      return AmplifyStore.state.user
-    },
-    personalizeUserID() {
-      return AmplifyStore.getters.personalizeUserID
+    ...mapState({user: state => state.user, categories: state => state.categories.categories}),
+    ...mapGetters(['personalizeUserID']),
+    showGenderFilter() {
+      const category = this.categories?.find(category => category.name === this.$route.params.id);
+
+      if (!category) return false;
+
+      return category.has_gender_affinity;
     },
     styles() {
       const styles = this.products.map(product => product.style)
