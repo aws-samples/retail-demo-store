@@ -14,6 +14,9 @@ Parameters:
 
   ProductsServiceDNSName:
     Type: String
+  
+  PinpointAppId:
+    Type: String
 
   Uid:
     Type: String
@@ -93,6 +96,82 @@ Resources:
       FunctionName: !GetAtt CustomizeRecommendationsFunction.Arn
       Principal: pinpoint.amazonaws.com
       SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:*'
+  
+  ####################### Pinpoint SMS Alerts Lambda #######################
+  PinpointSMSAlertsLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store function that opts in customers to receive sms alerts from Amazon Pinpoint'
+      Handler: pinpoint-sms-alerts.lambda_handler
+      Role: !GetAtt 
+        - PinpointSMSAlertsLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-sms-alerts.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: RetailDemoStorePinpointSMSAlerts
+      Environment:
+        Variables:
+          pinpoint_app_id: !Ref PinpointAppId
+    
+  PinpointSMSAlertsLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePinpointSMSAlerts:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePinpointSMSAlerts'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+              - 
+                Effect: "Allow"
+                Action: 
+                  - mobiletargeting:*
+                Resource: "*"
+
+  PinpointIncomingTextAlertsSNSTopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      Subscription:
+        - Endpoint: !GetAtt
+            - PinpointSMSAlertsLambda
+            - Arn
+          Protocol: lambda
+  
+  PinpointSMSAlertsLambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties: 
+      Action: lambda:InvokeFunction
+      Principal: sns.amazonaws.com
+      SourceArn:  !Ref PinpointIncomingTextAlertsSNSTopic 
+      FunctionName: !Ref PinpointSMSAlertsLambda
 
 Outputs:
   PinpointPersonalizeRoleArn:

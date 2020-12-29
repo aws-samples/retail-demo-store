@@ -25,6 +25,9 @@ Parameters:
     Type: String
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
+  
+  PinpointSMSLongCode:
+    Type: String
 
 Conditions:
   HasAmplitudeApiKey:
@@ -33,6 +36,8 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
+  HasPinpointSMSLongCode:
+    !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
 
 Resources:
 
@@ -131,6 +136,14 @@ Resources:
       Type: "String"
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
+  
+  ParameterPinpointSMSLongCode:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-pinpoint-sms-longcode"
+      Type: "String"
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Description: "Retail Demo Store Pinpoint SMS Long code"
 
 Outputs:
 
@@ -180,5 +193,8 @@ Outputs:
 
   ParameterSegmentWriteKey:
     Description: Segment write key
-    Value: !Ref ParameterSegmentWriteKey 
-
+    Value: !Ref ParameterSegmentWriteKey
+  
+  ParameterPinpointSMSLongCode:
+    Description: Pinpoint SMS Long code
+    Value: !Ref ParameterPinpointSMSLongCode

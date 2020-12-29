@@ -185,6 +185,7 @@ Resources:
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
+        PinpointAppId: !Ref PinpointAppId
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -361,6 +362,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsServiceDNSName: !GetAtt ProductsService.Outputs.ServiceDNSName
+        PinpointAppId: !Ref PinpointAppId
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Custom resources

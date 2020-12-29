@@ -22,6 +22,7 @@ type User struct {
 	SignUpDate     *time.Time `json:"sign_up_date,omitempty"`
 	LastSignInDate *time.Time `json:"last_sign_in_date,omitempty"`
 	IdentityId     string     `json:"identity_id,omitempty"`
+	PhoneNumber    string     `json:"phone_number,omitempty"`
 }
 
 // Users Array

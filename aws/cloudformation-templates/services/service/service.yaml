@@ -116,6 +116,9 @@ Parameters:
 
   Uid:
     Type: String
+  
+  PinpointAppId:
+    Type: String
     
 Resources:
   TaskExecutionRole:
@@ -164,6 +167,21 @@ Resources:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
+        - PolicyName: PinpointSMS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:SendMessages
+                  - mobiletargeting:GetEndpoint
+                  - mobiletargeting:UpdateEndpoint
+                  - mobiletargeting:PutEvents
+                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/*'
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:PhoneNumberValidate
+                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
         - PolicyName: others
           PolicyDocument:
             Version: '2012-10-17'
@@ -175,6 +193,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: '*'
               - Effect: Allow
                 Action:
@@ -334,6 +354,8 @@ Resources:
               Value: !Ref ImageRootUrl
             - Name: PERSONALIZE_PRECREATE_CAMPAIGNS_EVENTRULENAME
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+            - Name: PINPOINT_APP_ID
+              Value: !Ref PinpointAppId
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

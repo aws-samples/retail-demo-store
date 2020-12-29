@@ -1,17 +1,17 @@
 <template>
-  <section v-if="isEnabled && user" class="section container p-4">
+  <section v-if="isPinpointEnabled && user" class="section container p-4">
     <h1 class="heading mb-1">Join <span class="text-alerts">text alerts</span> and get 20% off</h1>
     <p class="mb-3">
       Enter your mobile number to receive texts about the Retail Demo Store, including Amazon Pinpoint.
     </p>
     <form @submit.prevent="onSubmit" class="mb-2 form">
       <div class="mb-2 d-flex justify-content-center align-items-stretch">
-        <input
+        <TheMask
           type="tel"
           name="phoneNumber"
           placeholder="Enter cellphone number"
           v-model="phoneNumber"
-          v-mask="'+1 (###) ### - ####'"
+          mask="+1 (###) ### - ####"
           class="input py-1 px-2"
         />
 
@@ -34,21 +34,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { mask } from 'vue-the-mask';
+import { mapActions, mapState } from 'vuex';
+import { TheMask } from 'vue-the-mask';
+import { RepositoryFactory } from '@/repositories/RepositoryFactory';
+
+const UsersRepository = RepositoryFactory.get('users');
 
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 export default {
   name: 'TextAlerts',
-  directives: {
-    mask,
+  components: {
+    TheMask,
+    DemoGuideBadge,
   },
-  components: { DemoGuideBadge },
   data() {
     return {
-      isEnabled: process.env.VUE_APP_ENABLE_TEXT_ALERTS === 'true',
+      isPinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID,
       phoneNumber: '',
       hasConsented: false,
       demoGuideBadgeArticle: Articles.SMS_MESSAGING,
@@ -58,8 +61,10 @@ export default {
     ...mapState(['user']),
   },
   methods: {
-    onSubmit() {
-      console.log(`Text alerts form submitted with phone number: ${this.phoneNumber}`);
+    ...mapActions(['setUser']),
+    async onSubmit() {
+      const { data } = await UsersRepository.verifyAndUpdateUserPhoneNumber(this.user.id, `+1${this.phoneNumber}`);
+      this.setUser(data);
     },
   },
 };

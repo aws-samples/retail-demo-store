@@ -97,4 +97,16 @@ var routes = Routes{
 		"/users/id/{userID}",
 		UserUpdate,
 	},
+	Route{
+		"UserVerifyAndUpdatePhone",
+		"PUT",
+		"/users/id/{userID}/verifyphone",
+		UserVerifyAndUpdatePhone,
+	},
+	Route{
+		"UserVerifyAndUpdatePhone",
+		"OPTIONS",
+		"/users/id/{userID}/verifyphone",
+		UserVerifyAndUpdatePhone,
+	},
 }

@@ -32,6 +32,7 @@ Metadata:
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
           - PinpointEmailFromName
+          - PinpointSMSLongCode
       - Label:
           default: "Use default IVS streams"
         Parameters:
@@ -190,6 +191,12 @@ Parameters:
       - 'No'
     Default: 'Yes'
   
+  PinpointSMSLongCode:
+    Type: String
+    Description: >
+      Phone number or a dedicated long code for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. This parameter only applies when 'Auto-Configure Pinpoint'
+      is set to 'Yes'. For more info on long code see: https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-sms-awssupport-long-code.html
+  
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
@@ -221,6 +228,7 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
 
   # Services Resources
   Services:

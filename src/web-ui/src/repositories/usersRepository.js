@@ -62,5 +62,13 @@ export default {
     claimUser(userId) {
         return connection.put(`${resource}/id/${userId}/claim`);
     },
-
+    verifyAndUpdateUserPhoneNumber(userId, phoneNumber) {
+        if (!userId || userId.length == 0)
+            throw "userId required"
+        let payload = {
+            user_id: userId,
+            phone_number: phoneNumber        
+        }
+        return connection.put(`${resource}/id/${userId}/verifyphone`, payload)
+    }
 }
