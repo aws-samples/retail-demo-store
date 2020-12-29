@@ -16,7 +16,7 @@
     </ol>
 
     <div :class="{ 'figure-container': true, 'figure-container--mobile': isMobile }">
-      <div ref="online-store" class="online-store">
+      <div class="online-store">
         <div class="arrow-text-heading">Fictitious online store</div>
         <div v-if="!isMobile">Interact with the store products and categories.</div>
       </div>
@@ -46,16 +46,6 @@ export default {
       drawArrows: {
         desktop: [
           {
-            from: { ref: 'online-store', target: 'RIGHT' },
-            to: { ref: 'img', target: ({left, top, height}) => [left, top + height * 0.45]},
-            drawPoints: ({ fromX, fromY, toX, toY }) => [
-              [fromX, fromY],
-              [fromX + (toX - fromX) * 0.5, fromY],
-              [fromX + (toX - fromX) * 0.5, toY],
-              [toX, toY],
-            ],
-          },
-          {
             from: { ref: 'demo-guide', target: 'RIGHT' },
             to: { ref: 'img', target: 'BOTTOM' },
             drawPoints: ({ fromX, fromY, toX, toY }) => [
@@ -68,16 +58,6 @@ export default {
           },
         ],
         mobile: [
-          {
-            from: { ref: 'online-store', target: 'LEFT' },
-            to: { ref: 'img', target: ({ left, top, height }) => [left, top + height * 0.45] },
-            drawPoints: ({ fromX, fromY, toX, toY }) => [
-              [fromX, fromY],
-              [toX - 20, fromY],
-              [toX - 20, toY],
-              [toX, toY],
-            ],
-          },
           {
             from: { ref: 'demo-guide', target: 'RIGHT' },
             to: { ref: 'img', target: 'BOTTOM' },

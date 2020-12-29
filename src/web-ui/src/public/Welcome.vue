@@ -26,13 +26,12 @@
         </ul>
       </div>
 
-      <!-- make both links to go /auth until we have dedicated sign in and create account pages -->
       <div class="mt-2 mb-4 my-sm-5 d-flex flex-column align-items-center align-items-sm-end">
         <div class="d-flex flex-column flex-sm-row align-items-center">
           <div class="login-cta d-flex justify-content-center align-items-center">
             Have an account?<router-link to="/auth" class="sign-in btn btn-link">Sign in</router-link>
           </div>
-          <router-link to="/auth" class="create-account mt-3 mt-sm-0 ml-sm-3 btn btn-primary"
+          <router-link to="/auth?signup=true" class="create-account mt-3 mt-sm-0 ml-sm-3 btn btn-primary"
             >Create an account</router-link
           >
         </div>

@@ -26,6 +26,9 @@ export const Articles = {
   REAL_TIME_PERSONALIZATION: 'real-time-personalization',
   BATCH_RECOMMENDATIONS: 'batch-recommendations',
   ABOUT_THIS_DEMO: 'about-this-demo-article',
+  DATASETS: 'datasets',
+  SHOPPER_PERSONAS: 'shopper-personas',
+  ENABLING_SHOPPER_PROFILES: 'enabling-shopper-profiles',
 };
 
 export const articleTitles = {
@@ -42,6 +45,9 @@ export const articleTitles = {
   [Articles.REAL_TIME_PERSONALIZATION]: 'Real time personalization based on real time user activity',
   [Articles.BATCH_RECOMMENDATIONS]: 'Batch recommendations',
   [Articles.ABOUT_THIS_DEMO]: 'About this demo',
+  [Articles.DATASETS]: 'Datasets',
+  [Articles.SHOPPER_PERSONAS]: 'Shopper Personas',
+  [Articles.ENABLING_SHOPPER_PROFILES]: 'Enabling Shopper Profiles',
 };
 
 export const sections = [
@@ -69,7 +75,12 @@ export const sections = [
   },
   {
     id: Sections.ABOUT_THIS_DEMO,
-    articles: [Articles.ABOUT_THIS_DEMO],
+    articles: [
+      Articles.ABOUT_THIS_DEMO,
+      Articles.DATASETS,
+      Articles.SHOPPER_PERSONAS,
+      Articles.ENABLING_SHOPPER_PROFILES,
+    ],
   },
 ];
 
@@ -79,3 +90,11 @@ sections.forEach((section) => {
 });
 
 export const getSectionIdFromArticleId = (articleId) => articleIdToSectionIdMap[articleId];
+
+const personalizeARNToDemoGuideArticleMap = {
+  'arn:aws:personalize:::recipe/aws-sims': Articles.SIMILAR_ITEM_RECOMMENDATIONS,
+  'arn:aws:personalize:::recipe/aws-personalized-ranking': Articles.PERSONALIZED_RANKING,
+  'arn:aws:personalize:::recipe/aws-user-personalization': Articles.USER_PERSONALIZATION,
+};
+
+export const getDemoGuideArticleFromPersonalizeARN = (arn) => personalizeARNToDemoGuideArticleMap[arn];

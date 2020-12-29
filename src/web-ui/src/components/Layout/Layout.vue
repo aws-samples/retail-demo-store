@@ -15,9 +15,11 @@
 
     <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
-    <Footer v-if="showFooter" class="my-4"></Footer>
+    <Footer v-if="showFooter" class="my-4 container"></Footer>
 
     <AppModal></AppModal>
+
+    <ConfirmationModal></ConfirmationModal>
 
     <DemoGuideButton v-if="showDemoGuide" class="demo-guide-button"></DemoGuideButton>
   </div>
@@ -31,6 +33,7 @@ import TextAlerts from '@/partials/TextAlerts/TextAlerts';
 import Navigation from '@/partials/Navigation/Navigation';
 import AppModal from '@/partials/AppModal/AppModal';
 import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
+import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
 
 export default {
   name: 'Layout',
@@ -42,6 +45,7 @@ export default {
     Footer,
     AppModal,
     DemoGuideButton,
+    ConfirmationModal
   },
   props: {
     showNav: {
@@ -96,7 +100,7 @@ export default {
 
 <style scoped>
 .layout--has-nav {
-  padding-top: 200px;
+  padding-top: 250px;
 }
 
 .layout--has-demo-guide {

@@ -12,11 +12,13 @@ import { categories } from './modules/categories/categories';
 import { cart } from './modules/cart/cart';
 import { modal, manageResponsiveModalState } from './modules/modal/modal';
 import { demoWalkthroughShown } from './modules/demoWalkthroughShown/demoWalkthroughShown';
+import { lastVisitedPage } from './modules/lastVisitedPage/lastVisitedPage';
+import { confirmationModal } from './modules/confirmationModal/confirmationModal';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  modules: { welcomePageVisited, categories, cart, modal, demoWalkthroughShown },
+  modules: { welcomePageVisited, categories, cart, modal, demoWalkthroughShown, lastVisitedPage, confirmationModal },
   state: {
     user: null,
     provisionalUserID: uuidv4(),
@@ -50,8 +52,8 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    setUser: ({commit}, user) => {
-      commit('setUser', user)
+    setUser: ({ commit }, user) => {
+      commit('setUser', user);
     },
     logout: ({ commit, dispatch }) => {
       commit('setLoggedOut');
@@ -67,6 +69,7 @@ const store = new Vuex.Store({
         'welcomePageVisited',
         'cart',
         'demoWalkthroughShown',
+        'lastVisitedPage',
       ],
     }),
   ],

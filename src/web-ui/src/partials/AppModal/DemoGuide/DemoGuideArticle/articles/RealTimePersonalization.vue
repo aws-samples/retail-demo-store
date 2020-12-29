@@ -31,7 +31,7 @@
       <img src="/personalization-architecture.png" alt="personalization architecture" class="img-fluid" />
     </div>
 
-    <section class="mb-4">
+    <section class="provisioning-container">
       <h2 class="provisioning-heading">Provisioning capacity for real-time recommendations</h2>
 
       <p>
@@ -45,7 +45,7 @@
       </p>
     </section>
 
-    <ArticleFeature class="my-4">
+    <ArticleFeature class="mb-4">
       <template #default>
         <div :class="{'logo-and-quote--mobile': isMobile}">
           <div class="keen"><img src="/keen.png" alt="" class="img-fluid" /></div>
@@ -133,6 +133,10 @@ export default {
 </script>
 
 <style scoped>
+.provisioning-container {
+  margin-bottom: 9rem;
+}
+
 .provisioning-heading {
   font-size: 1.5rem;
 }

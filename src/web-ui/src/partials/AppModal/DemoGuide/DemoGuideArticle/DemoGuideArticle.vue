@@ -17,6 +17,9 @@ import MetricsAndImpact from './articles/MetricsAndImpact';
 import RealTimePersonalization from './articles/RealTimePersonalization';
 import BatchRecommendations from './articles/BatchRecommendations';
 import AboutThisDemo from './articles/AboutThisDemo';
+import Datasets from './articles/Datasets';
+import ShopperPersonas from './articles/ShopperPersonas';
+import EnablingShopperProfiles from './articles/EnablingShopperProfiles';
 
 export default {
   name: 'DemoGuideArticle',
@@ -52,6 +55,12 @@ export default {
           return BatchRecommendations;
         case Articles.ABOUT_THIS_DEMO:
           return AboutThisDemo;
+        case Articles.DATASETS:
+          return Datasets;
+        case Articles.SHOPPER_PERSONAS:
+          return ShopperPersonas;
+        case Articles.ENABLING_SHOPPER_PROFILES:
+          return EnablingShopperProfiles
       }
 
       throw new Error(`Invalid article id: ${this.article}`);
