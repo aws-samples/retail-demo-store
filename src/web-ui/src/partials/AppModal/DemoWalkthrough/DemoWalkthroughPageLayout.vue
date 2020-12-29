@@ -8,9 +8,11 @@
       v-if="showNav"
       :class="{ 'demo-walkthrough-nav d-flex justify-content-between': true, 'demo-walkthrough-nav--mobile': isMobile }"
     >
-      <button v-if="!isLast" class="end-tour btn btn-outline-primary" @click="skip">End Tour</button>
+      <button v-if="!isLast" class="end-tour end-tour--desktop-only btn btn-outline-primary" @click="skip">
+        End Tour
+      </button>
 
-      <div :class="{ 'ml-auto': isLast }">
+      <div :class="{ 'demo-walkthrough-nav__main': true, 'ml-auto': isLast }">
         <button class="prev btn btn-outline-primary" @click="prevTourPage">Previous</button>
 
         <button v-if="isLast" class="end-tour btn btn-primary ml-2" @click="skip">End Tour</button>
@@ -222,8 +224,9 @@ export default {
   padding-bottom: 0;
 }
 
-/* fixes inability to scroll on firefox */
 .main--mobile {
+  padding-top: 0;
+  /* fixes inability to scroll on firefox */
   padding-bottom: 100px;
 }
 
@@ -268,7 +271,16 @@ export default {
 .demo-walkthrough-nav--mobile .prev,
 .demo-walkthrough-nav--mobile .next {
   font-size: 1rem;
-  width: 90px;
+}
+
+.demo-walkthrough-nav--mobile .end-tour--desktop-only {
+  display: none;
+}
+
+.demo-walkthrough-nav--mobile .demo-walkthrough-nav__main {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
 }
 
 .arrow-svg {
