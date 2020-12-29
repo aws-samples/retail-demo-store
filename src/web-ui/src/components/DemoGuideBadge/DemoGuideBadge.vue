@@ -1,5 +1,5 @@
 <template>
-  <button @click="onClick" :aria-label="copy" class="demo-guide-badge d-inline-flex align-items-center text-left">
+  <button @click="onClick" :aria-label="copy" class="demo-guide-badge align-items-center text-left">
     <div class="logo mr-1"><img :src="serviceLogo" alt="" class="img-fluid" /></div>
     <div :class="{ text: true, 'hide-text-on-small-screens': hideTextOnSmallScreens }">
       <div>{{ copy }}</div>
@@ -93,6 +93,7 @@ export default {
 .demo-guide-badge {
   border: none;
   background: none;
+  display: inline-flex;
   font-weight: 300;
 }
 
@@ -102,7 +103,6 @@ export default {
 
 .text {
   flex: 1;
-  max-width: 350px;
   font-size: 0.8rem;
   line-height: 1rem;
 }

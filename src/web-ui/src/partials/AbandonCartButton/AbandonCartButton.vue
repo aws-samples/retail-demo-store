@@ -15,7 +15,7 @@
     </form>
 
     <div class="text-center">
-      <DemoGuideBadge :article="demoGuideBadgeArticle"></DemoGuideBadge>
+      <DemoGuideBadge :article="demoGuideBadgeArticle" class="demo-guide-badge px-0 d-flex"></DemoGuideBadge>
     </div>
   </div>
 </template>
@@ -66,6 +66,10 @@ export default {
 .consent-checkbox {
   /* fine-tuning for alignment */
   margin-top: 4px;
+}
+
+.demo-guide-badge {
+  width: 100%;
 }
 
 @media (min-width: 768px) {

@@ -27,8 +27,9 @@
           for demonstrating features within the Retail Demo Store.</label
         >
       </div>
+
+      <DemoGuideBadge :article="demoGuideBadgeArticle" class="demo-guide-badge px-0 d-flex"></DemoGuideBadge>
     </form>
-    <DemoGuideBadge :article="demoGuideBadgeArticle"></DemoGuideBadge>
   </section>
 </template>
 
@@ -124,5 +125,9 @@ export default {
 .consent-checkbox {
   /* fine-tuning for alignment */
   margin-top: 4px;
+}
+
+.demo-guide-badge {
+  width: 100%;
 }
 </style>
