@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Staging script for copying deployment resources to an S3 bucket. The resources
-# copied here are used as part of the deployment process for this project as 
-# as some runtime dependencies such as product images and seed data for loading 
+# copied here are used as part of the deployment process for this project as
+# as some runtime dependencies such as product images and seed data for loading
 # products and categories into DDB and CSVs for training Personalize models.
 
-set -e 
+set -e
 
 BUCKET=$1
 #Path with trailing /
@@ -86,7 +86,7 @@ done
 
 # Sync product images
 echo " + Copying product images"
-aws s3 sync ./images s3://${BUCKET}/${S3PATH}images --only-show-errors $S3PUBLIC
+aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC
 
 echo " + Creating CSVs for Personalize model pre-create training"
 PYTHONPATH=. python3 generators/generate_interactions_personalize.py

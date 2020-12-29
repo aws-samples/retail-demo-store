@@ -72,6 +72,7 @@ Resources:
       Handler: 'main'
       Role: !GetAtt LoadDataLambdaRole.Arn
       Runtime: go1.x
+      Timeout: 900
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/retaildemostore-lambda-load-products.zip'
