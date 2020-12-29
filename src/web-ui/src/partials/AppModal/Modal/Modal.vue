@@ -83,5 +83,6 @@ export default {
 
 .modal-body {
   height: 800px;
+  max-height: 80vh;
 }
 </style>
