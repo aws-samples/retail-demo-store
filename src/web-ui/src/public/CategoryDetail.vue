@@ -109,8 +109,12 @@ export default {
   mounted() {
     this.mediaQueryList = window.matchMedia('(max-width: 992px)');
 
-    // eslint-disable-next-line no-undef
-    this.listener = () => $([this.$refs.genderCollapse, this.$refs.styleCollapse]).collapse(this.mediaQueryList.matches ? 'hide' : 'show');
+    this.listener = () => {
+      const collapseElements = this.showGenderFilter ? [this.$refs.genderCollapse, this.$refs.styleCollapse] : [this.$refs.styleCollapse]
+
+      // eslint-disable-next-line no-undef
+      $(collapseElements).collapse(this.mediaQueryList.matches ? 'hide' : 'show')
+    };
 
     this.mediaQueryList.addEventListener('change', this.listener);
   },
