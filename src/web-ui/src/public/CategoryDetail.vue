@@ -72,7 +72,7 @@ import AmplifyStore from '@/store/store'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
-import Product from './components/Product.vue'
+import Product from '@/components/Product/Product'
 import Layout from '@/components/Layout/Layout'
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';

@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="mb-5">
     <div class="mb-3 text-left">
       <h2 class="recommendations-heading"><slot name="heading"></slot></h2>
       <div v-if="experiment" class="recommendation-explanation text-muted">
@@ -15,7 +15,7 @@
         v-else
         :recommendedProducts="recommendedProducts"
         :feature="feature"
-        class="col mb-5"
+        class="col"
       ></ProductCarousel>
     </div>
   </section>

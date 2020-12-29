@@ -1,24 +1,41 @@
 <template>
   <Layout>
-    <div class="content container">
-      <RecommendedProductsSection
-        v-if="
-          personalizeUserID &&
-            ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
-        "
-        :feature="feature"
-        :recommendedProducts="userRecommendations"
-        :experiment="recommendationsExperiment"
-      >
-        <template #heading v-if="userRecommendationsTitle">
-          {{ userRecommendationsTitle }}
-          <DemoGuideBadge
-            v-if="userRecommendationsDemoGuideBadgeArticle"
-            :article="userRecommendationsDemoGuideBadgeArticle"
-            hideTextOnSmallScreens
-          ></DemoGuideBadge>
-        </template>
-      </RecommendedProductsSection>
+    <div class="container">
+      <section class="mb-5">
+        <div v-if="userRecommendationsTitle" class="mb-3 text-left">
+          <h2 class="recommendations-heading">
+            {{ userRecommendationsTitle }}
+            <DemoGuideBadge
+              v-if="userRecommendationsDemoGuideBadgeArticle"
+              :article="userRecommendationsDemoGuideBadgeArticle"
+              hideTextOnSmallScreens
+            ></DemoGuideBadge>
+          </h2>
+          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted">
+            <i class="fa fa-balance-scale px-1"></i>
+            {{ recommendationsExperiment }}
+          </div>
+        </div>
+
+        <div
+          v-if="
+            personalizeUserID &&
+              ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
+          "
+        >
+          <LoadingFallback v-if="!userRecommendations" class="col my-4 text-center"></LoadingFallback>
+
+          <div v-else class="user-recommendations">
+            <Product
+              v-for="{ product } in userRecommendations"
+              :key="product.id"
+              :product="product"
+              :experiment="product.experiment"
+              :feature="feature"
+            ></Product>
+          </div>
+        </div>
+      </section>
 
       <RecommendedProductsSection
         :feature="feature"
@@ -48,12 +65,14 @@ import { Modals } from '@/partials/AppModal/config';
 import Layout from '@/components/Layout/Layout';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import Product from '@/components/Product/Product';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
-const MAX_RECOMMENDATIONS = 9;
+const MAX_RECOMMENDATIONS = 12;
 const EXPERIMENT_FEATURE = 'home_product_recs';
 
 export default {
@@ -62,6 +81,8 @@ export default {
     Layout,
     RecommendedProductsSection,
     DemoGuideBadge,
+    Product,
+    LoadingFallback,
   },
   data() {
     return {
@@ -173,7 +194,17 @@ export default {
 </script>
 
 <style scoped>
-.content {
-  padding-top: 1rem;
+.recommendations-heading {
+  font-size: 1.5rem;
+}
+
+.recommendation-explanation {
+  font-style: italic;
+}
+
+.user-recommendations {
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 </style>
