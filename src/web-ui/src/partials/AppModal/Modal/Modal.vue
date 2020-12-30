@@ -67,6 +67,12 @@ export default {
   border-radius: 0;
 }
 
+.modal-dialog {
+  width: 95%;
+  max-width: 1200px;
+  height: 90%;
+}
+
 .modal--mobile .modal-dialog {
   margin: 0;
   width: auto;
@@ -75,14 +81,12 @@ export default {
   max-height: none;
 }
 
-.modal-dialog {
-  width: 95%;
-  max-width: 1200px;
-  height: 90%;
-}
-
 .modal-body {
   height: 800px;
   max-height: 80vh;
+}
+
+.modal--mobile .modal-body {
+  max-height: none;
 }
 </style>
