@@ -36,9 +36,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import { TheMask } from 'vue-the-mask';
-import { RepositoryFactory } from '@/repositories/RepositoryFactory';
-
-const UsersRepository = RepositoryFactory.get('users');
 
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
@@ -61,10 +58,14 @@ export default {
     ...mapState(['user']),
   },
   methods: {
-    ...mapActions(['setUser']),
-    async onSubmit() {
-      const { data } = await UsersRepository.verifyAndUpdateUserPhoneNumber(this.user.id, `+1${this.phoneNumber}`);
-      this.setUser(data);
+    ...mapActions(['triggerTextAlerts']),
+    onSubmit() {
+      const phoneNumber = this.phoneNumber;
+
+      this.phoneNumber = '';
+      this.hasConsented = false;
+
+      this.triggerTextAlerts(phoneNumber);
     },
   },
 };

@@ -4,6 +4,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import { ConfirmationModals } from '@/partials/ConfirmationModal/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
+const UsersRepository = RepositoryFactory.get('users');
 
 export const confirmationModal = {
   state: () => ({ name: null, progress: 0 }),
@@ -22,7 +23,7 @@ export const confirmationModal = {
       const { user } = rootState;
 
       if (cart && cart.items.length > 0) {
-        const {data: cartItem} = await ProductsRepository.getProduct(cart.items[0].product_id);
+        const { data: cartItem } = await ProductsRepository.getProduct(cart.items[0].product_id);
 
         commit('setProgress', 20);
 
@@ -32,6 +33,16 @@ export const confirmationModal = {
       } else {
         console.error('No items to export');
       }
+    },
+
+    triggerTextAlerts: async ({ commit, dispatch, rootState }, phoneNumber) => {
+      commit('setConfirmationModal', { name: ConfirmationModals.TextAlerts });
+
+      const { data } = await UsersRepository.verifyAndUpdateUserPhoneNumber(rootState.user.id, `+1${phoneNumber}`);
+
+      dispatch('setUser', data);
+
+      commit('setProgress', 100);
     },
 
     openConfirmationModal: ({ commit }, name) => commit('setConfirmationModal', { name }),
