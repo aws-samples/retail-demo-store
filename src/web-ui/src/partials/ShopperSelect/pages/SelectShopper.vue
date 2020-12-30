@@ -99,7 +99,7 @@ export default {
       const { data } = await UsersRepository.getUnclaimedUser({ primaryInterest, ageRange });
 
       if (!data) {
-        this.isFetchingShopper = false;
+        this.shopperNotFound = true;
       } else {
         this.$emit('shopperSelected', {
           selection: { primaryInterest, ageRange },
