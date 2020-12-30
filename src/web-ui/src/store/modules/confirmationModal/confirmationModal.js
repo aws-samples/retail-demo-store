@@ -4,15 +4,21 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import { ConfirmationModals } from '@/partials/ConfirmationModal/config';
 
 const ProductsRepository = RepositoryFactory.get('products');
+const UsersRepository = RepositoryFactory.get('users');
 
 export const confirmationModal = {
-  state: () => ({ name: null, progress: 0 }),
+  state: () => ({ name: null, progress: 0, isError: false }),
   mutations: {
-    setConfirmationModal: (state, { name, progress = 0 }) => {
+    setConfirmationModal: (state, { name, progress = 0, isError = false }) => {
       state.name = name;
       state.progress = progress;
+      state.isError = isError;
     },
     setProgress: (state, newProgress) => (state.progress = newProgress),
+    setError: (state) => {
+      state.progress = 100;
+      state.isError = true;
+    },
   },
   actions: {
     triggerAbandonedCartEmail: async ({ commit, rootState }) => {
@@ -22,15 +28,33 @@ export const confirmationModal = {
       const { user } = rootState;
 
       if (cart && cart.items.length > 0) {
-        const {data: cartItem} = await ProductsRepository.getProduct(cart.items[0].product_id);
+        try {
+          const { data: cartItem } = await ProductsRepository.getProduct(cart.items[0].product_id);
 
-        commit('setProgress', 20);
+          commit('setProgress', 20);
 
-        await AnalyticsHandler.recordAbanonedCartEvent(user, cart, cartItem);
+          await AnalyticsHandler.recordAbanonedCartEvent(user, cart, cartItem);
 
-        commit('setProgress', 100);
+          commit('setProgress', 100);
+        } catch {
+          commit('setError');
+        }
       } else {
         console.error('No items to export');
+      }
+    },
+
+    triggerTextAlerts: async ({ commit, dispatch, rootState }, phoneNumber) => {
+      commit('setConfirmationModal', { name: ConfirmationModals.TextAlerts });
+
+      try {
+        const { data } = await UsersRepository.verifyAndUpdateUserPhoneNumber(rootState.user.id, `+1${phoneNumber}`);
+
+        dispatch('setUser', data);
+
+        commit('setProgress', 100);
+      } catch {
+        commit('setError');
       }
     },
 

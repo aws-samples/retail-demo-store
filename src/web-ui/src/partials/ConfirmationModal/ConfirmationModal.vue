@@ -7,6 +7,7 @@ import { mapState } from 'vuex';
 import { ConfirmationModals } from './config';
 
 import AbandonCart from './modals/AbandonCart';
+import TextAlerts from './modals/TextAlerts';
 
 export default {
   name: 'ConfirmationModal',
@@ -18,6 +19,8 @@ export default {
       switch (this.name) {
         case ConfirmationModals.AbandonCart:
           return AbandonCart;
+        case ConfirmationModals.TextAlerts:
+          return TextAlerts;
       }
 
       throw new Error('Invalid confirmation modal name');
@@ -25,5 +28,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

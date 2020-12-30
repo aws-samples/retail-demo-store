@@ -66,7 +66,8 @@ export default {
   color: var(--blue-500);
 }
 
-.close-modal:hover, .close-modal:focus {
+.close-modal:hover,
+.close-modal:focus {
   background: var(--blue-600);
   border-color: var(--blue-600);
   color: var(--white);
