@@ -48,6 +48,7 @@ type Category struct {
 	ID    string `json:"id" yaml:"id"`
 	Name  string `json:"name" yaml:"name"`
 	Image string `json:"image" yaml:"image"`
+	HasGenderAffinity bool `json:"has_gender_affinity" yaml:"has_gender_affinity"`
 }
 
 // Categories Array
