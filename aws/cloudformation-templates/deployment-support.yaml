@@ -391,7 +391,7 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
       Runtime: python3.8
-      Timeout: 900
+      Timeout: 300
       VpcConfig:
         SecurityGroupIds:
           - !Ref ElasticsearchSecurityGroupId
