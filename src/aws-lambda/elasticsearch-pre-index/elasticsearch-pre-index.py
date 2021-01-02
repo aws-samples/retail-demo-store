@@ -1,13 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import json
 import os
-import requests
 import yaml
 import logging
 import boto3
 from crhelper import CfnResource
+from elasticsearch import Elasticsearch
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,6 +16,10 @@ helper = CfnResource()
 s3 = boto3.resource('s3')
 
 INDEX_NAME = 'products'
+TYPE_NAME = 'product'
+ID_FIELD = 'id'
+
+MAX_BULK_BATCH_SIZE = 100
 
 @helper.delete
 @helper.update
@@ -33,51 +36,74 @@ def elasticsearch_create(event,_):
 
     es_domain_endpoint = event['ResourceProperties']['ElasticsearchDomainEndpoint']
     logger.info('Elasticsearch endpoint: ' + es_domain_endpoint)
-    
-    url = 'https://{}/{}'.format(es_domain_endpoint, INDEX_NAME)
-    
-    headers = { "Content-Type": "application/json" }
 
-    r = requests.get(url, headers = headers)
+    es_host = {
+        'host' : es_domain_endpoint,
+        'port' : 443,
+        'scheme' : 'https',
+    }
 
-    # For testing: if index exists, tear it down so create/load logic kicks in
-    #if r.ok:
-    #    logger.info('Deleting index ' + INDEX_NAME)
-    #    requests.delete(url)
-    #    r = requests.get(url, headers = headers)
+    # For testing: specify 'ForceIndex' to force existing index to be deleted and products indexed.
+    force_index = event['ResourceProperties'].get('ForceIndex', 'no').lower() in [ 'true', 'yes', '1' ]
 
-    if r.ok:
-        logger.info('Index exists! Nothing to do.')
-        return es_domain_endpoint
+    es = Elasticsearch(hosts = [es_host])
+    create_index_and_bulk_load = True
+
+    if es.indices.exists(INDEX_NAME):
+        logger.info(f'{INDEX_NAME} already exists')
+        create_index_and_bulk_load = False
+
+        if force_index:
+            logger.info(f'Deleting "{INDEX_NAME}"...')
+            res = es.indices.delete(index = INDEX_NAME)
+            logger.debug(" response: '%s'" % (res))
+            create_index_and_bulk_load = True
     else:
-        logger.info('Index does NOT exist!')
+        logger.info('Index does not exist')
 
+    if create_index_and_bulk_load:
         request_body = {
             "settings" : {
                 "number_of_shards": 1,
                 "number_of_replicas": 0
             }
         }
-        logger.info("Creating '{}' index...".format(INDEX_NAME))
+        logger.info(f'Creating "{INDEX_NAME}" index...')
+        res = es.indices.create(index = INDEX_NAME, body = request_body)
+        logger.debug(" response: '%s'" % (res))
 
-        try:
-            r = requests.put(url, headers = headers, json = request_body)
-        except Exception as e:
-            helper.init_failure(e)
-            return False
-
-        logger.info('Indexing products...')
+        logger.info('Downloading products.yaml...')
         s3.meta.client.download_file(event['ResourceProperties']['Bucket'], event['ResourceProperties']['File'], '/tmp/products.yaml')
         with open('/tmp/products.yaml') as file:
+            logger.info('Loading products.yaml...')
             products_list = yaml.load(file, Loader=yaml.FullLoader)
 
+            logger.info(f'Bulk indexing {len(products_list)} products in batches...')
+            bulk_data = []
+
             for product in products_list:
-                url = 'https://{}/{}/_doc/{}'.format(es_domain_endpoint, INDEX_NAME, product['id'])
-                r = requests.put(url, headers = headers, json = product)
+                bulk_data.append({
+                    "index": {
+                        "_index": INDEX_NAME,
+                        "_type": TYPE_NAME,
+                        "_id": product[ID_FIELD]
+                    }
+                })
+                bulk_data.append(product)
+
+                if len(bulk_data) >= MAX_BULK_BATCH_SIZE:
+                    es.bulk(index = INDEX_NAME, body = bulk_data)
+                    bulk_data = []
+
+            if len(bulk_data) > 0:
+                es.bulk(index = INDEX_NAME, body = bulk_data)
 
         logger.info('Products successfully indexed!')
 
-    helper.Data['Output'] = 'Elasticsearch product index populated'
+        helper.Data['Output'] = 'Elasticsearch product index populated'
+    else:
+        helper.Data['Output'] = 'Elasticsearch product index already exists'
+
     return es_domain_endpoint
 
 def lambda_handler(event, context):

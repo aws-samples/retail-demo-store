@@ -391,7 +391,7 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
       Runtime: python3.8
-      Timeout: 60
+      Timeout: 300
       VpcConfig:
         SecurityGroupIds:
           - !Ref ElasticsearchSecurityGroupId
@@ -432,8 +432,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*'
               - Effect: Allow
                 Action:
                   - es:ESHttpDelete
