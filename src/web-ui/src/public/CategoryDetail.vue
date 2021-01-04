@@ -128,6 +128,7 @@ export default {
     async getProductsByCategory(categoryName) {
       this.demoGuideBadgeArticle = null
       this.experiment = null
+      this.products = []
 
       let intermediate = null
       if (categoryName == 'featured') {
@@ -205,8 +206,12 @@ export default {
     }
   },
   watch: {
-    // call again the method if the route changes
-    '$route': 'fetchData'
+    $route() {
+      this.selectedGenders = [];
+      this.selectedStyles = [];
+
+      this.fetchData();
+    },
   },
 }
 </script>
