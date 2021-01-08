@@ -38,7 +38,7 @@ export default {
 }
 
 .learn-more {
-  font-weight: 500;
+  font-weight: bold;
   font-size: 1.35rem;
 }
 </style>

@@ -73,7 +73,6 @@ export default {
   width: 100%;
   border: none;
   background: inherit;
-  font-weight: 300;
   font-size: 1rem;
   color: inherit;
   transition: color 150ms ease-in-out;
@@ -107,7 +106,6 @@ export default {
 }
 
 .article-button {
-  font-weight: 500;
   color: inherit;
   transition: color 150ms ease-in-out;
 }

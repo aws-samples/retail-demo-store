@@ -247,7 +247,6 @@ export default {
 .next {
   width: 120px;
   border-color: var(--blue-500);
-  font-weight: 300;
   font-size: 1.25rem;
   color: inherit;
 }

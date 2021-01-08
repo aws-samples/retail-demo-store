@@ -87,7 +87,7 @@ export default {
 
 <style scoped>
 .section-heading {
-  font-weight: 300;
+  font-weight: normal;
   font-size: 1.5rem;
 }
 </style>
