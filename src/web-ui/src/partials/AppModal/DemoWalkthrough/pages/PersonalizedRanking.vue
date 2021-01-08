@@ -3,7 +3,6 @@
     <div :class="{ 'personalized-ranking-container d-flex': true, 'personalized-ranking-container--mobile': isMobile }">
       <div class="personalized-ranking-text">
         <h1 class="heading mb-3">
-          <div>Use case 2</div>
           <div ref="personalized-ranking" class="personalized-ranking pr-2 d-inline-block">Personalized Ranking</div>
         </h1>
 
