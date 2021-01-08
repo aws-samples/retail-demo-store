@@ -105,6 +105,7 @@ export default {
     this.fetchData();
   },
   mounted() {
+    this.openModal(Modals.DemoWalkthrough);
     if (!this.demoWalkthroughShown) {
       this.openModal(Modals.DemoWalkthrough);
       this.markDemoWalkthroughAsShown();

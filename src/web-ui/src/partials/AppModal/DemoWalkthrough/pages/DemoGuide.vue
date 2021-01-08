@@ -12,7 +12,7 @@
       <div ref="demo-guide" class="demo-guide pl-2">Demo guide</div>
 
       <div class="demo-guide-closed">
-        <img src="/demo-guide-1.png" alt="" class="img-fluid" ref="demo-guide-closed" />
+        <img src="/demo-walkthrough-overview.png" alt="" class="img-fluid" ref="demo-guide-closed" />
       </div>
 
       <div class="services">
@@ -33,7 +33,7 @@
         </ul>
       </div>
 
-      <div class="demo-guide-open"><img src="/demo-guide-2.png" alt="" class="img-fluid" ref="demo-guide-open" /></div>
+      <div class="demo-guide-open"><img src="/demo-guide-open.png" alt="" class="img-fluid" ref="demo-guide-open" /></div>
     </div>
   </DemoWalkthroughPageLayout>
 </template>
@@ -68,7 +68,7 @@ export default {
             from: { ref: 'services', target: 'RIGHT' },
             to: {
               ref: 'demo-guide-open',
-              target: ({ left, width, top, height }) => [left + width * 0.1, top + height * 0.3],
+              target: ({ left, width, top, height }) => [left + width * 0.05, top + height * 0.3],
             },
             drawPoints: ({ fromX, fromY, toX, toY }) => [
               [fromX, fromY],
@@ -95,8 +95,8 @@ export default {
 .images {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: 1fr 60px 50%;
-  grid-template-rows: auto 75% 1fr;
+  grid-template-columns: 450px 60px 1fr;
+  grid-template-rows: auto auto 1fr;
   grid-template-areas:
     'DemoGuide . Open'
     'Closed . Open'

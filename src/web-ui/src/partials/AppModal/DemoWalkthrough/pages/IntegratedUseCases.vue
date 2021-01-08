@@ -23,7 +23,7 @@
       </div>
 
       <div class="personalize-img-container">
-        <img src="/user-personalization.svg" alt="" class="personalize-img img-fluid" ref="personalize-img" />
+        <img src="/demo-walkthrough-overview.png" alt="" class="personalize-img img-fluid" ref="personalize-img" />
       </div>
     </section>
   </DemoWalkthroughPageLayout>
@@ -47,7 +47,7 @@ export default {
             from: { ref: 'user-personalization', target: 'RIGHT' },
             to: {
               ref: 'personalize-img',
-              target: ({ left, width, top, height }) => [left + width * 0.05, top + height * 0.19],
+              target: ({ left, top, height }) => [left, top + height * 0.16],
             },
             drawPoints: ({ fromX, fromY, toX, toY }) => [
               [fromX, fromY],

@@ -90,7 +90,7 @@ export default {
 
 .figure-container {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 450px 1fr;
   grid-column-gap: 40px;
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
