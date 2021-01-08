@@ -55,10 +55,16 @@ export default {
 
 <style scoped>
 .recommendations-heading {
-  font-size: 1.5rem;
+  font-size: 1rem;
 }
 
 .recommendation-explanation {
   font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .recommendations-heading {
+    font-size: 1.4rem;
+  }
 }
 </style>

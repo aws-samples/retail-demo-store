@@ -155,7 +155,7 @@ export default {
 
 .your-selections {
   margin-right: 24px;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
 }
 
 .your-selections-heading {
@@ -181,7 +181,7 @@ export default {
 }
 
 .assigned-shopper {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
 }
 
 .assigned-shopper-heading {
