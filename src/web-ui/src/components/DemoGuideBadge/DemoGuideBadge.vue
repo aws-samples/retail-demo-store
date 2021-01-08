@@ -1,5 +1,5 @@
 <template>
-  <button @click="onClick" :aria-label="copy" class="demo-guide-badge align-items-center text-left">
+  <button type="button" @click="onClick" :aria-label="copy" class="demo-guide-badge align-items-center text-left">
     <div class="logo mr-1"><img :src="serviceLogo" alt="" class="img-fluid" /></div>
     <div :class="{ text: true, 'hide-text-on-small-screens': hideTextOnSmallScreens }">
       <div>{{ copy }}</div>
