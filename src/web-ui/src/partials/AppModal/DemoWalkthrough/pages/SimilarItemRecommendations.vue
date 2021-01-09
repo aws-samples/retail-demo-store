@@ -1,7 +1,6 @@
 <template>
   <DemoWalkthroughPageLayout :drawArrows="drawArrows">
     <h1 class="heading mb-3">
-      Use case 3
       <div class="heading-similar-item-recommendations">Similar item recommendations</div>
     </h1>
 

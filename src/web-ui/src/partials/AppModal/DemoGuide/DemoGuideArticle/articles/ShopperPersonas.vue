@@ -6,34 +6,59 @@
       To provide a more compelling and intuitive demo experience, each fictitious user in the Retail Demo Store is
       assigned a shopper persona. The persona is represented by three categories from the Retail Demo Store’s catalog
       which the user has an affinity. The affinity for each category is also weighted such that the first category is is
-      highest weighted and the third category is the lowest. There are eight combinations of categories that represent
+      highest weighted and the third category is the lowest. There are sixteen combinations of categories that represent
       the personas used across all users.
     </p>
 
     <ul class="personas">
       <li>
-        accessories_jewelry_apparel
+        furniture_homedecor_housewares
       </li>
       <li>
-        apparel_housewares_accessories
+        apparel_footwear_accessories
       </li>
       <li>
-        beauty_electronics_accessories
+        instruments_books_electronics
       </li>
       <li>
-        electronics_beauty_outdoors
+        floral_beauty_jewelry
       </li>
       <li>
-        footwear_outdoors_apparel
+        grocery_seasonal_wedding
       </li>
       <li>
-        housewares_apparel_electronics
+        outdoors_instruments_grocery
       </li>
       <li>
-        jewelry_accessories_beauty
+        housewares_floral_seasonal
       </li>
       <li>
-        outdoors_footwear_housewares
+        tools_housewares_apparel
+      </li>
+      <li>
+        electronics_outdoors_footwear
+      </li>
+      <li>
+        seasonal_furniture_floral
+      </li>
+      <li>
+        homedecor_electronics_outdoors
+      </li>
+      <li>
+        accessories_grocery_books
+      </li>
+
+      <li>
+        footwear_jewelry_furniture
+      </li>
+      <li>
+        beauty_accessories_instruments
+      </li>
+      <li>
+        housewares_tools_beauty
+      </li>
+      <li>
+        books_apparel_homedecor
       </li>
     </ul>
 

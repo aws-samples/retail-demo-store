@@ -1,6 +1,6 @@
 <template>
   <SecondaryLayout>
-    <div v-if="showingSignUp" class="sign-up-notice">
+    <div v-if="showingSignUp" class="container text-left">
       <p>We require you to enter an email address to send a code to verify your account.</p>
       <p>Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.</p>
     </div>
@@ -80,15 +80,6 @@ export default {
 </script>
 
 <style>
-
-.sign-up-notice {
-  display: inline-block;
-  max-width: 460px;
-  padding: 0 40px;
-  text-align: left;
-}
-
-
 /* Amplify Auth Form Styling */
 
 div[data-test="sign-in-section"],
