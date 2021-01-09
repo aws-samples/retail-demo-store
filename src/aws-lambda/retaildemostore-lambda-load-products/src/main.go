@@ -161,7 +161,7 @@ func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
 // HandleRequest - handles Lambda request
 func HandleRequest(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 
-	if event.RequestType == "Create" {
+	if event.RequestType == "Create" || event.RequestType == "Update" {
 		Bucket, _ := event.ResourceProperties["Bucket"].(string)
 		File, _ := event.ResourceProperties["File"].(string)
 		Table, _ := event.ResourceProperties["Table"].(string)
