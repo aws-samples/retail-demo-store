@@ -45,10 +45,10 @@ type Products []Product
 
 // Category Struct
 type Category struct {
-	ID    string `json:"id" yaml:"id"`
-	Name  string `json:"name" yaml:"name"`
-	Image string `json:"image" yaml:"image"`
-	HasGenderAffinity bool `json:"has_gender_affinity" yaml:"has_gender_affinity"`
+	ID                string `json:"id" yaml:"id"`
+	Name              string `json:"name" yaml:"name"`
+	Image             string `json:"image" yaml:"image"`
+	HasGenderAffinity bool   `json:"has_gender_affinity" yaml:"has_gender_affinity"`
 }
 
 // Categories Array
@@ -160,15 +160,20 @@ func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
 
 // HandleRequest - handles Lambda request
 func HandleRequest(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
-	Bucket, _ := event.ResourceProperties["Bucket"].(string)
-	File, _ := event.ResourceProperties["File"].(string)
-	Table, _ := event.ResourceProperties["Table"].(string)
-	Datatype, _ := event.ResourceProperties["Datatype"].(string)
 
-	log.Println("Importing ", Bucket, File, " to ", Table, Datatype)
-	returnstring, err = loadData(Bucket, File, Table, Datatype)
-	data = map[string]interface{}{"return": returnstring}
-	return returnstring, data, err
+	if event.RequestType == "Create" || event.RequestType == "Update" {
+		Bucket, _ := event.ResourceProperties["Bucket"].(string)
+		File, _ := event.ResourceProperties["File"].(string)
+		Table, _ := event.ResourceProperties["Table"].(string)
+		Datatype, _ := event.ResourceProperties["Datatype"].(string)
+
+		log.Println("Importing ", Bucket, File, " to ", Table, Datatype)
+		returnstring, err = loadData(Bucket, File, Table, Datatype)
+		data = map[string]interface{}{"return": returnstring}
+		return returnstring, data, err
+	}
+
+	return "", map[string]interface{}{}, nil
 }
 
 func main() {

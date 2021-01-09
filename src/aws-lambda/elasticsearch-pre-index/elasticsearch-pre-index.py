@@ -46,7 +46,8 @@ def elasticsearch_create(event,_):
     # For testing: specify 'ForceIndex' to force existing index to be deleted and products indexed.
     force_index = event['ResourceProperties'].get('ForceIndex', 'no').lower() in [ 'true', 'yes', '1' ]
 
-    es = Elasticsearch(hosts = [es_host])
+    es = Elasticsearch(hosts = [es_host], timeout=30, max_retries=10, retry_on_timeout=True)
+
     create_index_and_bulk_load = True
 
     if es.indices.exists(INDEX_NAME):
