@@ -84,8 +84,6 @@ export default {
 }
 
 .modal-title {
-  font-weight: normal;
-  font-weight: 300;
   font-size: 1rem;
 }
 </style>

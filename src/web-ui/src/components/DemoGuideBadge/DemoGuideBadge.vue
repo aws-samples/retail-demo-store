@@ -94,7 +94,6 @@ export default {
   border: none;
   background: none;
   display: inline-flex;
-  font-weight: 300;
 }
 
 .logo {

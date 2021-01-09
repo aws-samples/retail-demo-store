@@ -146,7 +146,6 @@ export default {
 }
 
 .service-heading {
-  font-weight: bold;
   font-size: 1rem;
 }
 

@@ -23,10 +23,3 @@ export default {
   components: { ArticleLayout },
 };
 </script>
-
-<style scoped>
-.section-heading {
-  font-weight: 300;
-  font-size: 1.5rem;
-}
-</style>

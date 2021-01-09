@@ -36,7 +36,6 @@ export default {
 
 <style scoped>
 .page-container {
-  font-weight: 300;
   font-size: 1.25rem;
 }
 

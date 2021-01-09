@@ -34,11 +34,11 @@ export default {
 
 .demo-guide {
   font-weight: bold;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .learn-more {
-  font-weight: 500;
-  font-size: 1.35rem;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 </style>

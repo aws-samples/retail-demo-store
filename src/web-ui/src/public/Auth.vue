@@ -118,7 +118,7 @@ div[data-test="forgot-password-section"] {
   }
 }
 
-/* Set font-size to 16px to disable auto-zoom on mobile Safari */
+/* Set font-size to 18px to disable auto-zoom on mobile Safari */
 div[data-test="sign-in-section"] input,
 div[data-test="sign-up-section"] input,
 div[data-test="verify-contact-section"] input,
@@ -128,7 +128,7 @@ div[data-test="confirm-sign-up-section"] input,
 div[data-test="confirm-sign-in-section"] input,
 div[data-test="set-mfa-section"] input,
 div[data-test="forgot-password-section"] input {
-  font-size: 16px !important;
+  font-size: 18px !important;
   padding: .5em;
 }
 

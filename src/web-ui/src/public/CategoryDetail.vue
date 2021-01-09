@@ -227,7 +227,7 @@ export default {
 
   .filter-title {
     font-size: 1.2em;
-    font-weight: 500;
+    font-weight: bold;
     cursor: pointer;
     display: block;
   }
