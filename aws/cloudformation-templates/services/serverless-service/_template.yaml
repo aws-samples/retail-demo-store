@@ -31,7 +31,7 @@ Parameters:
   ApiRootResourceId:
     Type: String
 
-  UserPoolArn:
+  ApiGatewayAuthorizer:
     Type: String
 
 Resources:
@@ -55,17 +55,6 @@ Resources:
       RestApiId: !Ref RestApiId
       ParentId: !Ref ApiRootResourceId
       PathPart: !Ref Path
-
-  ApiGatewayAuthorizer:
-    Type: AWS::ApiGateway::Authorizer
-    Properties:
-      Name: PerspectiveAuthorizer
-      RestApiId: !Ref RestApiId
-      AuthorizerResultTtlInSeconds: 300
-      IdentitySource: method.request.header.Authorization
-      ProviderARNs:
-        - !Ref UserPoolArn
-      Type: COGNITO_USER_POOLS
 
   Method:
     Type: AWS::ApiGateway::Method

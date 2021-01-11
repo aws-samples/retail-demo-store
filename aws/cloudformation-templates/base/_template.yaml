@@ -120,6 +120,8 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/apigateway.yaml
+      Parameters:
+        UserPoolArn: !GetAtt Authentication.Outputs.UserPoolArn
 
   # VPC
   VPC:
@@ -209,10 +211,6 @@ Outputs:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Authentication.Outputs.UserPoolId
 
-  UserPoolArn:
-    Description: Authentication Cognito User Pool Arn.
-    Value: !GetAtt Authentication.Outputs.UserPoolArn
-
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Authentication.Outputs.UserPoolClientId
@@ -256,6 +254,10 @@ Outputs:
   ApiRootResourceId:
     Description: API Gateway Root Resource Id
     Value: !GetAtt ApiGateway.Outputs.ApiRootResourceId
+
+  ApiGatewayAuthorizer:
+    Description: API Gateway Root Resource Id
+    Value: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
 
   ServiceDiscoveryNamespace:
     Description: Service Discovery Namespace.

@@ -4,6 +4,11 @@ Transform: AWS::Serverless-2016-10-31
 
 Description: Retail Store API Gateway
 
+Parameters:
+
+  UserPoolArn:
+    Type: String
+
 Resources:
 
   RestApi:
@@ -53,6 +58,17 @@ Resources:
             Empty:
               type: object
 
+  ApiGatewayAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: RetailStoreAuthorizer
+      RestApiId: !Ref RestApi
+      AuthorizerResultTtlInSeconds: 300
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !Ref UserPoolArn
+      Type: COGNITO_USER_POOLS
+
 Outputs:
 
   RestApiId:
@@ -62,3 +78,7 @@ Outputs:
   ApiRootResourceId:
     Description: Retail Store Root Resource Id API Gateway
     Value: !GetAtt RestApi.RootResourceId
+
+  ApiGatewayAuthorizer:
+    Description: Retail Store Authorizer for Lambda microservices
+    Value: !Ref ApiGatewayAuthorizer

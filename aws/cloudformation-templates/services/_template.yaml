@@ -56,7 +56,7 @@ Parameters:
   UserPoolId:
     Type: String
 
-  UserPoolArn:
+  ApiGatewayAuthorizer:
     Type: String
 
   UserPoolClientId:
@@ -315,7 +315,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketKey: !Sub ${ResourceBucketRelativePath}aws-lambda/recipes.zip
         Path: recipes
-        UserPoolArn: !Ref UserPoolArn
+        ApiGatewayAuthorizer: !Ref ApiGatewayAuthorizer
         Handler: recipes.handler
         RestApiId: !Ref RestApiId
         ApiRootResourceId: !Ref ApiRootResourceId
