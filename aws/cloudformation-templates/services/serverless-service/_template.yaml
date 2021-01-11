@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Retail Store Serverless Service Template
+
+Parameters:
+
+  LambdaRoleArn:
+    Type: String
+
+  ResourceBucket:
+    Type: String
+
+  ResourceBucketKey:
+    Type: String
+
+  Path:
+    Type: String
+
+  Handler:
+    Type: String
+
+  Runtime:
+    Type: String
+    Default: python3.8
+
+  RestApiId:
+    Type: String
+
+  ApiRootResourceId:
+    Type: String
+
+  UserPoolArn:
+    Type: String
+
+Resources:
+
+  ServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Ref LambdaRoleArn
+      Handler: !Ref Handler
+      CodeUri:
+        Bucket: !Ref ResourceBucket
+        Key: !Ref ResourceBucketKey
+      Runtime: !Ref Runtime
+      Timeout: 10
+      MemorySize: 256
+      Tracing: Active
+
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiId
+      ParentId: !Ref ApiRootResourceId
+      PathPart: !Ref Path
+
+  ApiGatewayAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: PerspectiveAuthorizer
+      RestApiId: !Ref RestApiId
+      AuthorizerResultTtlInSeconds: 300
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !Ref UserPoolArn
+      Type: COGNITO_USER_POOLS
+
+  Method:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      HttpMethod: ANY
+      ResourceId: !Ref ApiGatewayResource
+      RestApiId: !Ref RestApiId
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ServiceFunction.Arn}/invocations
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  lambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ServiceFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/*/${Path}
+

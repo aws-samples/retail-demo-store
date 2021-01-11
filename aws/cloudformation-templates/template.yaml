@@ -245,12 +245,15 @@ Resources:
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
+        UserPoolArn: !GetAtt Base.Outputs.UserPoolArn
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
         StackBucketName: !GetAtt Base.Outputs.StackBucketName
         Subnets: !GetAtt Base.Outputs.Subnets
         VpcId: !GetAtt Base.Outputs.VpcId
         ClusterName: !GetAtt Base.Outputs.ClusterName
+        RestApiId: !GetAtt Base.Outputs.RestApiId
+        ApiRootResourceId: !GetAtt Base.Outputs.ApiRootResourceId
         ServiceDiscoveryNamespace: !GetAtt Base.Outputs.ServiceDiscoveryNamespace
         EnvElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId

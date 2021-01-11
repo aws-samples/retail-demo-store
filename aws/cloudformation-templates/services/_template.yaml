@@ -56,6 +56,9 @@ Parameters:
   UserPoolId:
     Type: String
 
+  UserPoolArn:
+    Type: String
+
   UserPoolClientId:
     Type: String
   
@@ -72,6 +75,12 @@ Parameters:
     Type: String
 
   ClusterName:
+    Type: String
+
+  RestApiId:
+    Type: String
+
+  ApiRootResourceId:
     Type: String
 
   ServiceDiscoveryNamespace:
@@ -130,6 +139,11 @@ Resources:
     Type: AWS::Events::EventBus
     Properties:
       Name: RetailEventBus
+
+  Roles:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/roles.yaml
 
   ProductsService:
     Type: AWS::CloudFormation::Stack
@@ -291,6 +305,20 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+
+  RecipeService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/serverless-service/_template.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Roles.Outputs.BasicLambdaFunctionRoleArn
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketKey: !Sub ${ResourceBucketRelativePath}aws-lambda/recipes.zip
+        Path: recipes
+        UserPoolArn: !Ref UserPoolArn
+        Handler: recipes.handler
+        RestApiId: !Ref RestApiId
+        ApiRootResourceId: !Ref ApiRootResourceId
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack

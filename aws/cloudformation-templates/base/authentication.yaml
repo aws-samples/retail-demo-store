@@ -218,6 +218,9 @@ Outputs:
   UserPoolId:
     Description: User Pool Id
     Value: !Ref UserPool
+  UserPoolArn:
+    Description: Userpool ARN
+    Value: !GetAtt UserPool.Arn
   UserPoolClientId:
     Description: User Pool Client Id
     Value: !Ref UserPoolClient

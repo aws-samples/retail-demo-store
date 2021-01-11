@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Retail Store API Gateway
+
+Resources:
+
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: Retail Store API
+          description: Retail Store API
+          version: 1.0
+        paths:
+          # We need a dummy endpoint or else the API will error on creation
+          /version:
+            options:
+              consumes:
+                - application/json
+              produces:
+                - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: '#/components/schemas/Recipe'
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: mock
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+        components:
+          schemas:
+            Empty:
+              type: object
+
+Outputs:
+
+  RestApiId:
+    Description: Retail Store Rest API for Lambda microservices
+    Value: !Ref RestApi
+
+  ApiRootResourceId:
+    Description: Retail Store Root Resource Id API Gateway
+    Value: !GetAtt RestApi.RootResourceId

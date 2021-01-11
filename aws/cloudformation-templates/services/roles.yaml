@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Retail Store Serverless Services IAM Roles
+
+Resources:
+
+  BasicLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+Outputs:
+
+  BasicLambdaFunctionRoleArn:
+    Description: Basic Lambda role for Retail Store serverless services
+    Value: !GetAtt BasicLambdaFunctionRole.Arn

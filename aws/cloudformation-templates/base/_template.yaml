@@ -115,6 +115,12 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/ecs-cluster.yaml
 
+  # API Gateway
+  ApiGateway:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/apigateway.yaml
+
   # VPC
   VPC:
     Type: AWS::CloudFormation::Stack
@@ -202,7 +208,11 @@ Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Authentication.Outputs.UserPoolId
-  
+
+  UserPoolArn:
+    Description: Authentication Cognito User Pool Arn.
+    Value: !GetAtt Authentication.Outputs.UserPoolArn
+
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Authentication.Outputs.UserPoolClientId
@@ -238,6 +248,14 @@ Outputs:
   ClusterName:
     Description: ECS Cluster Name.
     Value: !GetAtt ECSCluster.Outputs.ClusterName
+
+  RestApiId:
+    Description: API Gateway Rest Id.
+    Value: !GetAtt ApiGateway.Outputs.RestApiId
+
+  ApiRootResourceId:
+    Description: API Gateway Root Resource Id
+    Value: !GetAtt ApiGateway.Outputs.ApiRootResourceId
 
   ServiceDiscoveryNamespace:
     Description: Service Discovery Namespace.

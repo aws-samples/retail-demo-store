@@ -12,7 +12,7 @@ BUCKET=$1
 S3PATH=$2
 
 # remove this line if you want to keep the objects private in your S3 bucket
-export S3PUBLIC=" --acl public-read"
+#export S3PUBLIC=" --acl public-read"
 
 if [ ! -d "local" ]; then
     mkdir local
@@ -88,12 +88,12 @@ done
 echo " + Copying product images"
 aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC
 
-echo " + Creating CSVs for Personalize model pre-create training"
-PYTHONPATH=. python3 generators/generate_interactions_personalize.py
-
-# Sync CSVs used for Personalize pre-create campaign Lambda function
-echo " + Copying CSVs for Personalize model pre-create training"
-aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
+#echo " + Creating CSVs for Personalize model pre-create training"
+#PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+#
+## Sync CSVs used for Personalize pre-create campaign Lambda function
+#echo " + Copying CSVs for Personalize model pre-create training"
+#aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
