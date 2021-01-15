@@ -243,6 +243,19 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
+  CartEventConsumer:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/event-consumer/_template.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Roles.Outputs.BasicLambdaFunctionRoleArn
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketKey: !Sub ${ResourceBucketRelativePath}aws-lambda/cart-event-consumer.zip
+        Handler: consumer.handler
+        EventBusArn: !GetAtt RetailEventBus.Arn
+        EventDetailType: CartUpdatedEvent
+        EventSource: CartService
+
   OrdersService:
     Type: AWS::CloudFormation::Stack
     Properties:

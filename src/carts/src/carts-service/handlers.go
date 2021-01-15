@@ -6,11 +6,27 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"path"
+
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/eventbridge"
+	"github.com/gorilla/mux"
 )
+
+var EventBus = os.Getenv("EVENT_BUS")
+
+var eventBridgeClient *eventbridge.EventBridge
+
+func init() {
+	mySession := session.Must(session.NewSession())
+
+	eventBridgeClient = eventbridge.New(mySession)
+}
 
 // Index Handler
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +62,34 @@ func CartShowByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func sendEvent(eventType string, cart Cart) {
+	cartJsonBytes, _ := json.Marshal(cart)
+	cartJson := string(cartJsonBytes)
+
+	source := "CartService"
+
+	// write event to event bridge after successfully persisting cart
+	params := &eventbridge.PutEventsInput{
+		Entries: []*eventbridge.PutEventsRequestEntry{
+			{
+				EventBusName: &EventBus,
+				Detail: &cartJson,
+				DetailType: &eventType,
+				Source: &source,
+			},
+		},
+	}
+
+	res, err := eventBridgeClient.PutEvents(params)
+	if err != nil || *res.FailedEntryCount > int64(0) {
+		// we could write to a dead letter queue here
+		log.Println("Sending event(s) to event bus failed.")
+		log.Println(err)
+		log.Println(res)
+	}
+	log.Println(res)
+}
+
 //CartUpdate Func
 func CartUpdate(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
@@ -70,10 +114,11 @@ func CartUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	vars := mux.Vars(r)
-	cartID := vars["cartID"]
+	id := path.Base(r.URL.Path)
 
-	t := RepoUpdateCart(cartID, cart)
+	t := RepoUpdateCart(id, cart)
+
+	sendEvent("CartUpdatedEvent", t)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -107,6 +152,8 @@ func CartCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := RepoCreateCart(cart)
+
+	sendEvent("CartCreatedEvent", t)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)

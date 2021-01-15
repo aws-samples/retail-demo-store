@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Retail Store Serverless Service Template
+
+Parameters:
+
+  LambdaRoleArn:
+    Type: String
+
+  ResourceBucket:
+    Type: String
+
+  ResourceBucketKey:
+    Type: String
+
+  Handler:
+    Type: String
+
+  Runtime:
+    Type: String
+    Default: python3.8
+
+  EventBusArn:
+    Type: String
+
+  EventDetailType:
+    Type: String
+
+  EventSource:
+    Type: String
+
+Resources:
+
+  ServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !Ref LambdaRoleArn
+      Handler: !Ref Handler
+      CodeUri:
+        Bucket: !Ref ResourceBucket
+        Key: !Ref ResourceBucketKey
+      Runtime: !Ref Runtime
+      Timeout: 10
+      MemorySize: 256
+      Tracing: Active
+      Events:
+        Trigger:
+          Type: CloudWatchEvent
+          Properties:
+            EventBusName: !Ref EventBusArn
+            Pattern:
+              source:
+                - !Ref EventSource
+              detail-type:
+                - !Ref EventDetailType
