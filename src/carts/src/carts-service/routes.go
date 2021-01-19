@@ -26,13 +26,13 @@ var routes = Routes{
 	Route{
 		"CartsIndex",
 		"GET",
-		"/carts/all",
+		"/carts",
 		CartIndex,
 	},
 	Route{
 		"CartShowByID",
 		"GET",
-		"/carts/id/{cartID}",
+		"/carts/{cartID}",
 		CartShowByID,
 	},
 	Route{
@@ -50,13 +50,13 @@ var routes = Routes{
 	Route{
 		"CartUpdate",
 		"PUT",
-		"/carts/id/{cartID}",
+		"/carts/{cartID}",
 		CartUpdate,
 	},
 	Route{
 		"CartUpdate",
 		"OPTIONS",
-		"/carts/id/{cartID}",
+		"/carts/{cartID}",
 		CartUpdate,
 	},
 }
