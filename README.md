@@ -86,15 +86,15 @@ If you chose to have the Amazon Personalize campaigns automatically built post-d
 
 
 #### Amazon Pinpoint Campaigns
-If you chose to have the Amazon Pinpoint campaigns automatically built (‘Auto-Configure Pinpoint’ is set to ‘Yes’ in the CloudFormation tempalte) , this process will take an additional 20-30 minutes
+If you chose to have the Amazon Pinpoint campaigns automatically built (‘Auto-Configure Pinpoint’ is set to ‘Yes’ in the CloudFormation template) , this process will take an additional 20-30 minutes
 Once the Pinpoint campaigns are created, they will be automatically visbile in the [Web UI](src/web-ui). However, there are some manual steps required in the deployment steps for enabling the Pinpoint channels -
 
 ##### Pinpoint Emails:
 
 *PinpointEmailFromAddress:* 
 By Default, AWS Accounts have  [emails set up in a sandbox environement](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email.html). To enable the functionality, you need to complete the manual steps for either -
-* Verifying the email addresses you want to send and receive emails from. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-manage-verify.html)
-* Request to be removed from the sandbox environment. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-setup-production-access.html)
+* Verifying the email addresses you want to send and receive emails from. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-manage-verify.html) This is the easiest and recommended approach for demos. 
+* Request to be removed from the sandbox environment. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-setup-production-access.html) This is recommended only for production workloads and the Retail Demo Store is intended to be used for demonstration purposes only.
 
 ##### Pinpoint SMS
 *PinpointSMSLongCode:*
