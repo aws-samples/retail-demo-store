@@ -17,12 +17,12 @@
           for a particular user.
         </p>
 
-        <p>Personalized ranking is implemented in the “Featured products” section.</p>
+        <p>Personalized ranking is implemented in the “Featured" page.</p>
       </div>
 
       <div class="personalized-ranking-img-container">
         <img
-          src="/personalized-ranking.svg"
+          src="/personalized-ranking.png"
           alt=""
           ref="personalized-ranking-img"
           class="personalized-ranking-img img-fluid"
@@ -50,7 +50,7 @@ export default {
             from: { ref: 'personalized-ranking', target: 'RIGHT' },
             to: {
               ref: 'personalized-ranking-img',
-              target: ({ left, width, top, height }) => [left + width * 0.12, top + height * 0.6],
+              target: ({ left, top, height }) => [left, top + height * 0.18],
             },
             drawPoints: ({ fromX, fromY, toX, toY }) => [
               [fromX, fromY],
