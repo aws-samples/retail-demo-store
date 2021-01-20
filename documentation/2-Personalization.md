@@ -55,7 +55,7 @@ The user personalization use-case is implemented on the bottom half of the Retai
 
 > Since the Retail Demo Store is using a Personalize Event Tracker to record real-time interaction events, it is important to keep in mind that recommendations will change as a result of your clicking and browsing activity in the web application. Therefore, the recommendations may not match up to the original shopper persona used to train the model. This is a powerful demo feature, though, since it shows how Personalize adapts to evolving user intent. It can also show how recommendations adapt for new users (i.e. cold starting users).
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.jpg)
 
 Figure 9. User recommendation use-case.
 
@@ -65,7 +65,7 @@ Figure 9. User recommendation use-case.
 
 The related products use-case is implemented on the product detail page in the Retail Demo Store. Since inference calls to campaigns built with the SIMS recipe do not require a user, we are able to display related products using SIMS whether you are signed in as a user or anonymous.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.jpg)
 
 Figure 10. Related products use-case.
 
@@ -75,13 +75,13 @@ Figure 10. Related products use-case.
 
 When you are signed in as a Retail Demo Store user, the personalized ranking use-case is implemented on the category view in the Retail Demo Store. When you are an anonymous user, products are displayed in their natural order (i.e. not ranked). The most effective view to demonstrate this use-case is on the “Featured” product view. The reason for this is that this is the one category view that includes products from multiple categories. Therefore, the ranking should be more impactful.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.jpg)
 
 Figure 11. Personalized Ranking use-case.
 
 You can also see personalized ranking in product search results. That is, if you are signed in as a user, search results are reranked based on the user's historical and real-time activity.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-search.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-search.jpg)
 
 ## Event Tracking
 
