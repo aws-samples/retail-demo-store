@@ -31,13 +31,13 @@ Events for multiple event types are generated to mimic shopping behavior. For ex
 
 ## Emulating Shopper Profiles
 
-With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](1-Creating-account.md). Once signed in, you can click on your user name in the navigation bar and select “Profile” from the dropdown.
+With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](1-Creating-account.md). Once signed in, you can click on your username in the top right-corner and then select Switch Shoppers.
 
 ![image.png](../workshop/images/retaildemostore-user-menu.png)
 
 Figure 7. Access Profile Page.
 
-Click on your username in the top right-corner and then select Switch Shoppers. You can have a shopper auto-selected for you or you can choose your own. In the shopper selection window, specify an age range and a primary shopping interest. Click Submit and a closely matching shopper is shown, confirm your choice or try again. Product recommendations should now match the persona of the shopper you've selected.
+You can have a shopper auto-selected for you or you can choose your own. In the shopper selection window, specify an age range and a primary shopping interest. Click Submit and a closely matching shopper is shown, confirm your choice or try again. Product recommendations should now match the persona of the shopper you've selected.
 
 > It is recommended to open a new Incognito (Chrome) or Private (Firefox) browser window when testing personalization features of the web UI. The reason for this is because Amplify keeps all of your events tied to the same logical session. Signing out and back in as a different account does not change this behavior. You must close and reopen Private/Incognito windows to switch between profiles.
 
