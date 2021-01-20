@@ -37,15 +37,9 @@ With Amazon Personalize Solutions and Campaigns created based on the generated u
 
 Figure 7. Access Profile Page.
 
-From the Profile page, you can select a user from the “User” dropdown and then press “Save Changes” to link that profile to your browser session.
+Click on your username in the top right-corner and then select Switch Shoppers. You can have a shopper auto-selected for you or you can choose your own. In the shopper selection window, specify an age range and a primary shopping interest. Click Submit and a closely matching shopper is shown, confirm your choice or try again. Product recommendations should now match the persona of the shopper you've selected.
 
 > It is recommended to open a new Incognito (Chrome) or Private (Firefox) browser window when testing personalization features of the web UI. The reason for this is because Amplify keeps all of your events tied to the same logical session. Signing out and back in as a different account does not change this behavior. You must close and reopen Private/Incognito windows to switch between profiles.
-
-![image.png](../workshop/images/retaildemostore-emulate.png)
-
-Figure 8. Emulate Shopper persona.
-
-Once you’ve saved a profile connection, you can return to the Retail Demo Store home view by clicking on "Retail Demo Store" in the navigation and then interact with features where personalization is implemented as described below.
 
 ## Use-Case 1: Personalized Product Recommendations
 
