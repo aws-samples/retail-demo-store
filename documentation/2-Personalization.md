@@ -51,7 +51,7 @@ The user personalization use-case is implemented on the bottom half of the Retai
 
 ![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.jpg)
 
-Figure 9. User recommendation use-case.
+Figure 8. User recommendation use-case.
 
 ## Use-Case 2: Related Products Recommendations
 
@@ -61,7 +61,7 @@ The related products use-case is implemented on the product detail page in the R
 
 ![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.jpg)
 
-Figure 10. Related products use-case.
+Figure 9. Related products use-case.
 
 ## Use-Case 3: Personalized Product Ranking
 
@@ -71,7 +71,7 @@ When you are signed in as a Retail Demo Store user, the personalized ranking use
 
 ![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.jpg)
 
-Figure 11. Personalized Ranking use-case.
+Figure 10. Personalized Ranking use-case.
 
 You can also see personalized ranking in product search results. That is, if you are signed in as a user, search results are reranked based on the user's historical and real-time activity.
 
@@ -103,7 +103,7 @@ If you are demonstrating the Retail Demo Store to a more technical audience, you
 
 ![image.png](../workshop/images/Eventinstrumentationcalls.png)
 
-Figure 12. Event instrumentation calls
+Figure 11. Event instrumentation calls
 
 ## Filtering Recommendations
 
