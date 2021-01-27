@@ -1,11 +1,12 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 
+# Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
-    This template deploys the Retail Demo Store reference architecture and workshop notebooks.
+    RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
 
-Metadata: 
-  AWS::CloudFormation::Interface: 
+Metadata:
+  AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
           default: "Retail Demo Store Deployment Configuration"
@@ -13,13 +14,13 @@ Metadata:
           - ResourceBucket
           - ResourceBucketRelativePath
           - CreateElasticsearchServiceLinkedRole
-      - Label: 
+      - Label:
           default: "Source Deployment Approach"
-        Parameters: 
+        Parameters:
           - SourceDeploymentType
-      - Label: 
+      - Label:
           default: "GitHub Linked Deployment (only required for GitHub deployment approach)"
-        Parameters: 
+        Parameters:
           - GitHubRepo
           - GitHubBranch
           - GitHubToken
@@ -83,13 +84,13 @@ Parameters:
   ResourceBucket:
     Type: String
     Description: >
-      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).
 
   ResourceBucketRelativePath:
     Type: String
     Description: >
-      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
   CreateElasticsearchServiceLinkedRole:
@@ -104,11 +105,11 @@ Parameters:
   SourceDeploymentType:
     Type: String
     Description: >
-      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store 
-      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline 
-      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing 
-      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for 
-      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own 
+      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store
+      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline
+      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing
+      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for
+      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
       source repositories provisioned.
     AllowedValues:
       - 'GitHub'
@@ -137,8 +138,8 @@ Parameters:
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
@@ -148,9 +149,9 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
       and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
@@ -160,8 +161,8 @@ Parameters:
   PreCreatePinpointWorkshop:
     Type: String
     Description: >
-      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
       - 'Yes'
@@ -173,7 +174,7 @@ Parameters:
     Description: >
       Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
       is set to 'Yes'.
-  
+
   PinpointEmailFromName:
     Type: String
     Description: >
@@ -190,13 +191,13 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'Yes'
-  
+
   PinpointSMSLongCode:
     Type: String
     Description: >
       A dedicated long code (i.e. a phone number) obtained for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. Follow steps 2 and 3 in the Messaging workshop(https://github.com/aws-samples/retail-demo-store/blob/master/workshop/4-Messaging/4.1-Pinpoint.ipynb)
       to get a long code. This parameter only applies when 'Auto-Configure Pinpoint' is set to 'Yes'. Enter the number along with the country code and without any spaces or brackets. For Example: enter "+1XXXXXXXXXX" for a long code based in the United States.
-           
+
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
@@ -263,7 +264,7 @@ Resources:
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
-        ImageRootUrl: !Sub 
+        ImageRootUrl: !Sub
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
@@ -300,7 +301,7 @@ Resources:
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
-        ImageRootUrl: !Sub 
+        ImageRootUrl: !Sub
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
 
@@ -354,17 +355,17 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
-        
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Base.Outputs.UserPoolId
-  
+
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Base.Outputs.UserPoolClientId
-  
+
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Base.Outputs.IdentityPoolId
