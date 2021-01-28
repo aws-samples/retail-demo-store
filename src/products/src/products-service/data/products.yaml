@@ -39,7 +39,7 @@
   name: Peru-Orange Backpack
   category: accessories
   style: backpack
-  description: Peru-orange backpack for women 
+  description: Peru-orange backpack for women
   price: 141.99
   image: "b5649d7c-4651-458d-a07f-912f253784ce.jpg"
   gender_affinity: F
@@ -57,7 +57,7 @@
   name: Saddle Brown Backpack
   category: accessories
   style: backpack
-  description: Saddle brown backpack for women 
+  description: Saddle brown backpack for women
   price: 133.99
   image: "7d3e7f5b-8ac8-49a9-a960-8a24773a8280.jpg"
   gender_affinity: F
@@ -93,7 +93,7 @@
   name: Indian-Red Backpack
   category: accessories
   style: backpack
-  description: Indian-red backpack for women 
+  description: Indian-red backpack for women
   price: 135.99
   image: "1a3fa9d4-e320-4873-be58-f3f6af5f99f4.jpg"
   gender_affinity: F
@@ -129,7 +129,7 @@
   name: Gainsboro Backpack
   category: accessories
   style: backpack
-  description: Gainsboro backpack for women 
+  description: Gainsboro backpack for women
   price: 120.99
   image: "41ab23ce-b417-46b2-a52a-bf7030f93161.jpg"
   gender_affinity: F
@@ -19340,7 +19340,7 @@
   image: "1a7ce92a-1c3b-4714-88ab-cf07f4fdd598.jpg"
 - id: 382f9988-bdc2-42f8-a657-3ad75fd6640c
   current_stock: 13
-  name: Valentine Candies 
+  name: Valentine Candies
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19348,7 +19348,7 @@
   image: "382f9988-bdc2-42f8-a657-3ad75fd6640c.jpg"
 - id: b4891f1e-b0b0-453f-b991-911dc0fda074
   current_stock: 13
-  name: Valentine Candies 
+  name: Valentine Candies
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19356,7 +19356,7 @@
   image: "b4891f1e-b0b0-453f-b991-911dc0fda074.jpg"
 - id: e830a54b-125d-4dbc-b5ac-1725382d96fd
   current_stock: 14
-  name: Valentine Candies 
+  name: Valentine Candies
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19364,7 +19364,7 @@
   image: "e830a54b-125d-4dbc-b5ac-1725382d96fd.jpg"
 - id: f98ba1c4-fc1d-4467-83bb-014b1cdb96eb
   current_stock: 15
-  name: Valentine Candies 
+  name: Valentine Candies
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19372,7 +19372,7 @@
   image: "f98ba1c4-fc1d-4467-83bb-014b1cdb96eb.jpg"
 - id: fd883945-a5cb-4c96-a749-c4d70709d909
   current_stock: 16
-  name: Valentine Candies 
+  name: Valentine Candies
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19380,7 +19380,7 @@
   image: "fd883945-a5cb-4c96-a749-c4d70709d909.jpg"
 - id: 0d354dd4-ebd3-4787-8c9f-dd75f6f401a4
   current_stock: 17
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19388,7 +19388,7 @@
   image: "0d354dd4-ebd3-4787-8c9f-dd75f6f401a4.jpg"
 - id: ebaa480b-e069-4ff5-bb2c-ec8b33898626
   current_stock: 18
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19396,7 +19396,7 @@
   image: "ebaa480b-e069-4ff5-bb2c-ec8b33898626.jpg"
 - id: 05d20a80-c6b7-44c3-a053-cd9c8a30adbf
   current_stock: 11
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19404,7 +19404,7 @@
   image: "05d20a80-c6b7-44c3-a053-cd9c8a30adbf.jpg"
 - id: 053664ca-8056-4d71-b609-5211976554c3
   current_stock: 15
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19412,7 +19412,7 @@
   image: "053664ca-8056-4d71-b609-5211976554c3.jpg"
 - id: ae8772cf-a7ad-4eb8-b12e-b286fd0a773f
   current_stock: 10
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19420,7 +19420,7 @@
   image: "ae8772cf-a7ad-4eb8-b12e-b286fd0a773f.jpg"
 - id: aea126a0-ecc4-4eaf-847f-76841535b3a9
   current_stock: 18
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19428,7 +19428,7 @@
   image: "aea126a0-ecc4-4eaf-847f-76841535b3a9.jpg"
 - id: d16257f7-da83-4b24-9e2f-5c4a2a67bdc9
   current_stock: 13
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19436,7 +19436,7 @@
   image: "d16257f7-da83-4b24-9e2f-5c4a2a67bdc9.jpg"
 - id: f58c9fff-3c8e-4da8-825e-d6aac4f4436a
   current_stock: 10
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19444,7 +19444,7 @@
   image: "f58c9fff-3c8e-4da8-825e-d6aac4f4436a.jpg"
 - id: 66e5b0a9-0cc9-47b2-b78b-8730d561a297
   current_stock: 11
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19452,7 +19452,7 @@
   image: "66e5b0a9-0cc9-47b2-b78b-8730d561a297.jpg"
 - id: 2c59c08d-932d-4205-a692-2dbaa3d2027c
   current_stock: 6
-  name: Valentine Chocolates 
+  name: Valentine Chocolates
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19460,7 +19460,7 @@
   image: "2c59c08d-932d-4205-a692-2dbaa3d2027c.jpg"
 - id: 21a89a27-c1b2-4ccf-b68e-27d904b2f854
   current_stock: 16
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19468,7 +19468,7 @@
   image: "21a89a27-c1b2-4ccf-b68e-27d904b2f854.jpg"
 - id: d4caa74c-5d27-4f1a-847d-e2d93a6fdf32
   current_stock: 7
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19476,7 +19476,7 @@
   image: "d4caa74c-5d27-4f1a-847d-e2d93a6fdf32.jpg"
 - id: 8c9b33ea-b3c5-4b55-9646-bafd4d851b8c
   current_stock: 19
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19484,7 +19484,7 @@
   image: "8c9b33ea-b3c5-4b55-9646-bafd4d851b8c.jpg"
 - id: d08a900a-211d-4020-8d8b-b36659ecae7c
   current_stock: 15
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19492,7 +19492,7 @@
   image: "d08a900a-211d-4020-8d8b-b36659ecae7c.jpg"
 - id: 819194c7-b742-4f66-8637-ec8ae17f619c
   current_stock: 13
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19500,7 +19500,7 @@
   image: "819194c7-b742-4f66-8637-ec8ae17f619c.jpg"
 - id: d46b88f8-98dd-49aa-8ac2-f127aea04c8a
   current_stock: 17
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19508,7 +19508,7 @@
   image: "d46b88f8-98dd-49aa-8ac2-f127aea04c8a.jpg"
 - id: 62259467-5d98-4c6d-a4f2-72e57bf52da6
   current_stock: 7
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19516,7 +19516,7 @@
   image: "62259467-5d98-4c6d-a4f2-72e57bf52da6.jpg"
 - id: 5e10a645-8825-4f12-8a7c-0b42424b8c11
   current_stock: 9
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19524,7 +19524,7 @@
   image: "5e10a645-8825-4f12-8a7c-0b42424b8c11.jpg"
 - id: 8f4b6800-6af3-4270-a851-b5a3e0666dc2
   current_stock: 6
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19532,7 +19532,7 @@
   image: "8f4b6800-6af3-4270-a851-b5a3e0666dc2.jpg"
 - id: 09b832ce-73fc-49f4-bd8b-5d5e4fe9fe72
   current_stock: 10
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19540,7 +19540,7 @@
   image: "09b832ce-73fc-49f4-bd8b-5d5e4fe9fe72.jpg"
 - id: f1e98350-8bc1-4f5b-a008-29f467619bda
   current_stock: 15
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19548,7 +19548,7 @@
   image: "f1e98350-8bc1-4f5b-a008-29f467619bda.jpg"
 - id: b6149c48-4fa1-4468-bf01-87a0fd39bdd5
   current_stock: 10
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19556,7 +19556,7 @@
   image: "b6149c48-4fa1-4468-bf01-87a0fd39bdd5.jpg"
 - id: 581a8199-60ea-46ac-97aa-658730eef96d
   current_stock: 7
-  name: Valentine Decorations 
+  name: Valentine Decorations
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19564,7 +19564,7 @@
   image: "581a8199-60ea-46ac-97aa-658730eef96d.jpg"
 - id: 183e6812-3a36-4709-8815-71639f63f73f
   current_stock: 10
-  name: Valentine Mug 
+  name: Valentine Mug
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19572,7 +19572,7 @@
   image: "183e6812-3a36-4709-8815-71639f63f73f.jpg"
 - id: 46c12a54-bd36-4116-bc4a-f530b073e825
   current_stock: 7
-  name: Valentine Stuffed Bunny 
+  name: Valentine Stuffed Bunny
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19580,7 +19580,7 @@
   image: "46c12a54-bd36-4116-bc4a-f530b073e825.jpg"
 - id: cd78672a-0a5e-4931-ace1-2f2abb90b720
   current_stock: 9
-  name: Valentine Stuffed Pandabear 
+  name: Valentine Stuffed Pandabear
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19588,7 +19588,7 @@
   image: "cd78672a-0a5e-4931-ace1-2f2abb90b720.jpg"
 - id: 3b320422-8c70-47ef-aae0-d949afa88ad1
   current_stock: 16
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19596,7 +19596,7 @@
   image: "3b320422-8c70-47ef-aae0-d949afa88ad1.jpg"
 - id: b8eb2f71-56ca-4b9b-991a-0734070e0f5b
   current_stock: 13
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19604,7 +19604,7 @@
   image: "b8eb2f71-56ca-4b9b-991a-0734070e0f5b.jpg"
 - id: bd446035-3a6f-49b0-a1c3-d346d12cb877
   current_stock: 8
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19612,7 +19612,7 @@
   image: "bd446035-3a6f-49b0-a1c3-d346d12cb877.jpg"
 - id: 5b2336e4-d29e-4fb4-85eb-c871db892aae
   current_stock: 14
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: A must-have for that special day
@@ -19620,7 +19620,7 @@
   image: "5b2336e4-d29e-4fb4-85eb-c871db892aae.jpg"
 - id: c2340902-a2ed-4ebd-a91f-b97da34283d5
   current_stock: 7
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -19628,7 +19628,7 @@
   image: "c2340902-a2ed-4ebd-a91f-b97da34283d5.jpg"
 - id: ad41a106-99f7-4258-8060-d1dcb7de93b8
   current_stock: 6
-  name: Valentine Stuffed Teddybear 
+  name: Valentine Stuffed Teddybear
   category: seasonal
   style: valentine
   description: Be sure to order early for that special day
@@ -20107,3 +20107,300 @@
   description: This wrench is a must-have for your toolbox
   price: 22.99
   image: "b54cbca6-327b-418e-a653-35d7c3f74bdf.jpg"
+- id: 2f3f075b-66ff-475f-95e3-71b462f328c5
+  category: beauty
+  current_stock: 19
+  description: Perfect for trialling different shades, each palette contains 4 different
+    shades.
+  image: 2f3f075b-66ff-475f-95e3-71b462f328c5.jpg
+  name: Eyeshadow Palette - Set of 3 Palettes
+  price: 145.0
+  style: grooming
+  gender_affinity: F
+- id: ec981144-9f7d-473e-94a1-14da97152c5b
+  category: beauty
+  current_stock: 9
+  description: In stylish yellow, guaranteed to stay on in sauna and car-wash.
+  image: ec981144-9f7d-473e-94a1-14da97152c5b.jpg
+  name: Waterproof Eyeliner and Mascara
+  price: 27.0
+  style: grooming
+  gender_affinity: F
+- id: 597839c6-b2d3-40a0-ae14-27a86f9b4fac
+  category: beauty
+  current_stock: 1
+  description: You get not only lipstick, but that other thing with the mirror. Brilliant!
+  image: 597839c6-b2d3-40a0-ae14-27a86f9b4fac.jpg
+  name: Divine Shine - Satin Rose Lipstick Set
+  price: 35.0
+  style: grooming
+  gender_affinity: F
+- id: 473d7251-7eaf-4b7a-9f87-ff6f7897d565
+  category: beauty
+  current_stock: 12
+  description: 100% guaranteed universal and 100% luminous.
+  image: 473d7251-7eaf-4b7a-9f87-ff6f7897d565.jpg
+  name: Gloss Bomb Universal Lip Luminizer
+  price: 19.0
+  style: grooming
+  gender_affinity: F
+- id: 31f69124-fa40-4a08-9d6c-9363c7f9d29b
+  category: beauty
+  current_stock: 2
+  description: You get a whole bunch of stuff and it is super good quality too.
+  image: 31f69124-fa40-4a08-9d6c-9363c7f9d29b.jpg
+  name: 7-in-1 Daily Wear Palette Essentials
+  price: 103.0
+  style: grooming
+  gender_affinity: F
+- id: a4ea1f55-4f9e-4efa-ab32-343676b69593
+  category: beauty
+  current_stock: 2
+  description: Your eyes will dazzle and gloss and shine and fizz pop.
+  image: a4ea1f55-4f9e-4efa-ab32-343676b69593.jpg
+  name: Eye Care Set - Sparkle Gloss Eyes and Lashes
+  price: 95.0
+  style: grooming
+  gender_affinity: F
+- id: 6b229d13-22a7-44d3-a13c-fd98dda49217
+  category: beauty
+  current_stock: 2
+  description: A great selection of makeup brushes; look good just carrying it around!
+  gender_affinity: F
+  image: 6b229d13-22a7-44d3-a13c-fd98dda49217.jpg
+  image_license: Free for Commercial Use
+  link: https://www.pikrepo.com/fmvtc/black-makeup-brush-set-in-bag
+  name: 15 Piece Makeup Brush Set with Fold Up Leather Case
+  price: 99.0
+  style: grooming
+- id: cfe46492-c19b-4a3c-a022-540c49cc63bb
+  category: beauty
+  current_stock: 2
+  description: You will never look beyond this shade of blue.
+  gender_affinity: F
+  image: cfe46492-c19b-4a3c-a022-540c49cc63bb.jpg
+  image_license: CC0
+  link: https://pxhere.com/en/photo/57398
+  name: Lovely Blue Mascara
+  price: 29.0
+  style: grooming
+- id: e0667c61-6f47-4481-a0a0-beaf734e477a
+  category: beauty
+  current_stock: 3
+  description: Occupy his/her heart with your talons of love!
+  gender_affinity: F
+  image: e0667c61-6f47-4481-a0a0-beaf734e477a.jpg
+  image_license: CC0
+  link: https://www.needpix.com/photo/1711500/nail-varnish-nail-design-cosmetics-manicure-fingernails-paint-toe-nails-fashionable-beauty
+  name: Nail Varnish for Conquerors of Hearts
+  price: 24.0
+  style: grooming
+- id: 8bc9e7d5-123c-46e4-a4f5-abeb79a77b3f
+  category: beauty
+  current_stock: 4
+  description: For those looking for a blush brush and something that is rose pink.
+  gender_affinity: F
+  image: 8bc9e7d5-123c-46e4-a4f5-abeb79a77b3f.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/photos/rouge-brush-cosmetics-rouge-brush-2092439/
+  name: Rose Pink Blush Brush
+  price: 22.0
+  style: grooming
+- id: b6295ac1-d60b-42a6-b16b-ebb433562e18
+  category: beauty
+  current_stock: 6
+  description: These colours allow your inner you to shine through, but shinier.
+  gender_affinity: F
+  image: b6295ac1-d60b-42a6-b16b-ebb433562e18.jpg
+  image_license: Free for commercial use
+  link: https://www.pxfuel.com/en/free-photo-xidzw
+  name: 'Subtle and Fresh: Palette of 15 Concealers'
+  price: 44.0
+  style: grooming
+- id: 7cfd10d1-ff92-4513-b688-0ee179deaaef
+  category: beauty
+  current_stock: 7
+  description: Pimples? Invisible. Warts? Never happened. No need for witchcraft when
+    you have science!
+  gender_affinity: F
+  image: 7cfd10d1-ff92-4513-b688-0ee179deaaef.jpg
+  image_license: CC0
+  link: https://commons.m.wikimedia.org/wiki/File:Tcsfoundationlogo.jpg
+  name: Deep Disguise Concealer
+  price: 12.0
+  style: grooming
+- id: 7a60597a-5a5a-48bc-86bd-f32c818b4008
+  category: beauty
+  current_stock: 11
+  description: For the no-nonsense blow-them-away classic look.
+  gender_affinity: F
+  image: 7a60597a-5a5a-48bc-86bd-f32c818b4008.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/photos/lipstick-lips-makeup-cosmetics-5559338/
+  name: Classic Bombshell Lipstick
+  price: 24.0
+  style: grooming
+- id: 7d359a18-e81a-450b-beb1-db85aa699629
+  category: beauty
+  current_stock: 12
+  description: Inspire awe, be the mystery.
+  gender_affinity: F
+  image: 7d359a18-e81a-450b-beb1-db85aa699629.jpg
+  image_license: Unsplash - free for commercial use
+  link: https://unsplash.com/photos/rjB_1MT6G18
+  name: Intense Matte Lipstick
+  price: 28.0
+  style: grooming
+- id: 89728417-5269-403d-baa3-04b59cdffd0a
+  category: beauty
+  current_stock: 4
+  description: Get makeup done, the only way how, on your skin.
+  gender_affinity: F
+  image: 89728417-5269-403d-baa3-04b59cdffd0a.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/photos/maciag-brush-makeup-brushes-5208359/
+  name: 4-Piece Makeup Brush Set
+  price: 26.0
+  style: grooming
+- id: 03685e08-6d30-4e4e-a85e-9e525894c9ea
+  category: beauty
+  current_stock: 7
+  description: Take out his/her heart with this lipstick, or shoot him/her... whichever
+    suits.
+  gender_affinity: F
+  image: 03685e08-6d30-4e4e-a85e-9e525894c9ea.jpg
+  image_license: Free for commercial use
+  link: https://www.pikrepo.com/fyvwn/red-and-gold-lipstick-on-white-background
+  name: Gangster-Girl Lipstick
+  price: 40.0
+  style: grooming
+- id: d16df944-ea75-43c3-b54b-6738731c081b
+  category: beauty
+  current_stock: 2
+  description: Delicately calibrated hairs for consistency of application
+  gender_affinity: F
+  image: d16df944-ea75-43c3-b54b-6738731c081b.jpg
+  image_license: Free for commercial use
+  link: https://unsplash.com/photos/qbo7DPBvnV0
+  name: Lip Brush
+  price: 32.0
+  style: grooming
+- id: 82f4c1ca-b0dc-4e5a-9336-caff8bf63c05
+  category: beauty
+  current_stock: 20
+  description: Strong reinforced plastic containers, with bright stylings.
+  gender_affinity: F
+  image: 82f4c1ca-b0dc-4e5a-9336-caff8bf63c05.jpg
+  image_license: CC0
+  link: https://pixy.org/5203022/
+  name: Precious Cargo Makeup Containers
+  price: 12.0
+  style: grooming
+- id: f0054758-eaca-47f8-adf4-12b78603fbc6
+  category: beauty
+  current_stock: 12
+  description: The lipstick is burn red - and so is the fiery translucent sheath.
+  gender_affinity: F
+  image: f0054758-eaca-47f8-adf4-12b78603fbc6.jpg
+  image_license: Public domain
+  link: https://www.pikist.com/free-photo-xvcbj
+  name: Burn! Lipstick
+  price: 18.0
+  style: grooming
+- id: 638012bd-b70e-4035-bf83-fbb777c7a6ea
+  category: beauty
+  current_stock: 13
+  description: The 20s look that never went out of fashion, till after the 20s.
+  gender_affinity: F
+  image: 638012bd-b70e-4035-bf83-fbb777c7a6ea.jpg
+  image_license: Free for commercial use
+  link: https://www.pickpik.com/cosmetics-make-up-makeup-beauty-color-eyes-138539
+  name: Grandma's Mascara
+  price: 18.0
+  style: grooming
+- id: 9d1be460-7c75-4627-990d-1f1a6731dc3e
+  category: electronics
+  current_stock: 10
+  description: Take video anywhere, anytime, like a spy.
+  gender_affinity: F
+  image: 9d1be460-7c75-4627-990d-1f1a6731dc3e.jpg
+  image_license: CC0
+  link: https://www.needpix.com/photo/908201/gorillapod-with-camera-free-pictures-free-photos-free-images-royalty-free
+  name: Camera Tripod
+  price: 49.0
+  style: camera
+- id: 79fc3af3-c071-4e26-9062-b869f2ec128d
+  category: apparel
+  current_stock: 10
+  description: Easy-wearing and comfy momfy!
+  gender_affinity: F
+  image: 79fc3af3-c071-4e26-9062-b869f2ec128d.jpg
+  image_license: Made by Dae.mn
+  link: null
+  name: Nice Stripy Blouse
+  price: 39.0
+  style: shirt
+- id: 8759b4e2-51cc-456f-a224-01a34d04db2b
+  category: beauty
+  current_stock: 12
+  description: Touch up on the go! Wherever, whenever!
+  gender_affinity: F
+  image: 8759b4e2-51cc-456f-a224-01a34d04db2b.jpg
+  image_license: Public domain
+  link: https://www.pikist.com/free-photo-ixyyz
+  name: Pocket Powder Case
+  price: 29.0
+  style: grooming
+- id: c6d7f153-e5a7-4168-a2f0-7471520e3f00
+  category: homedecor
+  current_stock: 11
+  description: Do your makeup properly! Don't make a big mess like someone else we
+    know!
+  gender_affinity: F
+  image: c6d7f153-e5a7-4168-a2f0-7471520e3f00.jpg
+  image_license: CC0
+  link: https://www.needpix.com/photo/download/1336308/mirror-small-reflection-decoration-modern-design-frame-round-shop
+  name: Freestanding Glass Makeup Mirror
+  price: 99.0
+  style: bedroom
+- id: 28762499-dd36-4b23-96d3-db3eeeaed548
+  category: furniture
+  current_stock: 10
+  description: Comfy, warm, and nice.
+  image: 28762499-dd36-4b23-96d3-db3eeeaed548.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/photos/furniture-modern-luxury-indoors-3271762/
+  name: Perfect grey sofa
+  price: 399.0
+  style: sofas
+- id: 36ba2aec-a64e-4ac5-911d-a36cbbfa83bf
+  category: homedecor
+  current_stock: 11
+  description: Your guests will say "I need cushions". You will say, "There, where
+    you are sitting!". The best day.
+  image: 36ba2aec-a64e-4ac5-911d-a36cbbfa83bf.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/fr/photos/oreillers-patron-lit-int%C3%A9rieur-4326131/
+  name: Perfect cushions
+  price: 179.0
+  style: cushion
+- id: b011ddc3-632f-47cb-a68a-ad83678ecfed
+  category: housewares
+  current_stock: 3
+  description: All the functionality of coatracks with the style of coatracks
+  image: b011ddc3-632f-47cb-a68a-ad83678ecfed.jpg
+  image_license: Free for commercial use - just do not resell as a stock photo
+  link: https://pixabay.com/photos/hat-coat-rack-wing-pet-fashion-2176837/
+  name: Classic coat-rack
+  price: 167.0
+  style: salon
+- id: f0501d3b-1bbb-44b1-905d-d11eb8a7fe01
+  category: housewares
+  current_stock: 3
+  description: With that spare Scandinavian look
+  image: f0501d3b-1bbb-44b1-905d-d11eb8a7fe01.jpg
+  image_license: CC0
+  link: https://www.needpix.com/photo/download/1856333/shelf-white-living-world-bookshelf-books-bookshelves-set-up-living-room-book
+  name: Spare bookshelves
+  price: 239.0
+  style: salon
