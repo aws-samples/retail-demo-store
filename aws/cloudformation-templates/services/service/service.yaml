@@ -266,6 +266,7 @@ Resources:
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
 
   LogGroup:
     Type: AWS::Logs::LogGroup
@@ -306,6 +307,11 @@ Resources:
       ExecutionRoleArn: !Ref TaskExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
+        - Name: X-ray
+          Image: public.ecr.aws/xray/aws-xray-daemon:alpha
+          PortMappings:
+            - ContainerPort: 2000
+              Protocol: udp        
         - Name: !Ref ServiceName
           Image: !Ref ContainerImage
           Essential: true

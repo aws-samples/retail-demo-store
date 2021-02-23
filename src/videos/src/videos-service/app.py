@@ -1,6 +1,13 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+# AWS X-ray support
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+from aws_xray_sdk.core import patch_all
+
+patch_all()
+
 import logging
 import json
 import os
@@ -290,6 +297,9 @@ app = Flask(__name__,
             static_url_path=STATIC_URL_PATH)
 corps = CORS(app)
 
+
+xray_recorder.configure(service='Videos Service')
+XRayMiddleware(app, xray_recorder)
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):

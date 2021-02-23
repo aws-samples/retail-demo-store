@@ -1,6 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+from aws_xray_sdk.core import patch_all
+
+patch_all()
+
 from flask import Flask
 from flask import request
 from flask_cors import CORS
@@ -47,6 +53,12 @@ class LoggingMiddleware(object):
 
 app = Flask(__name__)
 corps = CORS(app)
+
+
+xray_recorder.configure(service='Search Service')
+XRayMiddleware(app, xray_recorder)
+
+
 
 @app.route('/')
 def index():
