@@ -8,6 +8,8 @@ from aws_xray_sdk.core import patch_all
 
 patch_all()
 
+xray_recorder.begin_segment("Videos-init")
+
 import logging
 import json
 import os
