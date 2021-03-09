@@ -41,13 +41,13 @@ Parameters:
 
   UserPoolClientId:
     Type: String
-  
+
   IdentityPoolId:
     Type: String
-  
+
   StackBucketName:
     Type: String
-  
+
   FargateServiceName:
     Type: String
 
@@ -104,7 +104,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -146,27 +146,27 @@ Resources:
     Properties:
       ServiceToken: !Ref DeleteRepositoryLambdaArn
       RegistryId: !Ref AWS::AccountId
-      RepositoryName: !Ref Repository      
+      RepositoryName: !Ref Repository
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: codebuild.amazonaws.com
-            Action: sts:AssumeRole    
+            Action: sts:AssumeRole
       Policies:
         - PolicyName: "logs"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-                - 
+                -
                   Effect: "Allow"
-                  Action: 
+                  Action:
                       - logs:CreateLogGroup
                       - logs:CreateLogStream
                       - logs:PutLogEvents
@@ -177,9 +177,9 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-                - 
+                -
                   Effect: "Allow"
-                  Action: 
+                  Action:
                       - ecr:GetDownloadUrlForLayer
                       - ecr:BatchGetImage
                       - ecr:BatchCheckLayerAvailability
@@ -192,13 +192,13 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-                - 
+                -
                   Effect: "Allow"
-                  Action: 
+                  Action:
                       - s3:GetObject
                       - s3:PutObject
                       - s3:GetObjectVersion
-                  Resource: !Sub arn:aws:s3:::${ArtifactBucket}/* 
+                  Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -297,9 +297,9 @@ Resources:
           - Name: VIDEOS_SERVICE_URL
             Value: !Sub ${VideosServiceExternalUrl}
           - Name: ORDERS_SERVICE_URL
-            Value: !Sub ${OrdersServiceExternalUrl}        
+            Value: !Sub ${OrdersServiceExternalUrl}
           - Name: RECOMMENDATIONS_SERVICE_URL
-            Value: !Sub ${RecommendationsServiceExternalUrl}   
+            Value: !Sub ${RecommendationsServiceExternalUrl}
           - Name: SEARCH_SERVICE_URL
             Value: !Sub ${SearchServiceExternalUrl}
           - Name: DEPLOYED_REGION
@@ -308,10 +308,10 @@ Resources:
             Value: !Ref PinpointAppId
           - Name: PERSONALIZE_TRACKING_ID
             Type: PARAMETER_STORE
-            Value: !Ref ParameterPersonalizeEventTrackerId       
+            Value: !Ref ParameterPersonalizeEventTrackerId
           - Name: AMPLITUDE_API_KEY
             Type: PARAMETER_STORE
-            Value: !Ref ParameterAmplitudeApiKey       
+            Value: !Ref ParameterAmplitudeApiKey
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey
@@ -405,7 +405,7 @@ Resources:
                 Provider: CodeCommit
               Configuration:
                 RepositoryName: retaildemostore-src
-                BranchName: master
+                BranchName: main
                 PollForSourceChanges: 'true'
               OutputArtifacts:
                 - Name: App
