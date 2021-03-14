@@ -18,6 +18,10 @@ Parameters:
   CategoriesTable:
     Type: String
 
+  CatalogDeploymentType: 
+    Type: String
+    Description: Catalog scope
+
 Resources:
 
   LoadDataLambdaRole:
@@ -85,6 +89,7 @@ Resources:
       File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
       Table: !Ref ProductsTable
       Datatype: "products"
+      CatalogScope : !Ref CatalogDeploymentType
 
   CustomLoadDataCategories:
     Type: Custom::CustomLoadData
@@ -94,6 +99,7 @@ Resources:
       File: !Join [ '', [ !Ref ResourceBucketRelativePath, 'data/categories.yaml' ] ]
       Table: !Ref CategoriesTable
       Datatype: "categories"
+      CatalogScope : !Ref CatalogDeploymentType
 
 Outputs:
   LoadDataLambdaFunction:

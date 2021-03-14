@@ -124,6 +124,10 @@ Parameters:
     Type: String
     Description: Parent stack name
 
+  CatalogDeploymentType: 
+    Type: String
+    Description: Catalog scope
+
 Resources:
 
   ProductsService:
@@ -375,6 +379,7 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   ####################### Delete Repository Custom Resource #######################
 
