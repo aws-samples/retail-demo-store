@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+pip () {
+    command pip3 "$@"
+}
+
 LAMBDA_SOURCE=bot-intent-recommendations.py
 PACKAGE_FILE=bot-intent-recommendations.zip
 

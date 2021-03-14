@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+pip () {
+    command pip3 "$@"
+}
+
 LAMBDA_SOURCE=pinpoint-recommender.py
 PACKAGE_FILE=pinpoint-recommender.zip
 

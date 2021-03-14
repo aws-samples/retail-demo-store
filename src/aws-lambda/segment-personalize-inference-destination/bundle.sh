@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+pip () {
+    command pip3 "$@"
+}
+
 LAMBDA_SOURCE=segment-personalize-inference-destination.py
 PACKAGE_FILE=segment-personalize-inference-destination.zip
 
