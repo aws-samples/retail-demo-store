@@ -109,6 +109,7 @@ func loadData(s3bucket, s3file, ddbtable, datatype, catalogscope string) (string
 	var selectedCategories []string
 
 	fashionCategories:= []string{"footwear", "apparel", "jewelry", "accessories"}
+	originalCategories:= []string{"footwear", "apparel", "outdoors", "electronics","beauty","jewelry","accessories","housewares","homedecor","furniture","seasonal","floral","books","groceries","instruments","tools"}
 
 	localfile := "/tmp/load.yaml"
 
@@ -139,6 +140,9 @@ func loadData(s3bucket, s3file, ddbtable, datatype, catalogscope string) (string
 	switch catalogscope {
 	case "fashion":
 		selectedCategories = fashionCategories
+	
+	case "original":
+		selectedCategories = originalCategories
 	}
 
 	switch datatype {

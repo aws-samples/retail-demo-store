@@ -112,7 +112,8 @@ Parameters:
     AllowedValues:
       - 'all'
       - 'fashion'
-    Default: 'all'
+      - 'original'
+    Default: 'original'
 
   SourceDeploymentType:
     Type: String
