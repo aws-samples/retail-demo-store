@@ -24,7 +24,7 @@ np.random.seed(42)  # Deterministic randomness
 
 num_users = 6000
 
-catalog_scopes = ['original', 'fashion']
+catalog_scopes = ['original', 'fashion', 'all']
 
 for name in catalog_scopes:
     print('Generating {} random users'.format(num_users) + ' with {} catalog scope ...'.format(name))

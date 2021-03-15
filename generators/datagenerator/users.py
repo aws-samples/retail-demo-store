@@ -52,6 +52,17 @@ fashion_category_preference_personas = [
     'footwear_jewelry_accessories', 'footwear_jewelry_apparel'
 ]
 
+all_category_preference_personas = [
+    'furniture_homedecor_housewares', 'apparel_footwear_accessories',
+    'instruments_books_electronics', 'floral_beauty_jewelry',
+    'groceries_seasonal_tools', 'outdoors_instruments_groceries',
+    'housewares_floral_seasonal', 'tools_housewares_apparel',
+    'electronics_outdoors_footwear', 'seasonal_furniture_floral',
+    'homedecor_electronics_outdoors', 'accessories_groceries_books',
+    'footwear_jewelry_furniture', 'books_apparel_homedecor',
+    'beauty_accessories_instruments', 'housewares_tools_beauty'
+]
+
 selected_category_preference_personas =[]
 
 discount_personas = [
@@ -121,6 +132,8 @@ class UserPool:
       selected_category_preference_personas = original_category_preference_personas
     if (catalog_scope == 'fashion'):
       selected_category_preference_personas = fashion_category_preference_personas
+    if (catalog_scope == 'all'):
+      selected_category_preference_personas = all_category_preference_personas
     user_pool = cls()
     user_pool.file = filename
     user_pool.grow_pool(num_users)
