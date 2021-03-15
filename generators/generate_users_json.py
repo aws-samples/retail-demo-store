@@ -24,8 +24,10 @@ np.random.seed(42)  # Deterministic randomness
 
 num_users = 6000
 
-print('Generating {} random users...'.format(num_users))
+catalog_scopes = ['original', 'fashion']
 
-pool = UserPool.new_file('users.json.gz', num_users)
+for name in catalog_scopes:
+    print('Generating {} random users'.format(num_users) + ' with {} catalog scope ...'.format(name))
+    pool = UserPool.new_file('{}-users.json.gz'.format(name), num_users, name)
 
 print('Done')
