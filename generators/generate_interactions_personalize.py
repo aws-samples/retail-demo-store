@@ -58,14 +58,18 @@ DISCOUNT_PROBABILITY = 0.2
 DISCOUNT_PROBABILITY_WITH_PREFERENCE = 0.5
 
 IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
-IN_USERS_FILENAME = "src/users/src/users-service/data/users.json.gz"
+IN_USERS_FILE_PATH = "src/users/src/users-service/data/"
+IN_USERS_FILENAME = "users.json.gz"
 
 PROGRESS_MONITOR_SECONDS_UPDATE = 30
 
 # This is where stage.sh will pick them up from
-out_items_filename = f"{GENERATED_DATA_ROOT}/items.csv"
-out_users_filename = f"{GENERATED_DATA_ROOT}/users.csv"
-out_interactions_filename = f"{GENERATED_DATA_ROOT}/interactions.csv"
+out_items_file_path = f"{GENERATED_DATA_ROOT}/"
+out_items_filename = "items.csv"
+out_users_file_path = f"{GENERATED_DATA_ROOT}/"
+out_users_filename = "users.csv"
+out_interactions_file_path = f"{GENERATED_DATA_ROOT}/"
+out_interactions_filename = "interactions.csv"
 
 # The meaning of the below constants is described in the relevant notebook.
 
@@ -79,8 +83,12 @@ cart_viewed_percent = .05
 checkout_started_percent = .02
 order_completed_percent = .01
 
+catalog_scopes = ['original', 'fashion', 'all']
 
-def generate_user_items(out_users_filename, out_items_filename, in_users_filename, in_products_filename):
+fashionCategories = ['footwear', 'apparel', 'jewelry', 'accessories']
+originalCategories = ['footwear', 'apparel', 'outdoors', 'electronics','beauty','jewelry','accessories','housewares','homedecor','furniture','seasonal','floral','books','groceries','instruments','tools']
+
+def generate_user_items(catalog_scope, out_users_filename, out_items_filename, in_users_filename, in_products_filename):
 
     Path(out_items_filename).parents[0].mkdir(parents=True, exist_ok=True)
     Path(out_users_filename).parents[0].mkdir(parents=True, exist_ok=True)
@@ -97,7 +105,14 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id', 'category', 'style']]
+    if (catalog_scope == 'original'):
+        products_dataset_df = products_df[products_df['category'].isin(originalCategories)]
+    if (catalog_scope == 'fashion'):
+        products_dataset_df = products_df[products_df['category'].isin(fashionCategories)]
+    if (catalog_scope == 'all'):
+        products_dataset_df = products_df
+
+    products_dataset_df = products_dataset_df[['id', 'category', 'style']]
     products_dataset_df = products_dataset_df.rename(columns={'id': 'ITEM_ID',
                                                               'category': 'CATEGORY',
                                                               'style': 'STYLE'})
@@ -360,12 +375,13 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     print(f"Total checkout started: {checkout_started_count} ({discounted_checkout_started_count})")
     print(f"Total order completed: {order_completed_count} ({discounted_order_completed_count})")
 
-    globals().update(locals())   # This can be used for inspecting in console after script ran or if run with ipython.
+    #globals().update(locals())   # This can be used for inspecting in console after script ran or if run with ipython.
     print('Generation script finished')
 
 
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
-    users_df, products_df = generate_user_items(out_users_filename, out_items_filename, IN_USERS_FILENAME, IN_PRODUCTS_FILENAME)
-    generate_interactions(out_interactions_filename, users_df, products_df)
+    for name in catalog_scopes:
+        users_df, products_df = generate_user_items(name, out_users_file_path + name + '-' + out_users_filename, out_items_file_path + name + '-' + out_items_filename, IN_USERS_FILE_PATH + name + '-' + IN_USERS_FILENAME, IN_PRODUCTS_FILENAME)
+        generate_interactions(out_interactions_file_path + name + '-' + out_interactions_filename, users_df, products_df)
