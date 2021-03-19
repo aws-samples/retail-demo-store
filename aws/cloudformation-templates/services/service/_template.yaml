@@ -202,6 +202,9 @@ Parameters:
   Uid:
     Type: String
 
+  CatalogDeploymentType:
+    Type: String
+
 Resources:
 
   Loadbalancer:
@@ -239,6 +242,7 @@ Resources:
         RecommendationsServiceExternalUrl: !Ref RecommendationsServiceExternalUrl
         SearchServiceExternalUrl: !Ref SearchServiceExternalUrl
         PinpointAppId: !Ref PinpointAppId
+        CatalogDeploymentType: !Ref CatalogDeploymentType
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -279,6 +283,7 @@ Resources:
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         PinpointAppId: !Ref PinpointAppId
+        CatalogDeploymentType: !Ref CatalogDeploymentType
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid

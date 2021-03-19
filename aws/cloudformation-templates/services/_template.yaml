@@ -163,6 +163,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -190,6 +191,7 @@ Resources:
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         PinpointAppId: !Ref PinpointAppId
+        CatalogDeploymentType: !Ref CatalogDeploymentType
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -226,6 +228,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
@@ -257,6 +260,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   SearchService:
     Type: AWS::CloudFormation::Stack
@@ -289,6 +293,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -323,6 +328,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   VideosService:
     Type: AWS::CloudFormation::Stack
@@ -356,6 +362,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        CatalogDeploymentType: !Ref CatalogDeploymentType
  
   # Pinpoint personalized messaging customization
   PinpointPersonalize:

@@ -269,6 +269,7 @@ Resources:
         EnvElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
+        CatalogDeploymentType: !Ref CatalogDeploymentType
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
@@ -356,6 +357,7 @@ Resources:
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   # Cleanup bucket function
   CleanupBucket:

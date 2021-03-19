@@ -119,6 +119,9 @@ Parameters:
   
   PinpointAppId:
     Type: String
+
+  CatalogDeploymentType:
+    Type: String
     
 Resources:
   TaskExecutionRole:
@@ -362,6 +365,8 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
+            - Name: CATALOG_DEPLOYMENT_TYPE
+              Value: !Ref CatalogDeploymentType
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
