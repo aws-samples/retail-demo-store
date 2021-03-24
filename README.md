@@ -80,6 +80,13 @@ The CloudFormation deployment will take 20-30 minutes to complete.
 
 ### Notes:
 
+#### Catalog Deployment Type
+
+This parameter gives you an ability to select a catalog of items for your deployement. Rigth now we have three options: 
+* *original* (Default) - original catalog fron Retail Demo Store
+* *fashion* - catalog that includes only 4 categories: accessories, jewelry, apparel, footwear and could be used for demo in a fashion industry.
+* *all* - includes everething from all availible categories. 
+
 #### Amazon Personalize Campaigns
 
 If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
