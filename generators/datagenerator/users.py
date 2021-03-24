@@ -111,7 +111,14 @@ class UserPool:
     f.close()
 
   @classmethod
-  def from_file(cls, filename):
+  def from_file(cls, filename, catalog_scope):
+    global selected_category_preference_personas
+    if (catalog_scope == 'original'):
+      selected_category_preference_personas = original_category_preference_personas
+    if (catalog_scope == 'fashion'):
+      selected_category_preference_personas = fashion_category_preference_personas
+    if (catalog_scope == 'all'):
+      selected_category_preference_personas = all_category_preference_personas
     user_pool = cls()
     user_pool.file = filename
     with gzip.open(filename, 'rt', encoding='utf-8') as f:
