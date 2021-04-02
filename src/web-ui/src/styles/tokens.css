@@ -1,0 +1,19 @@
+:root {
+  /* app colors  */
+  --white: #fff;
+  --aws-squid-ink: #232f3e;
+  --aws-deep-squid-ink: #161e2d;
+  --amazon-orange: #ff9900;
+  --amazon-orange-dark: #e88b01;
+  --amazon-orange-light: #ffac31;
+  --blue-100: #f1faff;
+  --blue-500: #00a1c9;
+  --blue-600: #0073bb;
+  --grey-200: #eaeded;
+  --grey-300: #d5dbdb;
+  --grey-400: #aab7b8;
+  --grey-500: #879596;
+  --grey-600: #545b64;
+  --grey-900: #16191f;
+  --red-600: #d13212;
+}

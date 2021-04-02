@@ -1,6 +1,9 @@
+.idea
 __pycache__/
 .vscode
 build/*
+.venv/
+venv/
 workshop/*/.ipynb_checkpoints
 workshop/1-Personalization/interactions.csv
 workshop/1-Personalization/items.csv
@@ -12,6 +15,7 @@ src/aws-lambda/*/package
 src/aws-lambda/elasticsearch-pre-index/products.yaml
 src/aws-lambda/personalize-delete-resources/models
 src/aws-lambda/personalize-pre-create-campaigns/models
+src/aws-lambda/personalize-pre-create-campaigns/data
 src/aws-lambda/pinpoint-auto-workshop/pinpoint-templates
 local/*
 demo.md
@@ -23,3 +27,4 @@ generators/*.gz
 workshop/data/*
 workshop/datagenerator/*
 workshop/requirements.txt
+workshop/1-Personalization/generate_interactions_personalize.py

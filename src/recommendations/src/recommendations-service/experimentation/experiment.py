@@ -31,7 +31,7 @@ class Experiment(ABC):
             self.variations.append(Variation(**v))
 
     @abstractmethod
-    def get_items(self, user_id, current_item_id = None, item_list = None, num_results = 10, tracker = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
         """ For a given user, returns item recommendations for this experiment along with experiment tracking/correlation information """
         pass
 

@@ -25,6 +25,9 @@ Parameters:
     Type: String
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
+  
+  PinpointSMSLongCode:
+    Type: String
 
 Conditions:
   HasAmplitudeApiKey:
@@ -33,6 +36,8 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
+  HasPinpointSMSLongCode:
+    !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
 
 Resources:
 
@@ -67,6 +72,14 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
+
+  ParameterPersonalizeTrainConfig:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-training-config"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Train Config"
 
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
@@ -108,6 +121,14 @@ Resources:
       Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
       Description: "Retail Demo Store Optimizely SDK key"
 
+  ParameterIVSVideoChannelMap:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-ivs-video-channel-map"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store video file to IVS channel mapping"
+
   ParameterSegmentWriteKey:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -115,6 +136,14 @@ Resources:
       Type: "String"
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
+  
+  ParameterPinpointSMSLongCode:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-pinpoint-sms-longcode"
+      Type: "String"
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Description: "Retail Demo Store Pinpoint SMS Long code"
 
 Outputs:
 
@@ -133,6 +162,10 @@ Outputs:
   ParameterPersonalizedRankingCampaignArn:
     Description: Personalized Ranking Campaign Arn
     Value: !Ref ParameterPersonalizedRankingCampaignArn
+
+  ParameterPersonalizeTrainConfig:
+    Description: Train config
+    Value: !Ref ParameterPersonalizeTrainConfig
 
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn
@@ -154,6 +187,14 @@ Outputs:
     Description: Optimizely SDK key
     Value: !Ref ParameterOptimizelySdkKey
 
+  ParameterIVSVideoChannelMap:
+    Description: Retail Demo Store video file to IVS channel mapping
+    Value: !Ref ParameterIVSVideoChannelMap
+
   ParameterSegmentWriteKey:
     Description: Segment write key
-    Value: !Ref ParameterSegmentWriteKey 
+    Value: !Ref ParameterSegmentWriteKey
+  
+  ParameterPinpointSMSLongCode:
+    Description: Pinpoint SMS Long code
+    Value: !Ref ParameterPinpointSMSLongCode

@@ -1,230 +1,157 @@
 <template>
-  <div class="content">
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
+    <template #default>
+      <div class="container text-left">
+        <div class="row">
+          <div class="col">
+            <div class="row">
+              <div class="col mb-3 mb-sm-5">
+                <div class="quantity-readout p-3 font-weight-bold">{{ cartQuantityReadout }}</div>
+              </div>
+            </div>
 
-    <!-- Loading Indicator -->
-    <div class="container" v-if="!cart">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div v-if="cart.items">
-        <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
-      </div>
-    </div>    
-
-    <div class="container" v-if="cart">
-      <div class="row" v-if="cart.items && cart.items.length > 0">
-        <div class="col-md-8 mb-4">
-         <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Items</span>
-          </h4>
-          <table class="table">
-            <tr>
-              <th class="pl-0 pr-1 d-none d-sm-table-cell"></th>
-              <th class="px-1">Item</th>
-              <th class="px-1"><span class="d-none d-sm-inline">Quantity</span><span class="d-xs-inline d-sm-none">Qty</span></th>
-              <th class="px-1">Price</th>
-              <th class="pr-0 pl-1"></th>          
-            </tr>
-            <CartItem v-for="item in cart.items" 
-              v-bind:key="item.product_id"
-              :product_id="item.product_id"
-              :quantity="item.quantity"
-              @removeFromCart="removeFromCart"
-              @increaseQuantity="increaseQuantity"
-              @decreaseQuantity="decreaseQuantity"
-            />
-          </table>
-        </div>
-        <div class="col-md-4">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Summary</span>
-            <span class="badge badge-secondary badge-pill">{{ this.cartQuantity }}</span>
-          </h4>
-          <div class="text-dark">
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Sub Total (USD)</span>
-              <strong>${{ this.cartSubTotal.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tax (USD)</span>
-              <strong>${{ this.cartTaxRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Shipping (USD)</span>
-              <strong>${{ this.cartShippingRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
-              <strong>${{ this.cartTotal.toFixed(2) }}</strong>
-            </li>            
-          </ul>
-            <button class="btn btn-primary mb-4 btn-block" v-on:click="checkout()"> Checkout </button>
+            <ul class="cart-items">
+              <CartItem
+                v-for="item in cart.items"
+                :key="item.product_id"
+                :product_id="item.product_id"
+                :quantity="item.quantity"
+                :cartPrice="item.price"
+                class="mb-4"
+              ></CartItem>
+            </ul>
+          </div>
+          <div v-if="cart.items.length > 0" class="summary-container col-lg-auto">
+            <div class="summary p-4">
+              <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
+              <div class="summary-total mb-2 font-weight-bold">Your Total: {{ formattedCartTotal }}</div>
+              <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
+                >Checkout</router-link
+              >
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-  </div>
+    </template>
+  </Layout>
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
+import { mapState, mapGetters } from 'vuex';
 
-import { RepositoryFactory } from '@/repositories/RepositoryFactory'
-import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-import CartItem from './components/CartItem.vue'
+import CartItem from './components/CartItem.vue';
+import Layout from '@/components/Layout/Layout';
 
-const CartsRepository = RepositoryFactory.get('carts')
-const ProductsRepository = RepositoryFactory.get('products')
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton';
 
 export default {
   name: 'Cart',
   components: {
-    CartItem
+    Layout,
+    CartItem,
+    AbandonCartButton,
   },
-  props: {
-  },
-  data () {
-    return {  
-      errors: [],
-      cart: null
-    }
-  },
-  async created() {
-    await this.getCart();
-    if (this.cart) {
-      AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartSubTotal, this.cartTotal)
-    }
-  },
-  methods: {
-    async getProductByID (product_id){
-      const { data } = await ProductsRepository.getProduct(product_id)
-      return data
-    },    
-    async getCart (){
-      if (this.cartID) {
-        const { data } = await CartsRepository.getCartByID(this.cartID)
-        // Since cart service currently holds carts in memory, they can be lost on restarts. 
-        // Make sure our cart was returned. Otherwise create a new one.
-        if (data.id == this.cartID) {
-          this.cart = data
-        }
-        else {
-          console.warn('Cart ' + this.cartID + ' not found. Creating new cart. Was cart service restarted?')
-          this.createCart()
-        }
-      }
-      else 
-      {
-        this.createCart()
-      }
-    },  
-    async createCart (){
-      if (this.user) {
-        const { data } = await CartsRepository.createCart(this.user.username)
-        this.cart = data
-      } else {
-        const { data } = await CartsRepository.createCart('guest')
-        this.cart = data 
-      }
-      AmplifyStore.commit('setCartID', this.cart.id)
-    },
-    async updateCart (){
-      const { data } = await CartsRepository.updateCart(this.cart)
-      this.cart = data
-    },       
-    checkout: function () {
-      this.$router.push('/checkout');
-    },    
-    removeFromCart (value) {
-      for (var item in this.cart.items) {
-        if (this.cart.items[item].product_id == value) {
-          let cartItem = this.cart.items[item]
-          this.cart.items.splice(item, 1)
-          AnalyticsHandler.productRemovedFromCart(this.user, this.cart, cartItem, cartItem.quantity)
-        }
-      }
-
-      this.updateCart()
-    },
-    increaseQuantity (value) {
-      for (var item in this.cart.items) {
-        if (this.cart.items[item].product_id == value) {
-          this.cart.items[item].quantity = this.cart.items[item].quantity + 1
-          AnalyticsHandler.productQuantityUpdatedInCart(this.user, this.cart, this.cart.items[item], 1)
-        }
-      }
-
-      this.updateCart()
-    },
-    decreaseQuantity (value) {
-      for (var item in this.cart.items) {
-        if (this.cart.items[item].product_id == value) {
-          let origQuantity = this.cart.items[item].quantity
-          this.cart.items[item].quantity = this.cart.items[item].quantity - 1
-          if (this.cart.items[item].quantity == 0) {
-            let cartItem = this.cart.items[item]
-            this.cart.items.splice(item, 1)
-            AnalyticsHandler.productRemovedFromCart(this.user, this.cart, cartItem, origQuantity)
-          }
-          else {
-            AnalyticsHandler.productQuantityUpdatedInCart(this.user, this.cart, this.cart.items[item], -1)
-          }
-        }
-      }
-
-      this.updateCart()
-    }
+  created() {
+    AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
   },
   computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },    
-    cartID() {
-      return AmplifyStore.state.cartID
+    ...mapState({
+      cart: (state) => state.cart.cart,
+      user: (state) => state.user,
+      lastVisitedPage: (state) => state.lastVisitedPage.route,
+    }),
+    ...mapGetters(['cartQuantity', 'cartTotal', 'formattedCartTotal']),
+    isLoading() {
+      return !this.cart;
     },
-    cartSubTotal() {
-      var subtotal = 0.00
+    previousPageLinkProps() {
+      if (!this.lastVisitedPage) return null;
 
-      for (var item in this.cart.items) {
-        var cost = this.cart.items[item].quantity * this.cart.items[item].price // Need to Load Product Price
-        subtotal = subtotal + cost
-      }
-
-      return subtotal
-
+      return { text: 'Continue Shopping', to: this.lastVisitedPage };
     },
-    cartTaxRate() {
-      const taxRate = 0.05
-      return this.cartSubTotal * taxRate
-    },
-    cartShippingRate() {
-      var shippingRate = 10.00
+    cartQuantityReadout() {
+      if (this.cartQuantity === null) return null;
 
-      if (this.cartSubTotal > 100.00) {
-        shippingRate = 0.00
-      }
-      return shippingRate
+      return `(${this.cartQuantity}) ${this.cartQuantity === 1 ? 'item' : 'items'} in your cart shopping cart`;
     },
-    cartTotal() {
-      return this.cartSubTotal + this.cartTaxRate + this.cartShippingRate
+    summaryQuantityReadout() {
+      if (this.cartQuantity === null) return null;
+
+      return `Summary (${this.cartQuantity}) ${this.cartQuantity === 1 ? 'item' : 'items'}`;
     },
-    cartQuantity() {
-
-      var quantity = 0;
-
-      for (var item in this.cart.items) {
-        quantity = quantity + this.cart.items[item].quantity
-      }
-      return quantity
-    }
   },
-}
+};
 </script>
+
+<style scoped>
+.quantity-readout {
+  border-radius: 4px;
+  background: var(--grey-200);
+  font-size: 1.15rem;
+}
+
+.cart-items {
+  list-style-type: none;
+  padding: 0;
+}
+
+.summary {
+  border: 1px solid var(--grey-300);
+  border-radius: 2px;
+}
+
+.summary-total {
+  font-size: 1.15rem;
+}
+
+.summary-quantity {
+  font-size: 1.15rem;
+}
+
+.checkout-btn {
+  border-color: var(--grey-900);
+  border-width: 2px;
+  font-size: 1rem;
+}
+
+.checkout-btn:hover,
+.checkout-btn:focus {
+  background: var(--grey-900);
+}
+
+@media (min-width: 768px) {
+  .quantity-readout {
+    font-size: 1.75rem;
+  }
+
+  .summary-total {
+    font-size: 1.5rem;
+  }
+
+  .summary-quantity {
+    font-size: 1.5rem;
+  }
+
+  .checkout-btn {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .summary-container {
+    min-width: 350px;
+  }
+
+  .summary {
+    position: sticky;
+    top: 120px;
+  }
+
+  .abandon-cart {
+    max-width: 400px;
+  }
+}
+</style>

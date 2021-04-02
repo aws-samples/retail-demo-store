@@ -1,8 +1,6 @@
-FROM golang:1.11-alpine AS build
+FROM public.ecr.aws/s5z3t2n9/golang:1.15-alpine AS build
 WORKDIR /src/
 RUN apk add --no-cache git bash
-RUN go get -u github.com/gorilla/mux
-RUN go get -u gopkg.in/yaml.v2
 RUN go get -u github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
 COPY src/products-service/*.* /src/
 COPY src/products-service/data/*.* /src/data/

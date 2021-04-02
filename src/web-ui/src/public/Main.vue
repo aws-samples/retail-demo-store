@@ -1,233 +1,220 @@
 <template>
-  <div class="content">
-
-    <!-- Categories Navigation -->
-    <div class="container mb-4">
-      <div class="container mb-4" v-if="!categories.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-      <div class="row col-sm-12 col-md-12 col-lg-12 d-none d-sm-block">
-        <ul class="nav nav-pills nav-fill mx-auto">
-          <li class="nav-item">
-            <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
-          </li>
-          <li class="nav-item" v-for="category in categories" v-bind:key=category.id>
-          <router-link class="nav-link" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">{{ category.name | capitalize }}</router-link> 
-          </li>
-        </ul>
-      </div>
-      <div class="dropdown show d-block d-sm-none">
-        <a class="btn dropdown-toggle btn-primary" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Select Category
-        </a>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <router-link class="dropdown-item" :to="{name:'CategoryDetail', params: {id: 'featured'}}" v-bind:class="{ active: display == 'featured' }">Featured</router-link> 
-          <router-link class="dropdown-item" v-for="category in categories" v-bind:key="category" :to="{name:'CategoryDetail', params: {id: category.name}}" v-bind:class="{ active: display == category.name }">
-            {{ category.name | capitalize }}
-          </router-link> 
-        </div>
-      </div>
-    </div>
-
-    <!-- Announcements -->
-    <div id="featuredProducts" class="carousel slide col-sm-12 col-md-12 col-lg-12 d-none d-md-block mb-5" data-ride="carousel">
-      <ol class="carousel-indicators">
-        <li data-target="#featuredProducts" data-slide-to="0" class="active"></li>
-        <li data-target="#featuredProducts" data-slide-to="1"></li>
-        <li data-target="#featuredProducts" data-slide-to="2"></li>
-      </ol>
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img class="d-block w-100" v-bind:src="imageRootURL + 'apparel/2.jpg'" alt="First slide">
-            <div class="carousel-caption">
-              <h5>The Apparel Collection</h5>
-              <p>Cozy sweaters and classic styles for your wardrobe.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'apparel'}}">See More</router-link> 
-            </div>
-        </div>
-        <div class="carousel-item">
-          <img class="d-block w-100" v-bind:src="imageRootURL + 'outdoors/4.jpg'" alt="Second slide">
-            <div class="carousel-caption">
-              <h5>Lets Go Fishing</h5>
-              <p>Start gearing up for summer adventures with our new fishing gear!</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'outdoors'}}">See More</router-link> 
-            </div>
-        </div>
-        <div class="carousel-item">
-          <img class="d-block w-100" v-bind:src="imageRootURL + 'beauty/3.jpg'" alt="Third slide">
-              <div class="carousel-caption">
-              <h5>Beauty Products</h5>
-              <p>Popular beauty products now back in stock.</p>
-              <router-link class="btn btn-outline-light" :to="{name:'CategoryDetail', params: {id: 'beauty'}}">See More</router-link> 
-            </div>
-        </div>
-      </div>
-      <a class="carousel-control-prev" href="#featuredProducts" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#featuredProducts" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
-    </div>
-
-    <!-- Category List -->
+  <Layout>
     <div class="container">
-      <h4>Categories</h4>
-      <div class="container mb-4" v-if="!categories.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-      <div class="row">
-        <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Category v-for="category in categories" 
-            v-bind:key="category.id"
-            :category="category"
-          />
+      <section class="mb-5">
+        <div v-if="userRecommendationsTitle" class="mb-3 text-left">
+          <h2 class="recommendations-heading">
+            {{ userRecommendationsTitle }}
+            <DemoGuideBadge
+              v-if="userRecommendationsDemoGuideBadgeArticle"
+              :article="userRecommendationsDemoGuideBadgeArticle"
+              hideTextOnSmallScreens
+            ></DemoGuideBadge>
+          </h2>
+          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted">
+            <i class="fa fa-balance-scale px-1"></i>
+            {{ recommendationsExperiment }}
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Recommended/Featured Product List -->
-    <div class="container mt-5 user-recommendations" v-if="user">
-      <h4>{{ this.display | capitalize }}</h4>
-      <div v-if="explain_recommended" class="text-muted text-center">
-        <small><em><i v-if="active_experiment" class="fa fa-balance-scale"></i><i v-if="personalized" class="fa fa-user-check"></i> {{ explain_recommended }}</em></small>
-      </div>
-      <div class="container mb-4" v-if="!user_recommended.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-      <div class="row">
-        <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="recommendation in user_recommended" 
-            v-bind:key="recommendation.product.id"
-            :product="recommendation.product"
-            :experiment="recommendation.experiment"
-            :feature="feature"
-          />
+        <div
+          v-if="
+            personalizeUserID &&
+              ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
+          "
+        >
+          <LoadingFallback v-if="!userRecommendations" class="col my-4 text-center"></LoadingFallback>
+
+          <div v-else class="user-recommendations">
+            <Product
+              v-for="{ product } in userRecommendations"
+              :key="product.id"
+              :product="product"
+              :experiment="product.experiment"
+              :feature="feature"
+            ></Product>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <RecommendedProductsSection
+        :feature="feature"
+        :recommendedProducts="featuredProducts"
+        :experiment="featuredProductsExperiment"
+      >
+        <template #heading>
+          Featured products
+          <DemoGuideBadge
+            v-if="featuredProductsDemoGuideBadgeArticle"
+            :article="featuredProductsDemoGuideBadgeArticle"
+            hideTextOnSmallScreens
+          ></DemoGuideBadge>
+        </template>
+      </RecommendedProductsSection>
     </div>
-    <div class="container guest-recommendations" v-if="!user">
-      <h4>{{ this.display | capitalize }}</h4>
-      <div class="container mb-4" v-if="!guest_recommended.length">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-      </div>
-      <div class="row">
-        <div class="card-deck col-sm-12 col-md-12 col-lg-12 mt-4">
-          <Product v-for="product in guest_recommended" 
-            v-bind:key="product.id"
-            :product="product"
-            :feature="feature"
-          />
-        </div>
-      </div>
-    </div>
-  </div> 
+  </Layout>
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
+import { mapState, mapGetters, mapActions } from 'vuex';
 
-import { RepositoryFactory } from '@/repositories/RepositoryFactory'
-import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import { RepositoryFactory } from '@/repositories/RepositoryFactory';
+import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
+import { Modals } from '@/partials/AppModal/config';
 
-import Product from './components/Product.vue'
-import Category from './components/Category.vue'
+import Layout from '@/components/Layout/Layout';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import Product from '@/components/Product/Product';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
-const ProductsRepository = RepositoryFactory.get('products')
-const RecommendationsRepository = RepositoryFactory.get('recommendations')
-const MaxRecommendations = 9
-const ExperimentFeature = 'home_product_recs'
+import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+
+const ProductsRepository = RepositoryFactory.get('products');
+const RecommendationsRepository = RepositoryFactory.get('recommendations');
+const MAX_RECOMMENDATIONS = 12;
+const EXPERIMENT_FEATURE = 'home_product_recs';
 
 export default {
   name: 'Main',
   components: {
+    Layout,
+    RecommendedProductsSection,
+    DemoGuideBadge,
     Product,
-    Category
+    LoadingFallback,
   },
   data() {
     return {
-      feature: ExperimentFeature,
-      categories: [],
-      guest_recommended: [],
-      user_recommended: [],
-      errors: [],
-      display: '',
-      explain_recommended: '',
-      active_experiment: false,
-      personalized: false
+      feature: EXPERIMENT_FEATURE,
+      isLoadingRecommendations: true,
+      featuredProducts: null,
+      featuredProductsDemoGuideBadgeArticle: null,
+      featuredProductsExperiment: null,
+      userRecommendationsDemoGuideBadgeArticle: null,
+      userRecommendations: null,
+      recommendationsExperiment: null,
+      userRecommendationsTitle: null,
+    };
+  },
+  computed: {
+    ...mapState({ user: (state) => state.user, demoWalkthroughShown: (state) => state.demoWalkthroughShown.shown }),
+    ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
+  },
+  async created() {
+    this.fetchData();
+  },
+  mounted() {
+    if (!this.demoWalkthroughShown) {
+      this.openModal(Modals.DemoWalkthrough);
+      this.markDemoWalkthroughAsShown();
     }
   },
-  async created () {
-    this.getRecommendations()
-    this.getCategories()
-  },
   methods: {
-    async getRecommendations() {
-      if (this.user) {
-        this.display = 'Inspired by your shopping trends'
-        this.getUserRecommendations()
-      }
-      else {
-        this.display = 'featured'
-        const { data } = await ProductsRepository.getFeatured()
-        this.guest_recommended = data.slice(0, MaxRecommendations)
+    ...mapActions(['openModal', 'markDemoWalkthroughAsShown']),
+    fetchData() {
+      this.getFeaturedProducts();
+      this.getUserRecommendations();
+    },
+    async getFeaturedProducts() {
+      this.featuredProductsDemoGuideBadgeArticle = null;
+      this.featuredProductsExperiment = null;
+      this.featuredProducts = null;
+
+      const { data: featuredProducts } = await ProductsRepository.getFeatured();
+
+      if (this.personalizeUserID && featuredProducts.length > 0) {
+        const { data: rerankedProducts, headers } = await RecommendationsRepository.getRerankedItems(
+          this.personalizeUserID,
+          featuredProducts,
+          EXPERIMENT_FEATURE,
+        );
+
+        const personalizeRecipe = headers['x-personalize-recipe'];
+        const experimentName = headers['x-experiment-name'];
+
+        if (personalizeRecipe)
+          this.featuredProductsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
+
+        if (experimentName) this.featuredProductsExperiment = `Active experiment: ${experimentName}`;
+
+        this.featuredProducts = rerankedProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
+      } else {
+        this.featuredProducts = featuredProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
       }
     },
     async getUserRecommendations() {
-      const response = await RecommendationsRepository.getRecommendationsForUser(this.user.id, '', MaxRecommendations, ExperimentFeature)
+      this.isLoadingRecommendations = true;
+      this.userRecommendationsTitle = null;
+      this.userRecommendations = null;
+      this.recommendationsExperiment = null;
+      this.userRecommendationsDemoGuideBadgeArticle = null;
+
+      const response = await RecommendationsRepository.getRecommendationsForUser(
+        this.personalizeUserID,
+        '',
+        MAX_RECOMMENDATIONS,
+        EXPERIMENT_FEATURE,
+      );
 
       if (response.headers) {
-        if (response.headers['x-personalize-recipe']) {
-          this.personalized = true
-          this.explain_recommended = 'Personalize recipe: ' + response.headers['x-personalize-recipe']
-        }
-        if (response.headers['x-experiment-name']) {
-          this.active_experiment = true
-          this.explain_recommended = 'Active experiment: ' + response.headers['x-experiment-name']
+        const experimentName = response.headers['x-experiment-name'];
+        const personalizeRecipe = response.headers['x-personalize-recipe'];
+
+        if (experimentName || personalizeRecipe) {
+          if (experimentName) this.recommendationsExperiment = `Active experiment: ${experimentName}`;
+
+          if (personalizeRecipe) {
+            this.userRecommendationsTitle = this.personalizeRecommendationsForVisitor
+              ? 'Inspired by your shopping trends'
+              : 'Trending products';
+
+            this.userRecommendationsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
+          } else if (experimentName) {
+            this.userRecommendationsTitle = 'Recommended for you';
+          }
+
+          this.userRecommendations = response.data;
+
+          if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
+            AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);
+          }
         }
       }
 
-      this.user_recommended = response.data
-
-      if (this.user_recommended.length > 0 && 'experiment' in this.user_recommended[0]) {
-        AnalyticsHandler.identifyExperiment(this.user, this.user_recommended[0].experiment)
-      }
+      this.isLoadingRecommendations = false;
     },
-    async getCategories () {
-      const { data } = await ProductsRepository.getCategories()
-      this.categories = data
-    }
   },
-  computed: {
-    user() { 
-      return AmplifyStore.state.user
+  watch: {
+    user() {
+      this.fetchData();
     },
-    imageRootURL() {
-      return process.env.VUE_APP_IMAGE_ROOT_URL ? process.env.VUE_APP_IMAGE_ROOT_URL : '/images/'
-    }
   },
-  filters: {
-    capitalize: function (value) {
-      if (!value) return ''
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
-    }
-  }
-}
+};
 </script>
 
 <style scoped>
-  .content {
-    padding-top: 1rem;
+.recommendations-heading {
+  font-size: 1rem;
+}
+
+.recommendation-explanation {
+  font-style: italic;
+}
+
+.user-recommendations {
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .recommendations-heading {
+    font-size: 1.4rem;
   }
 
-  .carousel {
-    max-height: 600px;
+  .user-recommendations {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
-
-  .carousel-item {
-    max-height: 600px;
-  }
+}
 </style>

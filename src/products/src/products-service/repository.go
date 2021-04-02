@@ -5,153 +5,42 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
-	"time"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-
-	yaml "gopkg.in/yaml.v2"
+	guuuid "github.com/google/uuid"
 )
 
-var products Products
-var categories Categories
-var exp_true bool = true
-
 // Root/base URL to use when building fully-qualified URLs to product detail view.
-var web_root_url = os.Getenv("WEB_ROOT_URL")
+var webRootURL = os.Getenv("WEB_ROOT_URL")
 
-func init() {
-}
-
-func loadData() {
-
-	err := loadProducts("/bin/data/products.yaml")
-	if err != nil {
-		log.Panic("Unable to load products file.")
-	}
-
-	err = loadCategories("/bin/data/categories.yaml")
-	if err != nil {
-		log.Panic("Unable to load category file.")
+func setProductURL(p *Product) {
+	if len(webRootURL) > 0 {
+		p.URL = webRootURL + "/#/product/" + p.ID
 	}
 }
 
-func loadProducts(filename string) error {
-	start := time.Now()
-
-	log.Println("Attempting to load products file: ", filename)
-
-	var r Products
-
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
+func setCategoryURL(c *Category) {
+	if len(webRootURL) > 0 && len(c.Name) > 0 {
+		c.URL = webRootURL + "/#/category/" + c.Name
 	}
-
-	err = yaml.Unmarshal(bytes, &r)
-	if err != nil {
-		return err
-	}
-
-	for _, item := range r {
-
-		av, err := dynamodbattribute.MarshalMap(item)
-
-		if err != nil {
-			return err
-		}
-
-		input := &dynamodb.PutItemInput{
-			Item:      av,
-			TableName: aws.String(ddb_table_products),
-		}
-
-		_, err = dynamoclient.PutItem(input)
-		if err != nil {
-			fmt.Println("Got error calling PutItem:")
-			fmt.Println(err.Error())
-
-		}
-
-	}
-	log.Println("Products loaded in ", time.Since(start))
-
-	return nil
-}
-
-func loadCategories(filename string) error {
-
-	start := time.Now()
-
-	log.Println("Attempting to load categories file: ", filename)
-
-	var r Categories
-
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(bytes, &r)
-	if err != nil {
-		return err
-	}
-	for _, item := range r {
-		av, err := dynamodbattribute.MarshalMap(item)
-
-		if err != nil {
-			return err
-		}
-
-		input := &dynamodb.PutItemInput{
-			Item:      av,
-			TableName: aws.String(ddb_table_categories),
-		}
-
-		_, err = dynamoclient.PutItem(input)
-		if err != nil {
-			fmt.Println("Got error calling PutItem:")
-			fmt.Println(err.Error())
-
-		}
-
-	}
-
-	log.Println("Categories loaded in ", time.Since(start))
-
-	return nil
-}
-
-func SetProductURL(p Product) Product {
-	if len(web_root_url) > 0 {
-		p.URL = web_root_url + "/#/product/" + p.ID
-	}
-
-	return p
-}
-
-func SetCategoryURL(c Category) Category {
-	if len(web_root_url) > 0 {
-		c.URL = web_root_url + "/#/category/" + c.Name
-	}
-
-	return c
 }
 
 // RepoFindProduct Function
-func RepoFindProduct(id int) Product {
-
+func RepoFindProduct(id string) Product {
 	var product Product
 
-	log.Println("RepoFindProduct: ", strconv.Itoa(id), ddb_table_products)
+	id = strings.ToLower(id)
 
-	keycond := expression.Key("id").Equal(expression.Value(strconv.Itoa(id)))
+	log.Println("RepoFindProduct: ", id, ddbTableProducts)
+
+	keycond := expression.Key("id").Equal(expression.Value(id))
 	expr, err := expression.NewBuilder().WithKeyCondition(keycond).Build()
 	// Build the query input parameters
 	params := &dynamodb.QueryInput{
@@ -159,28 +48,128 @@ func RepoFindProduct(id int) Product {
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(ddb_table_products),
+		TableName:                 aws.String(ddbTableProducts),
 	}
 	// Make the DynamoDB Query API call
-	result, err := dynamoclient.Query(params)
+	result, err := dynamoClient.Query(params)
 
 	if err != nil {
-		log.Println("get item error" + string(err.Error()))
+		log.Println("get item error " + string(err.Error()))
 		return product
 	}
 
-	err = dynamodbattribute.UnmarshalMap(result.Items[0], &product)
+	if len(result.Items) > 0 {
+		err = dynamodbattribute.UnmarshalMap(result.Items[0], &product)
 
-	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		if err != nil {
+			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		}
+
+		setProductURL(&product)
+
+		log.Println("RepoFindProduct returning: ", product.Name, product.Category)
 	}
 
-	product = SetProductURL(product)
-
-	log.Println("RepoFindProduct returning: ", product.Name, product.Category)
-
-	// return the uniq item returned.
 	return product
+}
+
+// RepoFindCategory Function
+func RepoFindCategory(id string) Category {
+	var category Category
+
+	id = strings.ToLower(id)
+
+	log.Println("RepoFindCategory: ", id, ddbTableCategories)
+
+	keycond := expression.Key("id").Equal(expression.Value(id))
+	expr, err := expression.NewBuilder().WithKeyCondition(keycond).Build()
+	// Build the query input parameters
+	params := &dynamodb.QueryInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(ddbTableCategories),
+	}
+	// Make the DynamoDB Query API call
+	result, err := dynamoClient.Query(params)
+
+	if err != nil {
+		log.Println("get item error " + string(err.Error()))
+		return category
+	}
+
+	if len(result.Items) > 0 {
+		err = dynamodbattribute.UnmarshalMap(result.Items[0], &category)
+
+		if err != nil {
+			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		}
+
+		setCategoryURL(&category)
+
+		log.Println("RepoFindCategory returning: ", category.Name)
+	}
+
+	return category
+}
+
+// RepoFindCategoriesByName Function
+func RepoFindCategoriesByName(name string) Categories {
+	var categories Categories
+
+	log.Println("RepoFindCategoriesByName: ", name, ddbTableCategories)
+
+	keycond := expression.Key("name").Equal(expression.Value(name))
+	proj := expression.NamesList(expression.Name("id"),
+		expression.Name("name"),
+		expression.Name("image"))
+	expr, err := expression.NewBuilder().WithKeyCondition(keycond).WithProjection(proj).Build()
+
+	if err != nil {
+		log.Println("Got error building expression:")
+		log.Println(err.Error())
+	}
+
+	// Build the query input parameters
+	params := &dynamodb.QueryInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(ddbTableCategories),
+		IndexName:                 aws.String("name-index"),
+	}
+	// Make the DynamoDB Query API call
+	result, err := dynamoClient.Query(params)
+
+	if err != nil {
+		log.Println("Got error QUERY expression:")
+		log.Println(err.Error())
+	}
+
+	log.Println("RepoFindCategoriesByName / items found =  ", len(result.Items))
+
+	for _, i := range result.Items {
+		item := Category{}
+
+		err = dynamodbattribute.UnmarshalMap(i, &item)
+
+		if err != nil {
+			log.Println("Got error unmarshalling:")
+			log.Println(err.Error())
+		} else {
+			setCategoryURL(&item)
+		}
+
+		categories = append(categories, item)
+	}
+
+	if len(result.Items) == 0 {
+		categories = make([]Category, 0)
+	}
+
+	return categories
 }
 
 // RepoFindProductByCategory Function
@@ -198,7 +187,8 @@ func RepoFindProductByCategory(category string) Products {
 		expression.Name("style"),
 		expression.Name("description"),
 		expression.Name("price"),
-		expression.Name("gender_affinity"))
+		expression.Name("gender_affinity"),
+		expression.Name("current_stock"))
 	expr, err := expression.NewBuilder().WithKeyCondition(keycond).WithProjection(proj).Build()
 
 	if err != nil {
@@ -212,11 +202,11 @@ func RepoFindProductByCategory(category string) Products {
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(ddb_table_products),
+		TableName:                 aws.String(ddbTableProducts),
 		IndexName:                 aws.String("category-index"),
 	}
 	// Make the DynamoDB Query API call
-	result, err := dynamoclient.Query(params)
+	result, err := dynamoClient.Query(params)
 
 	if err != nil {
 		log.Println("Got error QUERY expression:")
@@ -234,10 +224,14 @@ func RepoFindProductByCategory(category string) Products {
 			log.Println("Got error unmarshalling:")
 			log.Println(err.Error())
 		} else {
-			item = SetProductURL(item)
+			setProductURL(&item)
 		}
 
 		f = append(f, item)
+	}
+
+	if len(result.Items) == 0 {
+		f = make([]Product, 0)
 	}
 
 	return f
@@ -265,11 +259,11 @@ func RepoFindFeatured() Products {
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(ddb_table_products),
+		TableName:                 aws.String(ddbTableProducts),
 		IndexName:                 aws.String("id-featured-index"),
 	}
 	// Make the DynamoDB Query API call
-	result, err := dynamoclient.Scan(params)
+	result, err := dynamoClient.Scan(params)
 
 	if err != nil {
 		log.Println("Got error scan expression:")
@@ -287,17 +281,22 @@ func RepoFindFeatured() Products {
 			log.Println("Got error unmarshalling:")
 			log.Println(err.Error())
 		} else {
-			item = SetProductURL(item)
+			setProductURL(&item)
 		}
 
 		f = append(f, item)
 	}
 
+	if len(result.Items) == 0 {
+		f = make([]Product, 0)
+	}
+
 	return f
 }
 
-// TODO: implement some caching
+// RepoFindALLCategories - loads all categories
 func RepoFindALLCategories() Categories {
+	// TODO: implement some caching
 
 	log.Println("RepoFindALLCategories: ")
 
@@ -305,10 +304,10 @@ func RepoFindALLCategories() Categories {
 
 	// Build the query input parameters
 	params := &dynamodb.ScanInput{
-		TableName: aws.String(ddb_table_categories),
+		TableName: aws.String(ddbTableCategories),
 	}
 	// Make the DynamoDB Query API call
-	result, err := dynamoclient.Scan(params)
+	result, err := dynamoClient.Scan(params)
 
 	if err != nil {
 		log.Println("Got error scan expression:")
@@ -326,35 +325,39 @@ func RepoFindALLCategories() Categories {
 			log.Println("Got error unmarshalling:")
 			log.Println(err.Error())
 		} else {
-			item = SetCategoryURL(item)
+			setCategoryURL(&item)
 		}
 
 		f = append(f, item)
 	}
 
+	if len(result.Items) == 0 {
+		f = make([]Category, 0)
+	}
+
 	return f
 }
 
-// RepoFindALLProduct Function
-func RepoFindALLProduct() Products {
+// RepoFindALLProducts Function
+func RepoFindALLProducts() Products {
 
-	log.Println("RepoFindALLProduct: ")
+	log.Println("RepoFindALLProducts")
 
 	var f Products
 
 	// Build the query input parameters
 	params := &dynamodb.ScanInput{
-		TableName: aws.String(ddb_table_products),
+		TableName: aws.String(ddbTableProducts),
 	}
 	// Make the DynamoDB Query API call
-	result, err := dynamoclient.Scan(params)
+	result, err := dynamoClient.Scan(params)
 
 	if err != nil {
 		log.Println("Got error scan expression:")
 		log.Println(err.Error())
 	}
 
-	log.Println("RepoFindALLProduct / items found =  ", len(result.Items))
+	log.Println("RepoFindALLProducts / items found =  ", len(result.Items))
 
 	for _, i := range result.Items {
 		item := Product{}
@@ -365,11 +368,145 @@ func RepoFindALLProduct() Products {
 			log.Println("Got error unmarshalling:")
 			log.Println(err.Error())
 		} else {
-			item = SetProductURL(item)
+			setProductURL(&item)
 		}
 
 		f = append(f, item)
 	}
 
+	if len(result.Items) == 0 {
+		f = make([]Product, 0)
+	}
+
 	return f
+}
+
+// RepoUpdateProduct - updates an existing product
+func RepoUpdateProduct(existingProduct *Product, updatedProduct *Product) error {
+	updatedProduct.ID = existingProduct.ID // Ensure we're not changing product ID.
+	updatedProduct.URL = ""                // URL is generated so ignore if specified
+	log.Printf("UpdateProduct from %#v to %#v", existingProduct, updatedProduct)
+
+	av, err := dynamodbattribute.MarshalMap(updatedProduct)
+
+	if err != nil {
+		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(ddbTableProducts),
+	}
+
+	_, err = dynamoClient.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+	}
+
+	setProductURL(updatedProduct)
+
+	return err
+}
+
+// RepoUpdateInventoryDelta - updates a product's current inventory
+func RepoUpdateInventoryDelta(product *Product, stockDelta int) error {
+
+	log.Printf("RepoUpdateInventoryDelta for product %#v, delta: %v", product, stockDelta)
+
+	if product.CurrentStock+stockDelta < 0 {
+		// ensuring we don't get negative stocks, just down to zero stock
+		// FUTURE: allow backorders via negative current stock?
+		stockDelta = -product.CurrentStock
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":stock_delta": {
+				N: aws.String(strconv.Itoa(stockDelta)),
+			},
+			":currstock": {
+				N: aws.String(strconv.Itoa(product.CurrentStock)),
+			},
+		},
+		TableName: aws.String(ddbTableProducts),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(product.ID),
+			},
+			"category": {
+				S: aws.String(product.Category),
+			},
+		},
+		ReturnValues:        aws.String("UPDATED_NEW"),
+		UpdateExpression:    aws.String("set current_stock = current_stock + :stock_delta"),
+		ConditionExpression: aws.String("current_stock = :currstock"),
+	}
+
+	_, err = dynamoClient.UpdateItem(input)
+	if err != nil {
+		fmt.Println("Got error calling UpdateItem:")
+		fmt.Println(err.Error())
+	} else {
+		product.CurrentStock = product.CurrentStock + stockDelta
+	}
+
+	return err
+}
+
+// RepoNewProduct - initializes and persists new product
+func RepoNewProduct(product *Product) error {
+	log.Printf("RepoNewProduct --> %#v", product)
+
+	product.ID = strings.ToLower(guuuid.New().String())
+	av, err := dynamodbattribute.MarshalMap(product)
+
+	if err != nil {
+		fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(ddbTableProducts),
+	}
+
+	_, err = dynamoClient.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+	}
+
+	setProductURL(product)
+
+	return err
+}
+
+// RepoDeleteProduct - deletes a single product
+func RepoDeleteProduct(product *Product) error {
+	log.Println("Deleting product: ", product)
+
+	input := &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(product.ID),
+			},
+			"category": {
+				S: aws.String(product.Category),
+			},
+		},
+		TableName: aws.String(ddbTableProducts),
+	}
+
+	_, err := dynamoClient.DeleteItem(input)
+
+	if err != nil {
+		fmt.Println("Got error calling DeleteItem:")
+		fmt.Println(err.Error())
+	}
+
+	return err
 }

@@ -10,9 +10,6 @@ type Cart struct {
 	Items    CartItems `json:"items" yaml:"items"`
 }
 
-// Carts Array
-type Carts []Cart
-
 // CartItem Struct
 type CartItem struct {
 	ProductID string  `json:"product_id" yaml:"product_id"`

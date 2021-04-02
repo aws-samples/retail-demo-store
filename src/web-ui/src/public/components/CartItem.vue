@@ -1,84 +1,114 @@
 <template>
-    <tr v-if="product">
-        <td class="pl-0 pr-1 d-none d-sm-table-cell">
-             <img :src="productImageURL" class="cart-item-img" :alt="product.name">
-        </td>
-        <td class="px-1">
-            {{ product.name }}
-        </td>
-        <td class="px-1">
-            <i class="fas fa-plus text-black-50" v-on:click="increaseQuantity(product_id)"></i> <div class="mr-1 ml-1 font-weight-bold"> {{ quantity }} </div> <i class="fas fa-minus text-black-50" v-on:click="decreaseQuantity(product_id)"></i>
-        </td>
-        <td class="px-1">
-            ${{ product.price }}
-        </td>
-        <td class="pr-0 pl-1">
-          <a href="#" v-on:click="removeFromCart(product_id)"><i class="fas fa-times text-muted"></i></a>
-        </td>
-    </tr>
+  <li>
+    <LoadingFallback v-if="isLoading"></LoadingFallback>
+    <div class="row" v-if="!isLoading">
+      <div class="col-sm-4 mb-2 mb-sm-0"><img :src="productImageUrl" alt="" class="img-fluid" /></div>
+
+      <div class="col d-flex flex-column justify-content-between">
+        <div class="product-name font-weight-bold">{{ product.name }}</div>
+
+        <div class="d-flex d-sm-block justify-content-between align-items-center">
+          <ProductPrice :price="product.price" class="product-price" :discount="cartPrice < product.price"></ProductPrice>
+
+          <div class="d-flex align-items-center">
+            <button @click="decreaseProductQuantity" aria-label="decrease quantity" class="btn text-black-50">
+              <i class="fas fa-minus"></i>
+            </button>
+            <div class="quantity text-center font-weight-bold" :aria-label="`quantity is ${quantity}`">
+              {{ quantity }}
+            </div>
+            <button @click="increaseProductQuantity" aria-label="increase quantity" class="btn text-black-50">
+              <i class="fas fa-plus"></i>
+            </button>
+
+            <button class="delete-btn btn" @click="removeProductFromCart">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
-
-import { RepositoryFactory } from '@/repositories/RepositoryFactory'
-
-const ProductsRepository = RepositoryFactory.get('products')
+import { product } from '@/mixins/product';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import ProductPrice from '@/components/ProductPrice/ProductPrice';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'CartItem',
   components: {
+    LoadingFallback,
+    ProductPrice,
   },
+  mixins: [product],
   props: {
-      product_id: null,
-      quantity: {
-        type: Number,
-        default: 0
-      }
-  },
-  data () {
-    return {  
-      errors: [],
-      product: null
+    product_id: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    cartPrice: {
+      type: Number,
+      required: false
     }
   },
-  created () {
-    this.getProductByID(this.product_id)
+  created() {
+    this.getProductByID(this.product_id);
   },
   methods: {
-    user() { 
-      return AmplifyStore.state.user
+    ...mapActions(['removeFromCart', 'increaseQuantity', 'decreaseQuantity']),
+    removeProductFromCart() {
+      this.removeFromCart(this.product_id);
     },
-    async getProductByID (product_id){
-      const { data } = await ProductsRepository.getProduct(product_id)
-      this.product = data
+    increaseProductQuantity() {
+      this.increaseQuantity(this.product_id);
     },
-    removeFromCart (value) {
-      this.$emit('removeFromCart', value)
+    decreaseProductQuantity() {
+      this.decreaseQuantity(this.product_id);
     },
-    increaseQuantity (value) {
-      this.$emit('increaseQuantity', value)
-    },
-    decreaseQuantity (value) {
-      this.$emit('decreaseQuantity', value)
-    }
   },
   computed: {
-    productImageURL: function () {
-      if (this.product.image.includes('://')) {
-        return this.product.image
-      }
-      else {
-        let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
-        return root_url + this.product.category + '/' + this.product.image
-      }
-    }
-  }
-}
+    isLoading() {
+      return !this.product;
+    },
+  },
+};
 </script>
 
 <style scoped>
-.cart-item-img {
-    max-height: 50px;
+.product-name {
+  font-size: 1.2rem;
+}
+
+.quantity {
+  min-width: 30px;
+}
+
+.delete-btn {
+  color: var(--grey-600);
+}
+
+@media (min-width: 576px) {
+  .product-name {
+    font-size: 1.35rem;
+  }
+
+  .product-price {
+    font-size: 1.2rem;
+  }
+
+  .quantity {
+    min-width: 50px;
+  }
+
+  .delete-btn {
+    font-size: 1.2rem;
+  }
 }
 </style>

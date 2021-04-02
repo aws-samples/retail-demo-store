@@ -30,11 +30,21 @@ age_sd = 15
 age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_sd, loc=age_mean, scale=age_sd)
 
 # Persona combinations ordered from strongest affinity to latent interest.
-personas = [
-    'apparel_housewares_accessories', 'housewares_apparel_electronics',
-    'footwear_outdoors_apparel', 'outdoors_footwear_housewares',
-    'electronics_beauty_outdoors', 'beauty_electronics_accessories',
-    'jewelry_accessories_beauty', 'accessories_jewelry_apparel'
+category_preference_personas = [
+    'furniture_homedecor_housewares', 'apparel_footwear_accessories',
+    'instruments_books_electronics', 'floral_beauty_jewelry',
+    'groceries_seasonal_tools', 'outdoors_instruments_groceries',
+    'housewares_floral_seasonal', 'tools_housewares_apparel',
+    'electronics_outdoors_footwear', 'seasonal_furniture_floral',
+    'homedecor_electronics_outdoors', 'accessories_groceries_books',
+    'footwear_jewelry_furniture', 'books_apparel_homedecor',
+    'beauty_accessories_instruments', 'housewares_tools_beauty'
+]
+
+discount_personas = [
+  'discount_indifferent',  # does not care about discounts
+  'all_discounts',  # likes discounts all the time
+  'lower_priced_products'  # likes discounts on cheaper products
 ]
 
 class UserPool:
@@ -121,7 +131,8 @@ class User:
     self.name = f'{self.first_name} {self.last_name}'
     self.username = f'user{self.id}'
     # These are hard-coded from the AWS samples Retail Demo Store workshop
-    self.persona = random.choice(personas)
+    self.persona = random.choice(category_preference_personas)
+    self.discount_persona = random.choice(discount_personas)
     self.traits = {}
 
     ios_token = fake.ios_platform_token()
@@ -131,20 +142,20 @@ class User:
 
     self.platforms = {
       "ios": {
-        "anonymous_id": str(uuid.uuid4()),
-        "advertising_id": str(uuid.uuid4()),
+        "anonymous_id": str(fake.uuid4()),
+        "advertising_id": str(fake.uuid4()),
         "user_agent": ios_token,
         "model": ios_identifiers[0],
         "version": ios_identifiers[4]
       },
       "android": {
-        "anonymous_id": str(uuid.uuid4()),
-        "advertising_id": str(uuid.uuid4()),
+        "anonymous_id": str(fake.uuid4()),
+        "advertising_id": str(fake.uuid4()),
         "user_agent": android_token,
         "version": android_identifiers[1] 
       },
       "web": {
-        "anonymous_id": str(uuid.uuid4()),
+        "anonymous_id": str(fake.uuid4()),
         "user_agent": fake.user_agent() 
       }
     }

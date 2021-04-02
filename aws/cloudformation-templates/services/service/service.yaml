@@ -16,6 +16,12 @@ Parameters:
     Type: Number
     Default: 1
 
+  ContainerCpu:
+    Type: Number
+
+  ContainerMemory:
+    Type: Number
+
   TargetGroup:
     Type: String
 
@@ -72,6 +78,18 @@ Parameters:
     Type: String
     Default: none
 
+  ResourceBucket:
+    Type: String
+    Default: none
+
+  ParameterIVSVideoChannelMap:
+    Type: String
+    Default: none
+
+  UseDefaultIVSStreams:
+    Type: String
+    Default: false
+
   WebRootUrl:
     Type: String
     Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
@@ -97,6 +115,9 @@ Parameters:
     Default: none
 
   Uid:
+    Type: String
+  
+  PinpointAppId:
     Type: String
     
 Resources:
@@ -146,6 +167,21 @@ Resources:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
+        - PolicyName: PinpointSMS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:SendMessages
+                  - mobiletargeting:GetEndpoint
+                  - mobiletargeting:UpdateEndpoint
+                  - mobiletargeting:PutEvents
+                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/*'
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:PhoneNumberValidate
+                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
         - PolicyName: others
           PolicyDocument:
             Version: '2012-10-17'
@@ -157,19 +193,80 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: '*'
               - Effect: Allow
                 Action:
+                  - logs:CreateLogGroup
+                  - personalize:CreateSchema
+                  - personalize:CreateDatasetGroup
+                  - personalize:CreateSolutionVersion
+                  - personalize:CreateDatasetImportJob
+                  - personalize:CreateSolution
+                  - personalize:DescribeDatasetGroup
+                  - personalize:DescribeDatasetImportJob
+                  - personalize:DescribeSolution
                   - personalize:DescribeSolutionVersion
+                  - personalize:DescribeEventTracker
                   - personalize:DescribeCampaign
-                  - personalize:GetPersonalizedRanking 
-                  - personalize:GetRecommendations 
-                Resource: 
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-*'     
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-*'     
+                  - personalize:CreateCampaign
+                  - personalize:CreateDataset
+                  - personalize:CreateEventTracker
+                  - personalize:CreateFilter
+                  - personalize:GetPersonalizedRanking
+                  - personalize:GetRecommendations
+                  - personalize:DeleteEventTracker
+                  - personalize:DescribeEventTracker
+                Resource:
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:ListCampaigns
+                  - personalize:ListDatasetGroups
+                  - personalize:ListSolutions
+                  - personalize:ListSchemas
+                  - personalize:ListSolutionVersions
+                  - personalize:ListDatasetImportJobs
+                  - personalize:ListDatasets
+                  - personalize:ListEventTrackers
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}'
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - ivs:ListStreamKeys
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - ivs:GetChannel
+                  - ivs:GetStream
+                  - ivs:PutMetadata
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:channel/*'
+              - Effect: Allow
+                Action:
+                  - ivs:GetStreamKey
+                Resource:
+                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:stream-key/*'
+              - Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:ListRules
+                  - events:EnableRule
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
 
   LogGroup:
     Type: AWS::Logs::LogGroup
@@ -204,12 +301,17 @@ Resources:
       Family: !Sub ${AWS::StackName}-retaildemostore
       RequiresCompatibilities:
         - FARGATE
-      Memory: '512'
-      Cpu: '256'
+      Memory: !Ref ContainerMemory
+      Cpu: !Ref ContainerCpu
       NetworkMode: awsvpc
       ExecutionRoleArn: !Ref TaskExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
+        - Name: X-ray
+          Image: public.ecr.aws/xray/aws-xray-daemon:alpha
+          PortMappings:
+            - ContainerPort: 2000
+              Protocol: udp        
         - Name: !Ref ServiceName
           Image: !Ref ContainerImage
           Essential: true
@@ -238,6 +340,12 @@ Resources:
               Value: '80'
             - Name: STACK_BUCKET
               Value: none
+            - Name: RESOURCE_BUCKET
+              Value: !Ref ResourceBucket
+            - Name: PARAMETER_IVS_VIDEO_CHANNEL_MAP
+              Value: !Ref ParameterIVSVideoChannelMap
+            - Name: USE_DEFAULT_IVS_STREAMS
+              Value: !Ref UseDefaultIVSStreams
             - Name: ES_SEARCH_DOMAIN_HOST
               Value: !Ref EnvElasticsearchDomainEndpoint
             - Name: ES_SEARCH_DOMAIN_PORT
@@ -250,6 +358,10 @@ Resources:
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL
               Value: !Ref ImageRootUrl
+            - Name: PERSONALIZE_PRECREATE_CAMPAIGNS_EVENTRULENAME
+              Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
+            - Name: PINPOINT_APP_ID
+              Value: !Ref PinpointAppId
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

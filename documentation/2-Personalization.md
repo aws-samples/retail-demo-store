@@ -14,38 +14,40 @@ With the exception of the real-time event data which is created as a result of y
 
 ## Shopper Personas
 
-To provide a more compelling and intuitive demo experience, each fictitious user in the Retail Demo Store is assigned a shopper persona. The persona is represented by three categories from the Retail Demo Store’s catalog which the user has an affinity. The affinity for each category is also weighted such that the first category is is highest weighted and the third category is the lowest. There are eight combinations of categories that represent the personas used across all users.
+To provide a more compelling and intuitive demo experience, each fictitious user in the Retail Demo Store is assigned a shopper persona. The persona is represented by three categories from the Retail Demo Store’s catalog which the user has an affinity. The affinity for each category is also weighted such that the first category is is highest weighted and the third category is the lowest. There are 16 combinations of categories that represent the personas used across all users.
 
-* accessories_jewelry_apparel
-* apparel_housewares_accessories
-* beauty_electronics_accessories
-* electronics_beauty_outdoors
-* footwear_outdoors_apparel
-* housewares_apparel_electronics
-* jewelry_accessories_beauty
-* outdoors_footwear_housewares
+* furniture_homedecor_housewares
+* apparel_footwear_accessories
+* instruments_books_electronics
+* floral_beauty_jewelry
+* groceries_seasonal_tools
+* outdoors_instruments_groceries
+* housewares_floral_seasonal
+* tools_housewares_apparel
+* electronics_outdoors_footwear
+* seasonal_furniture_floral
+* homedecor_electronics_outdoors
+* accessories_groceries_books
+* footwear_jewelry_furniture
+* books_apparel_homedecor
+* beauty_accessories_instruments
+* housewares_tools_beauty
 
-For example, a user assigned with a persona of "footwear_outdoors_apparel" indicates that the user, at least historically, has been primarily interested in products from the Footwear category and to decreasing degrees of interest in products from the Outdoors and Apparel categories. That initial weighted interest is codified in the generation of the historical interaction dataset which is used to train Solutions in Amazon Personalize. So, for our "footwear_outdoors_apparel" user, interaction events are generated across products in all three of those categories to create a synthetic history of engaging in products matching that persona. Additionally, some products are tagged with an gender affinity. This is used when generating historical events to filter products against the gender of each user to further add realism to the recommendations.
+For example, a user assigned with a persona of "footwear_jewelry_furniture" indicates that the user, at least historically, has been primarily interested in products from the Footwear category and to decreasing degrees of interest in products from the Jewelry and Furniture categories. That initial weighted interest is codified in the generation of the historical interaction dataset which is used to train Solutions in Amazon Personalize. So, for our "footwear_jewelry_furniture" user, interaction events are generated across products in all three of those categories to create a synthetic history of engaging in products matching that persona. Additionally, some products are tagged with an gender affinity. This is used when generating historical events to filter products against the gender of each user to further add realism to the recommendations.
 
 Events for multiple event types are generated to mimic shopping behavior. For example, most generated event types are 'ProductViewed' to mimic users browsing the site. Occasional checkouts are simulated with 'ProductAdded' followed by 'CartViewed', 'CheckoutStarted', and 'OrderCompleted' events. The Personalize solutions/models are trained on the 'ProductViewed' event type.
 
 ## Emulating Shopper Profiles
 
-With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](1-Creating-account.md). Once signed in, you can click on your user name in the navigation bar and select “Profile” from the dropdown.
+With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](1-Creating-account.md). Once signed in, you can click on your username in the top right-corner and then select Switch Shoppers.
 
 ![image.png](../workshop/images/retaildemostore-user-menu.png)
 
 Figure 7. Access Profile Page.
 
-From the Profile page, you can select a user from the “User” dropdown and then press “Save Changes” to link that profile to your browser session.
+You can have a shopper auto-selected for you or you can choose your own. In the shopper selection window, specify an age range and a primary shopping interest. Click Submit and a closely matching shopper is shown, confirm your choice or try again. Product recommendations should now match the persona of the shopper you've selected.
 
 > It is recommended to open a new Incognito (Chrome) or Private (Firefox) browser window when testing personalization features of the web UI. The reason for this is because Amplify keeps all of your events tied to the same logical session. Signing out and back in as a different account does not change this behavior. You must close and reopen Private/Incognito windows to switch between profiles.
-
-![image.png](../workshop/images/retaildemostore-emulate.png)
-
-Figure 8. Emulate Shopper persona.
-
-Once you’ve saved a profile connection, you can return to the Retail Demo Store home view by clicking on "Retail Demo Store" in the navigation and then interact with features where personalization is implemented as described below.
 
 ## Use-Case 1: Personalized Product Recommendations
 
@@ -55,9 +57,9 @@ The user personalization use-case is implemented on the bottom half of the Retai
 
 > Since the Retail Demo Store is using a Personalize Event Tracker to record real-time interaction events, it is important to keep in mind that recommendations will change as a result of your clicking and browsing activity in the web application. Therefore, the recommendations may not match up to the original shopper persona used to train the model. This is a powerful demo feature, though, since it shows how Personalize adapts to evolving user intent. It can also show how recommendations adapt for new users (i.e. cold starting users).
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.jpg)
 
-Figure 9. User recommendation use-case.
+Figure 8. User recommendation use-case.
 
 ## Use-Case 2: Related Products Recommendations
 
@@ -65,9 +67,9 @@ Figure 9. User recommendation use-case.
 
 The related products use-case is implemented on the product detail page in the Retail Demo Store. Since inference calls to campaigns built with the SIMS recipe do not require a user, we are able to display related products using SIMS whether you are signed in as a user or anonymous.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.jpg)
 
-Figure 10. Related products use-case.
+Figure 9. Related products use-case.
 
 ## Use-Case 3: Personalized Product Ranking
 
@@ -75,13 +77,13 @@ Figure 10. Related products use-case.
 
 When you are signed in as a Retail Demo Store user, the personalized ranking use-case is implemented on the category view in the Retail Demo Store. When you are an anonymous user, products are displayed in their natural order (i.e. not ranked). The most effective view to demonstrate this use-case is on the “Featured” product view. The reason for this is that this is the one category view that includes products from multiple categories. Therefore, the ranking should be more impactful.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.jpg)
 
-Figure 11. Personalized Ranking use-case.
+Figure 10. Personalized Ranking use-case.
 
 You can also see personalized ranking in product search results. That is, if you are signed in as a user, search results are reranked based on the user's historical and real-time activity.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-search.png)
+![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-search.jpg)
 
 ## Event Tracking
 
@@ -109,7 +111,7 @@ If you are demonstrating the Retail Demo Store to a more technical audience, you
 
 ![image.png](../workshop/images/Eventinstrumentationcalls.png)
 
-Figure 12. Event instrumentation calls
+Figure 11. Event instrumentation calls
 
 ## Filtering Recommendations
 

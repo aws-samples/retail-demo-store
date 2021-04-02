@@ -11,7 +11,7 @@ optimizely_configured = os.environ.get('OPTIMIZELY_SDK_KEY', 'NONE') != 'NONE'
 optimizely_sdk = optimizely.Optimizely(sdk_key=os.environ.get('OPTIMIZELY_SDK_KEY'))
 
 class OptimizelyFeatureTest(experiment.Experiment):
-    def get_items(self, user_id, current_item_id = None, item_list = None, num_results = 10, tracker = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
         assert user_id, "`user_id` is required"
 
         # All the kwargs that are passed to ResolverFactory.get will be stored as a JSON feature variable.
@@ -22,7 +22,8 @@ class OptimizelyFeatureTest(experiment.Experiment):
         items = resolver.get_items(user_id=user_id,
                                    product_id=current_item_id,
                                    product_list=item_list,
-                                   num_results=num_results)
+                                   num_results=num_results,
+                                   context=context)
 
         config = optimizely_sdk.get_optimizely_config()
 
