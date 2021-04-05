@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
+
 import { Router } from "@xdn/core/router";
 import { CACHE_ASSETS, CACHE_PAGES } from "./cache";
 

@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
+
 const TIME_1H = 60 * 60;
 const TIME_4H = TIME_1H * 4;
 const TIME_1D = TIME_1H * 24;
