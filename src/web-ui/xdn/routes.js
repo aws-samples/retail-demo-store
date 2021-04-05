@@ -22,7 +22,7 @@ router.get('/main.js', ({ serveStatic, cache }) => {
   serveStatic(`${DIST_XDN}/browser.js`);
 });
 
-// aws services
+// retail demo store services
 router.get('/products-service/:path*', ({ proxy, cache }) => {
   cache(CACHE_PAGES);
   proxy('products-service', { path: '/:path*' });
@@ -41,6 +41,9 @@ router.match('/search-service/:path*', ({ proxy }) => {
 });
 router.match('/orders-service/:path*', ({ proxy }) => {
   proxy('orders-service', { path: '/:path*' });
+});
+router.match('/videos-service/:path*', ({ proxy }) => {
+  proxy('videos-service', { path: '/:path*' });
 });
 
 // vue static files
