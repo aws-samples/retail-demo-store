@@ -44,49 +44,10 @@ router.match('/orders-service/:path*', ({ proxy }) => {
 });
 
 // vue static files
-router.get('/css/:path*', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/css/:path*`);
-});
-router.get('/js/:path*', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/js/:path*`);
-});
-router.get('/images/:path*', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/images/:path*`);
-});
-router.get('/android-chrome-192x192.png', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/android-chrome-192x192.png`);
-});
-router.get('/android-chrome-512x512.png', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/android-chrome-512x512.png`);
-});
-router.get('/apple-touch-icon.png', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/apple-touch-icon.png`);
-});
-router.get('/favicon-16x16.png', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/favicon-16x16.png`);
-});
-router.get('/favicon-32x32.png', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/favicon-32x32.png`);
-});
-router.get('/favicon.ico', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/favicon.ico`);
-});
-router.get('/index.html', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/index.html`);
-});
-router.get('/site.webmanifest', ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
-  serveStatic(`${DIST_APP}/site.webmanifest`);
+router.static(DIST_APP, {
+  handler: (/* file */) => ({ cache }) => {
+    cache(CACHE_ASSETS);
+  }
 });
 
 // fallback: index.html
