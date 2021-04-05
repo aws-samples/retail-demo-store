@@ -23,7 +23,7 @@ foo@bar:~$ docker-compose up --build web-ui
 
 Once the container is up and running, you can access it in your browser at [http://localhost:8080](http://localhost:8080).
 
-# XDN
+# Site Optimization with Moovweb XDN
 
 Read more information about XDN [here](https://developer.moovweb.com/guides/starter)
 
