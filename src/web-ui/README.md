@@ -43,7 +43,8 @@ To create it, follow the next steps.
 1. Make sure your terminal is open in `%project_root%/src/web-ui` folder
 2. Set NodeJS version >= 12 (to check your version use `node -v`)
 3. Install packages: run `npm install` (or just `npm i`)
-4. Build Vue application: `npm run build` (build files will appear in `dist` folder)
+4. Set `VUE_APP_XDN_ENABLED` environment variable to `true` in `.env` file
+5. Build Vue application: `npm run build` (build files will appear in `dist` folder)
 
 ## Development
 
