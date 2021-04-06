@@ -25,15 +25,9 @@ Once the container is up and running, you can access it in your browser at [http
 
 # Site Optimization with Moovweb XDN
 
-Read more information about XDN [here](https://developer.moovweb.com/guides/starter)
+XDN documentation: https://developer.moovweb.com
 
-## Links
-
-Project: https://moovweb.app/moovweb-demos/aws-rds
-
-Preview: https://moovweb-demos-aws-rds-default.moovweb-edge.io
-
-Carts AWS service proxied on XDN: https://github.com/moovweb-demos/aws-rds-carts-service/
+AWS Retail Store on XDN demo: https://moovweb-demos-aws-rds-default.moovweb-edge.io
 
 ## Prerequisites
 
