@@ -44,6 +44,7 @@ Metadata:
           - AmplitudeApiKey
           - OptimizelySdkKey
           - SegmentWriteKey
+          - XDNDeployToken
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -79,6 +80,8 @@ Metadata:
         default: "Optimizely SDK Key"
       SegmentWriteKey:
         default: "Segment Write Key"
+      XDNDeployToken:
+        default: "Moovweb XDN Token"
 
 Parameters:
   ResourceBucket:
@@ -212,6 +215,11 @@ Parameters:
     Type: String
     Description: Segment write key for real-time data collection (optional).
     NoEcho: true
+  
+  XDNDeployToken:
+    Type: String
+    Description: Moovweb XDN token for deploying (optional).
+    NoEcho: true
 
 Resources:
   # Base Resources
@@ -228,6 +236,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        XDNDeployToken: !Ref XDNDeployToken
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
 
@@ -297,6 +306,7 @@ Resources:
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
+        ParameterXDNDeployToken: !GetAtt Base.Outputs.ParameterXDNDeployToken
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName

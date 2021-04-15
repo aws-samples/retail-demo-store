@@ -54,6 +54,7 @@ Resources:
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
         SegmentWriteKey: 'NONE'
+        XDNDeployToken: 'NONE'
 
 Outputs:
   WebURL:

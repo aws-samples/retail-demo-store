@@ -39,3 +39,12 @@ printf 'VUE_APP_PERSONALIZE_TRACKING_ID=%s\n' "$PERSONALIZE_TRACKING_ID" >> .env
 printf 'VUE_APP_AMPLITUDE_API_KEY=%s\n' "$AMPLITUDE_API_KEY" >> .env
 printf 'VUE_APP_OPTIMIZELY_SDK_KEY=%s\n' "$OPTIMIZELY_SDK_KEY" >> .env
 printf 'VUE_APP_SEGMENT_WRITE_KEY=%s\n' "$SEGMENT_WRITE_KEY" >> .env
+
+# Moovweb XDN
+if [ $XDN_DEPLOY_TOKEN = "NONE" ]; then
+  printf 'VUE_APP_XDN_ENABLED=false\n' >> .env
+else
+  printf 'VUE_APP_XDN_ENABLED=true\n' >> .env
+fi
+# 'VUE_APP_' prefix part must not be used here to prevent token expose in client side JS
+printf 'XDN_DEPLOY_TOKEN=%s\n' "$XDN_DEPLOY_TOKEN" >> .env

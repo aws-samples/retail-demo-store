@@ -30,6 +30,9 @@ const videosService = buildServiceDomain(process.env.VUE_APP_VIDEOS_SERVICE_DOMA
 
 module.exports = {
   routes: './xdn/routes.js',
+  includeFiles: {
+    '.env': true,
+  },
   backends: {
     'products-service': {
       domainOrIp: productsService,

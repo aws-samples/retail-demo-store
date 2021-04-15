@@ -110,6 +110,10 @@ Parameters:
     Type: String
     Description: SSM Parameter name for the Segment write key
 
+  ParameterXDNDeployToken:
+    Type: String
+    Description: Moovweb XDN token for deployment
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -365,6 +369,9 @@ Resources:
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterSegmentWriteKey
+          - Name: XDN_DEPLOY_TOKEN
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterXDNDeployToken
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
