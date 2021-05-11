@@ -34,7 +34,7 @@
     "eslint-loader": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "vue-template-compiler": "^2.6.11",
     "webpack-bundle-analyzer": "^3.8.0"
   },
