@@ -57,9 +57,9 @@ Parameters:
     Description: Segment source write key (optional).
     NoEcho: true
   
-  XDNDeployToken:
+  Layer0DeployToken:
     Type: String
-    Description: Moovweb XDN token for deploying (optional).
+    Description: Layer0 token for deploying (optional).
     NoEcho: true
   
   PinpointSMSLongCode:
@@ -177,7 +177,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
-        XDNDeployToken: !Ref XDNDeployToken
+        Layer0DeployToken: !Ref Layer0DeployToken
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
 
   # CodeCommit Repository
@@ -305,9 +305,9 @@ Outputs:
     Description: Segment write key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
 
-  ParameterXDNDeployToken:
-    Description: Moovweb XDN deploy token Parameter
-    Value: !GetAtt SSMParameters.Outputs.ParameterXDNDeployToken
+  ParameterLayer0DeployToken:
+    Description: Layer0 deploy token Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterLayer0DeployToken
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.

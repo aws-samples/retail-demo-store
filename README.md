@@ -14,9 +14,9 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
 
-## Site Optimization with Moovweb XDN
+## Site Optimization with Layer0
 
-Check out [web-ui](./src/web-ui#site-optimization-with-moovweb-xdn) for the guide
+Check out [web-ui](./src/web-ui#site-optimization-with-layer0) for the guide
 
 ## Hands-On Workshops
 

@@ -1,11 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Router } from "@xdn/core/router";
+import { Router } from "@layer0/core/router";
 import { CACHE_ASSETS, CACHE_PAGES } from "./cache";
 
 const DIST_APP = 'dist';
-const DIST_XDN = 'dist-xdn';
+const DIST_LAYER0 = 'dist-layer0';
 
 const router = new Router();
 
@@ -15,14 +15,14 @@ router.prerender([
   '/',
 ]);
 
-// xdn static files
+// layer0 static files
 router.get('/service-worker.js', ({ serviceWorker, cache }) => {
   cache(CACHE_ASSETS);
-  serviceWorker(`${DIST_XDN}/service-worker.js`);
+  serviceWorker(`${DIST_LAYER0}/service-worker.js`);
 });
 router.get('/main.js', ({ serveStatic, cache }) => {
   cache(CACHE_ASSETS);
-  serveStatic(`${DIST_XDN}/browser.js`);
+  serveStatic(`${DIST_LAYER0}/browser.js`);
 });
 
 // retail demo store services

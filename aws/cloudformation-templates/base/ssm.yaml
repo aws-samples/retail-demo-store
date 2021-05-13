@@ -26,9 +26,9 @@ Parameters:
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
   
-  XDNDeployToken:
+  Layer0DeployToken:
     Type: String
-    Description: Moovweb XDN deploy token for deploying (optional).
+    Description: Layer0 deploy token for deploying (optional).
     NoEcho: true
   
   PinpointSMSLongCode:
@@ -41,8 +41,8 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
-  HasXDNDeployToken:
-    !Not [!Equals [!Ref XDNDeployToken, ""]]
+  HasLayer0DeployToken:
+    !Not [!Equals [!Ref Layer0DeployToken, ""]]
   HasPinpointSMSLongCode:
     !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
 
@@ -144,13 +144,13 @@ Resources:
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
   
-  ParameterXDNDeployToken:
+  ParameterLayer0DeployToken:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-xdn-deploy-token"
+      Name: "retaildemostore-layer0-deploy-token"
       Type: "String"
-      Value: !If [HasXDNDeployToken, !Ref XDNDeployToken, 'NONE']
-      Description: "Retail Demo Store Moovweb XDN deploy token"
+      Value: !If [HasLayer0DeployToken, !Ref Layer0DeployToken, 'NONE']
+      Description: "Retail Demo Store Layer0 deploy token"
   
   ParameterPinpointSMSLongCode:
     Type: "AWS::SSM::Parameter"
@@ -210,9 +210,9 @@ Outputs:
     Description: Segment write key
     Value: !Ref ParameterSegmentWriteKey
 
-  ParameterXDNDeployToken:
-    Description: Moovweb XDN deploy token
-    Value: !Ref ParameterXDNDeployToken
+  ParameterLayer0DeployToken:
+    Description: Layer0 deploy token
+    Value: !Ref ParameterLayer0DeployToken
   
   ParameterPinpointSMSLongCode:
     Description: Pinpoint SMS Long code

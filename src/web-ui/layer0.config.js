@@ -7,7 +7,7 @@ const removeProtocol = (domain) => {
   try {
     return domain.replace(/https?:\/\//i, '');
   } catch (e) {
-    console.error('[xdn.config.js] Invalid domain: ', domain);
+    console.error('[layer0.config.js] Invalid domain: ', domain);
     throw new Error(e.message);
   }
 };
@@ -29,7 +29,7 @@ const searchService = buildServiceDomain(process.env.VUE_APP_SEARCH_SERVICE_DOMA
 const videosService = buildServiceDomain(process.env.VUE_APP_VIDEOS_SERVICE_DOMAIN, process.env.VUE_APP_VIDEOS_SERVICE_PORT);
 
 module.exports = {
-  routes: './xdn/routes.js',
+  routes: './layer0/routes.js',
   includeFiles: {
     '.env': true,
   },
@@ -66,7 +66,7 @@ module.exports = {
     },
     'videos-service': {
       domainOrIp: videosService,
-      domainOrIp: videosService,
+      hostHeader: videosService,
       disableCheckCert: true,
     },
   },

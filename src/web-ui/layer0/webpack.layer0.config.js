@@ -6,8 +6,8 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    browser: './xdn/browser.js',
-    'service-worker': './xdn/service-worker.js',
+    browser: './layer0/browser.js',
+    'service-worker': './layer0/service-worker.js',
   },
   mode: 'production',
   resolve: {
@@ -15,7 +15,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '../dist-xdn'),
+    path: path.resolve(__dirname, '../dist-layer0'),
   },
   plugins: [
     new webpack.DefinePlugin({
