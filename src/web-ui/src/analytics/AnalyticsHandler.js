@@ -251,9 +251,6 @@ export const AnalyticsHandler = {
         if (user && cart && cartProduct) {
             AmplifyAnalytics.record({
                 name: '_session.stop',
-                attributes: {
-                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
-                }
             })
 
         return AmplifyAnalytics.updateEndpoint({
