@@ -81,12 +81,14 @@ export const AnalyticsHandler = {
             promise = Promise.reject(error)
         }
 
-        AmplifyAnalytics.record({
-            eventType: "Identify",
-            properties: {
-                "userId": user.id
-            }
-        }, 'AmazonPersonalize')
+        if (personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: "Identify",
+                properties: {
+                    "userId": user.id
+                }
+            }, 'AmazonPersonalize')
+        }
 
         if (this.segmentEnabled()) {
             let userProperties = {
@@ -206,15 +208,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductAdded',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: product.id,
-                discount: "No"
-            }
-        }, 'AmazonPersonalize')
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductAdded',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: product.id,
+                    discount: "No"
+                }
+            }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         let eventProperties = {
             userId: user ? user.id : null,
@@ -326,15 +330,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductQuantityUpdated',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: cartItem.product_id,
-                discount: "No"
-            }
-        }, 'AmazonPersonalize')
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductQuantityUpdated',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: cartItem.product_id,
+                    discount: "No"
+                }
+            }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         let eventProperties = {
             cartId: cart.id,
@@ -372,15 +378,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductViewed',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: product.id,
-                discount: discount?"Yes":"No"
-            }
-        }, 'AmazonPersonalize');
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductViewed',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: product.id,
+                    discount: discount?"Yes":"No"
+                }
+            }, 'AmazonPersonalize');
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         if (experimentCorrelationId) {
             RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
@@ -429,16 +437,18 @@ export const AnalyticsHandler = {
             })
         }
 
-        for (var item in cart.items) {
-            AmplifyAnalytics.record({
-                eventType: 'CartViewed',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: cart.items[item].product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (personalizeEventTrackerEnabled()) {
+            for (var item in cart.items) {
+                AmplifyAnalytics.record({
+                    eventType: 'CartViewed',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: cart.items[item].product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
         }
 
         let eventProperties = {
@@ -472,16 +482,18 @@ export const AnalyticsHandler = {
             })
         }
 
-        for (var item in cart.items) {
-            AmplifyAnalytics.record({
-                eventType: 'CheckoutStarted',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: cart.items[item].product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (personalizeEventTrackerEnabled()) {
+            for (var item in cart.items) {
+                AmplifyAnalytics.record({
+                    eventType: 'CheckoutStarted',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: cart.items[item].product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
         }
 
         let eventProperties = {
@@ -534,15 +546,17 @@ export const AnalyticsHandler = {
                 })
             }
 
-            AmplifyAnalytics.record({
-                eventType: 'OrderCompleted',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: orderItem.product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+            if (personalizeEventTrackerEnabled()) {
+                AmplifyAnalytics.record({
+                    eventType: 'OrderCompleted',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: orderItem.product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue
@@ -617,6 +631,10 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
+    },
+
+    personalizeEventTrackerEnabled() {
+        return process.env.VUE_APP_PERSONALIZE_TRACKING_ID && process.env.VUE_APP_PERSONALIZE_TRACKING_ID != 'NONE';
     },
 
     segmentEnabled() {
