@@ -81,7 +81,7 @@ export const AnalyticsHandler = {
             promise = Promise.reject(error)
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             AmplifyAnalytics.record({
                 eventType: "Identify",
                 properties: {
@@ -208,7 +208,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             AmplifyAnalytics.record({
                 eventType: 'ProductAdded',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
@@ -330,7 +330,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             AmplifyAnalytics.record({
                 eventType: 'ProductQuantityUpdated',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
@@ -378,7 +378,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             AmplifyAnalytics.record({
                 eventType: 'ProductViewed',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
@@ -437,7 +437,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             for (var item in cart.items) {
                 AmplifyAnalytics.record({
                     eventType: 'CartViewed',
@@ -482,7 +482,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        if (personalizeEventTrackerEnabled()) {
+        if (this.personalizeEventTrackerEnabled()) {
             for (var item in cart.items) {
                 AmplifyAnalytics.record({
                     eventType: 'CheckoutStarted',
@@ -546,7 +546,7 @@ export const AnalyticsHandler = {
                 })
             }
 
-            if (personalizeEventTrackerEnabled()) {
+            if (this.personalizeEventTrackerEnabled()) {
                 AmplifyAnalytics.record({
                     eventType: 'OrderCompleted',
                     userId: user ? user.id : AmplifyStore.state.provisionalUserID,
