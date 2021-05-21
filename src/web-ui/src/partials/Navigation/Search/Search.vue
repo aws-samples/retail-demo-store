@@ -84,7 +84,7 @@ export default {
       // intend to display so we have a larger set of products to rerank before
       // trimming for final display. Particularly import for short search phrases to
       // improve the relevancy of results.
-      const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE : DISPLAY_SEARCH_PAGE_SIZE;
+      const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
       const { data } = await SearchRepository.searchProducts(val, size);
 
       await this.rerank(data);
