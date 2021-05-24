@@ -44,6 +44,7 @@ Metadata:
           - AmplitudeApiKey
           - OptimizelySdkKey
           - SegmentWriteKey
+          - Layer0DeployToken
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -79,6 +80,8 @@ Metadata:
         default: "Optimizely SDK Key"
       SegmentWriteKey:
         default: "Segment Write Key"
+      Layer0DeployToken:
+        default: "Layer0 Token"
 
 Parameters:
   ResourceBucket:
@@ -212,6 +215,11 @@ Parameters:
     Type: String
     Description: Segment write key for real-time data collection (optional).
     NoEcho: true
+  
+  Layer0DeployToken:
+    Type: String
+    Description: Layer0 token for deploying (optional).
+    NoEcho: true
 
 Resources:
   # Base Resources
@@ -228,6 +236,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
+        Layer0DeployToken: !Ref Layer0DeployToken
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
 
@@ -297,6 +306,7 @@ Resources:
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
+        ParameterLayer0DeployToken: !GetAtt Base.Outputs.ParameterLayer0DeployToken
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName

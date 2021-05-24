@@ -14,6 +14,10 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
 
+## Site Optimization with Layer0
+
+Check out [web-ui](./src/web-ui#site-optimization-with-layer0) for the guide
+
 ## Hands-On Workshops
 
 This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of an ecommerce application, based on business requirements. This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, customer data platforms (CDPs), messaging, and more. 
