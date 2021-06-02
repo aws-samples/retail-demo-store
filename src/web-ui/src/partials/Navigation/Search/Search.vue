@@ -49,6 +49,9 @@ const RecommendationsRepository = RepositoryFactory.get('recommendations');
 
 const EXPERIMENT_FEATURE = 'search_results';
 
+const DISPLAY_SEARCH_PAGE_SIZE = 10;
+const EXTENDED_SEARCH_PAGE_SIZE = 25;
+
 export default {
   name: 'Search',
   components: {
@@ -67,7 +70,7 @@ export default {
   },
   computed: {
     ...mapState(['user']),
-    ...mapGetters(['personalizeUserID']),
+    ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
   },
   methods: {
     onInputFocus() {
@@ -77,17 +80,22 @@ export default {
       this.inputFocused = false;
     },
     async search(val) {
-      const { data } = await SearchRepository.searchProducts(val);
+      // If personalized ranking is going to be called, bring back more items than we
+      // intend to display so we have a larger set of products to rerank before
+      // trimming for final display. Particularly import for short search phrases to
+      // improve the relevancy of results.
+      const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
+      const { data } = await SearchRepository.searchProducts(val, size);
 
       await this.rerank(data);
 
       AnalyticsHandler.productSearched(this.user, val, data.length);
     },
     async rerank(items) {
-      if (this.personalizeUserID && items && items.length > 0) {
+      if (this.personalizeRecommendationsForVisitor && items && items.length > 0) {
         const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
-        this.results = data;
+        this.results = data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
       } else {
         this.isReranked = false;
         this.results = items;
