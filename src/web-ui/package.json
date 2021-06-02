@@ -13,7 +13,6 @@
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
     "axios": "^0.21.1",
-    "dotenv": "^8.2.0",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
     "vue": "^2.6.11",
