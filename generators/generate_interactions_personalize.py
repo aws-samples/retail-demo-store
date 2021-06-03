@@ -87,7 +87,7 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     # Product info is stored in the repository
     with open(in_products_filename, 'r') as f:
-        products = yaml.load(f, Loader=yaml.SafeLoader)
+        products = yaml.safe_load(f)
 
     products_df = pd.DataFrame(products)
 
