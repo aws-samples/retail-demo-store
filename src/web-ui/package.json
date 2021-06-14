@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -14,8 +13,6 @@
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
     "axios": "^0.21.1",
-    "dotenv": "^8.2.0",
-    "moment": "^2.24.0",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
     "vue": "^2.6.11",
@@ -34,16 +31,9 @@
     "eslint-loader": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "vue-template-compiler": "^2.6.11",
     "webpack-bundle-analyzer": "^3.8.0"
-  },
-  "resolutions": {
-    "acorn": "^6.4.1",
-    "elliptic": "^6.5.3",
-    "kind-of": "^6.0.3",
-    "minimist": "^1.2.5",
-    "selfsigned": "^1.10.8"
   },
   "eslintConfig": {
     "root": true,
