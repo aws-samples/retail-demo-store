@@ -12,9 +12,8 @@ logger.setLevel(logging.INFO)
 users_service_base_url = os.environ.get('users_service_base_url')
 recommendations_service_base_url = os.environ.get('recommendations_service_base_url')
 
-def close(session_attributes, fulfillment_state, message):
+def close(fulfillment_state, message):
     response = {
-        'sessionAttributes': session_attributes,
         'dialogAction': {
             'type': 'Close',
             'fulfillmentState': fulfillment_state,
