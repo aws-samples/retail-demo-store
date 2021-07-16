@@ -43,6 +43,7 @@ Metadata:
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
+          - IncludeSegmentDependencies
           - SegmentWriteKey
     ParameterLabels:
       ResourceBucket:
@@ -72,11 +73,13 @@ Metadata:
       PinpointEmailFromName:
         default: "Reply-To name"
       UseDefaultIVSStreams:
-        default: "Use default IVS streams"
+        default: "Use Default IVS Streams"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      IncludeSegmentDependencies:
+        default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
 
@@ -208,10 +211,25 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  IncludeSegmentDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the Segment workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
   SegmentWriteKey:
     Type: String
-    Description: Segment write key for real-time data collection (optional).
+    Description: >
+      Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
+
+Conditions:
+  DeploySegmentResources: !Equals
+    - !Ref IncludeSegmentDependencies
+    - 'Yes'
 
 Resources:
   # Base Resources
@@ -348,8 +366,9 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
-  # Segment Lambda Function
+  # Segment Lambda Functions and Roles
   SegmentPersonalize:
+    Condition: DeploySegmentResources
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
