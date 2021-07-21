@@ -50,7 +50,7 @@ cp ./generators/requirements.txt ./workshop
 
 [ ! -d "./workshop/data" ] && mkdir ./workshop/data
 cp ./src/products/src/products-service/data/products.yaml ./workshop/data
-cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
+cp ./src/users/src/users-service/data/* ./workshop/data
 
 echo " + Packaging Notebooks"
 zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"

@@ -73,9 +73,9 @@ sts = boto3.client('sts')
 bucket = os.environ['csv_bucket']
 bucket_path = os.environ.get('csv_path', '')
 
-items_filename = bucket_path + f"items.csv"
-users_filename = bucket_path + f"users.csv"
-interactions_filename = bucket_path + f"interactions.csv"
+items_filename = bucket_path + os.getenv('CatalogDeploymentType') + f"-items.csv"
+users_filename = bucket_path + os.getenv('CatalogDeploymentType') + f"-users.csv"
+interactions_filename = bucket_path + os.getenv('CatalogDeploymentType') + f"-interactions.csv"
 
 session = boto3.session.Session()
 region = session.region_name

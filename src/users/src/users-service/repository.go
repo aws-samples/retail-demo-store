@@ -23,10 +23,11 @@ var usersByPrimaryPersona map[string][]int
 var usersByAgeRange map[string][]int
 var usersClaimedByIdentityId map[int]bool
 
+var catalog_deployment_type = os.Getenv("CATALOG_DEPLOYMENT_TYPE")
 
 // Init
 func init() {
-	loadedUsers, err := loadUsers("/bin/data/users.json.gz")
+	loadedUsers, err := loadUsers("/bin/data/" + catalog_deployment_type + "-users.json.gz")
 	if err != nil {
 		log.Panic("Unable to load users file: ", err)
 	}

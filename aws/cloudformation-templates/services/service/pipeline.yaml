@@ -113,6 +113,9 @@ Parameters:
     Description: URL where Retail Demo Store images such as product images are located
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root path where images are located
+ 
+  CatalogDeploymentType:
+    Type: String
 
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
@@ -306,6 +309,8 @@ Resources:
             Value: !Ref AWS::Region
           - Name: PINPOINT_APP_ID
             Value: !Ref PinpointAppId
+          - Name: CATALOG_DEPLOYMENT_TYPE
+            Value: !Ref CatalogDeploymentType
           - Name: PERSONALIZE_TRACKING_ID
             Type: PARAMETER_STORE
             Value: !Ref ParameterPersonalizeEventTrackerId

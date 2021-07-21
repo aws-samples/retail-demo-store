@@ -14,6 +14,7 @@ Metadata:
           - ResourceBucket
           - ResourceBucketRelativePath
           - CreateElasticsearchServiceLinkedRole
+          - CatalogDeploymentType
       - Label:
           default: "Source Deployment Approach"
         Parameters:
@@ -52,6 +53,8 @@ Metadata:
         default: "Deployment Resources Staging Bucket Relative Path (optional)"
       CreateElasticsearchServiceLinkedRole:
         default: "Create Elasticsearch Service Role?"
+      CatalogDeploymentType:
+        default: "Catalog focused on"
       SourceDeploymentType:
         default: "Deployment Type"
       GitHubRepo:
@@ -104,6 +107,16 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'Yes'
+
+  CatalogDeploymentType:
+    Type: String
+    Description: >
+      Use this parameter to limit a catalog size by implementing filter in Personalize and web UI.
+    AllowedValues:
+      - 'all'
+      - 'fashion'
+      - 'original'
+    Default: 'original'
 
   SourceDeploymentType:
     Type: String
@@ -248,6 +261,7 @@ Resources:
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   # Services Resources
   Services:
@@ -273,6 +287,7 @@ Resources:
         EnvElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
+        CatalogDeploymentType: !Ref CatalogDeploymentType
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
@@ -286,6 +301,7 @@ Resources:
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -359,6 +375,7 @@ Resources:
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        CatalogDeploymentType: !Ref CatalogDeploymentType
 
   # Cleanup bucket function
   CleanupBucket:

@@ -29,6 +29,9 @@ Parameters:
   PinpointSMSLongCode:
     Type: String
 
+  CatalogDeploymentType:
+    Type: String
+
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
@@ -145,6 +148,14 @@ Resources:
       Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
       Description: "Retail Demo Store Pinpoint SMS Long code"
 
+  ParameterCatalogDeploymentType:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-catalog-deployment-type"
+      Type: "String"
+      Value: !Ref CatalogDeploymentType
+      Description: "Retail Demo Store catalog scope"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -198,3 +209,7 @@ Outputs:
   ParameterPinpointSMSLongCode:
     Description: Pinpoint SMS Long code
     Value: !Ref ParameterPinpointSMSLongCode
+  
+  ParameterCatalogDeploymentType:
+    Description: Catalog scope
+    Value: !Ref ParameterCatalogDeploymentType

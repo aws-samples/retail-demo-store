@@ -80,6 +80,13 @@ The CloudFormation deployment will take 20-30 minutes to complete.
 
 ### Notes:
 
+#### Catalog Deployment Type
+
+This parameter gives you an ability to select a catalog of items for your deployement. Rigth now we have three options: 
+* *original* (Default) - original catalog fron Retail Demo Store
+* *fashion* - catalog that includes only 4 categories: accessories, jewelry, apparel, footwear and could be used for demo in a fashion industry.
+* *all* - includes everething from all availible categories. 
+
 #### Amazon Personalize Campaigns
 
 If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
@@ -135,6 +142,21 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 
 1) [Creating a Retail Demo Store account](./documentation/1-Creating-account.md)
 2) [Personalized Experience](./documentation/2-Personalization.md)
+
+# Adding new catalog deployement type
+If you want to add new catalog deployement type you have to compleate several steps:
+1. Add new XYZ type into ```CatalogDeploymentType``` parameter in *cloudformation-templates/template.yaml* file 
+2. Add ```XYZCategories``` variable with a list of categories into ```loadData``` function in */src/aws-lambda/retaildemostore-lambda-load-products/src/main.go* file
+3. Add new switch expression in ```switch catalogscope``` in ```loadData``` function in */src/aws-lambda/retaildemostore-lambda-load-products/src/main.go* file
+4. Add new ```XYZ_category_preference_personas``` variable with a list of 16 combinations of categories in */generators/datagenerator/users.py* file
+5. Add new condition ```if (catalog_scope == 'XYZ'):``` into ```UserPool``` classmethod ```from_file``` and ```new_file``` in */generators/datagenerator/users.py* file
+6. Add XYZ category into ```catalog_scopes``` array in */generators/generate_users_json.py* file
+7. Add XYZ category into ```catalog_scopes``` array in */generators/generate_interactions_personalize.py* file
+8. Add ```XYZCategories``` variable with a list of categories into  */generators/generate_interactions_personalize.py* file
+9. Add new condition ```if (catalog_scope == 'XYZ'):``` into ```generate_user_items``` function in */generators/datagenerator/generate_interactions_personalize.py* file
+10. Run */generators/generate_users_json.py* python script
+11. Run */stage.sh* script
+
 
 # Known Issues
 

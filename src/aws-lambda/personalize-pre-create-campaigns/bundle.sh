@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+pip () {
+    command pip3 "$@"
+}
+
 LAMBDA_SOURCE=personalize-pre-create-campaigns.py
 PACKAGE_FILE=personalize-pre-create-campaigns.zip
 

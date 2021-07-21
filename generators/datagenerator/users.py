@@ -30,7 +30,7 @@ age_sd = 15
 age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_sd, loc=age_mean, scale=age_sd)
 
 # Persona combinations ordered from strongest affinity to latent interest.
-category_preference_personas = [
+original_category_preference_personas = [
     'furniture_homedecor_housewares', 'apparel_footwear_accessories',
     'instruments_books_electronics', 'floral_beauty_jewelry',
     'groceries_seasonal_tools', 'outdoors_instruments_groceries',
@@ -40,6 +40,30 @@ category_preference_personas = [
     'footwear_jewelry_furniture', 'books_apparel_homedecor',
     'beauty_accessories_instruments', 'housewares_tools_beauty'
 ]
+
+fashion_category_preference_personas = [
+    'accessories_jewelry_apparel', 'accessories_jewelry_footwear',
+    'accessories_apparel_jewelry', 'accessories_apparel_footwear',
+    'jewelry_accessories_apparel', 'jewelry_accessories_footwear',
+    'jewelry_apparel_accessories', 'jewelry_apparel_footwear',
+    'apparel_accessories_jewelry', 'apparel_accessories_footwear',
+    'apparel_jewelry_accessories', 'apparel_jewelry_footwear',
+    'footwear_accessories_jewelry', 'footwear_accessories_apparel',
+    'footwear_jewelry_accessories', 'footwear_jewelry_apparel'
+]
+
+all_category_preference_personas = [
+    'furniture_homedecor_housewares', 'apparel_footwear_accessories',
+    'instruments_books_electronics', 'floral_beauty_jewelry',
+    'groceries_seasonal_tools', 'outdoors_instruments_groceries',
+    'housewares_floral_seasonal', 'tools_housewares_apparel',
+    'electronics_outdoors_footwear', 'seasonal_furniture_floral',
+    'homedecor_electronics_outdoors', 'accessories_groceries_books',
+    'footwear_jewelry_furniture', 'books_apparel_homedecor',
+    'beauty_accessories_instruments', 'housewares_tools_beauty'
+]
+
+selected_category_preference_personas =[]
 
 discount_personas = [
   'discount_indifferent',  # does not care about discounts
@@ -87,7 +111,14 @@ class UserPool:
     f.close()
 
   @classmethod
-  def from_file(cls, filename):
+  def from_file(cls, filename, catalog_scope):
+    global selected_category_preference_personas
+    if (catalog_scope == 'original'):
+      selected_category_preference_personas = original_category_preference_personas
+    if (catalog_scope == 'fashion'):
+      selected_category_preference_personas = fashion_category_preference_personas
+    if (catalog_scope == 'all'):
+      selected_category_preference_personas = all_category_preference_personas
     user_pool = cls()
     user_pool.file = filename
     with gzip.open(filename, 'rt', encoding='utf-8') as f:
@@ -102,7 +133,14 @@ class UserPool:
     return user_pool
 
   @classmethod
-  def new_file(cls, filename, num_users):
+  def new_file(cls, filename, num_users,catalog_scope):
+    global selected_category_preference_personas
+    if (catalog_scope == 'original'):
+      selected_category_preference_personas = original_category_preference_personas
+    if (catalog_scope == 'fashion'):
+      selected_category_preference_personas = fashion_category_preference_personas
+    if (catalog_scope == 'all'):
+      selected_category_preference_personas = all_category_preference_personas
     user_pool = cls()
     user_pool.file = filename
     user_pool.grow_pool(num_users)
@@ -131,7 +169,7 @@ class User:
     self.name = f'{self.first_name} {self.last_name}'
     self.username = f'user{self.id}'
     # These are hard-coded from the AWS samples Retail Demo Store workshop
-    self.persona = random.choice(category_preference_personas)
+    self.persona = random.choice(selected_category_preference_personas)
     self.discount_persona = random.choice(discount_personas)
     self.traits = {}
 

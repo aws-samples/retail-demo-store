@@ -92,6 +92,9 @@ Parameters:
     Type: String
     Default: Yes
 
+  CatalogDeploymentType:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
@@ -134,6 +137,7 @@ Resources:
           csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
+          CatalogDeploymentType: !Ref CatalogDeploymentType
 
   PersonalizePreCreateLambdaExecutionRole:
     Condition: DeployPreCreateCampaign

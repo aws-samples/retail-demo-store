@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+pip () {
+    command pip3 "$@"
+}
+
 LAMBDA_SOURCE=elasticsearch-pre-index.py
 PACKAGE_FILE=elasticsearch-pre-index.zip
 

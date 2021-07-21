@@ -90,12 +90,26 @@ func DynamoDBPutItem(item map[string]*dynamodb.AttributeValue, ddbtable string) 
 	}
 }
 
-func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+func loadData(s3bucket, s3file, ddbtable, datatype, catalogscope string) (string, error) {
 
 	start := time.Now()
 
 	var products Products
 	var categories Categories
+	var selectedCategories []string
+
+	fashionCategories:= []string{"footwear", "apparel", "jewelry", "accessories"}
+	originalCategories:= []string{"footwear", "apparel", "outdoors", "electronics","beauty","jewelry","accessories","housewares","homedecor","furniture","seasonal","floral","books","groceries","instruments","tools"}
 
 	localfile := "/tmp/load.yaml"
 
@@ -123,31 +137,41 @@ func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
 		return "local ReadFile failed", err
 	}
 
+	switch catalogscope {
+	case "fashion":
+		selectedCategories = fashionCategories
+	
+	case "original":
+		selectedCategories = originalCategories
+	}
+
 	switch datatype {
 	case "products":
 		err = yaml.Unmarshal(bytes, &products)
 
 		for _, item := range products {
+			if (catalogscope == "all" || contains(selectedCategories,item.Category)) {
+				av, err := dynamodbattribute.MarshalMap(item)
 
-			av, err := dynamodbattribute.MarshalMap(item)
-
-			if err != nil {
-				return "dynamodbattribute.MarshalMap error", err
+				if err != nil {
+					return "dynamodbattribute.MarshalMap error", err
+				}
+				DynamoDBPutItem(av, ddbtable)
 			}
-			DynamoDBPutItem(av, ddbtable)
 		}
 
 	case "categories":
 		err = yaml.Unmarshal(bytes, &categories)
 
 		for _, item := range categories {
+			if (catalogscope == "all" || contains(selectedCategories,item.Name)) {
+				av, err := dynamodbattribute.MarshalMap(item)
 
-			av, err := dynamodbattribute.MarshalMap(item)
-
-			if err != nil {
-				return "dynamodbattribute.MarshalMap error", err
+				if err != nil {
+					return "dynamodbattribute.MarshalMap error", err
+				}
+				DynamoDBPutItem(av, ddbtable)
 			}
-			DynamoDBPutItem(av, ddbtable)
 		}
 	default:
 		log.Println("Unknown datatype " + datatype)
@@ -166,9 +190,10 @@ func HandleRequest(ctx context.Context, event cfn.Event) (physicalResourceID str
 		File, _ := event.ResourceProperties["File"].(string)
 		Table, _ := event.ResourceProperties["Table"].(string)
 		Datatype, _ := event.ResourceProperties["Datatype"].(string)
+		CatalogScope, _ := event.ResourceProperties["CatalogScope"].(string)
 
-		log.Println("Importing ", Bucket, File, " to ", Table, Datatype)
-		returnstring, err = loadData(Bucket, File, Table, Datatype)
+		log.Println("Importing ", Bucket, File, " to ", Table, Datatype, " with catalog scope ", CatalogScope)
+		returnstring, err = loadData(Bucket, File, Table, Datatype, CatalogScope)
 		data = map[string]interface{}{"return": returnstring}
 		return returnstring, data, err
 	}
