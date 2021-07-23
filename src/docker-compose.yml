@@ -1,5 +1,5 @@
 # Docker compose file for local development.
-# Initialize your local environment variables either in your shell 
+# Initialize your local environment variables either in your shell
 # or in the ".env" file.
 version: "3.7"
 services:
@@ -15,7 +15,7 @@ services:
       - AWS_SESSION_TOKEN
     ports:
       - "8003:80"
-      
+
   ddb:
     image: amazon/dynamodb-local
     container_name: ddb
@@ -50,6 +50,8 @@ services:
       - WEB_ROOT_URL
     build:
       context: ./products
+      args:
+        - GOPROXY_OVERRIDE
     networks:
       - dev-net
     ports:

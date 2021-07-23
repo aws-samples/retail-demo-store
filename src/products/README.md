@@ -13,3 +13,30 @@ foo@bar:~$ docker-compose up --build products
 ```
 
 Once the container is up and running, you can access it in your browser or with a utility such as [Postman](https://www.postman.com/) at [http://localhost:8001](http://localhost:8001).
+
+## Products API
+The following entrypoints are supported by the Products service
+
+### GET /
+Displays the service welcome page.
+
+### GET /products/all
+Returns details on all products.
+### GET /products/id/{productID}
+Returns details on the product identified by `{productID}`.
+### GET /products/featured
+Returns details on all featured products. Featured products are those with featured attribute equal to true.
+### GET /products/category/{categoryName}
+Returns details on all products within the category with the name `{categoryName}`.
+### PUT /products/id/{productID}
+Updates the product identified by `{productID}`.
+### DELETE /products/id/{productID}
+Deletes the product identified by `{productID}`.
+### POST /products
+Creates a new product.
+### PUT /products/id/{productID}/inventory
+Updates the current inventory value for the product identified by `{productID}`.
+### GET /categories/all
+Returns details on all categories.
+### GET /categories/id/{categoryID}
+Returns details on the category identified by `{categoryID}`.
