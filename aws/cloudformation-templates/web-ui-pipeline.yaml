@@ -22,7 +22,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -54,27 +54,15 @@ Parameters:
   GitHubUser:
     Type: String
 
-  AmazonPayPublicKeyId:
-    Type: String
-    Description: Public Key ID for the Amazon Pay sandbox account being used
-
-  AmazonPayStoreId:
-    Type: String
-    Description: Store ID of the Amazon Pay sandbox account being used
-
-  AmazonPayMerchantId:
-    Type: String
-    Description: Merchant ID of the Amazon Pay sandbox account being used
-
   UserPoolId:
     Type: String
 
   UserPoolClientId:
     Type: String
-  
+
   IdentityPoolId:
     Type: String
-  
+
   ProductsServiceExternalUrl:
     Type: String
     Default: none
@@ -129,7 +117,7 @@ Parameters:
   ParameterSegmentWriteKey:
     Type: String
     Description: SSM Parameter name for the Segment write key
-    
+
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -196,7 +184,7 @@ Resources:
 
       Handler: index.handler
       Runtime: python3.7
-      Timeout: 300
+      Timeout: 900
       Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
 
   CustomCopyImagesLambdaFunction:
@@ -250,21 +238,21 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: codebuild.amazonaws.com
-            Action: sts:AssumeRole    
+            Action: sts:AssumeRole
       Policies:
         - PolicyName: "logs"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - 
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
@@ -275,9 +263,9 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - 
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
@@ -357,12 +345,6 @@ Resources:
             Value: !Ref WebUIBucketName
           - Name: CLOUDFRONT_DIST_ID
             Value: !Ref WebUICDN
-          - Name: AMAZON_PAY_PUBLIC_KEY_ID
-            Value: !Ref AmazonPayPublicKeyId
-          - Name: AMAZON_PAY_STORE_ID
-            Value: !Ref AmazonPayStoreId
-          - Name: AMAZON_PAY_MERCHANT_ID
-            Value: !Ref AmazonPayMerchantId
           - Name: COGNITO_USER_POOL_ID
             Value: !Sub ${UserPoolId}
           - Name: COGNITO_USER_POOL_CLIENT_ID
@@ -376,7 +358,7 @@ Resources:
           - Name: CARTS_SERVICE_URL
             Value: !Sub ${CartsServiceExternalUrl}
           - Name: ORDERS_SERVICE_URL
-            Value: !Sub ${OrdersServiceExternalUrl}        
+            Value: !Sub ${OrdersServiceExternalUrl}
           - Name: RECOMMENDATIONS_SERVICE_URL
             Value: !Sub ${RecommendationsServiceExternalUrl}
           - Name: LOCATION_SERVICE_URL
@@ -391,7 +373,7 @@ Resources:
             Value: !Ref PinpointAppId
           - Name: PERSONALIZE_TRACKING_ID
             Type: PARAMETER_STORE
-            Value: !Ref ParameterPersonalizeEventTrackerId       
+            Value: !Ref ParameterPersonalizeEventTrackerId
           - Name: AMPLITUDE_API_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterAmplitudeApiKey
@@ -404,7 +386,7 @@ Resources:
             Value: !Ref LocationNotificationEndpoint
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
-            Value: !Ref ParameterSegmentWriteKey 
+            Value: !Ref ParameterSegmentWriteKey
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
@@ -480,7 +462,7 @@ Resources:
                 Provider: CodeCommit
               Configuration:
                 RepositoryName: retaildemostore-src
-                BranchName: master
+                BranchName: main
                 PollForSourceChanges: 'true'
               OutputArtifacts:
                 - Name: App

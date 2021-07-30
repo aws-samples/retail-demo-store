@@ -6,6 +6,7 @@
         <div class="row">
           <div class=col>
             <h4>Collections</h4>
+            <p>A simple store-side view of upcoming collections.</p>
           </div>
         </div>
         <div class="alert alert-secondary" role="alert" v-if="ordersLoaded && !orders.length">
@@ -56,6 +57,8 @@ export default {
   methods: {
     async getOrders () {
       const allOrders = (await OrdersRepository.get()).data;
+      console.log("All your orders:")
+      console.log(allOrders)
       this.orders = allOrders.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE");
       this.ordersLoaded = true;
     },

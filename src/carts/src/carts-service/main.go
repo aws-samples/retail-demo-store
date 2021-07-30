@@ -6,9 +6,15 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	port, exists := os.LookupEnv("PORT")
+	if !exists {
+		port = "80"
+	}
+
 	router := NewRouter()
-	log.Fatal(http.ListenAndServe(":80", router))
+	log.Fatal(http.ListenAndServe(":" + port, router))
 }

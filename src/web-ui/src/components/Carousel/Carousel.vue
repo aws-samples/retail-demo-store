@@ -29,7 +29,7 @@ export default {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  border: 1px solid var(--grey-500);
+  border: 1px solid var(--grey-300);
   cursor: pointer;
   background: var(--white);
   padding: 10px 5px;

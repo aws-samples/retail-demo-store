@@ -1,235 +1,148 @@
 <template>
-  <Layout>
+  <Layout :isLoading="!cart" :previousPageLinkProps="previousPageLinkProps">
     <div class="content">
 
-    <!-- Loading Indicator -->
-    <div class="container" v-if="!cart">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
-    </div>
-
-    <div class="container" v-if="cart">
-      <div v-if="cart.items">
-        <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
+      <div class="container" v-if="cart">
+        <div class="alert alert-secondary" v-if="!cart.items">No Items In Cart</div>
       </div>
-    </div>
 
-    <div class="container" v-if="showCheckout == false">
-      <div class="row justify-content-center">
-        <div class="card p-4" style="width: 15rem">
-          <button class="btn btn-success mb-3" v-on:click="signIn">Login to Checkout</button>
-          <button class="btn btn-light" v-on:click="guestCheckout">Checkout as Guest</button>
+      <div class="container" v-if="cart">
+        <div v-if="cart.items">
+          <div class="alert alert-secondary" v-if="cart.items.length == 0">No Items In Cart</div>
         </div>
       </div>
-    </div>
 
-    <div class="container" v-if="cart">
-      <div class="row justify-content-center" v-if="showCheckout == true">
-        <div class="alert alert-secondary">This storefront is not real. Please do not enter actual billing information. Your order will not be fulfilled.</div>
-      </div>
-      <div class="row text-left" v-if="showCheckout == true">
-        <div class="col-md-4 order-md-2 mb-4">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Summary</span>
-            <span class="badge badge-secondary badge-pill">{{ this.cartQuantity }}</span>
-          </h4>
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Sub Total (USD)</span>
-              <strong>${{ this.cartSubTotal.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tax (USD)</span>
-              <strong>${{ this.cartTaxRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Shipping (USD)</span>
-              <strong>${{ this.cartShippingRate.toFixed(2) }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
-              <strong>${{ this.cartTotal.toFixed(2) }}</strong>
-            </li>
-          </ul>
-          <form class="card p-2">
-            <div class="input-group">
-              <input type="text" class="form-control" v-model="order.promo_code" placeholder="Promo code">
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-secondary">Redeem</button>
-              </div>
-            </div>
-          </form>
+      <div class="container" v-if="cart && showCheckout == false">
+        <div class="row justify-content-center">
+          <div class="card p-4" style="width: 15rem">
+            <button class="btn btn-success mb-3" v-on:click="signIn">Login to Checkout</button>
+            <button class="btn btn-light" v-on:click="guestCheckout">Checkout as Guest</button>
+          </div>
         </div>
-        <div class="col-md-8 order-md-1">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Delivery Preferences</span>
-          </h4>
-          <hr/>
-          <div class="row">
-            <div class="col">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption1" :value="true" v-model="collection">
-                <label class="form-check-label" for="collectionOption1">Collection</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption2" :value="false" v-model="collection">
-                <label class="form-check-label" for="collectionOption2">Delivery</label>
+      </div>
+
+      <div class="container" v-if="cart">
+        <div class="row text-left" v-if="showCheckout == true">
+          <div class="col-lg-auto order-lg-2 summary-column">
+            <div class="summary-border-container card p-1">
+              <div class="card-body">
+                <h4 class="d-flex justify-content-between align-items-center mb-3 card-title text-muted">
+                  Order Summary
+                </h4>
+                <div class="p-1 mb-1 d-flex justify-content-between">
+                  <span>{{ cartQuantity }} item{{ cartQuantity === 1 ? '' : 's' }} in cart</span>
+                  <strong>{{ formattedCartTotal }}</strong>
+                </div>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your order</button>
               </div>
             </div>
 
-          </div>
-          <hr/>
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Payment</span>
-          </h4>
-          <hr/>
-          <div class="row">
-            <div class="col" v-if="this.useAmazonPay">
-              <amazon-pay-button @click.native="submitAmazonPayOrder"/>
+            <div class="m-4">
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
-          <p class="btn btn-link m-0 p-0 pb-3 " v-on:click="() => this.useAmazonPay = !this.useAmazonPay">
-            <small>
-              {{ this.useAmazonPay ? "Enter details manually" : "Use Amazon Pay" }}
-            </small>
-          </p>
-          <div v-if="!this.useAmazonPay">
-            <h5 class="mb-3">Billing Address</h5>
+          <div class="col order-lg-1">
+            <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
+
             <form>
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="firstName">First name</label>
-                  <input type="text" class="form-control" id="firstName" v-model="order.billing_address.first_name" placeholder="" value="" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="lastName">Last name</label>
-                  <input type="text" class="form-control" id="lastName" v-model="order.billing_address.last_name" placeholder="" value="" required>
+
+              <div class="d-flex">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Delivery Method</h5>
+                <div class="col-lg-8">
+                  <p class="form-check mt-2 mb-0">
+                    <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption2" :value="false" v-model="collection">
+                    <label class="form-check-label" for="collectionOption2">Delivery</label>
+                  </p>
+                  <p class="form-check mt-0">
+                    <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption1" :value="true" v-model="collection">
+                    <label class="form-check-label" for="collectionOption1">Collection</label>
+                  </p>
+                  <TheMask
+                    v-if="collection"
+                    type="tel"
+                    name="collectionPhone"
+                    placeholder="Where we can contact you about your order"
+                    v-model="collectionPhone"
+                    :mask="['+# (###) ### - ####', '+## (###) ### - ####']"
+                    class="input py-1 px-2"
+                  />
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label for="email">Email <span class="text-muted">(Optional)</span></label>
-                <input type="email" class="form-control" id="email" v-model="order.email" placeholder="you@example.com">
-              </div>
-
-              <div class="mb-3">
-                <label for="address">Address</label>
-                <input type="text" class="form-control" id="address" v-model="order.billing_address.address1" placeholder="1234 Main St" required>
-              </div>
-
-              <div class="mb-3">
-                <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
-                <input type="text" class="form-control" id="address2" v-model="order.billing_address.address2" placeholder="Apartment or suite">
-              </div>
-
-              <div class="row">
-                <div class="col-md-5 mb-3">
-                  <label for="country">Country</label>
-                  <select class="custom-select d-block w-100" id="country" v-model="order.billing_address.country" required>
-                    <option value="">Choose...</option>
-                    <option value="US">United States</option>
-                  </select>
+              <div class="d-flex">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">
+                  <span v-if="!collection">Shipping Address</span>
+                  <span v-if="collection">Billing Address</span>
+                </h5>
+                <div class="col-lg-8">
+                  <p class="mb-1 font-weight-bold">{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}</p>
+                  <p class="mb-1">{{order.shipping_address.address1}}</p>
+                  <p class="mb-1" v-if="order.shipping_address.address2">{{order.shipping_address.address2}}</p>
+                  <p class="mb-1">{{order.shipping_address.city}}, {{order.shipping_address.state}} {{order.shipping_address.zipcode}}</p>
                 </div>
-                <div class="col-md-4 mb-3">
-                  <label for="state">State</label>
-                  <select class="custom-select d-block w-100" id="state" v-model="order.billing_address.state" required>
-                    <option value="">Choose...</option>
-                    <option value="CA">California</option>
-                  </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="zip">Zip</label>
-                  <input type="text" class="form-control" id="zip" v-model="order.billing_address.zipcode" placeholder="" required>
-                  <div class="invalid-feedback">
-                    Zip code required.
+              </div>
+              <hr class="mb-4">
+
+              <div class="d-flex">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Payment</h5>
+                <div class="col-lg-8">
+                  <p class="mb-1">VISA ending in 0965</p>
+                  <p class="mb-1" v-if="!collection">Billing address: Same as shipping address</p>
+
+                  <div class="input-group">
+                    <input type="text" class="form-control" v-model="order.promo_code" placeholder="Promo code">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-secondary">Apply</button>
+                    </div>
                   </div>
                 </div>
               </div>
-              <hr class="mb-4">
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="same-address">
-                <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
-              </div>
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="save-info">
-                <label class="custom-control-label" for="save-info">Save this information for next time</label>
-              </div>
-              <hr class="mb-4">
-
-              <h5 class="mb-3">Payment</h5>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="cc-name">Name on card</label>
-                  <input type="text" class="form-control" id="cc-name" placeholder="" required>
-                  <small class="text-muted">Full name as displayed on card</small>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="cc-number">Credit card number</label>
-                  <input type="text" class="form-control" id="cc-number" placeholder="" required>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-3 mb-3">
-                  <label for="cc-expiration">Expiration</label>
-                  <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="cc-expiration">CVV</label>
-                  <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
-                </div>
-              </div>
-              <hr class="mb-4">
-              <button class="btn btn-primary btn-lg btn-block" v-on:click="submitOrder">Confirm Order</button>
             </form>
           </div>
         </div>
       </div>
+
     </div>
-  </div>
   </Layout>
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapGetters, mapState} from 'vuex';
 
 import AmplifyStore from '@/store/store'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
+
 import swal from 'sweetalert';
-import AmazonPayButton from "@/public/components/AmazonPayButton";
 
 import Layout from '@/components/Layout/Layout'
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
+import { TheMask } from 'vue-the-mask'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
 
-let amazonPayDeployed = false;
-if (process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_PAY_STORE_ID && process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID) {
-  amazonPayDeployed = true;
-}
-
 export default {
   name: 'Checkout',
   components: {
-    AmazonPayButton,
-    Layout
-  },
-  props: {
+    Layout,
+    AbandonCartButton,
+    TheMask
   },
   data () {
-    return {  
+    return {
       errors: [],
       cart: null,
       order: null,
       showCheckout: false,
-      collection: true,
-      useAmazonPay: amazonPayDeployed
+      collectionPhone: '',
+      previousPageLinkProps: {
+        to: '/cart',
+        text: 'Back to shopping cart'
+      },
+      collection: false,
     }
   },
   async created () {
@@ -240,17 +153,18 @@ export default {
     }
 
     if (this.cart) {
-      AnalyticsHandler.checkoutStarted(this.user, this.cart, this.cartQuantity, this.cartSubTotal, this.cartTotal)
+      AnalyticsHandler.checkoutStarted(this.user, this.cart, this.cartQuantity, this.cartTotal)
     }
   },
-  methods: { 
+  methods: {
     async getCart (){
       if (this.cartID) {
+        console.log('Ready for checkout - getting card fresh from server - ID: ' + this.cartID.toString())
         const { data } = await CartsRepository.getCartByID(this.cartID)
         this.cart = data
         this.order = this.cart
         this.order.total = this.cartTotal
-        this.order.delivery_type = this.collection ? 'COLLECTION' : 'DELIVERY'
+        this.order.collection_phone = ''
 
         if (this.user) {
           this.order.email = this.user.email
@@ -266,16 +180,17 @@ export default {
         this.order.promo_code = ""
       }
 
-      if (!Object.prototype.hasOwnProperty.call(this.order, 'billing_address')) {
-        this.order.billing_address = {}
-        this.order.billing_address.first_name = ""
-        this.order.billing_address.last_name = ""
-        this.order.billing_address.email = ""
-        this.order.billing_address.address1 = ""
-        this.order.billing_address.address2 = ""
-        this.order.billing_address.city = ""
-        this.order.billing_address.state = ""
-        this.order.billing_address.zipcode = ""
+      if (!this.order.billing_address) {
+        this.order.billing_address = this.order.shipping_address = {
+          first_name: 'Joe',
+          last_name: 'Doe',
+          email: this.user && this.user.email || 'joe.doe@example.com',
+          address1: '2730 Sample address Ave.',
+          address2: '',
+          city: 'Seattle',
+          state: 'WA',
+          zipcode: '98109'
+        }
       }
     },
     signIn () {
@@ -284,15 +199,20 @@ export default {
     guestCheckout () {
       this.showCheckout = true
     },
-    submitAmazonPayOrder () {
-      OrdersRepository.createOrder(this.cart).then(() => {
-        AmplifyStore.commit('setCartID', null)
-      })
-    },
     submitOrder () {
 
+      if (this.collection) {
+        this.order.shipping_address = {}
+        this.order.delivery_type = 'COLLECTION'
+        // we tack the + back on the phone number - we mask out non-numeric characters in our input
+        // but Pinpoint expects it.
+        this.order.collection_phone = '+' + this.collectionPhone
+      } else {
+        this.order.delivery_type = 'DELIVERY'
+      }
+      console.log(this.order)
       OrdersRepository.createOrder(this.cart).then(response => {
-        
+
         AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
 
         swal({
@@ -306,51 +226,49 @@ export default {
           this.$router.push('/');
         });
      })
-    }
+    },
   },
   computed: {
     ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
-    cartSubTotal() {
-      var subtotal = 0.00
-
-      for (var item in this.cart.items) {
-        var cost = this.cart.items[item].quantity * this.cart.items[item].price
-        subtotal = subtotal + cost
-      }
-      return subtotal
-    },
-    cartTaxRate() {
-      const taxRate = 0.05
-      return this.cartSubTotal * taxRate
-    },
-    cartShippingRate() {
-      var shippingRate = 10.00
-
-      if (this.cartSubTotal > 100.00) {
-        shippingRate = 0.00
-      }
-      return shippingRate
-    },
-    cartTotal() {
-      return this.cartSubTotal + this.cartTaxRate + this.cartShippingRate
-    },
-    cartQuantity() {
-
-      var quantity = 0;
-
-      for (var item in this.cart.items) {
-        quantity = quantity + this.cart.items[item].quantity
-      }
-      return quantity
-    }
-  },
-  watch: {
-    collection: function(value) {
-      this.order.delivery_type = value ? 'COLLECTION' : 'DELIVERY';
-    }
+    ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ]),
   }
 }
 </script>
 
 <style scoped>
+  .not-real-warning {
+    background: var(--blue-100);
+  }
+
+  .checkout-btn {
+    border-color: var(--grey-900);
+    border-width: 2px;
+    font-size: 1rem;
+  }
+
+  .checkout-btn:hover,
+  .checkout-btn:focus {
+    background: var(--grey-900);
+  }
+
+
+  .summary-column {
+    min-width: 20em;
+  }
+
+  .summary-border-container {
+    border-color: var(--grey-300);
+  }
+
+  @media (min-width: 768px) {
+    .checkout-btn {
+      font-size: 1.25rem;
+    }    
+  }
+
+  @media (min-width: 992px) {
+    .abandon-cart {
+      max-width: 400px;
+    }
+  }
 </style>

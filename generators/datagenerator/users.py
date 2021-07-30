@@ -31,11 +31,14 @@ age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_s
 
 # Persona combinations ordered from strongest affinity to latent interest.
 category_preference_personas = [
-    'apparel_housewares_accessories', 'housewares_apparel_electronics',
-    'footwear_outdoors_apparel', 'outdoors_footwear_housewares',
-    'electronics_beauty_outdoors', 'beauty_electronics_accessories',
-    'jewelry_accessories_beauty', 'accessories_jewelry_apparel',
-    'beauty_jewelry_accessories', 'beauty_apparel_housewares'
+    'furniture_homedecor_housewares', 'apparel_footwear_accessories',
+    'instruments_books_electronics', 'floral_beauty_jewelry',
+    'groceries_seasonal_tools', 'outdoors_instruments_groceries',
+    'housewares_floral_seasonal', 'tools_housewares_apparel',
+    'electronics_outdoors_footwear', 'seasonal_furniture_floral',
+    'homedecor_electronics_outdoors', 'accessories_groceries_books',
+    'footwear_jewelry_furniture', 'books_apparel_homedecor',
+    'beauty_accessories_instruments', 'housewares_tools_beauty'
 ]
 
 discount_personas = [

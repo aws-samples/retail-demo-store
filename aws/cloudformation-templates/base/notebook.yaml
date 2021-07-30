@@ -44,7 +44,7 @@ Resources:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
       NotebookInstanceName: !Sub ${Uid}
-      InstanceType: "ml.t2.medium"
+      InstanceType: "ml.t3.medium"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
@@ -138,7 +138,7 @@ Resources:
                 Action: 
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemo*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - 
                 Effect: "Allow"
                 Action: 
@@ -227,7 +227,7 @@ Resources:
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'
         -
-          PolicyName: "6-Location"
+          PolicyName: "7-Location"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:

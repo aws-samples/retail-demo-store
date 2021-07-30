@@ -5,6 +5,14 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 const CartsRepository = RepositoryFactory.get('carts');
 
+function maybeUpdateUsername (state, commit, dispatch, rootState) {
+  if(state.cart.username !== rootState.username){
+    console.log("Updating username from " + state.cart.username + " to " + rootState.username )
+    commit({ type: 'setUsername', username: rootState.username });
+    console.log("Username in state is now "+state.cart.username)
+  }
+}
+
 export const cart = {
   state: () => ({ cart: null }),
   getters: {
@@ -25,23 +33,17 @@ export const cart = {
   },
   actions: {
     createCart: async ({ commit, getters }) => {
+      console.log('Creating cart with username ' + getters.username.toString())
       const { data } = await CartsRepository.createCart(getters.username);
+
       commit({ type: 'setCart', cart: parseCart(data) });
     },
-    maybeUpdateUsername: async ({ state, commit, getters, dispatch }) => {
-      if(state.cart.username != getters.username){
-        console.log("Updating username from " + state.cart.username + " to " + getters.username )
-        commit({ type: 'setUsername', username: getters.username });
-        await dispatch('updateCart');
-        console.log("Username in state is now "+state.cart.username)
-      }
-    },
-    getCart: async ({ state, commit, dispatch}) => {
+    getCart: async ({ state, commit, dispatch, getters }) => {
       // Since cart service holds carts in memory, they can be lost on restarts.
       // Make sure our cart was returned. Otherwise create a new one.
-      if (!state.cart) return dispatch('createCart');
-      dispatch("maybeUpdateUsername");
+      if (!state.cart || !state.cart.id) return dispatch('createCart');
 
+      console.log('Looking up your cart by ID: ' + state.cart.id.toString())
       const { data } = await CartsRepository.getCartByID(state.cart.id);
 
       if (data.id !== state.cart.id) {
@@ -50,16 +52,19 @@ export const cart = {
       }
 
       commit({ type: 'setCart', cart: parseCart(data) });
-      console.log("Retrieved cart with id "+cart.id+" and username "+cart.username);
+      maybeUpdateUsername(state, commit, dispatch, getters);
+
+      console.log("Retrieved cart with id "+state.cart.id+" and username "+state.cart.username);
     },
 
-    updateCart: async ({ state, commit }) => {
+    updateCart: async ({ state, commit, dispatch, getters }) => {
+      maybeUpdateUsername(state, commit, dispatch, getters);
       const { data } = await CartsRepository.updateCart(state.cart);
       commit({ type: 'setCart', cart: parseCart(data) });
       console.log("Updated cart with id "+state.cart.id+" and username "+state.cart.username);
     },
     addToCart: async ({ state, commit, dispatch, rootState }, { product, quantity, feature, exp }) => {
-      dispatch("maybeUpdateUsername");
+      maybeUpdateUsername(state, commit, dispatch, rootState);
 
       const index = state.cart.items.findIndex((item) => item.product_id === product.id);
 
@@ -76,13 +81,13 @@ export const cart = {
       AnalyticsHandler.productAddedToCart(rootState.user, state.cart, product, newQuantity, feature, exp);
     },
     removeFromCart: async ({ state, commit, dispatch, rootState }, product_id) => {
-      dispatch("maybeUpdateUsername");
+      maybeUpdateUsername(state, commit, dispatch, rootState);
 
       const index = state.cart.items.findIndex((item) => item.product_id === product_id);
 
       if (index === -1) return;
 
-      const removedItem = this.cart.items[index];
+      const removedItem = state.cart.items[index];
       commit({ type: 'removeItemFromCart', index });
 
       await dispatch('updateCart');
@@ -90,7 +95,7 @@ export const cart = {
       AnalyticsHandler.productRemovedFromCart(rootState.user, state.cart, removedItem, removedItem.quantity);
     },
     increaseQuantity: async ({ state, commit, dispatch, rootState }, product_id) => {
-      dispatch("maybeUpdateUsername");
+      maybeUpdateUsername(state, commit, dispatch, rootState);
 
       const index = state.cart.items.findIndex((item) => item.product_id === product_id);
 
@@ -103,7 +108,7 @@ export const cart = {
       AnalyticsHandler.productQuantityUpdatedInCart(rootState.user, state.cart, state.cart.items[index], 1);
     },
     decreaseQuantity: async ({ state, commit, dispatch, rootState }, product_id) => {
-      dispatch("maybeUpdateUsername");
+      maybeUpdateUsername(state, commit, dispatch, rootState);
 
       const index = state.cart.items.findIndex((item) => item.product_id === product_id);
 

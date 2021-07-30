@@ -1,5 +1,5 @@
 <template>
-  <Layout :isLoading="isLoading">
+  <Layout :isLoading="isLoading" :previousPageLinkProps="previousPageLinkProps">
     <template #default>
       <div class="container text-left">
         <div class="row">
@@ -28,9 +28,7 @@
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <button v-if="pinpointEnabled && user" v-on:click="triggerAbandonedCartEmail" class="abandoned-cart-btn btn btn-primary btn-block btn-lg">
-                Trigger Abandoned Cart email
-              </button>
+              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
         </div>
@@ -42,60 +40,48 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 
-import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
+import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import CartItem from './components/CartItem.vue';
 import Layout from '@/components/Layout/Layout';
+
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton';
 
 export default {
   name: 'Cart',
   components: {
     Layout,
     CartItem,
-  },
-  props: {
-  },
-  data () {
-    return {  
-      pinpointEnabled : process.env.VUE_APP_PINPOINT_APP_ID 
-    }
+    AbandonCartButton,
   },
   created() {
-    if(this.cart)
-      AnalyticsHandler.cartViewed(
-        this.user,
-        this.cart,
-        this.cartQuantity,
-        this.cartTotal,
-      );
+    AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
+    AnalyticsHandler.recordShoppingCart(this.user, this.cart);
   },
   computed: {
-    ...mapState({ cart: (state) => state.cart.cart, user: state => state.user }),
+    ...mapState({
+      cart: (state) => state.cart.cart,
+      user: (state) => state.user,
+      lastVisitedPage: (state) => state.lastVisitedPage.route,
+    }),
     ...mapGetters(['cartQuantity', 'cartTotal', 'formattedCartTotal']),
     isLoading() {
       return !this.cart;
+    },
+    previousPageLinkProps() {
+      if (!this.lastVisitedPage) return null;
+
+      return { text: 'Continue Shopping', to: this.lastVisitedPage };
     },
     cartQuantityReadout() {
       if (this.cartQuantity === null) return null;
 
       return `(${this.cartQuantity}) ${this.cartQuantity === 1 ? 'item' : 'items'} in your cart shopping cart`;
-
     },
     summaryQuantityReadout() {
       if (this.cartQuantity === null) return null;
 
       return `Summary (${this.cartQuantity}) ${this.cartQuantity === 1 ? 'item' : 'items'}`;
-    },
-  },
-  methods: {
-    async triggerAbandonedCartEmail () {
-      if (this.cart && this.cart.items.length > 0 ){
-      const cartItem = await this.getProductByID(this.cart.items[0].product_id)
-      AnalyticsHandler.recordAbanonedCartEvent(this.user,this.cart,cartItem)
-      }
-      else{
-        console.error("No items to export")
-      }
     },
   },
 };
@@ -114,7 +100,7 @@ export default {
 }
 
 .summary {
-  border: 1px solid var(--grey-600);
+  border: 1px solid var(--grey-300);
   border-radius: 2px;
 }
 
@@ -124,18 +110,6 @@ export default {
 
 .summary-quantity {
   font-size: 1.15rem;
-}
-
-.abandoned-cart-btn {
-  background: var(--blue-500);
-  border-color: var(--blue-500);
-  font-size: 1rem;
-}
-
-.abandoned-cart-btn:hover,
-.abandoned-cart-btn:focus {
-  background: var(--blue-600);
-  border-color: var(--blue-600);
 }
 
 .checkout-btn {
@@ -162,7 +136,6 @@ export default {
     font-size: 1.5rem;
   }
 
-  .abandoned-cart-btn,
   .checkout-btn {
     font-size: 1.25rem;
   }
@@ -176,6 +149,10 @@ export default {
   .summary {
     position: sticky;
     top: 120px;
+  }
+
+  .abandon-cart {
+    max-width: 400px;
   }
 }
 </style>

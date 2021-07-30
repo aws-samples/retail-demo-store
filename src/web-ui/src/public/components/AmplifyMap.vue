@@ -1,5 +1,5 @@
 <template>
-  <div id="mapContainer" style="height: 100%; width: 100%"></div>
+  <div id="mapContainer" ref="mapContainer" class="large-map"></div>
 </template>
 
 <script>
@@ -50,10 +50,12 @@ export default {
       if (!this.storePosition) {
         return
       }
+      console.log(this.$refs)
+      const mapContainer = this.$refs.mapContainer
       this.map = new mapbox.Map({
         attributionControl: false,
         center: this.storePosition || [0, 0],
-        container: "mapContainer",
+        container: mapContainer,
         transformRequest: this.transformMapboxRequest,
         style: `geo://${resourceName}`,
         zoom: this.zoom
@@ -255,5 +257,10 @@ export default {
 </script>
 
 <style scoped>
+
+.large-map {
+  height: 100%;
+  width: 100%;
+}
 
 </style>

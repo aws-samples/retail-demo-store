@@ -1,6 +1,13 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+# AWS X-ray support
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+from aws_xray_sdk.core import patch_all
+
+patch_all()
+
 from flask import Flask, jsonify, Response
 from flask import request
 
@@ -17,13 +24,15 @@ import pprint
 import boto3
 import uuid
 import requests
-import logging
 import random
+import logging
 
 NUM_DISCOUNTS = 2
 
 EXPERIMENTATION_LOGGING = True
 DEBUG_LOGGING = True
+
+random.seed(42)  # Keep our demonstration deterministic
 
 # Since the DescribeCampaign API easily throttles and we just need
 # the recipe from the campaign and it won't change often (if at all), 
@@ -42,6 +51,7 @@ cw_events = boto3.client('events')
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
+dataset_group_name_root = 'retaildemostore-'
 
 # -- Shared Functions
 
@@ -97,29 +107,16 @@ def get_parameter_values(names):
 
     return values
 
-
-def get_products(feature, user_id, current_item_id, num_results, default_campaign_arn_param_name,
-                 default_filter_arn_param_name, user_reqd_for_campaign=False, fully_qualify_image_urls=False,
-                 ):
+def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
     """ Returns products given a UI feature, user, item/product.
 
-    If a feature name is provided and there is an active experiment for the
-    feature, the experiment will be used to retrieve products. Otherwise,
-    the default behavior will be used which will look to see if an Amazon Personalize
-    campaign is available. If not, the Product service will be called to get products
+    If a feature name is provided and there is an active experiment for the 
+    feature, the experiment will be used to retrieve products. Otherwise, 
+    the default behavior will be used which will look to see if an Amazon Personalize 
+    campaign is available. If not, the Product service will be called to get products 
     from the same category as the current product.
-    Args:
-        feature: Used to track different experiments - different experiments pertain to different features
-        user_id: If supplied we are looking at user personalization
-        current_item_id: Or maybe we are looking at related items
-        num_results: Num to return
-        default_campaign_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
-        default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
-        user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
-        fully_qualify_image_urls: Fully qualify image URLs n here
-    Returns:
-        A prepared HTTP response object.
     """
+
     # Check environment for host and port first in case we're running in a local Docker container (dev mode)
     products_service_host = os.environ.get('PRODUCT_SERVICE_HOST')
     products_service_port = os.environ.get('PRODUCT_SERVICE_PORT', 80)
@@ -150,8 +147,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
         tracker = exp_manager.default_tracker()
 
         items = experiment.get_items(
-            user_id = user_id,
-            current_item_id = current_item_id,
+            user_id = user_id, 
+            current_item_id = current_item_id, 
             num_results = num_results,
             tracker = tracker
         )
@@ -162,19 +159,12 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
     else:
         # Fallback to default behavior of checking for campaign ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([ default_campaign_arn_param_name, default_filter_arn_param_name ])
+        values = get_parameter_values([ campaign_arn_param_name, filter_purchased_param_name ])
 
         campaign_arn = values[0]
         filter_arn = values[1]
 
         if campaign_arn and (user_id or not user_reqd_for_campaign):
-
-            logger.info(f"get_products: Supplied campaign: {campaign_arn} Supplied filter: {filter_arn} Supplied user: {user_id}")
-
-            if filter_arn is not None and (user_id is None or len(user_id.strip()) == 0):
-                logger.warning(f"userID is required if using filter - filter Arn: {filter_arn} - spoofing user to 0")
-                user_id = "0"
-
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
@@ -259,6 +249,9 @@ app = Flask(__name__)
 logger = app.logger
 corps = CORS(app, expose_headers=['X-Experiment-Name', 'X-Experiment-Type', 'X-Experiment-Id', 'X-Personalize-Recipe'])
 
+xray_recorder.configure(service='Recommendations Service')
+XRayMiddleware(app, xray_recorder)
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):
     response = jsonify(error.to_dict())
@@ -295,9 +288,6 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
-    filter_ssm = filter_purchased_param_name
-    app.logger.info(f"Filter SSM for /related: {filter_ssm}")
-    
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
@@ -309,15 +299,13 @@ def related():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            default_campaign_arn_param_name='retaildemostore-related-products-campaign-arn',
-            default_filter_arn_param_name=filter_ssm,
+            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
     except Exception as e:
         app.logger.exception('Unexpected error generating related items', e)
         raise BadRequest(message = 'Unhandled error', status_code = 500)
-
 
 @app.route('/recommendations', methods=['GET'])
 def recommendations():
@@ -346,8 +334,6 @@ def recommendations():
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
-    filter_ssm =  filter_purchased_param_name
-
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
@@ -356,8 +342,7 @@ def recommendations():
             user_id = user_id, 
             current_item_id = current_item_id, 
             num_results = num_results, 
-            default_campaign_arn_param_name='retaildemostore-product-recommendation-campaign-arn',
-            default_filter_arn_param_name=filter_ssm,
+            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn', 
             fully_qualify_image_urls = fully_qualify_image_urls
         )
         app.logger.debug(f"Recommendations response to be returned: {response}")
@@ -907,9 +892,7 @@ def reset_realtime():
         if train_config_step['dataset_groups'] is not None:
             for dataset_group_name, dataset_group_config in train_config_step['dataset_groups'].items():
 
-                dataset_group_name_root = dataset_group_name.split('-')[0]
                 new_dataset_group_name = dataset_group_name_root + str(uuid.uuid4())[:8]
-
                 # Let us also bump the solution number in case some things are stored by name there
                 for campaign_type, campaign_config in dataset_group_config['campaigns'].items():
                     campaign_config['desired_campaign_suffixes'] = [v + 1 for v in campaign_config['desired_campaign_suffixes']]

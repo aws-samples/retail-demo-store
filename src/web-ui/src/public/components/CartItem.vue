@@ -35,7 +35,8 @@
 import { product } from '@/mixins/product';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
-import { mapActions } from 'vuex';
+import {mapActions, mapState} from 'vuex';
+import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
 
 export default {
   name: 'CartItem',
@@ -65,15 +66,21 @@ export default {
     ...mapActions(['removeFromCart', 'increaseQuantity', 'decreaseQuantity']),
     removeProductFromCart() {
       this.removeFromCart(this.product_id);
+      AnalyticsHandler.recordShoppingCart(this.user, this.cart);
     },
     increaseProductQuantity() {
       this.increaseQuantity(this.product_id);
+      AnalyticsHandler.recordShoppingCart(this.user, this.cart);
     },
     decreaseProductQuantity() {
       this.decreaseQuantity(this.product_id);
+      AnalyticsHandler.recordShoppingCart(this.user, this.cart);
     },
   },
   computed: {
+    ...mapState({
+      cart: (state) => state.cart.cart,
+      user: (state) => state.user}),
     isLoading() {
       return !this.product;
     },

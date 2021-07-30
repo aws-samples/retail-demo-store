@@ -12,6 +12,6 @@ export default {
 .separator {
   width: 1px;
   height: 50px;
-  background: var(--grey-500);
+  background: var(--grey-300);
 }
 </style>

@@ -58,19 +58,6 @@ Parameters:
     Type: String
     Default: none
 
-  AmazonPayPublicKeyId:
-    Type: String
-    Default: none
-
-  AmazonPayStoreId:
-    Type: String
-    Default: none
-
-  AmazonPayPrivateKey:
-    Type: String
-    Default: "NONE"
-    NoEcho: true
-
 Conditions:
   DefaultGeofence: !And
     - !Equals
@@ -83,10 +70,6 @@ Conditions:
   Location: !Equals
     - !Ref DeployLocation
     - 'Yes'
-
-  CreateAmazonPayResources: !And
-    - !Condition Location
-    - !Not [!Equals [!Ref AmazonPayPrivateKey, ""]]
 
 Resources:
 
@@ -515,71 +498,6 @@ Resources:
         - AttributeName: "userId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-
-  # Amazon Pay request signing Lambda function
-  AmazonPaySigningLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Condition: CreateAmazonPayResources
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: !Ref AmazonPayPrivateKeySecret
-
-  AmazonPaySigningLambda:
-    Type: 'AWS::Lambda::Function'
-    Condition: CreateAmazonPayResources
-    Properties:
-      Description: 'Signs Amazon Pay payloads to be used with Amazon Pay button'
-      Handler: amazon-pay-signing.handler
-      Role: !GetAtt
-        - AmazonPaySigningLambdaExecutionRole
-        - Arn
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/amazon-pay-signing.zip'
-      Runtime: nodejs12.x
-      Timeout: 30
-      FunctionName: LocationNrfDemoAmazonPaySigningLambda
-      Environment:
-        Variables:
-          AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
-          AmazonPayPrivateKeySecretArn: !Ref AmazonPayPrivateKeySecret
-          WebURL: !Ref WebURL
-
-  AmazonPayPrivateKeySecret:
-    Type: AWS::SecretsManager::Secret
-    Condition: CreateAmazonPayResources
-    Properties:
-      Name: LocationNrfDemoAmazonPayPrivateKey
-      SecretString: !Ref AmazonPayPrivateKey
-
 
 Outputs:
   LocationResourceName:
