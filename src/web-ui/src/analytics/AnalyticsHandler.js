@@ -369,6 +369,7 @@ export const AnalyticsHandler = {
                 "items": [
                   {
                     "item_id": cartItem.product_id,
+                    "item_name": cartItem.product_name,
                     "quantity": origQuantity,
                     "currency": "USD",
                     "price": +cartItem.price.toFixed(2)
@@ -553,6 +554,7 @@ export const AnalyticsHandler = {
             for (var i in cart.items) {
                 gaItems.push({
                     "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
                     "quantity": cart.items[i].quantity,
                     "index": gaItems.length + 1,
                     "currency": "USD",
@@ -616,6 +618,7 @@ export const AnalyticsHandler = {
             for (var i in cart.items) {
                 gaItems.push({
                     "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
                     "quantity": cart.items[i].quantity,
                     "index": gaItems.length + 1,
                     "currency": "USD",
@@ -720,6 +723,7 @@ export const AnalyticsHandler = {
             for (var i in order.items) {
                 gaItems.push({
                     "item_id": order.items[i].product_id,
+                    "item_name": order.items[i].product_name,
                     "quantity": order.items[i].quantity,
                     "index": gaItems.length + 1,
                     "currency": "USD",

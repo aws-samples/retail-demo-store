@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
+
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { parseCart } from './util';
 import { formatPrice } from '@/util/formatPrice';
@@ -53,7 +56,7 @@ export const cart = {
       if (index !== -1) {
         commit({ type: 'addQuantityToItem', index, quantity });
       } else {
-        commit({ type: 'addItemToCart', item: { product_id: product.id, price: product.price, quantity } });
+        commit({ type: 'addItemToCart', item: { product_id: product.id, product_name: product.name, price: product.price, quantity } });
       }
 
       await dispatch('updateCart');
