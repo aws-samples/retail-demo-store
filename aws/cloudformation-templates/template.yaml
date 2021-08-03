@@ -39,12 +39,13 @@ Metadata:
         Parameters:
           - UseDefaultIVSStreams
       - Label:
-          default: "AWS Partner Integrations"
+          default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - GoogleAnalyticsMeasurementId
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -82,6 +83,8 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      GoogleAnalyticsMeasurementId:
+        default: "Google Analytics Measurement Id"
 
 Parameters:
   ResourceBucket:
@@ -226,6 +229,12 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: >
+      Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
+      events are sent to the data stream associated with the Measurement ID.
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -248,6 +257,7 @@ Resources:
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
+        GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
   # Services Resources
   Services:
@@ -315,6 +325,7 @@ Resources:
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
+        ParameterGoogleAnalyticsMeasurementId: !GetAtt Base.Outputs.ParameterGoogleAnalyticsMeasurementId
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
