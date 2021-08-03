@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'layout--has-nav': showNav}">
+  <div :class="{ 'layout--has-nav': showNav, 'layout--has-demo-guide': showDemoGuide }">
     <Navigation v-if="showNav"></Navigation>
 
     <Notifications/>
@@ -17,7 +17,13 @@
 
     <TextAlerts v-if="showTextAlerts" class="mt-5"></TextAlerts>
 
-    <Footer v-if="showFooter" class="my-4"></Footer>
+    <Footer v-if="showFooter" class="my-4 container"></Footer>
+
+    <AppModal></AppModal>
+
+    <ConfirmationModal></ConfirmationModal>
+
+    <DemoGuideButton v-if="showDemoGuide" class="demo-guide-button"></DemoGuideButton>
   </div>
 </template>
 
@@ -27,10 +33,24 @@ import PreviousPageLink from './PreviousPageLink';
 import Footer from '@/partials/Footer/Footer';
 import TextAlerts from '@/partials/TextAlerts/TextAlerts';
 import Navigation from '@/partials/Navigation/Navigation';
-import Notifications from "@/public/Notifications";
+import AppModal from '@/partials/AppModal/AppModal';
+import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
+import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
+import Notifications from '@/public/Notifications'
 
 export default {
   name: 'Layout',
+  components: {
+    Navigation,
+    Notifications,
+    LoadingFallback,
+    PreviousPageLink,
+    TextAlerts,
+    Footer,
+    AppModal,
+    DemoGuideButton,
+    ConfirmationModal
+  },
   props: {
     showNav: {
       type: Boolean,
@@ -41,6 +61,10 @@ export default {
       default: true,
     },
     showFooter: {
+      type: Boolean,
+      default: true,
+    },
+    showDemoGuide: {
       type: Boolean,
       default: true,
     },
@@ -57,28 +81,50 @@ export default {
       required: false,
     },
   },
+  methods: {
+    updateBackgroundColor(color) {
+      document.body.style.setProperty('--background-color', color);
+    },
+  },
+  mounted() {
+    this.updateBackgroundColor(this.backgroundColor);
+  },
   watch: {
     backgroundColor: {
-      immediate: true,
       handler(newBg) {
-        document.body.style.setProperty('--background-color', newBg);
+        this.updateBackgroundColor(newBg);
       },
     },
   },
-  components: {
-    Navigation,
-    Notifications,
-    LoadingFallback,
-    PreviousPageLink,
-    TextAlerts,
-    Footer,
+  beforeDestroy() {
+    document.body.style.removeProperty('--background-color');
   },
 };
 </script>
 
 <style scoped>
 .layout--has-nav {
-  padding-top: 200px;
+  padding-top: 250px;
+}
+
+.layout--has-demo-guide {
+  padding-bottom: 100px;
+}
+
+.demo-guide-button {
+  position: fixed;
+  z-index: 3;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+}
+
+@media (min-width: 992px) {
+  .layout--has-nav {
+    padding-top: 150px;
+  }
 }
 </style>
 

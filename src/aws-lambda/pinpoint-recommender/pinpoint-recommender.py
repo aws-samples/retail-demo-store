@@ -5,12 +5,9 @@ import os
 import json
 import logging
 import requests
-import boto3
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-pinpoint = boto3.client('pinpoint')
 
 def lambda_handler(event, context):
     ''' Called by Amazon Pinpoint recommender to customize/enrich recommendations
@@ -39,15 +36,6 @@ def lambda_handler(event, context):
             logger.debug('Processing Pinpoint endpoint: ' + key)
             
             endpoint = endpoints.get(key)
-
-            # A workaround:
-            if 'Address' not in endpoint:
-                logger.warning("Address not in endpoint supplied - so we must fill it in ourselves.")
-                pinpoint_app_id = event['ApplicationId']
-                full_endpoint = pinpoint.get_endpoint(ApplicationId=pinpoint_app_id,
-                                                      EndpointId=key)
-                endpoint['Address'] = full_endpoint['EndpointResponse']['Address']
-
             recommended_items = endpoint.get('RecommendationItems')
             
             if recommended_items:

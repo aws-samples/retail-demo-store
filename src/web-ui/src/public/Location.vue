@@ -107,23 +107,25 @@ export default {
       const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
       this.orders = data.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE")
     },
-    async createOrder() {
+    async createOrder(collectionPhone) {
       let defaultOrder = {
         items: [{
-          product_id: "10",
+          product_id: "e1669081-8ffc-4dec-97a6-e9176d7f6651",
           quantity: 1,
-          price: 9.99
+          price: 124.99
         }],
-        total: 9.99,
+        collection_phone: collectionPhone,
+        total: 124.99,
         delivery_type: 'COLLECTION'
       }
-
       defaultOrder.username = this.user.username
       defaultOrder.email = this.user.email
       if (this.user.addresses && this.user.addresses.length > 0) {
         defaultOrder.billing_address = this.user.addresses[0]
         defaultOrder.shipping_address = this.user.addresses[0]
       }
+      console.log('Inserting order')
+      console.log(defaultOrder)
       await OrdersRepository.createOrder(defaultOrder)
     },
     async triggerPurchaseJourney() {
@@ -146,15 +148,22 @@ export default {
             populate: "Create order automatically"
           }
         }).then((value) => {
+          console.log(value)
           switch (value) {
             case "cancel":
               break;
             case "populate":
-              this.createOrder()
-                  .then(() => {
-                    this.journeyInProgress = true;
-                    this.animateJourney()
-                  });
+              swal({
+                title: "Input the collection phone number on the order",
+                content: "input",
+              }).then((value)=> {
+                console.log(value)
+                this.createOrder(value.replace(/\s+/g, ''))
+                    .then(() => {
+                      this.journeyInProgress = true;
+                      this.animateJourney()
+                    });
+                })
           }
         });
       }

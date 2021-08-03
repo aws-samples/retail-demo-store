@@ -39,7 +39,7 @@ def get_random_string(length):
 def get_geofence_collection_arn(region, account_id, collection_name):
     """ Helper to convert Geofence Collection name to ARN, since this information is not available directly from the
     Geofencing API. """
-    return f"arn:aws:geo:{region}:{account_id}:geofencecollection/{collection_name}"
+    return f"arn:aws:geo:{region}:{account_id}:geofence-collection/{collection_name}"
 
 
 def get_default_geofence_id(resource_name):
@@ -64,6 +64,17 @@ def put_geofence(resource_name, geojson, geofence_id):
         CollectionName=resource_name,
         Geometry=geofence,
         GeofenceId=geofence_id
+    )
+    logger.info(response)
+
+
+def associate_tracker(collection_arn, tracker_name):
+
+    # Associate tracker consumer ie. link tracker & geofence
+    logger.info(f"Associating Tracker {tracker_name} with Geofence Collection ARN: {collection_arn}")
+    response = location.associate_tracker_consumer(
+        ConsumerArn=collection_arn,
+        TrackerName=tracker_name
     )
     logger.info(response)
 
@@ -116,12 +127,7 @@ def create(event, context):
     logger.info(response)
 
     # Associate tracker consumer ie. link tracker & geofence
-    logger.info(f"Associating Tracker {resource_name} with Geofence Collection {resource_name} (ARN: {collection_arn})")
-    response = location.associate_tracker_consumer(
-        ConsumerArn=collection_arn,
-        TrackerName=resource_name
-    )
-    logger.info(response)
+    associate_tracker(collection_arn, resource_name)
 
     # Create Place Index
     logger.info(f"Creating Place Index with name: {resource_name}")

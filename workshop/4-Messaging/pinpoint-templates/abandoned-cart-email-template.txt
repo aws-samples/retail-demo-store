@@ -2,7 +2,7 @@ Hi {{User.UserAttributes.FirstName}}-
 
 Sometimes you want to be extra sure. We just don’t want you to miss out. This is a friendly reminder to complete your purchase. Your favorite products are selling fast. 
 
-{{Attributes.ShoppingCartItemTitle}}
+{{UserAttributes.ShoppingCartItemTitle}}
 Buy Now
 
 Cheers,

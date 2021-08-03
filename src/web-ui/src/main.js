@@ -5,15 +5,13 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
-import { components } from 'aws-amplify-vue'; 
+import { components } from 'aws-amplify-vue';
 import store from '@/store/store';
-import moment from 'moment'
 import Amplitude from 'amplitude-js'
 import AmplifyStore from '@/store/store';
 
 import './styles/tokens.css'
 
-Vue.prototype.moment = moment
 // Base configuration for Amplify
 const amplifyConfig = {
   Auth: {
@@ -87,25 +85,21 @@ Auth.currentAuthenticatedUser()
   .then((user) => {
     logger.debug('Current Authenticated User Info:');
     logger.debug(user);
-    return;
   })
   .catch(err => logger.debug(err))
 
 
 Auth.currentUserInfo()
-  .then((user) => {
-    logger.debug('Current User Info:');
-    logger.debug(user);
-    return;
-  })
+  .then(user => logger.debug(user))
   .catch(err => logger.debug(err))
 
-new Vue({  
+
+new Vue({
   el: '#app',
   router: router,
   template: '<App/>',
   store,
-  components: { 
+  components: {
     App,
     ...components
   },

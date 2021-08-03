@@ -10,6 +10,7 @@ type Category struct {
 	URL   string `json:"url" yaml:"url"`
 	Name  string `json:"name" yaml:"name"`
 	Image string `json:"image" yaml:"image"`
+	HasGenderAffinity bool `json:"has_gender_affinity" yaml:"has_gender_affinity"`
 }
 
 // Initialized - indicates if instance has been initialized or not

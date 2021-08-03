@@ -26,6 +26,7 @@ AWS Service | Workshops Overview | Workshop Links | Level | Duration
 ![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) Amazon Pinpoint | In this workshop we will use Amazon Pinpoint to add the ability to dynamically send welcome messages, abandoned cart messages, and messages with personalized product recommendations to the customers of the Retail Demo Store. | [Email Campaigns](./workshop/4-Messaging/4.1-Pinpoint.ipynb) | 200 | 1 hour
 ![Amazon Lex](./workshop/images/Amazon-Lex_64.png) Amazon Lex |  In this module we're going to implement a conversational chatbot using Amazon Lex and integrate it into the Retail Demo Store's web UI. We'll provide some basic functionality to our chatbot such as being able to provide a return policy to users as well as wiring up the chatbot to the Amazon Personalize ML models we created in the Personalization workshop to provide personalized product recommendations to our users. | [Lex Chatbot](./workshop/5-Conversational/5.1-LexChatbot.ipynb) | 200 | 30 minutes
 ![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch-Service_64.png) Amazon Elasticsearch | In this workshop, you will create a new Elasticsearch Index and index the Retail Demo Store product data so that users can search for products.| [Product Search](./workshop/0-StartHere/Search.ipynb) | 200 | 20 minutes
+![Amazon Location Services](./workshop/images/Amazon-Location-Services_64.png) Amazon Location Services | Create a geofence for customers approaching your physical store and send them timely pickup notifications and offers. | [Geofencing](./workshop/7-LocationServices/7.1-LocationServices.ipynb) | 300 | 2 hours
 Experimentation | In this module we are going to add experimentation to the Retail Demo Store. This will allow us to experiment with different personalization approaches in the user interface. Through notebooks in this module we will demonstrate how to implement three experimentation techniques. | [Overview](./workshop/3-Experimentation/3.1-Overview.ipynb) <br/><br/> [A/B](./workshop/3-Experimentation/3.2-AB-Experiment.ipynb) <br/><br/> [Interleaving](./workshop/3-Experimentation/3.3-Interleaving-Experiment.ipynb) <br/><br/> [Multi-Armed Bandit](./workshop/3-Experimentation/3.4-Multi-Armed-Bandit-Experiment.ipynb) | 400 | 1.5 hours
 
 ## Partner Integrations
@@ -45,7 +46,9 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 
 # Getting Started
 
-***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.*
+***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.* 
+
+**The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.**
 
 **If you are a developer looking to contribute to the Retail Demo Store, please see the Developer section below.**
 
@@ -73,52 +76,30 @@ US East (N. Virginia) | us-east-1 | [![Launch Stack](https://cdn.rawgit.com/buil
 US West (Oregon) | us-west-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://s3-us-west-2.amazonaws.com/retail-demo-store-us-west-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-west-2&param_SourceDeploymentType=CodeCommit)
 Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?templateURL=https://s3-eu-west-1.amazonaws.com/retail-demo-store-eu-west-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-eu-west-1&param_SourceDeploymentType=CodeCommit)
 
-The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
+The CloudFormation deployment will take 20-30 minutes to complete. 
 
-## Using the Amazon Location Integration Demo
 
-[Amazon Location Services](https://console.aws.amazon.com/location/) is an amazon provision of maps, location indexing,
-geofencing and user tracking. Built into this demo is a simulation of a user moving nearby to a physical store.
-The user provides personalized recommendations and offers and other messaging as they get close to the store (when they
-"trigger" a geofence around the store). There is
-also an in-store interface that shows a sample view for store staff showing orders that are about to be collected,
-and transactional messaging for user and store staff around pickup that is triggered by the user approaching the
-store for pickup.
+### Notes:
 
-To use the Amazon Location functionality, Location must be enabled in your region. First, deploy in a region in which 
-Location is enabled. Next, to enable the demo functionality, ensure that the "Deploy location resources" and
-"Create a default geofence in the created Amazon Location geofence collection" options are set to "Yes" when you run
-the deployment CloudFormation. A Location geofence will be set up for you. You can access the Location "In-Store View"
-where you can see orders made to be collected from in-store and "Location Geofence" where you can see the Location
-map and simulated user - from here you can initiate simulations of users travelling close to the default configured
-store either.
+#### Amazon Personalize Campaigns
 
-### Amazon Location and Pinpoint 
+If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
 
-We use Amazon Location integrated with Pinpoint transactional messaging for sending SMS messages and email to shoppers 
-when they enter the shopping geofence. These email and SMS channels are enabled when "Auto-Configure Pinpoint" is 
-enabled, along with the Location-attached Pinpoint campaigns. If this is not enabled there will not be any email and
-  SMS notifications, just in-browser popups.
-  
-There is one more manual job, which is to ensure that the emails will be sent. Note that if you are in the email
-"sandbox" for Pinpoint, then **all recipient emails must be verified** according to the below process. You also
-need to verify the send-as email address.
 
- - After deploying the demo, navigate to your Pinpoint application called "retaildemostore" in the UI Console
-   (https://console.aws.amazon.com/pinpoint/home making sure that the region is the same one in which you deployed your
-   demo).
- - Click on "Settings" > "Email" in the navigation menu.
- - Under the "Identities" tab, click "Edit".
- - Ensure the email channel for the project is set to "Enabled" (this will be set after Amazon Personalize campaigns
-   are finished deploying, but you may set it beforehand).
- - For the email that you used when you deployed the solution under "Reply-To email address", ensure that the email
-   address is verified. Select this as your "Default sender address".
- - For every email to which you plan to send emails, ensure that the email address is verified.
- - Save the changes.
- 
-Note that you can manage your email and SMS limits within the "Settings" > "Email" and "Settings" > "SMS and voice" 
-menus available under your Pinpoint project. Also note that there are additional limits imposed when your account is 
-in the Pinpoint "sandbox". 
+#### Amazon Pinpoint Campaigns
+If you chose to have the Amazon Pinpoint campaigns automatically built (‘Auto-Configure Pinpoint’ is set to ‘Yes’ in the CloudFormation template) , this process will take an additional 20-30 minutes
+Once the Pinpoint campaigns are created, they will be automatically visbile in the [Web UI](src/web-ui). However, there are some manual steps required in the deployment steps for enabling the Pinpoint channels -
+
+##### Pinpoint Emails:
+
+*PinpointEmailFromAddress:* 
+By Default, AWS Accounts have  [emails set up in a sandbox environement](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email.html). To enable the functionality, you need to complete the manual steps for either -
+* Verifying the email addresses you want to send and receive emails from. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-manage-verify.html) This is the easiest and recommended approach for demos. 
+* Request to be removed from the sandbox environment. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-setup-production-access.html) This is recommended only for production workloads and the Retail Demo Store is intended to be used for demonstration purposes only.
+
+##### Pinpoint SMS
+*PinpointSMSLongCode:*
+A dedicated [long code](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-sms-awssupport-long-code.html) (i.e. a phone number) obtained for Amazon Pinpoint to send and receive messages at. You also need to enable [two way SMS](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-sms-two-way.html) for this long code using Pinpoint. Follow steps 2 and 3 in the *Enable Pinpoint SMS Channel & Obtain Dedicated Long Code* section of the [Pinpoint workshop](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/4-Messaging/4.1-Pinpoint.ipynb) to get a long code and enable two way SMS for it. Enter the number along with the country code and without any spaces or brackets. For Example: enter “+1XXXXXXXXXX” for a long code based in the United States.
 
 ## Step 4 - Using the Retail Demo Store Web Application
 

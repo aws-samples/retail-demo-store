@@ -14,14 +14,15 @@ const connection = axios.create({
 const resource = "/carts";
 export default {
     get() {
-        return connection.get(`${resource}/all`)
+        return connection.get(`${resource}`)
     },
     getCartByID(cartID) {
         if (!cartID || cartID.length == 0)
             throw "cartID required"
-        return connection.get(`${resource}/id/${cartID}`)
+        return connection.get(`${resource}/${cartID}`)
     },    
     createCart(username) {
+
         if (!username || username.length == 0)
             throw "username required"
         let payload = {
@@ -32,9 +33,6 @@ export default {
     updateCart(cart) {
         if (!cart)
             throw "cart required"
-        return connection.put(`${resource}/id/${cart.id}`, cart)
-    },
-    signAmazonPayPayload(payload) {
-        return connection.post('/sign', payload)
+        return connection.put(`${resource}/${cart.id}`, cart)
     }
 }

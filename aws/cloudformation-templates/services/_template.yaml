@@ -185,6 +185,7 @@ Resources:
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
+        PinpointAppId: !Ref PinpointAppId
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
         WebRootUrl: !Ref WebRootUrl
@@ -285,13 +286,13 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
-  OffersService:
+  LocationService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: offers
-        ServicePath: src/offers
+        ServiceName: location
+        ServicePath: src/location
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
@@ -317,13 +318,13 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
-  LocationService:
+  OffersService:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/service/_template.yaml
       Parameters:
-        ServiceName: location
-        ServicePath: src/location
+        ServiceName: offers
+        ServicePath: src/offers
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
@@ -427,8 +428,8 @@ Resources:
         ProductsServiceDNSName: !GetAtt ProductsService.Outputs.ServiceDNSName
         RecommendationsServiceDNSName: !GetAtt RecommendationsService.Outputs.ServiceDNSName
         OffersServiceDNSName: !GetAtt OffersService.Outputs.ServiceDNSName
-        Uid: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !Ref PinpointAppId
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Custom resources
   CustomResources:
@@ -538,7 +539,7 @@ Outputs:
     Description: Location load balancer URL.
     Value: !GetAtt LocationService.Outputs.ServiceUrl
 
-  RecommendationsServiceUrl: 
+  RecommendationsServiceUrl:
     Description: Recommendations load balancer URL.
     Value: !GetAtt RecommendationsService.Outputs.ServiceUrl
 

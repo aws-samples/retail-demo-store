@@ -32,7 +32,7 @@
               </button>
               <div class="dropdown-menu" aria-labelledby="quantity-dropdown">
                 <button
-                  v-for="i in Math.min(9, product.current_stock - quantityInCart)"
+                  v-for="i in Math.max(0, Math.min(9, product.current_stock - quantityInCart))"
                   :key="i"
                   class="dropdown-item"
                   @click="quantity = i"
@@ -53,12 +53,15 @@
           </div>
         </main>
 
-        <RecommendedProductsSection
-          :explainRecommended="explainRecommended"
-          :recommendedProducts="relatedProducts"
-          :feature="feature"
-        >
-          <template #heading>Compare similar items</template>
+        <RecommendedProductsSection :experiment="experiment" :recommendedProducts="relatedProducts" :feature="feature">
+          <template #heading
+            >Compare similar items
+            <DemoGuideBadge
+              v-if="demoGuideBadgeArticle"
+              :article="demoGuideBadgeArticle"
+              hideTextOnSmallScreens
+            ></DemoGuideBadge>
+          </template>
         </RecommendedProductsSection>
       </div>
     </template>
@@ -78,7 +81,10 @@ import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
 import FiveStars from '@/components/FiveStars/FiveStars';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
-import {discountProductPrice} from "@/util/discountProductPrice";
+import { discountProductPrice } from '@/util/discountProductPrice';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -91,31 +97,35 @@ export default {
     ProductPrice,
     FiveStars,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   mixins: [product],
   props: {
     discount: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       quantity: 1,
       feature: EXPERIMENT_FEATURE,
       relatedProducts: null,
-      explainRecommended: null,
+      demoGuideBadgeArticle: null,
+      experiment: null,
     };
   },
   computed: {
-    ...mapState({ user: (state) => state.user, cart: (state) => state.cart.cart }),
+    ...mapState({ user: (state) => state.user,
+                  cart: (state) => state.cart.cart }),
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
     },
     previousPageLinkProps() {
       if (!this.product) return null;
+
       return {
         to: `/category/${this.product.category}`,
         text: this.readableProductCategory,
@@ -123,6 +133,7 @@ export default {
     },
     cartItem() {
       if (!this.product || !this.cart) return null;
+
       return this.cart.items.find((item) => item.product_id === this.product.id);
     },
     quantityInCart() {
@@ -130,6 +141,7 @@ export default {
     },
     cartHasMaxAmount() {
       if (!this.product || !this.cartItem) return false;
+
       return !this.outOfStock && this.cartItem.quantity >= this.product.current_stock;
     },
   },
@@ -139,6 +151,9 @@ export default {
       handler() {
         this.fetchData();
       },
+    },
+    personalizeUserID() {
+      this.getRelatedProducts();
     },
   },
   methods: {
@@ -150,7 +165,7 @@ export default {
       await this.addToCart({
         product: {
           ...this.product,
-          price: this.discount ? discountProductPrice(this.product.price) : this.product.price
+          price: this.discount ? discountProductPrice(this.product.price) : this.product.price,
         },
         quantity: this.quantity,
         feature: this.$route.query.feature,
@@ -160,17 +175,22 @@ export default {
       this.renderAddedToCartConfirmation();
 
       this.resetQuantity();
+      AnalyticsHandler.recordShoppingCart(this.user, this.cart)
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
 
-      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
-      this.relatedProducts = null;
       this.getRelatedProducts();
 
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
     },
     async getRelatedProducts() {
+      // reset in order to trigger recalculation in carousel - carousel UI breaks without this
+      this.relatedProducts = null;
+
+      this.experiment = null;
+      this.demoGuideBadgeArticle = null;
+
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,
@@ -182,17 +202,8 @@ export default {
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
-        if (experimentName || personalizeRecipe) {
-          const explanation = experimentName
-            ? `Active experiment: ${experimentName}`
-            : `Personalize recipe: ${personalizeRecipe}`;
-
-          this.explainRecommended = {
-            activeExperiment: !!experimentName,
-            personalized: !!personalizeRecipe,
-            explanation,
-          };
-        }
+        if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
+        if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
       }
 
       this.relatedProducts = response.data;

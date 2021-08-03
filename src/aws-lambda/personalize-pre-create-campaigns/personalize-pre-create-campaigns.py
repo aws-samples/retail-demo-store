@@ -83,7 +83,7 @@ session = boto3.session.Session()
 region = session.region_name
 account_id = sts.get_caller_identity().get('Account')
 
-# Dataset group names are now dynamically generated
+# Dataset group names are dynamically generated
 dataset_group_name_root_products = 'retaildemoproducts-'
 dataset_group_name_root_offers = 'retaildemooffers-'
 
@@ -94,6 +94,7 @@ training_state_param_name = 'retaildemostore-training-state'
 
 role_name = os.environ.get('Uid') + '-PersonalizeS3'
 event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
+do_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip().lower() in ['yes', 'true', '1']
 
 filters_config = [
      {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
@@ -704,9 +705,9 @@ def create_filter(dataset_group_arn, arn_param, filter_name, filter_expression):
 
     try:
         response = personalize.create_filter(
-            name=filter_name,
-            datasetGroupArn=dataset_group_arn,
-            filterExpression=filter_expression
+                name=filter_name,
+            datasetGroupArn = dataset_group_arn,
+                filterExpression=filter_expression
         )
 
         filter_arn = response['filterArn']
@@ -800,7 +801,6 @@ def delete_filters(dataset_group_arn):
             logger.info('Could not yet delete it')
 
     return len(filters_response['Filters'])==0
-
 
 def update():
     """
@@ -918,7 +918,7 @@ def update():
             create_dataset_group_response = personalize.create_dataset_group(name=dataset_group_name)
             dataset_group_arn = create_dataset_group_response['datasetGroupArn']
 
-            # take ownership of the dataset group's schema
+            # take ownership of the dataset group's event schema
             train_state['schema'] = list(set(train_state['schema']) | {dataset_group_name+'-event-schema'})
             response = ssm.put_parameter(
                 Name=training_state_param_name,
@@ -959,7 +959,7 @@ def update():
             schemas[dataset_type] = create_schema(dataset_detail['schema']['avro'],
                                                   dataset_detail['schema']['name'])
 
-            # take ownership of this schema
+            # take ownership of this schema (interactions, items or users)
             train_state['schema'] = list(set(train_state['schema']) | {dataset_detail['schema']['name']})
             response = ssm.put_parameter(
                 Name=training_state_param_name,
@@ -1047,6 +1047,7 @@ def update():
                 all_deleted = all_deleted and deleted_one
 
         # Create recent product purchase and category filter, if necessary
+        # (or whatever filters have been configured)
         filters_config = trainstep_config['dataset_groups'][dataset_group_name]['filters']
         if filters_config is not None:
             for filter_config in filters_config:
@@ -1054,10 +1055,6 @@ def update():
                               arn_param=filter_config['arn_param'],
                               filter_name=filter_config['filter_name'],
                               filter_expression=filter_config['filter_expression'])
-
-            # list_filters_response = personalize.list_filters(datasetGroupArn=dataset_group_arn)
-            # if len(list_filters_response['Filters']) == 0:
-            #     create_recent_purchase_filter(dataset_group_arn, filter_purchased_arn_param)  # Adds the SSM param
 
         tracker_config = trainstep_config['dataset_groups'][dataset_group_name]['tracker']
         if tracker_config:
@@ -1199,23 +1196,26 @@ def poll_create(event, context):
         dataset_group_name_unique_products = dataset_group_name_root_products + str(uuid.uuid4())[:8]
         dataset_group_name_unique_offers = dataset_group_name_root_offers + str(uuid.uuid4())[:8]
 
-        train_configs = {
-            "steps": [
-                {
-                    "dataset_groups": {
-                        dataset_group_name_unique_products: {
+        dataset_groups = {}
+        dataset_groups[dataset_group_name_unique_products]= {
                             'datasets': dataset_type_to_detail_products,
                             'campaigns': campaigns_to_build_products,
                             'filters': filters_config,
                             'tracker': True
-                        },
-                        dataset_group_name_unique_offers: {
+                        }
+
+        if do_deploy_offers_campaign:
+            dataset_groups[dataset_group_name_unique_offers] = {
                             'datasets': dataset_type_to_detail_offers,
                             'campaigns': campaigns_to_build_offers,
                             'filters': {},
                             'tracker': False
                         }
-                    }
+
+        train_configs = {
+            "steps": [
+                {
+                    "dataset_groups": dataset_groups
                 }
             ]
         }

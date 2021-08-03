@@ -33,11 +33,11 @@ export default {
 
       this.connection.onopen = (e) => {
         console.log(e)
-        console.log("Connection open")
+        console.log("Websocket connection open for notifcations.")
       }
 
       this.connection.onmessage = (e) => {
-        console.log("Received message:")
+        console.log("Received notification message:")
         const messageData = JSON.parse(e.data)
         console.log(messageData)
         if (this.isInstoreView) {

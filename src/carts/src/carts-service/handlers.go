@@ -6,15 +6,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
-
-
-	"github.com/gorilla/mux"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
 // Index Handler
@@ -29,7 +24,12 @@ func CartIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(carts); err != nil {
+	var values []Cart
+	for _, value := range carts {
+		values = append(values, value)
+	}
+
+	if err := json.NewEncoder(w).Encode(values); err != nil {
 		panic(err)
 	}
 }
@@ -70,7 +70,11 @@ func CartUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoUpdateCart(cart)
+	vars := mux.Vars(r)
+	cartID := vars["cartID"]
+
+	t := RepoUpdateCart(cartID, cart)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
@@ -103,49 +107,10 @@ func CartCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := RepoCreateCart(cart)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
-		panic(err)
-	}
-}
-
-//CartCreate Func
-func SignAmazonPayPayload(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
-	if (*r).Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	awsSession := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	client := lambda.New(awsSession)
-
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-	if err != nil {
-		panic(err)
-	}
-	if err := r.Body.Close(); err != nil {
-		panic(err)
-	}
-
-	var requestBody map[string]interface{}
-	json.Unmarshal(body, &requestBody)
-
-	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("locationNrfDemoAmazonPaySigningLambda"), Payload: body})
-	if err != nil {
-		panic(err)
-	}
-
-	var responsePayload map[string]interface{}
-	json.Unmarshal(result.Payload, &responsePayload)
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(responsePayload); err != nil {
 		panic(err)
 	}
 }

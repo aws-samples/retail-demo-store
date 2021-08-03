@@ -12,9 +12,8 @@ logger.setLevel(logging.INFO)
 users_service_base_url = os.environ.get('users_service_base_url')
 recommendations_service_base_url = os.environ.get('recommendations_service_base_url')
 
-def close(session_attributes, fulfillment_state, message):
+def close(fulfillment_state, message):
     response = {
-        'sessionAttributes': session_attributes,
         'dialogAction': {
             'type': 'Close',
             'fulfillmentState': fulfillment_state,
@@ -66,7 +65,7 @@ def lookup_user(identity_id):
 
     url = f'{users_service_base_url}/users/identityid/{identity_id}'
     response = requests.get(url)
-    
+
     user = None
 
     if response.ok:
@@ -84,7 +83,7 @@ def get_recommendations(user_id, max_items = 10):
 
     url = f'{recommendations_service_base_url}/recommendations?userID={user_id}&fullyQualifyImageUrls=1&numResults={max_items}'
     response = requests.get(url)
-    
+
     recommendations = None
 
     if response.ok:
@@ -94,21 +93,18 @@ def get_recommendations(user_id, max_items = 10):
     return recommendations
 
 def recommend_products(intent_request):
-    user_id = intent_request['userId']
-    output_session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
+    # What the chatbot sends as the "userId" is really the identity ID from the auth'd client session.
+    identity_id = intent_request['userId']
 
-    store_user = None
-    if output_session_attributes.get('storeUser'):
-        store_user = json.loads(output_session_attributes.get('storeUser'))
-        logger.debug('Found user {} ({}) as session attribute'.format(store_user['username'], store_user['id']))
-
-    if not store_user:
-        store_user = lookup_user(user_id)
-        if store_user:
-            output_session_attributes['storeUser'] = json.dumps(store_user)
+    # Lookup the user based on the identity_id
+    store_user = lookup_user(identity_id)
 
     if store_user:
         recommendations = get_recommendations(store_user['id'], 4)
+
+        user_name = store_user['first_name']
+        if not user_name:
+            user_name = "there"
 
         if recommendations and len(recommendations) > 0:
             attachments = []
@@ -118,21 +114,20 @@ def recommend_products(intent_request):
                 attachments.append(build_response_card_attachment(product['name'], product['description'], product['image'], product['url']))
 
             response = {
-                'sessionAttributes': output_session_attributes,
                 'dialogAction': {
                     'type': 'Close',
                     'fulfillmentState': 'Fulfilled',
                     'message': {
                         'contentType': 'PlainText',
-                        'content': 'Hi {}. Based on your shopping trends, I think you may be interested in the following products.'.format(store_user['first_name'])
+                        'content': 'Hi {}. Based on your shopping trends, I think you may be interested in the following products.'.format(user_name)
                     },
                     'responseCard': build_response_card(attachments)
                 }
             }
         else:
-            response = close(output_session_attributes, 'Failed', 'Sorry, I was unable to find any products to recommend.')
+            response = close('Failed', 'Sorry, I was unable to find any products to recommend.')
     else:
-        response = close(output_session_attributes, 'Failed', 'Before I can make personalized recommendations, I need to know more about you. Please sign in or create an account and try again.')
+        response = close('Failed', 'Before I can make personalized recommendations, I need to know more about you. Please sign in or create an account and try again.')
 
     return response
 
