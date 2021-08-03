@@ -134,6 +134,17 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().identify(identify)
         }
 
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.set({
+                "user_id": user.id,
+                "user_properties": {
+                    "age": user.age,
+                    "gender": user.gender,
+                    "persona": user.persona
+                }
+            });
+        }
+
         return promise
     },
 
@@ -146,6 +157,12 @@ export const AnalyticsHandler = {
                     signUpDate: user.sign_up_date
                 }
             })
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("sign_up", {
+                    "method": "Web"
+                });
+            }
         }
     },
 
@@ -158,6 +175,12 @@ export const AnalyticsHandler = {
                     signInDate: user.last_sign_in_date
                 }
             })
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("login", {
+                    "method": "Web"
+                });
+            }
         }
     },
 
@@ -177,6 +200,14 @@ export const AnalyticsHandler = {
                     const userId = user.id.toString();
                     optimizelyClientInstance.activate(experiment.experiment_key, userId);
                 }
+            }
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("exp_" + experiment.feature, {
+                    "feature": experiment.feature,
+                    "name": experiment.name,
+                    "variation": experiment.variationIndex
+                });
             }
         }
     },
@@ -253,6 +284,23 @@ export const AnalyticsHandler = {
                 optimizelyClientInstance.track('ProductAdded', userId);
             }
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('add_to_cart', {
+                "currency": "USD",
+                "value": +product.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": product.id,
+                    "item_name": product.name,
+                    "item_category": product.category,
+                    "quantity": quantity,
+                    "currency": "USD",
+                    "price": +product.price.toFixed(2)
+                  }
+                ]
+            });
+        }
     },
    async recordShoppingCart (user, cart) {
         if (user && cart) {
@@ -294,6 +342,7 @@ export const AnalyticsHandler = {
             })
         }
     },
+
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
             AmplifyAnalytics.record({
@@ -333,6 +382,23 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductRemoved', eventProperties);
+        }
+
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('remove_from_cart', {
+                "currency": "USD",
+                "value": +cartItem.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": cartItem.product_id,
+                    "item_name": cartItem.product_name,
+                    "quantity": origQuantity,
+                    "currency": "USD",
+                    "price": +cartItem.price.toFixed(2)
+                  }
+                ]
+            });
         }
     },
 
@@ -442,6 +508,23 @@ export const AnalyticsHandler = {
                 optimizelyClientInstance.track('ProductViewed', userId);
             }
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('view_item', {
+                "currency": "USD",
+                "value": +product.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": product.id,
+                    "item_name": product.name,
+                    "item_category": product.category,
+                    "quantity": 1,
+                    "currency": "USD",
+                    "price": +product.price.toFixed(2)
+                  }
+                ]
+            });
+        }
     },
 
     cartViewed(user, cart, cartQuantity, cartTotal) {
@@ -487,6 +570,26 @@ export const AnalyticsHandler = {
             // Amplitude event
             Amplitude.getInstance().logEvent('CartViewed', eventProperties);
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in cart.items) {
+                gaItems.push({
+                    "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
+                    "quantity": cart.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +cart.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('view_cart', {
+                "value": +cartTotal.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
+        }
     },
 
     checkoutStarted(user, cart, cartQuantity, cartTotal) {
@@ -530,6 +633,26 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('CheckoutStarted', eventProperties);
+        }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in cart.items) {
+                gaItems.push({
+                    "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
+                    "quantity": cart.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +cart.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('begin_checkout', {
+                "value": +cartTotal.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
         }
     },
 
@@ -616,6 +739,27 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('OrderCompleted', eventProperties);
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in order.items) {
+                gaItems.push({
+                    "item_id": order.items[i].product_id,
+                    "item_name": order.items[i].product_name,
+                    "quantity": order.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +order.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('purchase', {
+                "transaction_id": order.id.toString(),
+                "value": +order.total.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
+        }
     },
 
     productSearched(user, query, numResults) {
@@ -653,6 +797,12 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('search', {
+                "search_term": query
+            });
+        }
     },
 
     personalizeEventTrackerEnabled() {
@@ -684,5 +834,9 @@ export const AnalyticsHandler = {
             this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
         }
         return this._optimizelyClientInstance;
+    },
+
+    googleAnalyticsEnabled() {
+        return process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE';
     },
 }
