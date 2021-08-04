@@ -370,45 +370,42 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 			fmt.Println(res)
 			mobilePhoneCode := int(*res.NumberValidateResponse.PhoneTypeCode)
 			if (mobilePhoneCode != 0) {
-				var errMessage string = "The phone number provided is not a MOBILE phone number. The number is not capable of receiving SMS. Cannot create SMS endpoint for this number. Try entering a mobile phone number."
-				panic(errMessage)
-				http.Error(w, errMessage, 422)
-				return
-			} else {
-				var userAge string = strconv.Itoa(user.Age)
-				var userAttributes = make(map[string][]*string)
-				userAttributes["Username"] = []*string{&user.Username}
-				userAttributes["FirstName"] = []*string{&user.FirstName}
-				userAttributes["LastName"] = []*string{&user.LastName}
-				userAttributes["Gender"] = []*string{&user.Gender}
-				userAttributes["Age"] = []*string{&userAge}
-
-				endpointRequest := &pinpoint.EndpointRequest{
-					Address: &userDetails.PhoneNumber,
-					ChannelType: aws.String("SMS"),
-					OptOut: aws.String("ALL"),
-					Location: &pinpoint.EndpointLocation {
-						PostalCode: res.NumberValidateResponse.ZipCode,
-						City: res.NumberValidateResponse.City,
-						Country: res.NumberValidateResponse.CountryCodeIso2,
-					},
-					Demographic: &pinpoint.EndpointDemographic {
-						Timezone: res.NumberValidateResponse.Timezone,
-					},
-					User: &pinpoint.EndpointUser{
-						UserAttributes: userAttributes,
-						UserId: &userDetails.UserID,
-					},
-				}
-				var endpointId string = userDetails.PhoneNumber[1:]
-				updateEndpointInput := &pinpoint.UpdateEndpointInput{
-					ApplicationId: &pinpoint_app_id,
-					EndpointId: &endpointId,
-					EndpointRequest: endpointRequest,
-				}
-				CreateEndpointAndSendConfirmation(w, r, updateEndpointInput, userDetails.PhoneNumber)
-				}
+				var warnMessage string = "The phone number provided is not a MOBILE phone number (PhoneTypeCode=0). The number may not be capable of receiving SMS."
+				fmt.Println(warnMessage)
 			}
+            var userAge string = strconv.Itoa(user.Age)
+            var userAttributes = make(map[string][]*string)
+            userAttributes["Username"] = []*string{&user.Username}
+            userAttributes["FirstName"] = []*string{&user.FirstName}
+            userAttributes["LastName"] = []*string{&user.LastName}
+            userAttributes["Gender"] = []*string{&user.Gender}
+            userAttributes["Age"] = []*string{&userAge}
+
+            endpointRequest := &pinpoint.EndpointRequest{
+                Address: &userDetails.PhoneNumber,
+                ChannelType: aws.String("SMS"),
+                OptOut: aws.String("ALL"),
+                Location: &pinpoint.EndpointLocation {
+                    PostalCode: res.NumberValidateResponse.ZipCode,
+                    City: res.NumberValidateResponse.City,
+                    Country: res.NumberValidateResponse.CountryCodeIso2,
+                },
+                Demographic: &pinpoint.EndpointDemographic {
+                    Timezone: res.NumberValidateResponse.Timezone,
+                },
+                User: &pinpoint.EndpointUser{
+                    UserAttributes: userAttributes,
+                    UserId: &userDetails.UserID,
+                },
+            }
+            var endpointId string = userDetails.PhoneNumber[1:]
+            updateEndpointInput := &pinpoint.UpdateEndpointInput{
+                ApplicationId: &pinpoint_app_id,
+                EndpointId: &endpointId,
+                EndpointRequest: endpointRequest,
+            }
+            CreateEndpointAndSendConfirmation(w, r, updateEndpointInput, userDetails.PhoneNumber)
+            }
 		}
 	t := RepoUpdateUser(user)
 
