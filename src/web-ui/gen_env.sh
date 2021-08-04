@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This script is called during the build stage in CodePipeline to generate the 
-# .env file based off environment variables. The .env file is loaded by the 
+# This script is called during the build stage in CodePipeline to generate the
+# .env file based off environment variables. The .env file is loaded by the
 # web-ui service to set its configuration.
 
 set -e
@@ -39,3 +39,4 @@ printf 'VUE_APP_PERSONALIZE_TRACKING_ID=%s\n' "$PERSONALIZE_TRACKING_ID" >> .env
 printf 'VUE_APP_AMPLITUDE_API_KEY=%s\n' "$AMPLITUDE_API_KEY" >> .env
 printf 'VUE_APP_OPTIMIZELY_SDK_KEY=%s\n' "$OPTIMIZELY_SDK_KEY" >> .env
 printf 'VUE_APP_SEGMENT_WRITE_KEY=%s\n' "$SEGMENT_WRITE_KEY" >> .env
+printf 'VUE_APP_GOOGLE_ANALYTICS_ID=%s\n' "$GOOGLE_ANALYTICS_ID" >> .env

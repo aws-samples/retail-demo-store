@@ -12,9 +12,10 @@ type Cart struct {
 
 // CartItem Struct
 type CartItem struct {
-	ProductID string  `json:"product_id" yaml:"product_id"`
-	Quantity  int     `json:"quantity" yaml:"quantity"`
-	Price     float32 `json:"price" yaml:"price"`
+	ProductID   string  `json:"product_id" yaml:"product_id"`
+	ProductName string  `json:"product_name" yaml:"product_name"`
+	Quantity    int     `json:"quantity" yaml:"quantity"`
+	Price       float32 `json:"price" yaml:"price"`
 }
 
 // CartItems Array

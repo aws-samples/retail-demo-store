@@ -100,15 +100,19 @@ Parameters:
 
   ParameterAmplitudeApiKey:
     Type: String
-    Description: SSM parameter name for the Amplitude API key
+    Description: SSM parameter name for the Amplitude API key parameter name
 
   ParameterOptimizelySdkKey:
     Type: String
-    Description: SSM Parameter name for the Optimizely SDK key
+    Description: SSM Parameter name for the Optimizely SDK key parameter name
 
   ParameterSegmentWriteKey:
     Type: String
-    Description: SSM Parameter name for the Segment write key
+    Description: SSM Parameter name for the Segment write key parameter name
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id parameter name
 
   CleanupBucketLambdaArn:
     Type: String
@@ -365,6 +369,9 @@ Resources:
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterSegmentWriteKey
+          - Name: GOOGLE_ANALYTICS_ID
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterGoogleAnalyticsMeasurementId
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
