@@ -3,14 +3,14 @@
 
 """
 Lambda function designed to be called on a recurring schedule ("rate(5 minutes)")
-that will methodically work through the steps of creating Personalize campaigns 
+that will methodically work through the steps of creating Personalize campaigns
 for product and search personalization by completing the following steps.
 
 1. Create schemas for items, users, and interactions.
 2. Create dataset group and datasets for items, users, and interactions.
 3. Create upload jobs for item, user, and interaction CSVs.
 4. Create Event Tracker to receive real-time events from web-ui service.
-5. Start execution of Web-UI service in CodePipeline so it picks up the Event 
+5. Start execution of Web-UI service in CodePipeline so it picks up the Event
    Tracker ID in its build-time configuration.
 6. Create Solution and Solution Version for related items, item recommendations,
    and personalized reranking recipes.
@@ -19,8 +19,8 @@ for product and search personalization by completing the following steps.
    and workshops).
 
 The function has logic to skip completed steps and pick up where it left off
-to continue the overall process. It is useful in cases such as workshops that 
-don't focus on or have time to train Personalize models but depend on them. 
+to continue the overall process. It is useful in cases such as workshops that
+don't focus on or have time to train Personalize models but depend on them.
 For example, the Experimentation workshop.
 """
 
@@ -47,18 +47,18 @@ if version.parse(botocore.__version__) < version.parse(min_botocore_version):
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     models_path = os.path.join(dir_path, 'models')
-    
+
     aws_data_path = set(os.environ.get('AWS_DATA_PATH', '').split(os.pathsep))
     aws_data_path.add(models_path)
-    
+
     os.environ.update({
         'AWS_DATA_PATH': os.pathsep.join(aws_data_path)
     })
 
     logger.info(os.environ)
 else:
-    logger.info('Patching botocore SDK for Personalize not required')    
-    
+    logger.info('Patching botocore SDK for Personalize not required')
+
 iam = boto3.client("iam")
 ssm = boto3.client('ssm')
 personalize = boto3.client('personalize')
@@ -135,6 +135,11 @@ items_schema = {
             "name": "STYLE",
             "type": "string",
             "categorical": True
+        },
+        {
+            "name": "DESCRIPTION",
+            "type": "string",
+            "textual": True
         }
     ],
     "version": "1.0"
@@ -204,16 +209,16 @@ def create_schema(schema, name):
             schema_exists=True
             schema_arn = s['schemaArn']
             break
-        
+
     if not schema_exists:
         logger.info('Creating schema ' + name)
         create_schema_response = personalize.create_schema(
             name = name,
             schema = json.dumps(schema)
         )
-            
+
         schema_arn = create_schema_response['schemaArn']
-        
+
     return schema_arn
 
 
@@ -228,7 +233,7 @@ def create_dataset(dataset_group_arn, dataset_name, dataset_type, schema_arn):
             dataset_exists=True
             dataset_arn = dataset['datasetArn']
             break
-        
+
     if not dataset_exists:
         logger.info('Dataset ' + dataset_name + ' does NOT exist; creating')
         create_dataset_response = personalize.create_dataset(
@@ -238,7 +243,7 @@ def create_dataset(dataset_group_arn, dataset_name, dataset_type, schema_arn):
             name=dataset_name
         )
         dataset_arn = create_dataset_response['datasetArn']
-        
+
     return dataset_arn
 
 
@@ -250,7 +255,7 @@ def create_import_job(job_name, dataset_arn, account_id, region, data_location, 
         logger.info("Dataset import job "+job_name+" already exists, not creating")
         import_job_exists = True
         import_job_arn="arn:aws:personalize:"+region+":"+account_id+":dataset-import-job/"+job_name
-        
+
     if not import_job_exists:
         logger.info('Creating dataset import job ' + job_name)
         create_dataset_import_job_response = personalize.create_dataset_import_job(
@@ -262,7 +267,7 @@ def create_import_job(job_name, dataset_arn, account_id, region, data_location, 
             roleArn = role_arn
         )
         import_job_arn = create_dataset_import_job_response['datasetImportJobArn']
-        
+
     return import_job_arn
 
 
@@ -277,7 +282,7 @@ def is_import_job_active(import_job_arn):
     else:
         status = dataset_import_job["latestDatasetImportJobRun"]["status"]
         logger.info("LatestDatasetImportJobRun {}: {}".format(import_job_arn, status))
-    
+
     return status == "ACTIVE"
 
 
@@ -297,7 +302,7 @@ def create_personalize_role(role_name):
         role_arn = response['Role']['Arn']
     except iam.exceptions.NoSuchEntityException:
         logger.info('Creating IAM role ' + role_name)
-        
+
         assume_role_policy_document = {
             "Version": "2012-10-17",
             "Statement": [
@@ -310,17 +315,17 @@ def create_personalize_role(role_name):
                 }
             ]
         }
-        
+
         create_role_response = iam.create_role(
             RoleName = role_name,
             AssumeRolePolicyDocument = json.dumps(assume_role_policy_document)
         )
-        
+
         iam.attach_role_policy(
             RoleName = role_name,
             PolicyArn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
         )
-        
+
         # Just print role ARN and return None so we cycle back to check on next call.
         logger.info('Created IAM Role: {}'.format(create_role_response["Role"]["Arn"]))
 
@@ -437,36 +442,36 @@ def rebuild_webui_service(region, account_id):
     logger.info('Looking for pipeline with tag "RetailDemoStoreServiceName=web-ui" to initiate execution')
 
     restarted = False
-    
+
     pipeline_iterator = codepipeline.get_paginator('list_pipelines').paginate()
 
     for pipelines in pipeline_iterator:
         for pipeline in pipelines['pipelines']:
             logger.debug('Checking pipeline {} for web-ui tag'.format(pipeline['name']))
-            
+
             arn = 'arn:aws:codepipeline:{}:{}:{}'.format(region, account_id, pipeline['name'])
-            
+
             response_tags = codepipeline.list_tags_for_resource(resourceArn=arn)
-            
+
             for tag in response_tags['tags']:
                 if tag['key'] == 'RetailDemoStoreServiceName' and tag['value'] == 'web-ui':
                     logger.info('Found web-ui pipeline; attempting to start execution')
-                    
+
                     response_start = codepipeline.start_pipeline_execution(name=pipeline['name'])
-                    
+
                     logger.info('Pipeline execution started with executionId: {}'.format(response_start['pipelineExecutionId']))
-                    
+
                     restarted = True
-                    
+
                 if restarted:
                     break
-                
+
             if restarted:
                 break
-            
+
         if restarted:
             break
-            
+
     if not restarted:
         logger.warning('Pipeline with tag "RetailDemoStoreServiceName=web-ui" not restarted; does pipeline and/or tag exist?')
 
@@ -634,7 +639,7 @@ def create_recent_purchase_filter(dataset_group_arn, ssm_parameter_name):
         datasetGroupArn = dataset_group_arn,
         filterExpression = 'EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")'
     )
- 
+
     filter_arn = response['filterArn']
 
     logger.info('Setting purchased product filter ARN as SSM parameter ' + ssm_parameter_name)
