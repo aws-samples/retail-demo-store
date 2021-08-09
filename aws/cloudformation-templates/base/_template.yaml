@@ -65,6 +65,10 @@ Parameters:
     Type: String
     Description: Google Analytics Measurement Id (optional)
 
+  LocationResourcePrefix:
+    Type: String
+    Description: Prefix of Location Services resources to use
+
 Resources:
 
   # Authentication
@@ -75,6 +79,7 @@ Resources:
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        LocationResourcePrefix: !Ref LocationResourcePrefix
 
   # Buckets
   Buckets:

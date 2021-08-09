@@ -33,7 +33,7 @@
                   <span>{{ cartQuantity }} item{{ cartQuantity === 1 ? '' : 's' }} in cart</span>
                   <strong>{{ formattedCartTotal }}</strong>
                 </div>
-                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your order</button>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="submitOrder">Place your order</button>
               </div>
             </div>
 
@@ -55,17 +55,24 @@
                   </p>
                   <p class="form-check mt-0">
                     <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption1" :value="true" v-model="collection">
-                    <label class="form-check-label" for="collectionOption1">Collection</label>
+                    <label class="form-check-label" for="collectionOption1">Pickup at Store</label>
                   </p>
-                  <TheMask
-                    v-if="collection"
-                    type="tel"
-                    name="collectionPhone"
-                    placeholder="Where we can contact you about your order"
-                    v-model="collectionPhone"
-                    :mask="['+# (###) ### - ####', '+## (###) ### - ####']"
-                    class="input py-1 px-2"
-                  />
+                  <div v-if="collection">
+                    <TheMask
+                      type="tel"
+                      name="collectionPhone"
+                      placeholder="Your phone number so we can contact you about your order"
+                      v-model="collectionPhone"
+                      :mask="['+# (###) ### - ####', '+## (###) ### - ####']"
+                      class="input py-1 px-2 mb-2"
+                    />
+                    <div class="consent d-flex align-items-start text-left">
+                      <input type="checkbox" class="consent-checkbox mr-2" id="order-alerts-consent" v-model="hasConsentedPhone" />
+                      <label class="" for="order-alerts-consent">
+                        I consent to receive automated text messages at my mobile number above to inform me about the
+                        status of my order. For in-store collection, consent is a conditon of purchase.</label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -143,6 +150,7 @@ export default {
         text: 'Back to shopping cart'
       },
       collection: false,
+      hasConsentedPhone: false
     }
   },
   async created () {
@@ -231,6 +239,9 @@ export default {
   computed: {
     ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
     ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ]),
+    placeOrderEnabled() {
+      return !this.collection || this.hasConsentedPhone
+    }
   }
 }
 </script>
@@ -258,6 +269,15 @@ export default {
 
   .summary-border-container {
     border-color: var(--grey-300);
+  }
+
+  .consent {
+    font-size: 0.85rem;
+  }
+
+  .consent-checkbox {
+    /* fine-tuning for alignment */
+    margin-top: 4px;
   }
 
   @media (min-width: 768px) {

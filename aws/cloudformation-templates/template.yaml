@@ -265,6 +265,11 @@ Conditions:
     - !Ref IncludeSegmentDependencies
     - 'Yes'
 
+  DeployLocationStack: !Equals
+    - !Ref DeployLocationServices
+    - 'Yes'
+
+
 Resources:
   # Base Resources
   Base:
@@ -283,6 +288,7 @@ Resources:
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
+        LocationResourcePrefix: !Ref AWS::StackName
 
   # Services Resources
   Services:
@@ -349,8 +355,8 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        LocationResourceName: !GetAtt Location.Outputs.LocationResourceName
-        LocationNotificationEndpoint: !GetAtt Location.Outputs.LocationNotificationEndpoint
+        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -377,6 +383,7 @@ Resources:
   # Amazon Location Resources
   Location:
     Type: AWS::CloudFormation::Stack
+    Condition: DeployLocationStack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/location.yaml
       Parameters:
@@ -384,7 +391,6 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         DeployDefaultGeofence: !Ref DeployPersonalizedOffersCampaign
-        DeployLocation: !Ref DeployLocationServices
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
