@@ -55,6 +55,7 @@ Resources:
         OptimizelySdkKey: 'NONE'
         IncludeSegmentDependencies: 'No' # Change to 'Yes' for Segment workshop
         SegmentWriteKey: 'NONE'
+        GoogleAnalyticsMeasurementId: 'NONE'
 
 Outputs:
   WebURL:

@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
+
 import { RestClient } from '@aws-amplify/api-rest';
 
 const resourceName = process.env.VUE_APP_LOCATION_RESOURCE_NAME;

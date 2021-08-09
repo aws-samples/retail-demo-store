@@ -64,6 +64,9 @@ services:
       - AWS_DEFAULT_REGION
       - PRODUCT_SERVICE_HOST
       - PRODUCT_SERVICE_PORT
+      - OFFERS_SERVICE_HOST
+      - OFFERS_SERVICE_PORT
+      - AWS_XRAY_DAEMON_ADDRESS=xray:2000
     volumes:
       - ~/.aws/:/root/.aws:ro
     build:
@@ -149,6 +152,8 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
       - RESOURCE_BUCKET
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
     volumes:
       - ~/.aws/:/root/.aws:ro
     ports:
@@ -179,10 +184,31 @@ services:
       - RESOURCE_BUCKET
       - PARAMETER_IVS_VIDEO_CHANNEL_MAP
       - USE_DEFAULT_IVS_STREAMS
+      - AWS_XRAY_DAEMON_ADDRESS=xray:2000
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
     volumes:
       - ~/.aws/:/root/.aws:ro
     ports:
       - "8007:80"
+
+  xray:
+    image: amazon/aws-xray-daemon
+    ports:
+    - 2000:2000/udp
+    environment:
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - HOME=/home
+    networks:
+      - dev-net
+    volumes:
+      - ~/.aws/:/home/.aws:ro
 
 networks:
   dev-net:

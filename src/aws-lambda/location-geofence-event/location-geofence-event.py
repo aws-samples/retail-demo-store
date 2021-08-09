@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 import boto3
 import requests
 
@@ -25,8 +28,18 @@ cognito_idp = boto3.client('cognito-idp')
 dynamodb = boto3.client('dynamodb')
 pinpoint = boto3.client('pinpoint')
 servicediscovery = boto3.client('servicediscovery')
+ssm = boto3.client('ssm')
 
 logger.info(f'Pinpoint region is {pinpoint.meta.region_name}')
+
+
+def get_long_code():
+    response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
+    pinpoint_sms_long_code = response['Parameter']['Value']
+
+    if pinpoint_sms_long_code == 'NONE':
+        return None
+    return pinpoint_sms_long_code
 
 
 def userid_to_username(user_id, users_service):
@@ -222,6 +235,17 @@ def send_sms(to_number, content):
         None
     """
 
+    long_code = get_long_code()
+    message_config = {
+        'SMSMessage': {
+            'MessageType': 'TRANSACTIONAL',
+            'Body': content
+        }
+    }
+    if long_code:
+        logger.info(f"Using long code {long_code} to send SMS to {to_number}. Content starts with '{content[:10]}'")
+        message_config['SMSMessage']['OriginationNumber'] = long_code
+
     pinpoint_app_id = os.environ['PinpointAppId']
     response = pinpoint.send_messages(
         ApplicationId=pinpoint_app_id,
@@ -231,13 +255,7 @@ def send_sms(to_number, content):
                     'ChannelType': 'SMS'
                 }
             },
-            'MessageConfiguration': {
-                'SMSMessage': {
-                    'MessageType': 'TRANSACTIONAL',
-                    'Body': content,
-                    'SenderId': 'AWSRETAIL'
-                }
-            }
+            'MessageConfiguration': message_config
         }
     )
     logger.info(f'Message sent to {to_number} and response: {response}')

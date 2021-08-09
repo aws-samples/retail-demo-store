@@ -346,6 +346,8 @@ Resources:
               Value: !Ref EnvSearchServiceInternalUrl
             - Name: SEARCH_SERVICE_PORT
               Value: '80'
+            - Name: OFFERS_SERVICE_HOST
+              Value: !Ref EnvOffersServiceInternalUrl
             - Name: OFFERS_SERVICE_PORT
               Value: '80'
             - Name: STACK_BUCKET

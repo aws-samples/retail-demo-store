@@ -786,6 +786,11 @@ def coupon_offer():
                 # Here is where might want to incorporate some business logic
                 # for more information on how these scores are used see
                 # https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-scores-in-amazon-personalize/
+
+                # An alternative approach would be to train Personalize to produce recommendations based on objectives
+                # we specify rather than the default which is to maximise the target event. For more information, see
+                # https://docs.aws.amazon.com/personalize/latest/dg/optimizing-solution-for-objective.html
+
                 user_scores = {item['itemId']: float(item['score']) for item in
                                get_recommendations_response[return_key]}
                 # We assume we have pre-calculated the adjusting factor, can be a mix of probability when applicable,
