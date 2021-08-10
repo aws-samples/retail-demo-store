@@ -50,6 +50,8 @@ Resources:
         PinpointEmailFromAddress: 'dummy@dummy.com' # Only change if you change PreCreatePinpointWorkshop to 'Yes'
         PinpointEmailFromName: 'AWS Retail Demo Store'
         UseDefaultIVSStreams: 'Yes' # Leave to 'Yes' until EE supports reaping IVS resources
+        DeployLocationServices: 'No' # Switch to 'Yes' to deploy location services resources used by demo. Orthogonal to Location Services workshop.
+        DeployPersonalizedOffersCampaign: 'No' # Switch to 'Yes' to get personalised offers triggered by geofence events in the demo. Orthogonal to personalised offers workshop.
         PinpointSMSLongCode: 'NONE'
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
