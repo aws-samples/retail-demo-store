@@ -1,6 +1,9 @@
 # Retail Demo Store location Service
 
-The location web service provides an API for retrieving store locations and customer routes to support to location NRF demo.  
+The location web service provides an API for retrieving store locations and 
+customer routes to support to Location Services demo in the Retail Demo Store.
+To use the demo, see "Retail Geofencing and Location-aware Personalization"
+in the in-app Demo Guide.  
 
 This service has two endpoints
 

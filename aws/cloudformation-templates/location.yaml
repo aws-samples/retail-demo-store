@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-  This template deploys Location & associated resources for the Location NRF 2021 demo.
+  This template deploys Location & associated resources for the Location Service demo.
 
 Parameters:
   ResourceBucket:
@@ -67,7 +67,7 @@ Resources:
   LocationResourceStackLambdaFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location NRF Demo'
+      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location Service Demo'
       Handler: location-resource-stack.lambda_handler
       Role: !GetAtt
         - LocationResourceStackLambdaExecutionRole
@@ -161,7 +161,7 @@ Resources:
   LocationGeofenceEventRule:
     Type: 'AWS::Events::Rule'
     Properties:
-      Description: Rule for Location NRF demo to trigger when devices enter/exit a geofence
+      Description: Rule for Location Service demo to trigger when devices enter/exit a geofence
       EventPattern: {
         "source": [
             "aws.geo"
@@ -260,7 +260,7 @@ Resources:
   LocationGeofenceEventHandler:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Handles Amazon Location geofence entry/exit events in Location NRF demo '
+      Description: 'Handles Amazon Location geofence entry/exit events in Location Service demo '
       Handler: location-geofence-event.lambda_handler
       Role: !GetAtt
         - LocationGeofenceEventHandlerLambdaExecutionRole
