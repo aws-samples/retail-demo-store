@@ -14,7 +14,13 @@ Parameters:
 
   ProductsServiceDNSName:
     Type: String
-  
+
+  OffersServiceDNSName:
+    Type: String
+
+  RecommendationsServiceDNSName:
+    Type: String
+
   PinpointAppId:
     Type: String
 
@@ -47,9 +53,9 @@ Resources:
                   - personalize:DescribeCampaign
                   - personalize:GetRecommendations
                 Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemostore-product-personalization*'
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-product-personalization*'
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemostore-product-personalization*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:solution/retaildemo*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemo*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:filter/retaildemo*'
 
   CustomizeRecommendationsFunctionRole:
     Type: AWS::IAM::Role
@@ -63,7 +69,7 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       Policies:
-        - PolicyName: CloudWatch
+        - PolicyName: CloudWatchAndPinpoint
           PolicyDocument:
             Version: '2012-10-17'
             Statement:                    
@@ -73,6 +79,11 @@ Resources:
                   - logs:PutLogEvents
                   - logs:CreateLogStream
                 Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:GetEndpoint
+                Resource:
+                   - !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/endpoints/*'
 
   CustomizeRecommendationsFunction:
     Type: AWS::Lambda::Function
@@ -88,6 +99,23 @@ Resources:
       Environment:
         Variables:
           products_service_host: !Ref ProductsServiceDNSName
+
+  CustomizeOffersRecommendationsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: 'Retail Demo Store function called by Pinpoint to enrich messages with product/offer information based on recommendations from Amazon Personalize'
+      Handler: pinpoint-offers-recommender.lambda_handler
+      Role: !GetAtt CustomizeRecommendationsFunctionRole.Arn
+      Runtime: python3.8
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-offers-recommender.zip'
+      FunctionName: RetailDemoStorePinpointOffersRecommender  # Function name used in notebook to lookup ARN
+      Environment:
+        Variables:
+          products_service_host: !Ref ProductsServiceDNSName
+          offers_service_host: !Ref OffersServiceDNSName
+          recommendations_service_host: !Ref RecommendationsServiceDNSName
 
   PinpointPermission:
     Type: AWS::Lambda::Permission
@@ -173,9 +201,20 @@ Resources:
       SourceArn:  !Ref PinpointIncomingTextAlertsSNSTopic 
       FunctionName: !Ref PinpointSMSAlertsLambda
 
+  PinpointOffersPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CustomizeOffersRecommendationsFunction.Arn
+      Principal: pinpoint.amazonaws.com
+      SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:*'
+
 Outputs:
   PinpointPersonalizeRoleArn:
     Value: !GetAtt PinpointPersonalizeRole.Arn
     
   CustomizeRecommendationsFunctionArn:
     Value: !GetAtt CustomizeRecommendationsFunction.Arn
+
+  CustomizeOffersRecommendationsFunctionArn:
+    Value: !GetAtt CustomizeOffersRecommendationsFunction.Arn

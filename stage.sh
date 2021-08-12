@@ -88,8 +88,16 @@ done
 echo " + Copying product images"
 aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC
 
+# Sync location data files
+echo " + Copying location location data"
+aws s3 sync ./location_services s3://${BUCKET}/${S3PATH}location_services --only-show-errors $S3PUBLIC
+
 echo " + Creating CSVs for Personalize model pre-create training"
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r generators/requirements.txt
 PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
 
 # Sync CSVs used for Personalize pre-create campaign Lambda function
 echo " + Copying CSVs for Personalize model pre-create training"

@@ -1,0 +1,9 @@
+Hi {{User.UserAttributes.FirstName}}-
+
+We noticed that you have items in your cart. Would you like to complete your purchase in the local AWS Retail Demo Store?
+
+Products waiting for you include:
+    {{User.UserAttributes.ShoppingCartItemTitle.[0]}}
+
+Cheers,
+Retail Demo Store team

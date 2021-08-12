@@ -117,7 +117,8 @@ export default {
     };
   },
   computed: {
-    ...mapState({ user: (state) => state.user, cart: (state) => state.cart.cart }),
+    ...mapState({ user: (state) => state.user,
+                  cart: (state) => state.cart.cart }),
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
@@ -174,6 +175,7 @@ export default {
       this.renderAddedToCartConfirmation();
 
       this.resetQuantity();
+      AnalyticsHandler.recordShoppingCart(this.user, this.cart)
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);

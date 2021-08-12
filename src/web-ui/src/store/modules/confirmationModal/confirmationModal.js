@@ -3,7 +3,6 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import { ConfirmationModals } from '@/partials/ConfirmationModal/config';
 
-const ProductsRepository = RepositoryFactory.get('products');
 const UsersRepository = RepositoryFactory.get('users');
 
 export const confirmationModal = {
@@ -29,11 +28,11 @@ export const confirmationModal = {
 
       if (cart && cart.items.length > 0) {
         try {
-          const { data: cartItem } = await ProductsRepository.getProduct(cart.items[0].product_id);
+
 
           commit('setProgress', 20);
 
-          await AnalyticsHandler.recordAbanonedCartEvent(user, cart, cartItem);
+          await AnalyticsHandler.recordAbanonedCartEvent(user, cart);
 
           commit('setProgress', 100);
         } catch {

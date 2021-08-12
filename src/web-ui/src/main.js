@@ -8,6 +8,8 @@ import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPerso
 import { components } from 'aws-amplify-vue';
 import store from '@/store/store';
 import Amplitude from 'amplitude-js'
+
+import AmplifyStore from '@/store/store';
 import VueGtag from "vue-gtag";
 
 import './styles/tokens.css'
@@ -40,6 +42,12 @@ const amplifyConfig = {
       },
     }
   }
+}
+
+if (AmplifyStore.state.user?.id) {
+    amplifyConfig.Analytics.AWSPinpoint.endpoint = {
+        userId: AmplifyStore.state.user.id
+    }
 }
 
 Analytics.addPluggable(new AWSPinpointProvider());
@@ -90,8 +98,15 @@ require('dotenv').config()
 
 Vue.config.productionTip = false
 
-// Logger.LOG_LEVEL = 'DEBUG'
 const logger = new Logger('main')
+
+Auth.currentAuthenticatedUser()
+  .then((user) => {
+    logger.debug('Current Authenticated User Info:');
+    logger.debug(user);
+  })
+  .catch(err => logger.debug(err))
+
 
 Auth.currentUserInfo()
   .then(user => logger.debug(user))

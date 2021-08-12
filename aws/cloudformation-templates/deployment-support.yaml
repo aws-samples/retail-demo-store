@@ -88,9 +88,16 @@ Parameters:
   CustomizeRecommendationsFunctionArn:
     Type: String
 
+  CustomizeOffersRecommendationsFunctionArn:
+    Type: String
+
   UseDefaultIVSStreams:
     Type: String
     Default: Yes
+
+  DeployPersonalizedOffersCampaign:
+    Type: String
+    Default: No
 
 Conditions:
   DeployPreIndexElasticsearch: !Equals
@@ -134,6 +141,7 @@ Resources:
           csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
+          DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   PersonalizePreCreateLambdaExecutionRole:
     Condition: DeployPreCreateCampaign
@@ -232,7 +240,7 @@ Resources:
                   - personalize:DeleteSolution
                   - personalize:ListFilters
                 Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
                 Action:
                   - personalize:DescribeEventTracker
@@ -473,10 +481,12 @@ Resources:
         Variables:
           pinpoint_app_id: !Ref PinpointAppId
           pinpoint_recommender_arn: !Ref CustomizeRecommendationsFunctionArn
+          pinpoint_offers_recommender_arn: !Ref CustomizeOffersRecommendationsFunctionArn
           pinpoint_personalize_role_arn: !Ref PinpointPersonalizeRoleArn
           email_from_address: !Ref PinpointEmailFromAddress
           email_from_name: !Ref PinpointEmailFromName
           lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
+          DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   PinpointPreCreateLambdaExecutionRole:
     Condition: DeployPreCreatePinpointWorkshop

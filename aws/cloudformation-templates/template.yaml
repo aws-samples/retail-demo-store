@@ -39,6 +39,11 @@ Metadata:
         Parameters:
           - UseDefaultIVSStreams
       - Label:
+          default: "Create Location and Personalised Offers resources"
+        Parameters:
+          - DeployLocationServices
+          - DeployPersonalizedOffersCampaign
+      - Label:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
@@ -74,7 +79,11 @@ Metadata:
       PinpointEmailFromName:
         default: "Reply-To name"
       UseDefaultIVSStreams:
-        default: "Use Default IVS Streams"
+        default: "Use default IVS streams"
+      DeployLocationServices:
+        default: "Deploy Location Services resources"
+      DeployPersonalizedOffersCampaign:
+        default: "Deploy personalized offers and pickup notices using Location Services geofencing."
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -214,6 +223,22 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
+  DeployLocationServices:
+    Type: String
+    Description: Deploy any Location Resources
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
+  DeployPersonalizedOffersCampaign:
+    Type: String
+    Description: Deploy personalized offers and pickup notices using Location Services geofencing
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
   IncludeSegmentDependencies:
     Type: String
     Description: >
@@ -240,6 +265,11 @@ Conditions:
     - !Ref IncludeSegmentDependencies
     - 'Yes'
 
+  DeployLocationStack: !Equals
+    - !Ref DeployLocationServices
+    - 'Yes'
+
+
 Resources:
   # Base Resources
   Base:
@@ -258,6 +288,7 @@ Resources:
         SegmentWriteKey: !Ref SegmentWriteKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
+        LocationResourcePrefix: !Ref AWS::StackName
 
   # Services Resources
   Services:
@@ -320,8 +351,12 @@ Resources:
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
         VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
+        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -345,6 +380,26 @@ Resources:
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
 
+  # Amazon Location Resources
+  Location:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployLocationStack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/location.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        UserPoolId: !GetAtt Base.Outputs.UserPoolId
+        DeployDefaultGeofence: !Ref DeployPersonalizedOffersCampaign
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
+        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
@@ -367,9 +422,11 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
+        CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   # Cleanup bucket function
   CleanupBucket:

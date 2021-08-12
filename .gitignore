@@ -1,6 +1,7 @@
 .idea
 __pycache__/
 .vscode
+.python-version
 build/*
 .venv/
 venv/
@@ -8,6 +9,8 @@ workshop/*/.ipynb_checkpoints
 workshop/1-Personalization/interactions.csv
 workshop/1-Personalization/items.csv
 workshop/1-Personalization/users.csv
+workshop/generate_interactions_personalize.py
+workshop/generate_interactions_personalize_offers.py
 src/web-ui/node_modules
 .DS_Store
 src/aws-lambda/*/bin/

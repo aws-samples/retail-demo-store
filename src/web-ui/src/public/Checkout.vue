@@ -33,7 +33,7 @@
                   <span>{{ cartQuantity }} item{{ cartQuantity === 1 ? '' : 's' }} in cart</span>
                   <strong>{{ formattedCartTotal }}</strong>
                 </div>
-                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" v-on:click="submitOrder">Place your order</button>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="submitOrder">Place your order</button>
               </div>
             </div>
 
@@ -45,8 +45,42 @@
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
 
             <form>
+
               <div class="d-flex">
-                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Shipping Address</h5>
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Delivery Method</h5>
+                <div class="col-lg-8">
+                  <p class="form-check mt-2 mb-0">
+                    <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption2" :value="false" v-model="collection">
+                    <label class="form-check-label" for="collectionOption2">Delivery</label>
+                  </p>
+                  <p class="form-check mt-0">
+                    <input class="form-check-input" type="radio" name="collectionOptions" id="collectionOption1" :value="true" v-model="collection">
+                    <label class="form-check-label" for="collectionOption1">Pickup at Store</label>
+                  </p>
+                  <div v-if="collection">
+                    <TheMask
+                      type="tel"
+                      name="collectionPhone"
+                      placeholder="Your phone number so we can contact you about your order"
+                      v-model="collectionPhone"
+                      :mask="['+# (###) ### - ####', '+## (###) ### - ####']"
+                      class="input py-1 px-2 mb-2"
+                    />
+                    <div class="consent d-flex align-items-start text-left">
+                      <input type="checkbox" class="consent-checkbox mr-2" id="order-alerts-consent" v-model="hasConsentedPhone" />
+                      <label class="" for="order-alerts-consent">
+                        I consent to receive automated text messages at my mobile number above to inform me about the
+                        status of my order. For in-store collection, consent is a conditon of purchase.</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex">
+                <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">
+                  <span v-if="!collection">Shipping Address</span>
+                  <span v-if="collection">Billing Address</span>
+                </h5>
                 <div class="col-lg-8">
                   <p class="mb-1 font-weight-bold">{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}</p>
                   <p class="mb-1">{{order.shipping_address.address1}}</p>
@@ -60,7 +94,7 @@
                 <h5 class="p-4 col-lg-4 bg-light font-weight-bold d-flex align-items-center">Payment</h5>
                 <div class="col-lg-8">
                   <p class="mb-1">VISA ending in 0965</p>
-                  <p class="mb-1">Billing address: Same as shipping address</p>
+                  <p class="mb-1" v-if="!collection">Billing address: Same as shipping address</p>
 
                   <div class="input-group">
                     <input type="text" class="form-control" v-model="order.promo_code" placeholder="Promo code">
@@ -92,6 +126,7 @@ import swal from 'sweetalert';
 
 import Layout from '@/components/Layout/Layout'
 import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
+import { TheMask } from 'vue-the-mask'
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -100,7 +135,8 @@ export default {
   name: 'Checkout',
   components: {
     Layout,
-    AbandonCartButton
+    AbandonCartButton,
+    TheMask
   },
   data () {
     return {
@@ -108,10 +144,13 @@ export default {
       cart: null,
       order: null,
       showCheckout: false,
+      collectionPhone: '',
       previousPageLinkProps: {
         to: '/cart',
         text: 'Back to shopping cart'
       },
+      collection: false,
+      hasConsentedPhone: false
     }
   },
   async created () {
@@ -128,10 +167,12 @@ export default {
   methods: {
     async getCart (){
       if (this.cartID) {
+        console.log('Ready for checkout - getting card fresh from server - ID: ' + this.cartID.toString())
         const { data } = await CartsRepository.getCartByID(this.cartID)
         this.cart = data
         this.order = this.cart
         this.order.total = this.cartTotal
+        this.order.collection_phone = ''
 
         if (this.user) {
           this.order.email = this.user.email
@@ -168,6 +209,16 @@ export default {
     },
     submitOrder () {
 
+      if (this.collection) {
+        this.order.shipping_address = {}
+        this.order.delivery_type = 'COLLECTION'
+        // we tack the + back on the phone number - we mask out non-numeric characters in our input
+        // but Pinpoint expects it.
+        this.order.collection_phone = '+' + this.collectionPhone
+      } else {
+        this.order.delivery_type = 'DELIVERY'
+      }
+      console.log(this.order)
       OrdersRepository.createOrder(this.cart).then(response => {
 
         AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
@@ -187,8 +238,11 @@ export default {
   },
   computed: {
     ...mapState({ user: state => state.user, cartID: state => state.cart.cart?.id }),
-    ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ])
-  },
+    ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ]),
+    placeOrderEnabled() {
+      return !this.collection || this.hasConsentedPhone
+    }
+  }
 }
 </script>
 
@@ -215,6 +269,15 @@ export default {
 
   .summary-border-container {
     border-color: var(--grey-300);
+  }
+
+  .consent {
+    font-size: 0.85rem;
+  }
+
+  .consent-checkbox {
+    /* fine-tuning for alignment */
+    margin-top: 4px;
   }
 
   @media (min-width: 768px) {

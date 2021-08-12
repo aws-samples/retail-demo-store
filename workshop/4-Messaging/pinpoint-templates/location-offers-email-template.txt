@@ -1,0 +1,9 @@
+Hi, . Greetings from the Retail Demo Store!
+
+Hi {{User.UserAttributes.FirstName}}-
+We noticed that you are close to your Local Retail Demo Store.
+Pop into our store near you, check our newest collection, and use the code {{Recommendations.OfferCode.[0]}} for any purchase and get {{Recommendations.OfferDescription.[0]}}.
+We are looking forward to seeing you.
+Cheers,
+Retail Demo Store team
+

@@ -24,12 +24,15 @@ import pprint
 import boto3
 import uuid
 import requests
+import random
 import logging
 
 NUM_DISCOUNTS = 2
 
 EXPERIMENTATION_LOGGING = True
 DEBUG_LOGGING = True
+
+random.seed(42)  # Keep our demonstration deterministic
 
 # Since the DescribeCampaign API easily throttles and we just need
 # the recipe from the campaign and it won't change often (if at all), 
@@ -38,6 +41,7 @@ personalize_meta_cache = ExpiringDict(2 * 60 * 60)
 
 servicediscovery = boto3.client('servicediscovery')
 personalize = boto3.client('personalize')
+personalize_runtime = boto3.client('personalize-runtime')
 ssm = boto3.client('ssm')
 codepipeline = boto3.client('codepipeline')
 sts = boto3.client('sts')
@@ -45,7 +49,7 @@ cw_events = boto3.client('events')
 
 # SSM parameter name for the Personalize filter for purchased items
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
-
+offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 dataset_group_name_root = 'retaildemostore-'
 
@@ -672,6 +676,164 @@ def choose_discounted():
         return json.dumps(items)
 
 
+def get_offers_service():
+    """
+    Get offers service URL root. Check for env variables first in case we're running in a local Docker container (dev mode)
+    """
+
+    service_host = os.environ.get('OFFERS_SERVICE_HOST')
+    service_port = os.environ.get('OFFERS_SERVICE_PORT', 80)
+
+    if not service_host or service_host.strip().lower() == 'offers.retaildemostore.local':
+        # Get product service instance. We'll need it rehydrate product info for recommendations.
+        response = servicediscovery.discover_instances(
+            NamespaceName='retaildemostore.local',
+            ServiceName='offers',
+            MaxResults=1,
+            HealthStatus='HEALTHY'
+        )
+
+        service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+
+    return service_host, service_port
+
+
+def get_all_offers_by_id():
+    """We might wish to prepopulate all offers if we are going to be picking up multiple offers."""
+    offers_service_host, offers_service_port = get_offers_service()
+    url = f'http://{offers_service_host}:{offers_service_port}/offers'
+    logger.debug(f"Asking for offers info from {url}")
+    offers_response = requests.get(url)  # we let connection error propagate
+    logger.debug(f"Got offer info: {offers_response}")
+    if not offers_response.ok:
+        logger.error(f"Offers service not giving us offers: {offers_response.reason}")
+        raise BadRequest(message='Cannot obtain offers', status_code=500)
+    offers = offers_response.json()['tasks']
+    offers_by_id = {str(offer['id']): offer for offer in offers}
+    return offers_by_id
+
+
+def get_offer_by_id(offer_id):
+    offers_service_host, offers_service_port = get_offers_service()
+    url = f'http://{offers_service_host}:{offers_service_port}/offers/{offer_id}'
+    logger.debug(f"Asking for offer info from {url}")
+    offers_response = requests.get(url)  # we let connection error propagate
+    logger.debug(f"Got offer info: {offers_response}")
+    if not offers_response.ok:
+        logger.error(f"Offers service not giving us offers: {offers_response.reason}")
+        raise BadRequest(message='Cannot obtain offers', status_code=500)
+    offer = offers_response.json()['task']
+    return offer
+
+
+@app.route('/coupon_offer', methods=['GET'])
+def coupon_offer():
+    """
+    Returns an offer recommendation for a given user.
+
+    Hits the offers endpoint to find what offers are available, get their preferences for adjusting scores.
+    Uses Amazon Personalize if available to score them.
+    Returns the highest scoring offer.
+
+    Experimentation is disabled because we are sending the offers through Pinpoint emails and for this
+    demonstration we would need to add some more complexity to track those within the current framework.
+    Pinpoint also has A/B experimentation built in which can be used.
+    """
+
+    user_id = request.args.get('userID')
+    if not user_id:
+        raise BadRequest('userID is required')
+
+    resp_headers = {}
+    try:
+
+        campaign_arn = get_parameter_values(offers_arn_param_name)[0]
+        offers_service_host, offers_service_port = get_offers_service()
+
+        url = f'http://{offers_service_host}:{offers_service_port}/offers'
+        app.logger.debug(f"Asking for offers info from {url}")
+        offers_response = requests.get(url)
+        app.logger.debug(f"Got offer info: {offers_response}")
+
+        if not offers_response.ok:
+            app.logger.exception('Offers service did not return happily', offers_response.reason())
+            raise BadRequest(message='Cannot obtain offers', status_code=500)
+        else:
+
+            offers = offers_response.json()['tasks']
+            offers_by_id = {str(offer['id']): offer for offer in offers}
+            offer_ids = sorted(list(offers_by_id.keys()))
+
+            if not campaign_arn:
+                app.logger.warning('No campaign Arn set for offers - returning arbitrary')
+                # We deterministically choose an offer
+                # - random approach would have been chosen_offer_id = random.choice(offer_ids)
+                chosen_offer_id = offer_ids[int(user_id) % len(offer_ids)]
+                chosen_score = None
+            else:
+                resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+                logger.info(f"Input to Personalized Ranking for offers: userId: {user_id}({type(user_id)}) "
+                            f"inputList: {offer_ids}")
+                get_recommendations_response = personalize_runtime.get_recommendations(
+                    campaignArn=campaign_arn,
+                    userId=user_id,
+                    numResults=len(offer_ids)
+                )
+
+                logger.info(f'Recommendations returned: {json.dumps(get_recommendations_response)}')
+
+                return_key = 'itemList'
+                # Here is where might want to incorporate some business logic
+                # for more information on how these scores are used see
+                # https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-scores-in-amazon-personalize/
+
+                # An alternative approach would be to train Personalize to produce recommendations based on objectives
+                # we specify rather than the default which is to maximise the target event. For more information, see
+                # https://docs.aws.amazon.com/personalize/latest/dg/optimizing-solution-for-objective.html
+
+                user_scores = {item['itemId']: float(item['score']) for item in
+                               get_recommendations_response[return_key]}
+                # We assume we have pre-calculated the adjusting factor, can be a mix of probability when applicable,
+                # calculation of expected return per offer, etc.
+                adjusted_scores = {offer_id: score * offers_by_id[offer_id]['preference']
+                                   for offer_id, score in user_scores.items()}
+                logger.info(f"Scores after adjusting for preference parameters: {adjusted_scores}")
+
+                # Normalise these - makes it easier to do further adjustments
+                score_sum = sum(adjusted_scores.values())
+                adjusted_scores = {offer_id: score / score_sum
+                                   for offer_id, score in adjusted_scores.items()}
+                logger.info(f"Scores after normalising adjusted scores: {adjusted_scores}")
+
+                # Just one way we could add some randomness - adds serendipity though removes personalization a bit
+                # because we have the scores though we retain a lot of the personalization
+                random_factor = 0.0
+                adjusted_scores = {offer_id: score*(1-random_factor) + random_factor*random.random()
+                                   for offer_id, score in adjusted_scores.items()}
+                logger.info(f"Scores after adding randomness: {adjusted_scores}")
+
+                # We can do many other things here, like randomisation, normalisation in different dimensions,
+                # tracking per-user, offer, quotas, etc. Here, we just select the most promising adjusted score
+                chosen_offer_id = max(adjusted_scores, key=adjusted_scores.get)
+                chosen_score = user_scores[chosen_offer_id]
+                chosen_adjusted_score = adjusted_scores[chosen_offer_id]
+
+            chosen_offer = offers_by_id[chosen_offer_id]
+            if chosen_score is not None:
+                chosen_offer['score'] = chosen_score
+                chosen_offer['adjusted_score'] = chosen_adjusted_score
+
+        resp = Response(json.dumps({'offer': chosen_offer}, cls=CompatEncoder),
+                        content_type='application/json', headers=resp_headers)
+
+        app.logger.debug(f"Recommendations response to be returned for offers: {resp}")
+        return resp
+
+    except Exception as e:
+        app.logger.exception('Unexpected error generating recommendations', e)
+        raise BadRequest(message='Unhandled error', status_code=500)
+
+
 @app.route('/experiment/outcome', methods=['POST'])
 def experiment_outcome():
     """ Tracks an outcome/conversion for an experiment """
@@ -731,7 +893,7 @@ def reset_realtime():
     for train_config_step in train_configs['steps']:
 
         new_train_config_step = {'dataset_groups': {}}
-        # Let us change the dataset group suffix to avoid any silliness with carrying over events
+        # Let us change the dataset group suffix to avoid carrying over any resources keyed by dataset group
         if train_config_step['dataset_groups'] is not None:
             for dataset_group_name, dataset_group_config in train_config_step['dataset_groups'].items():
 

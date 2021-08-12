@@ -32,6 +32,13 @@ Parameters:
   Uid:
     Type: String
 
+  UserPoolId:
+    Type: String
+    Description: The Cognito user pool ID.
+
+  PinpointAppId:
+    Type: String
+
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
@@ -47,7 +54,13 @@ Resources:
         -
           Key: "Uid"
           Value: !Ref Uid
-  
+        -
+          Key: "PinpointAppId"
+          Value: !Ref PinpointAppId
+        -
+          Key: "UserPoolId"
+          Value: !Ref UserPoolId
+
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -71,6 +84,13 @@ Resources:
               Service: 
                 - "sagemaker.amazonaws.com"
             Action: 
+              - "sts:AssumeRole"
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
               - "sts:AssumeRole"
       Path: "/"
       Policies: 
@@ -206,7 +226,96 @@ Resources:
                 Action: 
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'
-  
+        -
+          PolicyName: "7-Location"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - geo:CreateMap
+                  - geo:DeleteMap
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:map*'
+              -
+                Effect: Allow
+                Action:
+                  - geo:PutGeofence
+                  - geo:CreateGeofenceCollection
+                  - geo:BatchDeleteGeofence
+                  - geo:DeleteGeofenceCollection
+                  - geo:ListGeofences
+                  - geo:ListGeofenceCollections
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection*'
+              -
+                Effect: Allow
+                Action:
+                  - geo:AssociateTrackerConsumer
+                  - geo:DisassociateTrackerConsumer
+                  - geo:CreateTracker
+                  - geo:DeleteTracker
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:tracker*'
+              -
+                Effect: Allow
+                Action:
+                  - geo:BatchUpdateDevicePosition
+                  - geo:BatchGetDevicePosition
+                  - geo:DescribeTracker
+                  - geo:GetDevicePosition
+                  - geo:GetDevicePositionHistory
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:tracker/RetailDemoStoreLocationWorkshop*'
+              -
+                Effect: Allow
+                Action:
+                  - geo:GetGeofence
+                  - geo:DescribeGeofenceCollection
+                Resource:
+                  - !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/RetailDemoStoreLocationWorkshop*"
+              -
+                Effect: "Allow"
+                Action:
+                  - events:PutRule
+                  - events:DeleteRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*'
+              -
+                Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+              -
+                Effect: "Allow"
+                Action:
+                  - lambda:AddPermission
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                Resource:
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LocationNotebookEventHandler'
+              -
+                Effect: "Allow"
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNotebookEventHandler:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNotebookEventHandler'
+              -
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+
 Outputs:
   NotebookInstanceId:
     Value: !Ref NotebookInstance

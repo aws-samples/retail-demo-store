@@ -16,6 +16,9 @@ import Orders from '@/authenticated/Orders.vue'
 import Admin from '@/authenticated/Admin.vue'
 import ShopperSelectPage from '@/authenticated/ShopperSelectPage'
 
+import Location from "@/public/Location";
+import Collections from "@/public/Collections";
+
 import { AmplifyEventBus } from 'aws-amplify-vue';
 import { Auth, Logger, I18n, Analytics, Interactions } from 'aws-amplify';
 import { AmplifyPlugin } from 'aws-amplify-vue';
@@ -73,6 +76,8 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser = data
     }
     else {
+            // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
+      // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user
       const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
       storeUser = data
     }
@@ -81,6 +86,7 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     if (!storeUser.id) {
       // Store user does not exist. Create one on the fly.
+      // This takes the personalize User ID which was a UUID4 for the current session and turns it into a user user ID.
       console.log('store user does not exist for cognito user... creating on the fly')
       let identityId = credentials ? credentials.identityId : null;
       let provisionalUserId = AmplifyStore.getters.personalizeUserID;
@@ -254,6 +260,18 @@ const router = new Router({
       name: 'ShopperSelect',
       component: ShopperSelectPage,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/location',
+      name: 'Location',
+      component: Location,
+      meta: { requiresAuth: true}
+    },
+    {
+      path: '/collections',
+      name: 'Collections',
+      component: Collections,
+      meta: { requiresAuth: true}
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {

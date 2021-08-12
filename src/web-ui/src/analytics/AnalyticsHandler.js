@@ -13,6 +13,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
+const ProductsRepository = RepositoryFactory.get('products')
 
 export const AnalyticsHandler = {
     clearUser() {
@@ -32,6 +33,9 @@ export const AnalyticsHandler = {
 
         try {
             const cognitoUser = await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser()
+            const endpointId = AmplifyAnalytics.getPluggable('AWSPinpoint')._config.endpointId;
+            console.log('Pinpoint EndpointId Currently Active:');
+            console.log(endpointId);
 
             let endpoint = {
                 userId: user.id,
@@ -230,7 +234,7 @@ export const AnalyticsHandler = {
 
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: ['true']
                 },
                 metrics: {
@@ -298,24 +302,43 @@ export const AnalyticsHandler = {
             });
         }
     },
-
-    recordAbanonedCartEvent(user,cart,cartProduct) {
-        if (user && cart && cartProduct) {
-            AmplifyAnalytics.record({
-                name: '_session.stop',
-            })
-
-        return AmplifyAnalytics.updateEndpoint({
+   async recordShoppingCart (user, cart) {
+        if (user && cart) {
+            const hasItem = cart.items.length > 0
+            var productImages, productTitles, productURLs
+            if (hasItem) {
+                const product = await ProductsRepository.getProduct(cart.items[0].product_id);
+                const cartItem = product.data
+                productImages = [cartItem.image]
+                productTitles = [cartItem.name]
+                productURLs = [cartItem.url]
+            }else {
+                productImages = []
+                productTitles = []
+                productURLs = []
+            }
+            AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
-                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                userAttributes: {
                     WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
                     WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
                     WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
-                    ShoppingCartItemImageURL:  [cartProduct.image],
-                    ShoppingCartItemTitle :  [cartProduct.name],
-                    ShoppingCartItemURL : [cartProduct.url],
-                },
+                    ShoppingCartItemImageURL:  productImages,
+                    ShoppingCartItemTitle :  productTitles,
+                    ShoppingCartItemURL : productURLs,
+                    HasShoppingCart: hasItem ? ['true'] : ['false']
+                }
+            })
+            return hasItem
+        } else {
+            return false;
+        }
+    },
+    async recordAbanonedCartEvent(user, cart) {
+        const hasItem = await this.recordShoppingCart(user, cart)
+        if (hasItem) {
+            AmplifyAnalytics.record({
+                name: '_session.stop',
             })
         }
     },
@@ -337,7 +360,7 @@ export const AnalyticsHandler = {
 
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false']
                 },
                 metrics: {
@@ -424,7 +447,6 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().logEvent('ProductQuantityUpdated', eventProperties);
         }
     },
-
     productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
             AmplifyAnalytics.record({
@@ -694,7 +716,7 @@ export const AnalyticsHandler = {
         if (user && user.id) {
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: ['false'],
                     HasCompletedOrder: ['true']
                 },
