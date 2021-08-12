@@ -55,11 +55,9 @@ Parameters:
     Default: none
 
 Conditions:
-  DefaultGeofence:
-    - !Equals
+  DefaultGeofence: !Equals
       - !Ref DeployDefaultGeofence
       - 'Yes'
-
 
 Resources:
 
