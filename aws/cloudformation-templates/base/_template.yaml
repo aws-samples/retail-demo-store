@@ -69,6 +69,10 @@ Parameters:
     Type: String
     Description: Prefix of Location Services resources to use
 
+  GitHubUser:
+    Type: String
+    Description: Your GitHub username.
+
 Resources:
 
   # Authentication
@@ -99,12 +103,12 @@ Resources:
         Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
         Subnet2: !GetAtt VPC.Outputs.Subnet2
-        DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        GitHubUser: !Ref GitHubUser
 
   # Tables
   Tables:
@@ -290,10 +294,6 @@ Outputs:
   ParameterPersonalizeEventTrackerId:
     Description: Personalize Event Tracker ID Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterPersonalizeEventTrackerId
-
-  WorkshopRepositoryArn:
-    Description: Workshop CodeCommit Repository Arn
-    Value: !GetAtt CodeCommitRepository.Outputs.WorkshopRepositoryArn
 
   ParameterAmplitudeApiKey:
     Description: Amplitude API key Parameter
