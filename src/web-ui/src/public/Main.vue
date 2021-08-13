@@ -11,7 +11,7 @@
               hideTextOnSmallScreens
             ></DemoGuideBadge>
           </h2>
-          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted">
+          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted small">
             <i class="fa fa-balance-scale px-1"></i>
             {{ recommendationsExperiment }}
           </div>
