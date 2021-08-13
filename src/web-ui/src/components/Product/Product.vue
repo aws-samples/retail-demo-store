@@ -15,11 +15,10 @@
           <div class="product-name">{{ product.name }}</div>
           <FiveStars></FiveStars>
           <div>{{ formattedPrice }}</div>
+          <div v-if="experiment" class="experiment mt-1 align-items-center text-muted small">
+            <i class="scale-icon fa fa-balance-scale mr-1"></i> {{ experimentDescription }}
+          </div>
         </div>
-      </div>
-
-      <div v-if="experiment" class="experiment mt-1 p-3 d-flex align-items-center text-muted">
-        <i class="scale-icon fa fa-balance-scale mr-2"></i> {{ experimentDescription }}
       </div>
     </router-link>
   </div>

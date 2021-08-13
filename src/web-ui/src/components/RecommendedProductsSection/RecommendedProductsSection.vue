@@ -2,7 +2,7 @@
   <section class="mb-5">
     <div class="mb-3 text-left">
       <h2 class="recommendations-heading"><slot name="heading"></slot></h2>
-      <div v-if="experiment" class="recommendation-explanation text-muted">
+      <div v-if="experiment" class="recommendation-explanation text-muted small">
         <i class="fa fa-balance-scale px-1"></i>
         {{ experiment }}
       </div>
