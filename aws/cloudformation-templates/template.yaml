@@ -44,6 +44,13 @@ Metadata:
           - DeployLocationServices
           - DeployPersonalizedOffersCampaign
       - Label:
+          default: "Amazon Pay"
+        Parameters:
+          - AmazonPayStoreId
+          - AmazonPayMerchantId
+          - AmazonPayPublicKeyId
+          - AmazonPayPrivateKey
+      - Label:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
@@ -88,6 +95,14 @@ Metadata:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      AmazonPayStoreId:
+        default: "Store ID of Amazon Pay sandbox account"
+      AmazonPayMerchantId:
+        default: "Merchant ID of Amazon Pay sandbox account"
+      AmazonPayPublicKeyId:
+        default: "Public key ID associated with Amazon Pay sandbox account"
+      AmazonPayPrivateKey:
+        default: "Private key associated with Amazon Pay sandbox account"
       IncludeSegmentDependencies:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
@@ -239,6 +254,33 @@ Parameters:
       - 'No'
     Default: 'Yes'
 
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: >
+      This demonstration store contains an example of signing Amazon Pay payloads for integration with an Amazon Pay sandbox.
+      This parameter is the Public Key ID for the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+
+  AmazonPayStoreId:
+    Type: String
+    Description: >
+      The Store ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: >
+      Merchant ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+
+  AmazonPayPrivateKey:
+    Type: String
+    Description: >
+      The private key to be used for signing Amazon Pay requests for a sandbox account.
+      You will need to copy the whole contents of the .pem file into this parameter.
+      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+    NoEcho: true
+
   IncludeSegmentDependencies:
     Type: String
     Description: >
@@ -269,6 +311,13 @@ Conditions:
     - !Ref DeployLocationServices
     - 'Yes'
 
+  CreateAmazonPayResources: !And
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayPrivateKey, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayStoreId, "" ] ]
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
 
 Resources:
   # Base Resources
@@ -341,6 +390,9 @@ Resources:
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
@@ -400,6 +452,19 @@ Resources:
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
+  AmazonPay:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateAmazonPayResources
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/amazonpay.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
+        AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
@@ -425,6 +490,7 @@ Resources:
         CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 

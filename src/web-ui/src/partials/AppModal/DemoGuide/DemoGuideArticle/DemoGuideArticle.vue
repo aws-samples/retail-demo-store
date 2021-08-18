@@ -20,6 +20,7 @@ import AboutThisDemo from './articles/AboutThisDemo';
 import Datasets from './articles/Datasets';
 import ShopperPersonas from './articles/ShopperPersonas';
 import EnablingShopperProfiles from './articles/EnablingShopperProfiles';
+import AmazonPayIntegration from '@/partials/AppModal/DemoGuide/DemoGuideArticle/articles/AmazonPayIntegration'
 import LocationServices from './articles/LocationServices';
 
 export default {
@@ -62,6 +63,8 @@ export default {
           return ShopperPersonas;
         case Articles.ENABLING_SHOPPER_PROFILES:
           return EnablingShopperProfiles
+        case Articles.AMAZON_PAY_INTEGRATION:
+          return AmazonPayIntegration
         case Articles.LOCATION_SERVICES:
           return LocationServices
       }

@@ -53,6 +53,9 @@
       "parser": "babel-eslint"
     }
   },
+  "globals": {
+    "amazon": true
+  },
   "postcss": {
     "plugins": {
       "autoprefixer": {}
