@@ -91,9 +91,6 @@ Parameters:
   CustomizeOffersRecommendationsFunctionArn:
     Type: String
 
-  ProductsServiceExternalUrl:
-    Type: String
-
   UseDefaultIVSStreams:
     Type: String
     Default: Yes

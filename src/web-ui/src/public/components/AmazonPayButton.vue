@@ -29,11 +29,17 @@ export default {
     },
     methods: {
         async loadAmazonPayButton() {
-            let recaptchaScript = document.createElement('script')
-            recaptchaScript.setAttribute('src', 'https://www.google.com/recaptcha/api.js')
-            document.head.appendChild(recaptchaScript)
+            // Load Amazon Pay script - we can do it here so we don't have to load it at start
+            if (!document.getElementById("amazon-pay-checkout-javascript")) {
+              let payscript = document.createElement('script')
+              payscript.setAttribute('src', 'https://static-na.payments-amazon.com/checkout.js')
+              payscript.setAttribute('id', 'amazon-pay-checkout-javascript')
+              document.head.appendChild(payscript)
+            }
 
+            // Sign the payload for starting a checkout session
             await this.signPayload();
+
             // eslint-disable-next-line no-undef
             amazon.Pay.renderButton('#AmazonPayButton', {
                 merchantId: process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID,
@@ -52,7 +58,6 @@ export default {
         },
         async signPayload () {
           const signatureResponse = await CartsRepository.signAmazonPayPayload(this.payload);
-          console.log(signatureResponse.data.body)
           this.payloadSignature = signatureResponse.data.body.Signature;
           return this.payloadSignature
         }

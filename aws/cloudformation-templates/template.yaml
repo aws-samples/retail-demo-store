@@ -44,7 +44,7 @@ Metadata:
           - DeployLocationServices
           - DeployPersonalizedOffersCampaign
       - Label:
-          default: "Amazon Pay"
+          default: "Amazon Pay (optional)"
         Parameters:
           - AmazonPayStoreId
           - AmazonPayMerchantId
@@ -259,26 +259,26 @@ Parameters:
     Description: >
       This demonstration store contains an example of signing Amazon Pay payloads for integration with an Amazon Pay sandbox.
       This parameter is the Public Key ID for the Amazon Pay sandbox account being used.
-      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayStoreId:
     Type: String
     Description: >
-      The Store ID of the Amazon Pay sandbox account being used.
-      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+    The Store ID of the Amazon Pay sandbox account being used.
+    For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayMerchantId:
     Type: String
     Description: >
       Merchant ID of the Amazon Pay sandbox account being used.
-      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayPrivateKey:
     Type: String
     Description: >
       The private key to be used for signing Amazon Pay requests for a sandbox account.
       You will need to copy the whole contents of the .pem file into this parameter.
-      For more information see "Amazon Pay checkout integration" in the in-store Demo Guide.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
     NoEcho: true
 
   IncludeSegmentDependencies:
@@ -490,7 +490,6 @@ Resources:
         CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
-        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 

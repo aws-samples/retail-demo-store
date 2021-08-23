@@ -1,13 +1,11 @@
 {
-  "name": "location-amazon-pay",
+  "name": "amazon-pay-signing-lambda",
   "version": "1.0.0",
-  "description": "",
+  "description": "Signs Amazon Pay payloads with private key pulled from Secrets Manager",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@amazonpay/amazon-pay-api-sdk-nodejs": "^2.1.1"
   }

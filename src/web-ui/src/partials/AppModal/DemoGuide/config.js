@@ -29,7 +29,6 @@ export const Articles = {
   DATASETS: 'datasets',
   SHOPPER_PERSONAS: 'shopper-personas',
   ENABLING_SHOPPER_PROFILES: 'enabling-shopper-profiles',
-  AMAZON_PAY_INTEGRATION: 'amazon-pay-integration',
   LOCATION_SERVICES: 'location-services'
 };
 
@@ -41,7 +40,6 @@ export const articleTitles = {
   [Articles.PERSONALIZED_EMAILS]: 'Personalize Emails: Welcome and Abandoned Cart',
   [Articles.SMS_MESSAGING]: 'Text Messaging (SMS): Personalized Alerts and Promotions',
   [Articles.OMNI_CHANNEL]: 'Omni-Channel Personalization & ML Model Retraining',
-  [Articles.AMAZON_PAY_INTEGRATION]: 'Amazon Pay Integration',
   [Articles.LOCATION_SERVICES]: 'Retail Geofencing and Location-aware Personalization',
   [Articles.RIGHT_FOR_YOU]: 'Find out why Amazon Personalize is right for your business',
   [Articles.DATA_TO_PROVIDE]: 'What data should I provide?',
@@ -65,7 +63,6 @@ export const sections = [
       Articles.PERSONALIZED_EMAILS,
       Articles.SMS_MESSAGING,
       Articles.OMNI_CHANNEL,
-      Articles.AMAZON_PAY_INTEGRATION,
       Articles.LOCATION_SERVICES,
     ],
   },

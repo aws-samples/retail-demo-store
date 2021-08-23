@@ -118,7 +118,7 @@ func CartCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//CartCreate Func
+//Sign a payload for Amazon Pay - delegates to a Lambda function for doing this.
 func SignAmazonPayPayload(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 	if (*r).Method == "OPTIONS" {
