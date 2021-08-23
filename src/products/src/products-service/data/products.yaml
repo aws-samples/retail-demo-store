@@ -90,10 +90,10 @@
   gender_affinity: F
 - id: 1a3fa9d4-e320-4873-be58-f3f6af5f99f4
   current_stock: 14
-  name: Indian-Red Backpack
+  name: Rust Leather Backpack
   category: accessories
   style: backpack
-  description: Indian-red backpack for women
+  description: Rust leather backpack for women
   price: 135.99
   image: "1a3fa9d4-e320-4873-be58-f3f6af5f99f4.jpg"
   gender_affinity: F
@@ -1483,10 +1483,10 @@
   gender_affinity: F
 - id: aedc65f7-684c-4e4a-bcd0-455dae355ced
   current_stock: 13
-  name: Indian-Red Handbag
+  name: Rust Leather Handbag
   category: accessories
   style: handbag
-  description: This hip indian-red handbag is the perfect accessory for casually wandering everywhere
+  description: This hip rust leather handbag is the perfect accessory for casually wandering everywhere
   price: 126.99
   image: "aedc65f7-684c-4e4a-bcd0-455dae355ced.jpg"
   gender_affinity: F
@@ -9443,10 +9443,10 @@
   image: "7a373422-fc33-4e71-959f-99998d0b7686.jpg"
 - id: 4434a6d2-bcdd-43f9-b910-26d926ec7c34
   current_stock: 8
-  name: Indian-Red Sofa
+  name: Brown Leather Sofa
   category: furniture
   style: sofas
-  description: Enjoy this nice indian-red sofa
+  description: Enjoy this large and beautiful brown leather sofa
   price: 898.99
   image: "4434a6d2-bcdd-43f9-b910-26d926ec7c34.jpg"
 - id: 8abb77b7-2650-46f1-8990-df06360fd2b2
