@@ -264,8 +264,8 @@ Parameters:
   AmazonPayStoreId:
     Type: String
     Description: >
-    The Store ID of the Amazon Pay sandbox account being used.
-    For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+      The Store ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayMerchantId:
     Type: String
