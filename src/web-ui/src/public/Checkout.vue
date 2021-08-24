@@ -35,7 +35,7 @@
                 </div>
                 <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="handleSubmitOrderButton">Place your order</button>
                 <div class="mt-3">
-                  <amazon-pay-button v-if="placeOrderEnabled" @click.native="finalizeAmazonPayOrder"/>
+                  <amazon-pay-button v-if="placeOrderEnabled && amazonPayEnabled" @click.native="finalizeAmazonPayOrder"/>
                 </div>
               </div>
             </div>
@@ -256,6 +256,15 @@ export default {
     ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ]),
     placeOrderEnabled() {
       return !this.collection || this.hasConsentedPhone
+    },
+    amazonPayEnabled() {
+      const enabled = process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID !== '' &&
+                      process.env.VUE_APP_AMAZON_PAY_STORE_ID && process.env.VUE_APP_AMAZON_PAY_STORE_ID !== '' &&
+                      process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID && process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID !== ''
+      if(enabled) {
+        console.log('Amazon Pay Button Enabled')
+      }
+      return enabled;
     }
   }
 }
