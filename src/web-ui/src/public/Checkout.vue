@@ -33,13 +33,17 @@
                   <span>{{ cartQuantity }} item{{ cartQuantity === 1 ? '' : 's' }} in cart</span>
                   <strong>{{ formattedCartTotal }}</strong>
                 </div>
-                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="submitOrder">Place your order</button>
+                <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="handleSubmitOrderButton">Place your order</button>
+                <div class="mt-3">
+                  <amazon-pay-button v-if="placeOrderEnabled && amazonPayEnabled" @click.native="finalizeAmazonPayOrder"/>
+                </div>
               </div>
             </div>
 
             <div class="m-4">
               <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
+
           </div>
           <div class="col order-lg-1">
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
@@ -126,6 +130,7 @@ import swal from 'sweetalert';
 
 import Layout from '@/components/Layout/Layout'
 import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
+import AmazonPayButton from "@/public/components/AmazonPayButton";
 import { TheMask } from 'vue-the-mask'
 
 const CartsRepository = RepositoryFactory.get('carts')
@@ -136,6 +141,7 @@ export default {
   components: {
     Layout,
     AbandonCartButton,
+    AmazonPayButton,
     TheMask
   },
   data () {
@@ -207,7 +213,24 @@ export default {
     guestCheckout () {
       this.showCheckout = true
     },
-    submitOrder () {
+    finalizeAmazonPayOrder () {
+      // As the Amazon Pay integration is truncated, we finalize the checkout here.
+      this.submitOrder( () => {})
+    },
+    handleSubmitOrderButton () {
+      this.submitOrder( () => {
+        swal({
+          title: "Order Submitted",
+          icon: "success",
+          buttons: {
+            cancel: "OK",
+          }
+        }).then(() => {
+          this.$router.push('/')
+        });
+      })
+    },
+    submitOrder (callback) {
 
       if (this.collection) {
         this.order.shipping_address = {}
@@ -221,18 +244,10 @@ export default {
       console.log(this.order)
       OrdersRepository.createOrder(this.cart).then(response => {
 
-        AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
+      AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
+      AmplifyStore.dispatch('getNewCart')
+      callback()
 
-        swal({
-          title: "Order Submitted",
-          icon: "success",
-          buttons: {
-            cancel: "OK",
-          }
-        }).then(() => {
-          AmplifyStore.dispatch('getNewCart')
-          this.$router.push('/');
-        });
      })
     },
   },
@@ -241,6 +256,15 @@ export default {
     ...mapGetters([ 'cartQuantity', 'cartTotal', 'formattedCartTotal' ]),
     placeOrderEnabled() {
       return !this.collection || this.hasConsentedPhone
+    },
+    amazonPayEnabled() {
+      const enabled = process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID !== '' &&
+                      process.env.VUE_APP_AMAZON_PAY_STORE_ID && process.env.VUE_APP_AMAZON_PAY_STORE_ID !== '' &&
+                      process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID && process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID !== ''
+      if(enabled) {
+        console.log('Amazon Pay Button Enabled')
+      }
+      return enabled;
     }
   }
 }
