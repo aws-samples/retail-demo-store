@@ -14,7 +14,7 @@ const mp_api = new mParticle.EventsApi(new mParticle.Configuration(mp_api_key, m
 var eventList = [];
 var mpid;
 
-exports.handler = function (event, context) {
+exports.mParticlePersonalize = function (event, context) {
 
     console.log(event);
     console.log(event.records);

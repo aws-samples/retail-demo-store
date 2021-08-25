@@ -28,13 +28,13 @@ Resources:
       StreamEncryption: 
         StreamEncryption
 
-  mParticlePersonalizeEventsLambda:
+  mParticlePersonalizeLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Handles sending events passed from mPArticle to the Personalize tracker for user-item interactions.'
       Handler: mparticle-personalize.lambda_handler
       Role: !GetAtt 
-        - mParticlePersonalizeDestinationLambdaExecutionRole
+        - mParticlePersonalizeLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
@@ -45,41 +45,14 @@ Resources:
       Environment:
         Variables:
           personalise_tracking_id:  ''
+          personalise_campaign_arn: ''
           mparticle_api_key: ''
           mparticle_secret_key: ''
 
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
-     Description: 'Required role the mParticle Kinesis Lambda.'
-     AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS:
-                - "arn:aws:iam::595280932656:root"
-            Action:
-              - 'sts:AssumeRole'
-            Condition:
-              StringEquals:
-                "sts:ExternalId": '123456789'
-     Path: /
-     Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SegmentPersonalize*'
-
-  SegmentPersonalizeDestinationLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      Description: 'Execution role for the two Lambdas provided with the Segment workshop.'
+      Description: 'Execution role for the Lambda provided with the mParticle workshop.'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -100,8 +73,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalize*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalize*'
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                
