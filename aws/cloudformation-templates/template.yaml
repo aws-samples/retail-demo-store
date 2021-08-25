@@ -50,6 +50,8 @@ Metadata:
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - mParticleApiKey
+          - mParticleSecretKey
           - GoogleAnalyticsMeasurementId
     ParameterLabels:
       ResourceBucket:
@@ -92,6 +94,10 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      mParticleApiKey:
+        default: "mParticle API Key"
+      mParticleSecretKey:
+        default: "mParticle Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
 
@@ -252,6 +258,18 @@ Parameters:
     Type: String
     Description: >
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
+    NoEcho: true
+
+  mParticleApiKey:
+    Type: String
+    Description: >
+      mParticle API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleSecretKey:
+    Type: String
+    Description: >
+      mParticle secret key coupled with your API key.
     NoEcho: true
 
   GoogleAnalyticsMeasurementId:
@@ -443,6 +461,15 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
+  # mParticle Lambda Functions Kinesis and Roles
+  mParticlePersonalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/mparticle.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
 
 Outputs:
   UserPoolId:
