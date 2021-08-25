@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const JSONBig = require('json-bigint')({ storeAsString: true });
 const mParticle = require('mparticle');
 const trackingId = process.env.PERSONALISE_TRACKING_ID;
+const campaignArn = process.env.PERSONALISE_CAMPAIGN_ARN;
 const report_actions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
 const mp_api_key = process.env.MPARTICLE_API_KEY;
 const mp_api_secret = process.env.MPARTICLE_SECRET_KEY;
@@ -90,7 +91,7 @@ exports.handler = function (event, context) {
                     //getProductPersonalization
                     let params = {
                       // Select campaign based on variant
-                      campaignArn: "arn:aws:personalize:us-east-1:903766178117:campaign/retaildemostore-product-personalization-0",
+                      campaignArn: campaignArn,
                       numResults: '5',
                       userId: amazonPersonalizeId
                     };
