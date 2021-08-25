@@ -1,0 +1,10 @@
+{
+    "name": "mParticlePersonalizeLambda",
+    "version": "1.0.0",
+    "description": "",
+    "main": "mparticle-personalize.js",
+    "dependencies": {
+      "json-bigint": "*",
+      "mparticle": "*"
+    }
+  }
