@@ -44,7 +44,9 @@ Resources:
       FunctionName: mParticlePersonalize
       Environment:
         Variables:
-          personalize_tracking_id:  ''
+          personalise_tracking_id:  ''
+          mparticle_api_key: ''
+          mparticle_secret_key: ''
 
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
