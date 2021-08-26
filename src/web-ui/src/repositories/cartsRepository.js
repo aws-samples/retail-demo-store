@@ -34,5 +34,8 @@ export default {
         if (!cart)
             throw "cart required"
         return connection.put(`${resource}/${cart.id}`, cart)
+    },
+    signAmazonPayPayload(payload) {
+        return connection.post('/sign', payload)
     }
 }

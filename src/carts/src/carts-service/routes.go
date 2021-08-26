@@ -59,4 +59,16 @@ var routes = Routes{
 		"/carts/{cartID}",
 		CartUpdate,
 	},
+	Route{
+		"SignPayload",
+		"POST",
+		"/sign",
+		SignAmazonPayPayload,
+	},
+	Route{
+		"SignPayload",
+		"OPTIONS",
+		"/sign",
+		SignAmazonPayPayload,
+	},
 }
