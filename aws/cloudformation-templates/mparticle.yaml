@@ -28,7 +28,7 @@ Resources:
   mParticlePersonalizeLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Handles sending events passed from mPArticle to the Personalize tracker for user-item interactions.'
+      Description: 'Handles sending events passed from mParticle to the Personalize tracker for user-item interactions.'
       Handler: mparticle-personalize.lambda_handler
       Role: !GetAtt 
         - mParticlePersonalizeLambdaExecutionRole
