@@ -23,10 +23,7 @@ Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
     Properties: 
-      RetentionPeriodHours: 12
       ShardCount: 1
-      StreamEncryption: 
-        StreamEncryption
 
   mParticlePersonalizeLambda:
     Type: 'AWS::Lambda::Function'
@@ -39,7 +36,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/mparticle-personalize.zip'
-      Runtime: node10
+      Runtime: nodejs12.x
       Timeout: 900
       FunctionName: mParticlePersonalize
       Environment:
