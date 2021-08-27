@@ -164,6 +164,7 @@ Parameters:
   GitHubUser:
     Type: String
     Description: Your GitHub username.
+    Default: aws-samples
 
   PreIndexElasticsearch:
     Type: String
@@ -338,6 +339,7 @@ Resources:
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
+        GitHubUser: !Ref GitHubUser
 
   # Services Resources
   Services:

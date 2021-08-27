@@ -79,7 +79,7 @@ class Experiment(ABC):
 
     def _create_correlation_id(self, user_id, variation_index, result_rank):
         """ Returns an identifier representing a recommended item for an experiment """
-        return f'{self.id}-{user_id}-{variation_index}-{result_rank}'
+        return f'{self.id}_{user_id}_{variation_index}_{result_rank}'
 
     def _getClassName(self):
         return self.__class__.__name__

@@ -16,7 +16,7 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ## Hands-On Workshops
 
-This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of an ecommerce application, based on business requirements. This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, customer data platforms (CDPs), messaging, and more. 
+This project is designed to provide you with an environment in which you can learn to use AWS services to modify the behavior of an ecommerce application, based on business requirements. This can be done in a group setting or as an individual using self-paced workbooks. Currently there are workshops for adding search, personalization, experimentation frameworks, a/b testing, analytics, customer data platforms (CDPs), messaging, and more.
 
 In order to use the workshops, you will need to deploy the Retail Demo Store into an AWS account, using one of the methods described in the Getting Started or Developers sections below.  This is necessary because the workshops run in SageMaker Jupyter notebooks, which provide an interactive Python environment where you can execute code in the Retail Demo Store environment.
 
@@ -46,13 +46,13 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 
 # Getting Started
 
-***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.* 
+***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.*
 
 **The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.**
 
 **If you are a developer looking to contribute to the Retail Demo Store, please see the Developer section below.**
 
-To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you already.  Check with your event administrators.
+To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you. Check with your event administrators.
 
 ## Step 1 - Get an AWS Account
 
@@ -60,7 +60,7 @@ If you do not have an AWS account, please see [How do I create and activate a ne
 
 ## Step 2 - Log into the AWS Console
 
-Log into the [AWS console](https://console.aws.amazon.com/) if you are not already. 
+Log into the [AWS console](https://console.aws.amazon.com/) if you are not already.
 
 Note: If you are logged in as an IAM user, ensure your account has permissions to create and manage the necessary resources and components for this application.
 
@@ -76,7 +76,7 @@ US East (N. Virginia) | us-east-1 | [![Launch Stack](https://cdn.rawgit.com/buil
 US West (Oregon) | us-west-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://s3-us-west-2.amazonaws.com/retail-demo-store-us-west-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-us-west-2&param_SourceDeploymentType=CodeCommit)
 Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?templateURL=https://s3-eu-west-1.amazonaws.com/retail-demo-store-eu-west-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-eu-west-1&param_SourceDeploymentType=CodeCommit)
 
-The CloudFormation deployment will take 20-30 minutes to complete. 
+The CloudFormation deployment will take 20-30 minutes to complete.
 
 
 ### Notes:
@@ -87,15 +87,15 @@ If you chose to have the Amazon Personalize campaigns automatically built post-d
 
 
 #### Amazon Pinpoint Campaigns
-If you chose to have the Amazon Pinpoint campaigns automatically built (‘Auto-Configure Pinpoint’ is set to ‘Yes’ in the CloudFormation template) , this process will take an additional 20-30 minutes
-Once the Pinpoint campaigns are created, they will be automatically visbile in the [Web UI](src/web-ui). However, there are some manual steps required in the deployment steps for enabling the Pinpoint channels -
+If you chose to have the Amazon Pinpoint campaigns automatically built (‘Auto-Configure Pinpoint’ is set to ‘Yes’ in the CloudFormation template), this process will take an additional 20-30 minutes.
+Once the Pinpoint campaigns are created, they will be automatically visbile in the [Web UI](src/web-ui). However, there are some manual steps described below that are required for enabling the Pinpoint channels.
 
 ##### Pinpoint Emails:
 
-*PinpointEmailFromAddress:* 
-By Default, AWS Accounts have  [emails set up in a sandbox environement](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email.html). To enable the functionality, you need to complete the manual steps for either -
-* Verifying the email addresses you want to send and receive emails from. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-manage-verify.html) This is the easiest and recommended approach for demos. 
-* Request to be removed from the sandbox environment. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-setup-production-access.html) This is recommended only for production workloads and the Retail Demo Store is intended to be used for demonstration purposes only.
+*PinpointEmailFromAddress:*
+By Default, AWS Accounts have  [emails set up in a sandbox environement](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email.html). To enable the functionality, you need to complete either of the following manual steps.
+* Verifying the email addresses you want to send and receive emails from. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-manage-verify.html). This is the easiest and recommended approach for demos and workshops.
+* Request to be removed from the sandbox environment. More info [here](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-email-setup-production-access.html). This is recommended only for production workloads and the Retail Demo Store is intended to be used for demonstration purposes only.
 
 ##### Pinpoint SMS
 *PinpointSMSLongCode:*
@@ -104,11 +104,11 @@ When deploying Retail Demo Store, enter the number as a parameter. The number sh
 
 ## Step 4 - Using the Retail Demo Store Web Application
 
-Once you launch the CloudFormation stack, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store. 
+Once you launch the CloudFormation stack, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store.
 
 Compiling and deploying the web UI application and the services it uses can take some time. You can monitor progress in CodePipeline. Until this completes, you may see a Sample Application when accessing the public WebUI URL.
 
-You can find the URL for the Retail Demo Store Web UI in the Outputs of your main CloudFormation stack (called `retaildemostore` unless you changed that option in the steps above). 
+You can find the URL for the Retail Demo Store Web UI in the Outputs of your main CloudFormation stack (called `retaildemostore` unless you changed that option in the steps above).
 
 Look for the "WebURL" output parameter.
 
@@ -118,9 +118,9 @@ You can read more [detailed instructions on how to demo the Retail Demo Store in
 
 The Retail Demo Store environment is designed to provide a series of interactive workshops that progressively add functionality to the Retail Demo Store application.
 
-The workshops are deployed in a SageMaker Jupyter environment that is deployed in your CloudFormation stack.  To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker in your AWS console, and then select Notebook Instances in the AWS console in your AWS account. 
+The workshops are deployed in a SageMaker Jupyter environment that is deployed in your CloudFormation stack.  To access the Retail Demo Store workshops after the CloudFormation stack has completed, browse to Amazon SageMaker in your AWS console, and then select "Notebook > Notebook instances" in SageMaker.
 
-You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance. 
+You will see a running Notebook instance. Click "Open JupyterLab" for the Retail Demo Store notebook instance.
 
 Here you will find several workshops in a directory structure in the notebook instance. See the [workshops](./workshop/Welcome.ipynb) page for details.
 
