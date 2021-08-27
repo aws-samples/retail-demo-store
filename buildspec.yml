@@ -25,8 +25,8 @@ phases:
       - git clone https://github.com/aws-samples/retail-demo-store
       - cd retail-demo-store/
       - pip install -r generators/requirements.txt
+      - ./stage.sh retail-demo-store-us-east-1
+      - ./stage.sh retail-demo-store-us-west-2
       - ./stage.sh retail-demo-store-ap-northeast-1
       - ./stage.sh retail-demo-store-ap-southeast-2
       - ./stage.sh retail-demo-store-eu-west-1
-      - ./stage.sh retail-demo-store-us-east-1
-      - ./stage.sh retail-demo-store-us-west-2
