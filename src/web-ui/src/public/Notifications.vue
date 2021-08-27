@@ -29,6 +29,11 @@ export default {
       this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
     openWebsocketConnection() {
+
+      if (!this.notificationsEnabled) {
+        return
+      }
+
       this.connection = new WebSocket(`${process.env.VUE_APP_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
 
       this.connection.onopen = (e) => {
@@ -124,6 +129,13 @@ export default {
     },
     user() {
       return AmplifyStore.state.user
+    },
+    notificationsEnabled() {
+      const enabled = process.env.VUE_APP_LOCATION_NOTIFICATION_URL && process.env.VUE_APP_LOCATION_NOTIFICATION_URL !== ''
+      if (enabled) {
+        console.log('Websocket notifications are enabled')
+      }
+      return enabled
     }
   },
   watch: {

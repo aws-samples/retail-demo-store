@@ -26,16 +26,6 @@ Conditions:
 
 Resources:
 
-  WorkshopRepository:
-    Type: AWS::CodeCommit::Repository
-    Properties:
-      RepositoryName: retaildemostore-workshop
-      RepositoryDescription: CodeCommit Repo for the Retail Demo Store workshops
-      Code:
-        S3:
-          Bucket: !Ref ResourceBucket
-          Key: !Sub ${ResourceBucketRelativePath}notebooks/retaildemostore-notebooks.zip
-
   SourceRepository:
     Condition: LinkToCodeCommit
     Type: AWS::CodeCommit::Repository
@@ -49,23 +39,11 @@ Resources:
 
 Outputs:
 
-  WorkshopCloneUrlHttp:
-    Description: Workshop CodeCommit Respository Http Clone Url
-    Value: !GetAtt WorkshopRepository.CloneUrlHttp
- 
-  WorkshopCloneUrlSsh:
-    Description: Workshop CodeCommit Repository SSH Clone Url
-    Value: !GetAtt WorkshopRepository.CloneUrlSsh
-
-  WorkshopRepositoryArn:
-    Description: Workshop CodeCommit Repository Arn
-    Value: !GetAtt WorkshopRepository.Arn
-
   SourceCloneUrlHttp:
     Condition: LinkToCodeCommit
     Description: Source CodeCommit Respository Http Clone Url
     Value: !GetAtt SourceRepository.CloneUrlHttp
- 
+
   SourceCloneUrlSsh:
     Condition: LinkToCodeCommit
     Description: Source CodeCommit Repository SSH Clone Url
@@ -74,4 +52,4 @@ Outputs:
   SourceRepositoryArn:
     Condition: LinkToCodeCommit
     Description: Source CodeCommit Repository Arn
-    Value: !GetAtt SourceRepository.Arn    
+    Value: !GetAtt SourceRepository.Arn

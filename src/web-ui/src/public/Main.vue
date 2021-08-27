@@ -11,7 +11,7 @@
               hideTextOnSmallScreens
             ></DemoGuideBadge>
           </h2>
-          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted">
+          <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted small">
             <i class="fa fa-balance-scale px-1"></i>
             {{ recommendationsExperiment }}
           </div>
@@ -27,18 +27,18 @@
 
           <div v-else class="user-recommendations">
             <Product
-              v-for="{ product } in userRecommendations"
-              :key="product.id"
-              :product="product"
-              :experiment="product.experiment"
-              :feature="feature"
+              v-for="item in userRecommendations"
+              :key="item.product.id"
+              :product="item.product"
+              :experiment="item.experiment"
+              :feature="featureUserRecs"
             ></Product>
           </div>
         </div>
       </section>
 
       <RecommendedProductsSection
-        :feature="feature"
+        :feature="featureRerank"
         :recommendedProducts="featuredProducts"
         :experiment="featuredProductsExperiment"
       >
@@ -73,7 +73,8 @@ import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoG
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 12;
-const EXPERIMENT_FEATURE = 'home_product_recs';
+const EXPERIMENT_USER_RECS_FEATURE = 'home_product_recs';
+const EXPERIMENT_RERANK_FEATURE = 'home_featured_rerank';
 
 export default {
   name: 'Main',
@@ -86,7 +87,8 @@ export default {
   },
   data() {
     return {
-      feature: EXPERIMENT_FEATURE,
+      featureUserRecs: EXPERIMENT_USER_RECS_FEATURE,
+      featureRerank: EXPERIMENT_RERANK_FEATURE,
       isLoadingRecommendations: true,
       featuredProducts: null,
       featuredProductsDemoGuideBadgeArticle: null,
@@ -127,7 +129,7 @@ export default {
         const { data: rerankedProducts, headers } = await RecommendationsRepository.getRerankedItems(
           this.personalizeUserID,
           featuredProducts,
-          EXPERIMENT_FEATURE,
+          EXPERIMENT_RERANK_FEATURE,
         );
 
         const personalizeRecipe = headers['x-personalize-recipe'];
@@ -154,7 +156,7 @@ export default {
         this.personalizeUserID,
         '',
         MAX_RECOMMENDATIONS,
-        EXPERIMENT_FEATURE,
+        EXPERIMENT_USER_RECS_FEATURE,
       );
 
       if (response.headers) {

@@ -41,23 +41,6 @@ echo " + Uploading CloudFormation Templates"
 aws s3 cp aws/cloudformation-templates/ s3://${BUCKET}/${S3PATH}cloudformation-templates --recursive $S3PUBLIC
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
 
-echo " + Copying Notebook Dependencies"
-[ -e "retaildemostore-notebooks.zip" ] && rm retaildemostore-notebooks.zip
-rsync -av --progress ./generators/datagenerator ./workshop --exclude __pycache__
-
-cp ./generators/generate_interactions_personalize.py ./workshop/1-Personalization/
-cp ./generators/requirements.txt ./workshop
-
-[ ! -d "./workshop/data" ] && mkdir ./workshop/data
-cp ./src/products/src/products-service/data/products.yaml ./workshop/data
-cp ./src/users/src/users-service/data/users.json.gz ./workshop/data
-
-echo " + Packaging Notebooks"
-zip -qr retaildemostore-notebooks.zip ./workshop/ -x "*.DS_Store" "*.ipynb_checkpoints*" "*.csv"
-
-echo " + Uploading Notebooks"
-aws s3 cp retaildemostore-notebooks.zip s3://${BUCKET}/${S3PATH}notebooks/retaildemostore-notebooks.zip $S3PUBLIC
-
 echo " + Packaging Source"
 [ -e "retaildemostore-source.zip" ] && rm retaildemostore-source.zip
 zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip"

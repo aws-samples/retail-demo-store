@@ -5,6 +5,9 @@ Description: >
     This template deploys the Retail Demo Store SageMaker Notebook Instances.
 
 Parameters:
+  GitHubUser:
+    Type: String
+    Description: Your GitHub username.
 
   Subnets:
     Type: String
@@ -16,9 +19,6 @@ Parameters:
     Type: String
 
   VpcId:
-    Type: String
-
-  DefaultCodeRepository:
     Type: String
 
   ExperimentStrategyTable:
@@ -39,6 +39,11 @@ Parameters:
   PinpointAppId:
     Type: String
 
+Conditions:
+  UseDefaultGitHubUser: !Equals
+      - !Ref GitHubUser
+      - ''
+
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
@@ -49,7 +54,9 @@ Resources:
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      DefaultCodeRepository: !Ref DefaultCodeRepository
+      DefaultCodeRepository: !Sub
+        - 'https://github.com/${User}/retail-demo-store.git'
+        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
       Tags:
         -
           Key: "Uid"
@@ -72,18 +79,18 @@ Resources:
           ToPort: 443
           CidrIp: 0.0.0.0/0
 
-  ExecutionRole: 
+  ExecutionRole:
     Type: AWS::IAM::Role
-    Properties: 
-      AssumeRolePolicyDocument: 
+    Properties:
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
-        Statement: 
-          - 
+        Statement:
+          -
             Effect: "Allow"
-            Principal: 
-              Service: 
+            Principal:
+              Service:
                 - "sagemaker.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRole"
           -
             Effect: "Allow"
@@ -93,55 +100,55 @@ Resources:
             Action:
               - "sts:AssumeRole"
       Path: "/"
-      Policies: 
-        - 
+      Policies:
+        -
           PolicyName: "Global"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
+            Statement:
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - codecommit:*
                 Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore*'
               -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - sagemaker:ListTags
                 Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/*'
-        - 
+        -
           PolicyName: "0-StartHere"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
+            Statement:
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - servicediscovery:DiscoverInstances
                   - es:ListDomainNames
                   - es:DescribeElasticsearchDomain
                   - es:ListTags
-                Resource: "*"              
-        - 
+                Resource: "*"
+        -
           PolicyName: "1-Personalize"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
+            Statement:
+              -
                 Effect: "Allow"
-                Action: 
-                  - servicediscovery:DiscoverInstances                
+                Action:
+                  - servicediscovery:DiscoverInstances
                   - personalize:*
-                Resource: '*'       
-              - 
+                Resource: '*'
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - ssm:PutParameter
                   - ssm:GetParameter
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
-              - 
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - s3:PutObject
                   - s3:GetObject
                   - s3:GetObjectVersion
@@ -159,18 +166,18 @@ Resources:
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
-              - 
+              -
                 Effect: Allow
                 Action:
                   - codepipeline:ListPipelines
                   - codepipeline:ListTagsForResource
-                Resource: 
+                Resource:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
-              - 
+              -
                 Effect: Allow
                 Action:
                   - codepipeline:StartPipelineExecution
-                Resource: 
+                Resource:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
                 Condition:
                   StringEquals:
@@ -184,46 +191,46 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
 
-        - 
+        -
           PolicyName: "3-Experimentation"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
+            Statement:
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - servicediscovery:DiscoverInstances
                   - elasticloadbalancing:DescribeLoadBalancers
                   - elasticloadbalancing:DescribeTags
-                Resource: "*"       
-              - 
+                Resource: "*"
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'     
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
               - Effect: Allow
                 Action:
                   - dynamodb:*
                 Resource:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
-        - 
+        -
           PolicyName: "4-Messaging"
-          PolicyDocument: 
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
+            Statement:
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - mobiletargeting:*
                   - iam:GetRole
                   - elasticloadbalancing:DescribeLoadBalancers
                   - elasticloadbalancing:DescribeTags
                 Resource: "*"
-              - 
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - lambda:GetFunction
                 Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePinpointRecommender'
         -
