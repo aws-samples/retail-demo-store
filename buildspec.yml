@@ -29,5 +29,4 @@ phases:
       - ./stage.sh retail-demo-store-ap-southeast-2
       - ./stage.sh retail-demo-store-eu-west-1
       - ./stage.sh retail-demo-store-us-east-1
-      - ./stage.sh retail-demo-store-us-east-2
       - ./stage.sh retail-demo-store-us-west-2
