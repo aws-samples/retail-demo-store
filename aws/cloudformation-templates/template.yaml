@@ -44,6 +44,13 @@ Metadata:
           - DeployLocationServices
           - DeployPersonalizedOffersCampaign
       - Label:
+          default: "Amazon Pay (optional)"
+        Parameters:
+          - AmazonPayStoreId
+          - AmazonPayMerchantId
+          - AmazonPayPublicKeyId
+          - AmazonPayPrivateKey
+      - Label:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
@@ -90,6 +97,14 @@ Metadata:
         default: "Amplitude API Key"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
+      AmazonPayStoreId:
+        default: "Store ID of Amazon Pay sandbox account"
+      AmazonPayMerchantId:
+        default: "Merchant ID of Amazon Pay sandbox account"
+      AmazonPayPublicKeyId:
+        default: "Public key ID associated with Amazon Pay sandbox account"
+      AmazonPayPrivateKey:
+        default: "Private key associated with Amazon Pay sandbox account"
       IncludeSegmentDependencies:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
@@ -155,6 +170,7 @@ Parameters:
   GitHubUser:
     Type: String
     Description: Your GitHub username.
+    Default: aws-samples
 
   PreIndexElasticsearch:
     Type: String
@@ -245,6 +261,33 @@ Parameters:
       - 'No'
     Default: 'Yes'
 
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: >
+      This demonstration store contains an example of signing Amazon Pay payloads for integration with an Amazon Pay sandbox.
+      This parameter is the Public Key ID for the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+
+  AmazonPayStoreId:
+    Type: String
+    Description: >
+      The Store ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: >
+      Merchant ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+
+  AmazonPayPrivateKey:
+    Type: String
+    Description: >
+      The private key to be used for signing Amazon Pay requests for a sandbox account.
+      You will need to copy the whole contents of the .pem file into this parameter.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+    NoEcho: true
+
   IncludeSegmentDependencies:
     Type: String
     Description: >
@@ -287,6 +330,13 @@ Conditions:
     - !Ref DeployLocationServices
     - 'Yes'
 
+  CreateAmazonPayResources: !And
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayPrivateKey, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayStoreId, "" ] ]
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
 
 Resources:
   # Base Resources
@@ -307,6 +357,7 @@ Resources:
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
+        GitHubUser: !Ref GitHubUser
 
   # Services Resources
   Services:
@@ -359,6 +410,9 @@ Resources:
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
@@ -416,6 +470,19 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
+  AmazonPay:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateAmazonPayResources
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/amazonpay.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+        AmazonPayStoreId: !Ref AmazonPayStoreId
+        AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
   # Deployment support

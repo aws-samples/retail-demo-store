@@ -54,6 +54,18 @@ Parameters:
   GitHubUser:
     Type: String
 
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: Public Key ID for the Amazon Pay sandbox account being used
+
+  AmazonPayStoreId:
+    Type: String
+    Description: Store ID of the Amazon Pay sandbox account being used
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: Merchant ID of the Amazon Pay sandbox account being used
+
   UserPoolId:
     Type: String
 
@@ -349,6 +361,12 @@ Resources:
             Value: !Ref WebUIBucketName
           - Name: CLOUDFRONT_DIST_ID
             Value: !Ref WebUICDN
+          - Name: AMAZON_PAY_PUBLIC_KEY_ID
+            Value: !Ref AmazonPayPublicKeyId
+          - Name: AMAZON_PAY_STORE_ID
+            Value: !Ref AmazonPayStoreId
+          - Name: AMAZON_PAY_MERCHANT_ID
+            Value: !Ref AmazonPayMerchantId
           - Name: COGNITO_USER_POOL_ID
             Value: !Sub ${UserPoolId}
           - Name: COGNITO_USER_POOL_CLIENT_ID

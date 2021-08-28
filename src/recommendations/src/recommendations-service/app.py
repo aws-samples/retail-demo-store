@@ -35,7 +35,7 @@ DEBUG_LOGGING = True
 random.seed(42)  # Keep our demonstration deterministic
 
 # Since the DescribeCampaign API easily throttles and we just need
-# the recipe from the campaign and it won't change often (if at all), 
+# the recipe from the campaign and it won't change often (if at all),
 # use a cache to help smooth out periods where we get throttled.
 personalize_meta_cache = ExpiringDict(2 * 60 * 60)
 
@@ -110,10 +110,10 @@ def get_parameter_values(names):
 def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
     """ Returns products given a UI feature, user, item/product.
 
-    If a feature name is provided and there is an active experiment for the 
-    feature, the experiment will be used to retrieve products. Otherwise, 
-    the default behavior will be used which will look to see if an Amazon Personalize 
-    campaign is available. If not, the Product service will be called to get products 
+    If a feature name is provided and there is an active experiment for the
+    feature, the experiment will be used to retrieve products. Otherwise,
+    the default behavior will be used which will look to see if an Amazon Personalize
+    campaign is available. If not, the Product service will be called to get products
     from the same category as the current product.
     """
 
@@ -147,8 +147,8 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
         tracker = exp_manager.default_tracker()
 
         items = experiment.get_items(
-            user_id = user_id, 
-            current_item_id = current_item_id, 
+            user_id = user_id,
+            current_item_id = current_item_id,
             num_results = num_results,
             tracker = tracker
         )
@@ -168,8 +168,8 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
-                user_id = user_id, 
-                product_id = current_item_id, 
+                user_id = user_id,
+                product_id = current_item_id,
                 num_results = num_results
             )
 
@@ -201,7 +201,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
 
                 product['url'] = product_url
 
-            item.update({ 
+            item.update({
                 'product': product
             })
 
@@ -270,10 +270,10 @@ def health():
 def related():
     """ Returns related products given an item/product.
 
-    If a feature name is provided and there is an active experiment for the 
-    feature, the experiment will be used to retrieve related products. Otherwise, 
-    the default behavior will be used which will look to see if an Amazon Personalize 
-    campaign for the related items campaign is available. If not, the Product service 
+    If a feature name is provided and there is an active experiment for the
+    feature, the experiment will be used to retrieve related products. Otherwise,
+    the default behavior will be used which will look to see if an Amazon Personalize
+    campaign for the related items campaign is available. If not, the Product service
     will be called to get products from the same category as the current product.
     """
     user_id = request.args.get('userID')
@@ -295,11 +295,11 @@ def related():
 
     try:
         return get_products(
-            feature = feature, 
-            user_id = user_id, 
-            current_item_id = current_item_id, 
-            num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn', 
+            feature = feature,
+            user_id = user_id,
+            current_item_id = current_item_id,
+            num_results = num_results,
+            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn',
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
@@ -314,9 +314,9 @@ def recommendations():
     recommendations for other products they may be interested in).
 
     If an experiment is currently active for this feature ('home_product_recs'),
-    recommendations will be provided by the experiment. Otherwise, the default 
-    behavior will be used which will look to see if an Amazon Personalize 
-    campaign is available. If not, the Product service will be called to get 
+    recommendations will be provided by the experiment. Otherwise, the default
+    behavior will be used which will look to see if an Amazon Personalize
+    campaign is available. If not, the Product service will be called to get
     products from the same category as the current product or featured products.
     """
     user_id = request.args.get('userID')
@@ -338,11 +338,11 @@ def recommendations():
 
     try:
         response = get_products(
-            feature = feature, 
-            user_id = user_id, 
-            current_item_id = current_item_id, 
-            num_results = num_results, 
-            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn', 
+            feature = feature,
+            user_id = user_id,
+            current_item_id = current_item_id,
+            num_results = num_results,
+            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn',
             fully_qualify_image_urls = fully_qualify_image_urls
         )
         app.logger.debug(f"Recommendations response to be returned: {response}")
@@ -844,11 +844,11 @@ def experiment_outcome():
         correlation_id = content.get('correlationId')
     else:
         correlation_id = request.form.get('correlationId')
-        
+
     if not correlation_id:
         raise BadRequest('correlationId is required')
 
-    correlation_bits = correlation_id.split('-')
+    correlation_bits = correlation_id.split('_')
     if len(correlation_bits) != 4:
         raise BadRequest('correlationId is invalid')
 
