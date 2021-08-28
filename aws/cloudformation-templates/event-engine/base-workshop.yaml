@@ -58,6 +58,10 @@ Resources:
         PinpointSMSLongCode: 'NONE'
         AmplitudeApiKey: 'NONE'
         OptimizelySdkKey: 'NONE'
+        AmazonPayStoreId: ''
+        AmazonPayMerchantId: ''
+        AmazonPayPublicKeyId: ''
+        AmazonPayPrivateKey: ''
         IncludeSegmentDependencies: 'No' # Change to 'Yes' for Segment workshop
         SegmentWriteKey: 'NONE'
         GoogleAnalyticsMeasurementId: 'NONE'

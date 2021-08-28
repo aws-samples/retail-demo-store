@@ -1,6 +1,6 @@
 <template>
   <ArticleLayout>
-    <template #heading>Omni-Channel Personalization & ML Model Retraining</template>
+    <template #heading>Omni-Channel Personalization &amp; ML Model Retraining</template>
 
     <p>
       By connecting Amazon Pinpoint with Amazon Personalize (or other ML services), organizations can take their
