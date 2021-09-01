@@ -19,6 +19,11 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
+  mParticleOrgId:
+    Type: String
+    Description: >
+      The OrgID for your mParticle instance.  This will be used to enable assume role for mParticle to write to Kinesis.
+
 Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
@@ -46,6 +51,51 @@ Resources:
           mparticle_api_key: ''
           mparticle_secret_key: ''
 
+  mParticleTrustPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Description: 'Allows mParticle to write messages to Kinesis via their account.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+        Path: /
+        Policies:
+
+  mParticleKinesisRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: 'Allows mParticle to write messages to your Kinesis stream.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::338661164609:role/role-lambda-verifyrequest"
+                - "arn:aws:iam::338661164609:role/role-ecs-mp-notification-httpservertoserverprocessor"
+            Action:
+              - 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                "sts:ExternalId": 'orgid:${mParticleOrgId}'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+            - Effect: Allow
+            Action:
+              - 'kinesis:PutRecord'
+            Resource:
+              - 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
+
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -60,6 +110,8 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole'
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -70,8 +122,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalize*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalize*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalizeLambda*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalizeLambda*'
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                

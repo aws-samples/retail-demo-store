@@ -57,6 +57,8 @@ Metadata:
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - IncludemParticleDependencies
+          - mParticleOrgID
           - mParticleApiKey
           - mParticleSecretKey
           - GoogleAnalyticsMeasurementId
@@ -109,6 +111,10 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      IncludemParticleDependencies:
+        default: "Deploy mParticle Resources"  
+      mParticleOrgID:
+        default: "mParticle Org ID"
       mParticleApiKey:
         default: "mParticle API Key"
       mParticleSecretKey:
@@ -303,6 +309,22 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
+  IncludemParticleDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the mParticle workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  mParticleOrgID:
+    Type: String
+    Description: >
+      mParticle organization ID from your workspace.
+    NoEcho: true
+    Default: 'NONE'
+
   mParticleApiKey:
     Type: String
     Description: >
@@ -324,6 +346,10 @@ Parameters:
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
+    - 'Yes'
+
+  DeploymParticleResources: !Equals
+    - !Ref IncludemParticleDependencies
     - 'Yes'
 
   DeployLocationStack: !Equals
@@ -354,6 +380,9 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        mParticleOrgID: !Ref mParticleOrgID
+        mParticleApiKey: !Ref mParticleApiKey
+        mParticleSecretKey: !Ref mParticleSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
@@ -531,6 +560,7 @@ Resources:
 
   # mParticle Lambda Functions Kinesis and Roles
   mParticlePersonalize:
+    Condition: DeploymParticleResources
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/mparticle.yaml
