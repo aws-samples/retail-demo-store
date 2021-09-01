@@ -286,8 +286,6 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             interaction_product_counts[product.id] += 1
 
             user_to_product[user['id']].add(product['id'])
-            # if len(user_to_product[usƒer['id']])>8:
-            #     import pdb;pdb.set_trace()
 
             if not usercat_key in user_category_to_first_prod:
                 user_category_to_first_prod[usercat_key] = product['id']
