@@ -78,12 +78,16 @@ Resources:
                   Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/messages"
                 - Effect: Allow
                   Action:
-                    - geo:*
-                  Resource: '*'
+                    - geo:SearchPlaceIndexForPosition
+                    - geo:SearchPlaceIndexForText
+                  Resource:
+                    - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:place-index/${LocationResourceName}*'
                 - Effect: Allow
                   Action:
-                    - logs:*
-                  Resource: 'arn:aws:logs:*:*:*'
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                    - logs:CreateLogGroup
+                  Resource: '*'
 
   AlexaSkillFunction:
     Type: AWS::Lambda::Function
