@@ -2,10 +2,16 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-# This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK for Python.
-# Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-# session persistence, api calls, and more.
-# This sample is built using the handler classes approach in skill builder.
+# Back-end handler for the C-store demonstration in Retail Demo Store.
+# Can make use of Cognito authenticated Retail Demo Store users
+# for retrieving user details, putting orders and sending emails.
+# Has Amazon Pay integration as well. As long as Amazon Pay is enabled on the
+# skill and the user is a sandbox user or developer account, we can test this.
+
+# Check the docstrings in the intents below for information on how each of them works
+# For background see
+#   https://developer.amazon.com/en-US/docs/alexa/custom-skills/understanding-custom-skills.html
+#   https://developer.amazon.com/en-US/docs/alexa/custom-skills/host-a-custom-skill-as-an-aws-lambda-function.html
 
 import ask_sdk_core.utils as ask_utils
 
@@ -14,7 +20,6 @@ from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
 
-from ask_sdk_model import Response
 from ask_sdk_model.dialog import ElicitSlotDirective, DynamicEntitiesDirective, DelegateDirective
 from ask_sdk_model.dialog_state import DialogState
 from ask_sdk_model.er.dynamic import Entity, EntityValueAndSynonyms, EntityListItem, UpdateBehavior
@@ -27,8 +32,10 @@ from ask_sdk_model.interfaces.amazonpay.model.request.authorize_attributes impor
 from ask_sdk_model.ui import AskForPermissionsConsentCard
 from ask_sdk_model.interfaces.amazonpay.model.request.price import Price
 from ask_sdk_model.interfaces.amazonpay.model.request.payment_action import PaymentAction
-# We include teh following imports for interest - they are types of data returned from the Amazon Pay SDK
+
+# We include the following imports for interest - they are types of data returned from the Amazon Pay SDK
 # or additional data that can be sent to the SDK that is not used in this demo
+from ask_sdk_model import Response
 from ask_sdk_model.interfaces.amazonpay.model.request.seller_order_attributes import SellerOrderAttributes
 from ask_sdk_model.interfaces.amazonpay.model.request.billing_agreement_attributes import BillingAgreementAttributes
 from ask_sdk_model.interfaces.amazonpay.model.request.seller_billing_agreement_attributes import \
@@ -51,8 +58,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 load_dotenv()
-
-# AWS_REGION = os.environ.get('AWS_REGION')
 
 ORDER_SERVICE_URL = os.environ.get('OrdersServiceExternalUrl')
 PRODUCT_SERVICE_URL = os.environ.get('ProductsServiceExternalUrl')
@@ -277,6 +282,16 @@ Thank you for shopping!
 
 
 def fetch_product_slot_directive(handler_input):
+    """
+    Create product slots for use in the interaction model by calling the products service.
+    Obtains list of products in the defined categories (in PRODUCT_CATEGORIES)
+    and creates and EntityListItem for sending to Alexa for listening for these products
+    Args:
+        handler_input: As passed into the Alexa skill Lambda handler.
+
+    Returns:
+        EntityListItem: the products, with names and aliases, and keyed by ID.
+    """
     products = []
     for category in PRODUCT_CATEGORIES:
         category_products = json.loads(
@@ -319,7 +334,10 @@ def get_matched_product_id(handler_input):
 
 def get_recommended_product(handler_input, product_id):
     """
-    Retrieves the recommended ID when using the ProductName slot.
+    Calls out to the recommendations service which is typically backed by Amazon Personalize.
+    Gets a recommended product for the passed product_id.
+    Saves the recommendation for the product in the session.
+
     Args:
         handler_input: As passed into the Alexa skill Lambda handler.
         product_id: As converted from user input.
@@ -454,7 +472,6 @@ def location_search_cstore() -> Tuple[str, float]:
         str: Spoken address of nearest c-store.
         float: distance to it in miles
     """
-
     customer_position = get_customer_location()
 
     # Do the search for nearby C Store
