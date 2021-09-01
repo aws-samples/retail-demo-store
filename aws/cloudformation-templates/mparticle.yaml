@@ -74,11 +74,11 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-            - Effect: Allow
-            Action:
-              - 'kinesis:PutRecord'
-            Resource:
-              - 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
+              - Effect: Allow
+                Action:
+                  - 'kinesis:PutRecord'
+                Resource:
+                  - 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
 
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'

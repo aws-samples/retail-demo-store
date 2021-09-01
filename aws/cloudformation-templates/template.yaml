@@ -114,7 +114,7 @@ Metadata:
       IncludemParticleDependencies:
         default: "Deploy mParticle Resources"  
       mParticleOrgId:
-        default: "mParticle Org ID"
+        default: "mParticle Org Id"
       mParticleApiKey:
         default: "mParticle API Key"
       mParticleSecretKey:

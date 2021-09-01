@@ -59,7 +59,7 @@ Parameters:
 
   mParticleOrgId:
     Type: String
-    Description: mParticle Org ID.
+    Description: mParticle Org Id
     NoEcho: true
 
   mParticleApiKey:
