@@ -51,22 +51,6 @@ Resources:
           mparticle_api_key: ''
           mparticle_secret_key: ''
 
-  mParticleTrustPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      Description: 'Allows mParticle to write messages to Kinesis via their account.'
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          -Effect: Allow
-          Principal:
-            Service:
-              - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-        Path: /
-        Policies:
-
   mParticleKinesisRole:
     Type: 'AWS::IAM::Role'
     Properties:

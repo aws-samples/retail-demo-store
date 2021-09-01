@@ -57,7 +57,7 @@ Parameters:
     Description: Segment source write key (optional).
     NoEcho: true
 
-  mParticleOrgID:
+  mParticleOrgId:
     Type: String
     Description: mParticle Org ID.
     NoEcho: true
@@ -202,7 +202,7 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
-        mParticleOrgID: !Ref mParticleOrgID
+        mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode

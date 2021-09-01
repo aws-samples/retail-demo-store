@@ -26,7 +26,7 @@ Parameters:
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
 
-  mParticleOrgID:
+  mParticleOrgId:
     Type: String
     Description: mParticle Org ID from your mParticle workspace.
     NoEcho: true
@@ -55,8 +55,8 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
-  HasmParticleOrgID:
-    !Not [!Equals [!Ref mParticleOrgID, ""]]
+  HasmParticleOrgId:
+    !Not [!Equals [!Ref mParticleOrgId, ""]]
   HasmParticleApiKey:
     !Not [!Equals [!Ref mParticleApiKey, ""]]
   HasmParticleSecretKey:
@@ -181,12 +181,12 @@ Resources:
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
 
-  ParametermParticleOrgID:
+  ParametermParticleOrgId:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-mparticle-org-id"
       Type: "String"
-      Value: !If [HasmParticleOrgID, !Ref mParticleOrgID, 'NONE']
+      Value: !If [HasmParticleOrgId, !Ref mParticleOrgId, 'NONE']
       Description: "Retail Demo Store mParticle org id"
 
   ParametermParticleApiKey:

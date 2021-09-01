@@ -58,7 +58,7 @@ Metadata:
           - IncludeSegmentDependencies
           - SegmentWriteKey
           - IncludemParticleDependencies
-          - mParticleOrgID
+          - mParticleOrgId
           - mParticleApiKey
           - mParticleSecretKey
           - GoogleAnalyticsMeasurementId
@@ -113,7 +113,7 @@ Metadata:
         default: "Segment Write Key"
       IncludemParticleDependencies:
         default: "Deploy mParticle Resources"  
-      mParticleOrgID:
+      mParticleOrgId:
         default: "mParticle Org ID"
       mParticleApiKey:
         default: "mParticle API Key"
@@ -318,7 +318,7 @@ Parameters:
       - 'No'
     Default: 'No'
 
-  mParticleOrgID:
+  mParticleOrgId:
     Type: String
     Description: >
       mParticle organization ID from your workspace.
@@ -380,7 +380,7 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
-        mParticleOrgID: !Ref mParticleOrgID
+        mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
@@ -567,6 +567,7 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        mParticleOrgId: !Ref mParticleOrgId
 
 Outputs:
   UserPoolId:
