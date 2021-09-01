@@ -6,7 +6,8 @@
 # Can make use of Cognito authenticated Retail Demo Store users
 # for retrieving user details, putting orders and sending emails.
 # Has Amazon Pay integration as well. As long as Amazon Pay is enabled on the
-# skill and the user is a sandbox user or developer account, we can test this.
+# skill and the user is a sandbox user or developer account, we can test the integration.
+# See the workshop for more details.
 
 # Check the docstrings in the intents below for information on how each of them works
 # For background see
