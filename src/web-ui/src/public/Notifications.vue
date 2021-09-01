@@ -29,25 +29,25 @@ export default {
       this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
     openWebsocketConnection() {
+
+      if (!this.notificationsEnabled) {
+        return
+      }
+
       this.connection = new WebSocket(`${process.env.VUE_APP_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
 
       this.connection.onopen = (e) => {
         console.log(e)
-        console.log("Connection open")
+        console.log("Websocket connection open for notifcations.")
       }
 
       this.connection.onmessage = (e) => {
-        console.log("Received message:")
+        console.log("Received notification message:")
         const messageData = JSON.parse(e.data)
         console.log(messageData)
         if (this.isInstoreView) {
           if (messageData.EventType === "COLLECTION") {
-            let customerName;
-            if (messageData.Orders[0].billing_address.first_name.length > 0) {
-              customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`;
-            } else {
-              customerName = messageData.Orders[0].username;
-            }
+            const customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`
             let orderDetail;
             const orders = messageData.Orders;
             if (orders.length > 1) {
@@ -61,7 +61,7 @@ export default {
             const formattedPickupTime = pickupTime.toLocaleString('en-US');
             swal({
               title: 'New Collection',
-              text: `${customerName} will arrive at ${formattedPickupTime} to collect ${orderDetail}`
+              text: `${customerName} will be at level 3 at ${formattedPickupTime} to collect ${orderDetail}`
             });
           }
         } else if (!this.isLocationView) {
@@ -99,18 +99,11 @@ export default {
               })
             })
 
-            let collectionText = '';
-            console.log(orders[0]['channel'])
-            if (orders[0]['channel'].toLowerCase() === 'alexa') {
-              collectionText = 'Your order is ready for collection! Staff will meet you at the pump with the following order(s):';
-            } else {
-              collectionText = 'Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):'
-            }
             Promise.all(ordersHtml).then((responses) => {
               orderListDiv.innerHTML = responses.join('')
               swal({
                 title: 'Collection available',
-                text: collectionText,
+                text: `Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):`,
                 content: orderListDiv
               });
             })
@@ -136,6 +129,13 @@ export default {
     },
     user() {
       return AmplifyStore.state.user
+    },
+    notificationsEnabled() {
+      const enabled = process.env.VUE_APP_LOCATION_NOTIFICATION_URL && process.env.VUE_APP_LOCATION_NOTIFICATION_URL !== ''
+      if (enabled) {
+        console.log('Websocket notifications are enabled')
+      }
+      return enabled
     }
   },
   watch: {

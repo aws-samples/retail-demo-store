@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 import boto3
 import requests
 
@@ -9,27 +12,34 @@ import logging
 from datetime import datetime
 from collections import defaultdict
 
+# The event type we send to Pinpoint to initiate campaigns
 GEOFENCE_PINPOINT_EVENTTYPE = 'LocationApproachLocalShop'
 
-DISABLE_SEND_EMAIL = os.environ.get('DISABLE_SEND_EMAIL', "").lower() in ["yes", "true", "1"]
-DISABLE_SEND_SMS = os.environ.get('DISABLE_SEND_SMS', "").lower() in ["yes", "true", "1"]
-
+# Used for real-time notifications to browser
 NOTIFICATION_ENDPOINT = os.environ.get('NotificationEndpointUrl').replace('wss://', 'https://')
 WEBSOCKET_DYNAMO_TABLE_NAME = os.environ.get('WebsocketDynamoTableName')
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-logger.info(f"DISABLE_SEND_EMAIL: {DISABLE_SEND_EMAIL}")
-logger.info(f"DISABLE_SEND_SMS: {DISABLE_SEND_SMS}")
-
+# AWS services setup
 apigateway = boto3.client('apigatewaymanagementapi', endpoint_url=NOTIFICATION_ENDPOINT)
 cognito_idp = boto3.client('cognito-idp')
 dynamodb = boto3.client('dynamodb')
 pinpoint = boto3.client('pinpoint')
 servicediscovery = boto3.client('servicediscovery')
+ssm = boto3.client('ssm')
 
 logger.info(f'Pinpoint region is {pinpoint.meta.region_name}')
+
+
+def get_long_code():
+    response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
+    pinpoint_sms_long_code = response['Parameter']['Value']
+
+    if pinpoint_sms_long_code == 'NONE':
+        return None
+    return pinpoint_sms_long_code
 
 
 def userid_to_username(user_id, users_service):
@@ -58,76 +68,30 @@ def userid_to_username(user_id, users_service):
     return username
 
 
-def pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL', restrict_number=None):
-    """
-    If a user already exists in Pinpoint with certain "User Attributes", those attributes will be carried over to any
-    other enpdoint we create for that user. In many applications therefore you just create a new endpoint and
-    identify the user. However, "Attributes" are endpoint-specific, as are "Metrics". Therefore, we will attempt to
-    carry these attributes and metrics (e.g. HasCart) over to the new phone endpoint from any email endpoints that
-    have already been created in this application (at present these are set up by AmplifyAnalytics which has a
-    limit of one endpoint per session).
-    Args:
-        shopper_user_id: Shopper User ID which Pinpoint uses internally.
-        phone_number: E.g. '+90555555555'
-        source_channel_type: E.g. 'EMAIL' - where to grab endpoint details from to propagate to SMS.
-        restrict_number (int): Do not carry over more than this number of endpoints.
-
-    Returns:
-        Side effects in Pinpoint. No return.
-    """
+def get_user_opted_phone_number(shopper_user_id):
+    """If a user has opted in to SMS we can grab their phone number.
+    Note that the opt-in for these SMSs is for promotional messages.
+    Since in our demo all promotional SMSs are sent through Pinpoint campaigns
+    we generally do not need to get the phone number this way."""
     pinpoint_app_id = os.environ['PinpointAppId']
 
     try:
         endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
 
-        # If the caller has requested that we sync to only certain endpoints (e.g. email)
-        # We also only sync active endpoints
-        endpoints = [endpoint_item for endpoint_item in endpoints['EndpointsResponse']['Item'] if
-                     'ChannelType' in endpoint_item and endpoint_item['ChannelType'] == source_channel_type and
-                     endpoint_item['EndpointStatus'].upper() == 'ACTIVE']
-
-        if len(endpoints) > 1:
-            logger.warning(f"More than one endpoint with email channel for shopper {shopper_user_id} - normally"
-                           f" we'd expect just one. What we got: {json.dumps(endpoints)}")
-        elif len(endpoints) == 0:
-            logger.error(f"No {source_channel_type} endpoints for for shopper {shopper_user_id}."
-                         f" Unable to carry attributes over to SMS endpoint.")
-            return
-
-        sms_endpoint_id = endpoints[0]['Id'] + "_sms"
     except pinpoint.exceptions.NotFoundException:
-        logger.error(f"User {shopper_user_id} has no endpoints set. Unable to carry attributes over to SMS endpoint.")
-        return
-
-    if restrict_number is not None:
+        logger.error(f"User {shopper_user_id} has no endpoints set. Unable to get phone number.")
+        return None
+    print('All user endpoints: ', json.dumps(endpoints, indent=4))
+    endpoints = [endpoint_item for endpoint_item in endpoints['EndpointsResponse']['Item'] if
+                 'ChannelType' in endpoint_item and endpoint_item['ChannelType'] == 'SMS' and
+                 endpoint_item['EndpointStatus'].upper() == 'ACTIVE' and endpoint_item['OptOut'] == 'NONE']
+    if len(endpoints) > 0:
         if len(endpoints) > 1:
-            logger.info(f"Removing {len(endpoints)-restrict_number} endpoints.")
-            endpoints = endpoints[:restrict_number]
-
-    # Grab all attributes and metrics from existing endpoints and get them ready to pop into the new endpoint
-    attributes = {}
-    metrics = {}
-    for email_endpoint in endpoints:
-        for attribute, value in email_endpoint["Attributes"].items():
-            attributes[attribute] = value
-
-        for metric, value in email_endpoint["Metrics"].items():
-            metrics[metric] = value
-
-    logger.info(
-        f"Adding SMS endpoint to user {shopper_user_id} with phone {phone_number}"
-        f" and additional attributes {attributes} and metrics {metrics}")
-    pinpoint.update_endpoint(
-        ApplicationId=pinpoint_app_id,
-        EndpointId=sms_endpoint_id,
-        EndpointRequest={
-            'Address': phone_number,
-            'ChannelType': 'SMS',
-            "User": {"UserId": shopper_user_id},
-            "Attributes": attributes,
-            "Metrics": metrics
-        }
-    )
+            logger.warning(f'User has more than 1 SMS endpoint: {endpoints}')
+        return endpoints[0]['Address']
+    else:
+        logger.error(f"User {shopper_user_id} has no SMS opted in endpoints set. Unable to get phone number.")
+        return None
 
 
 def pinpoint_fire_location_approached_event(shopper_user_id, event_timestamp_iso=None, restrict_to_endpoint_types=None,
@@ -149,6 +113,7 @@ def pinpoint_fire_location_approached_event(shopper_user_id, event_timestamp_iso
     try:
         endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
         endpoints = endpoints['EndpointsResponse']['Item']
+        logger.info(f'Endpoints for {shopper_user_id} are {endpoints}')
     except pinpoint.exceptions.NotFoundException:
         logger.warning(f"No endoints found for user {shopper_user_id} - no location event fire")
         return
@@ -208,66 +173,10 @@ def pinpoint_fire_location_approached_event(shopper_user_id, event_timestamp_iso
         logger.warning(f'Did not fire any location events for user {shopper_user_id} in app {pinpoint_app_id}')
 
 
-def pinpoint_add_current_cart_details_to_user(shopper_user_id, username, carts_service, products_service):
-    """
-    Fill Pinpoint User Attributes (against the user not endpoint) with information about 3 products that still
-    exist in user carts.
-    Args:
-        shopper_user_id: E.g. "5999"  or "2e8fe504-c3e8-46e2-9e38-52bd1c7303fc" depending if profile user
-                         user created from session login
-        username: E.g. "user5999" or "cognitousername" depending if profile user
-                        user created from session login
-        carts_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
-        products_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
-
-    Returns:
-        Nothing, but pinpoint user attributes updated.
-    """
-
-    # Get information we need to put
-    carts = get_cart_products_with_details(username, carts_service, products_service)
-    cart_products = []
-    for cart in carts:
-        if cart['items'] is not None:
-            cart_products = cart_products + cart['items']
-
-    new_user_attributes = {'CartProductImages': [product['details']['image_url'] for product in cart_products][:3],
-                           'CartProductURLs': [product['details']['url'] for product in cart_products][:3],
-                           'CartProductNames': [product['details']['name'] for product in cart_products][:3]}
-
-    # Ensure we always have exactly 3
-    new_user_attributes = {key: items + ['']*(3-len(items)) for key,items in new_user_attributes.items()}
-
-    if len(carts) > 0:
-
-        # OK let us fill this information.
-        if sum(len(cart['items']) for cart in carts if cart['items'] is not None) > 0:
-
-            pinpoint_app_id = os.environ['PinpointAppId']
-            try:
-                endpoints = pinpoint.get_user_endpoints(UserId=shopper_user_id, ApplicationId=pinpoint_app_id)
-                endpoints = [endpoint_item for endpoint_item in endpoints['EndpointsResponse']['Item']]
-                endpoint = endpoints[0]  # when adding user attributes only one endpoint is needed - they propagate
-                pinpoint.update_endpoint(
-                    ApplicationId=pinpoint_app_id,
-                    EndpointId=endpoint['Id'],
-                    EndpointRequest={
-                        "User": {'UserId': shopper_user_id,
-                                 'UserAttributes': new_user_attributes},
-                    }
-                )
-                logger.info(f"Inserted into user {shopper_user_id} endpoint {endpoint['Id']}: {new_user_attributes}")
-            except pinpoint.exceptions.NotFoundException:
-                logger.warning(f"No endpoints found for user {shopper_user_id} - not adding cart details")
-        else:
-            logger.warning(f"User {shopper_user_id} has carts but no items: {carts}.")
-    else:
-        logger.info(f"User {shopper_user_id} has no carts.")
-
-
 def send_email(to_email, subject, html_content, text_content):
     """
-    Send a default email to the address. Pull pinpoint app ID and from address from env.
+    Send a default email to the address using Pinpoint transactional messaging.
+    Pull pinpoint app ID and from address from env.
     More information about this service:
     https://docs.aws.amazon.com/pinpoint/latest/developerguide/send-messages-email.html
     Character set is UTF-8.
@@ -278,13 +187,8 @@ def send_email(to_email, subject, html_content, text_content):
         text_content: Plain text version of email content
 
     Returns:
-
+        None
     """
-
-    if DISABLE_SEND_EMAIL:
-        logger.warning('Send of email disabled')
-        return
-
     pinpoint_app_id = os.environ['PinpointAppId']
     response = pinpoint.send_messages(
         ApplicationId=pinpoint_app_id,
@@ -319,7 +223,8 @@ def send_email(to_email, subject, html_content, text_content):
 
 def send_sms(to_number, content):
     """
-    Send a default SMS to the address. Pull pinpoint app ID and from address from env.
+    Send a default SMS to the address using Pinpoint transactional messaging.
+    Pull pinpoint app ID and from address from env.
     More information about this service:
     https://docs.aws.amazon.com/pinpoint/latest/developerguide/send-messages-email.html
     Args:
@@ -327,12 +232,19 @@ def send_sms(to_number, content):
         content: Message to send.
 
     Returns:
-
+        None
     """
 
-    if DISABLE_SEND_SMS:
-        logger.warning('Send of SMS disabled')
-        return
+    long_code = get_long_code()
+    message_config = {
+        'SMSMessage': {
+            'MessageType': 'TRANSACTIONAL',
+            'Body': content
+        }
+    }
+    if long_code:
+        logger.info(f"Using long code {long_code} to send SMS to {to_number}. Content starts with '{content[:10]}'")
+        message_config['SMSMessage']['OriginationNumber'] = long_code
 
     pinpoint_app_id = os.environ['PinpointAppId']
     response = pinpoint.send_messages(
@@ -343,13 +255,7 @@ def send_sms(to_number, content):
                     'ChannelType': 'SMS'
                 }
             },
-            'MessageConfiguration': {
-                'SMSMessage': {
-                    'MessageType': 'TRANSACTIONAL',
-                    'Body': content,
-                    'SenderId': 'AWSRETAIL'
-                }
-            }
+            'MessageConfiguration': message_config
         }
     )
     logger.info(f'Message sent to {to_number} and response: {response}')
@@ -486,42 +392,6 @@ def add_product_details_to_product_list(orders, products_service):
         thread.join()
 
 
-def get_cart_products_with_details(username, carts_service, products_service):
-    """
-    For the shopper with this ID grab her non-empty shopping carts and add more
-    info about the products on the order with the products service.
-    NOTE: there are some issues with the UI that means that shopping cart seen in UI might not match that
-    recorded against the user.
-    Args:
-        username: E.g. "user5999" or "cognitousername" depending if profile user
-                  user created from session login
-        carts_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
-        products_service: E.g. 'http://dmn-w-LoadB-1SM4DM9UFSIPZ-2136670231.us-east-1.elb.amazonaws.com'
-
-    Returns:
-        A dictionary parsed from the json returned from the orders service - a list of dicts where each dict
-        is an order. The order contains an "items" key also with a list of all the items. We augment this
-        with info from the products service so we can get orders[:]["items"][:]["details"]["name"] for example.
-    """
-
-    # we can optionally retrive this from the user service if we want non-profile users:
-    url = f'{carts_service}/carts/all'  # OK for demo else push up to carts repo
-
-    logging.info(f'Hitting {url}')
-    response = requests.get(url)
-    carts = response.json()
-
-    carts = [cart for cart in carts if cart['username'] == username]
-
-    logger.info(f'Carts for user {username} is: {carts}')
-
-    add_product_details_to_product_list(carts, products_service)
-
-    logger.info(f'Carts for user {username} after adding details is: {carts}')
-
-    return carts
-
-
 def get_orders_with_details(username, orders_service, products_service):
     """
     For the shopper with this ID grab her/his orders which are awaiting collection from the orders service and add more
@@ -552,7 +422,7 @@ def get_orders_with_details(username, orders_service, products_service):
     return awaiting_collection_orders
 
 
-def send_pickup_email(to_email, all_orders):
+def send_pickup_email(to_email, orders):
     """
     Take info about a waiting order and send it to customer saying ready for pickup as email
     Args:
@@ -561,122 +431,108 @@ def send_pickup_email(to_email, all_orders):
     Returns:
         Nothing but sends an email.
     """
-    order_types = set(order['channel'] for order in all_orders)
-    logger.info(f"Email: Order types: {','.join(order_types)}")
-    for order_type in order_types:
-        orders = [order for order in all_orders if order['channel'].lower()==order_type.lower()]
-        if len(orders)==0: continue
-        order_ids = ', '.join(['#'+str(order['id']) for order in orders])
+    logger.info(f"Going to send an email to {to_email}.")
+    # Specify content:
+    subject = "Come pick up your order nearby!"
+    heading = "You can pick up your order nearby!"
+    subheading = ""
+    intro_text = """
+    Welcome, 
+    We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s): """
+    html_intro_text = intro_text.replace('\n', '</p><p>')
 
-        # Specify content:
-        subject = "Come pick up your order nearby!"
-        heading = "You can pick up your order nearby!"
-        subheading = "Your order has been paid for with Amazon Pay."
+    # Build the order list in text and HTML at the same time.
+    html_orders = "<ul>"
+    text_orders = ""
+    for order in orders:
+        ordername = f"Order #{order['id']}"
+        html_orders += f"\n  <li>{ordername}:<ul>"
+        text_orders += f'\n{ordername}:'
+        for item in order['items']:
+            img_url = item["details"]["image_url"]
+            url = item["details"]["url"]
+            name = item["details"]["name"]
+            html_orders += F'\n    <li><a href="{url}">{name}</a> - ${item["price"]}<br/><a href="{url}"><img src="{img_url}" width="100px"></a></br></a></li>'
+            text_orders += f'\n  - {item["details"]["name"]}: {item["details"]["url"]}'
+        html_orders += "\n  </ul></li>"
+    html_orders += "\n</ul>"
 
-        if order_type == 'alexa':
-            intro_text = f"""
-            Welcome, 
-            Staff will be at the pump to deliver your order(s) ({order_ids}):"""
-        else:
-            intro_text = """
-            Welcome, 
-            We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s): """
-        html_intro_text = intro_text.replace('\n', '</p><p>')
-
-        # Build the order list in text and HTML at the same time.
-        html_orders = "<ul>"
-        text_orders = ""
-        for order in orders:
-            ordername = f"Order #<b>{order['id']}</b>"
-            html_orders += f"\n  <li>{ordername}:<ul>"
-            text_orders += f'\n{ordername}:'
-            for item in order['items']:
-                img_url = item["details"]["image_url"]
-                url = item["details"]["url"]
-                name = item["details"]["name"]
-                html_orders += F'\n    <li><a href="{url}">{name}</a> - ${item["price"]}<br/><a href="{url}"><img src="{img_url}" width="100px"></a></br></a></li>'
-                text_orders += f'\n  - {item["details"]["name"]}: {item["details"]["url"]}'
-            html_orders += "\n  </ul></li>"
-        html_orders += "\n</ul>"
-
-        # Build HTML message
-        html = f"""
-        <head></head>
-        <body>
-            <h1>{heading}</h1>
-            <h2>{subheading}</h2>
-            <p>{html_intro_text}
-            {html_orders}
-            <p><a href="{os.environ['WebURL']}">Thank you for shopping!</a></p>
-        </body>
-        """
-
-        # Build text message
-        text = f"""
-    {heading}
-    {subheading}
-    {intro_text}
-    {text_orders}
-    Thank you for shopping!
-    {os.environ['WebURL']}
-        """
-
-        logger.info(f"Email: Sending message with order type {order_type} and orders {order_ids} to {to_email}")
-        logger.debug(f"Contents of email to {to_email} html: \n{html}")
-        logger.debug(f"Contents of email to {to_email} text: \n{text}")
-        send_email(to_email, subject, html, text)
-
-
-def send_pickup_sms(to_number, all_orders, add_order_details=False):
+    # Build HTML message
+    html = f"""
+    <head></head>
+    <body>
+        <h1>{heading}</h1>
+        <h2>{subheading}</h2>
+        <p>{html_intro_text}
+        {html_orders}
+        <p><a href="{os.environ['WebURL']}">Thank you for shopping!</a></p>
+    </body>
     """
-    Take info about a waiting order and send it to customer saying ready for pickup as email
+
+    # Build text message
+    text = f"""
+{heading}
+{subheading}
+{intro_text}
+{text_orders}
+Thank you for shopping!
+{os.environ['WebURL']}
+    """
+
+    logger.debug(f"Contents of email to {to_email} html: \n{html}")
+    logger.debug(f"Contents of email to {to_email} text: \n{text}")
+    send_email(to_email, subject, html, text)
+
+
+def send_pickup_sms(all_orders, add_order_details=False):
+    """
+    Take info about a waiting order and send it to customer saying ready for pickup as SMS
+    Picks the phone number off orders themselves
     Args:
-        to_number: Where to send the SMS to
         orders: Orders as obtained from get_orders_with_details()
         add_order_details: if True, add order IDs to message.
     Returns:
         Nothing but sends an SMS.
     """
-    order_types = set(order['channel'] for order in all_orders)
-    logger.info(f"SMS: Order types: {','.join(order_types)}")
-    for order_type in order_types:
-        orders = [order for order in all_orders if order['channel'].lower()==order_type.lower()]
-        if len(orders)==0: continue
-        order_ids = ', '.join(['#'+str(order['id']) for order in orders])
+    logger.info(f"Collecting phone numbers to send SMSs")
+
+    phone_to_orders = defaultdict(list)
+    for order in all_orders:
+        phone_to_orders[order['collection_phone']] += [order]
+
+    for to_number, orders in phone_to_orders.items():
+
+        logger.info(f"Going to send a text message to {to_number}")
 
         if not add_order_details:
-            if order_type == 'alexa':
-                msg = "Staff will be at the pump to deliver your order."
+            if len(orders) > 1:
+                msg = "Your orders are ready for pickup from your local AWS Retail Demo store, level 3, door 2."
             else:
-                if len(orders) > 1:
-                    msg = "Your orders are ready for pickup from your local AWS Retail Demo store, level 3, door 2."
-                else:
-                    msg = "Your order is ready for pickup from your local AWS Retail Demo Store, level 3, door 2."
+                msg = "Your order is ready for pickup from your local AWS Retail Demo Store, level 3, door 2."
         else:
-            if order_type == 'alexa':
-                msg = f"Staff will be at the pump to deliver your order ({order_ids})."
+            msg = ""
+            if len(orders) > 1:
+                msg += "The orders you placed with ids"
             else:
+                msg += "The order you placed with id"
 
-                msg = ""
-                if len(orders) > 1:
-                    msg += "The orders you placed with ids"
-                else:
-                    msg += "The order you placed with id"
+            msg += ",".join(" #" + order['id'] for order in orders)
 
-                msg += order_ids
+            if len(orders) > 1:
+                msg += " are "
+            else:
+                msg += " is "
 
-                if len(orders) > 1:
-                    msg += " are "
-                else:
-                    msg += " is "
-
-                msg += "ready for pickup from your local AWS retail demo store."
+            msg += "ready for pickup from your local AWS retail demo store."
 
         logger.info(f"Contents of SMS text: {msg} to {to_number}")
-        send_sms(to_number, msg)
+        try:
+            send_sms(to_number, msg)
+        except Exception as e:
+            logger.error(f'Could not send to {to_number} message: {msg} - exception: {e}')
 
 
-def remove_connections(user_id, connection_ids):
+def remove_browser_notification_connections(user_id, connection_ids):
     dynamo_key = {'userId': {'S': user_id}}
     dynamo_update_expression = {':c': {'SS': connection_ids}}
     logger.info(f"Deleting connection IDs {connection_ids} for user {user_id}")
@@ -710,12 +566,13 @@ def send_browser_notification(user_id, data):
         if 'connectionIds' in dynamo_entry['Item']:
             for connection_id in dynamo_entry['Item']['connectionIds']['SS']:
                 try:
+                    logger.info(f'Posting to connection ID: {connection_id}')
                     apigateway.post_to_connection(Data=data, ConnectionId=connection_id)
                 except apigateway.exceptions.GoneException:
                     logger.info(f'Connection ID {connection_id} is gone, will remove.')
                     gone_connections.append(connection_id)
             if gone_connections:
-                remove_connections(user_id, gone_connections)
+                remove_browser_notification_connections(user_id, gone_connections)
     else:
         logger.info(f'No active WebSocket connections found for user {user_id}. No browser notifications sent.')
 
@@ -739,23 +596,6 @@ def send_purchase_browser_notification(user_id):
     """
     logger.info(f'Sending purchase notification to browsers for user {user_id}')
     send_browser_notification(user_id, '{"EventType": "PURCHASE"}')
-
-
-def notify_waiting_orders(to_email, phone_number, orders):
-    """
-    User has some orders waiting so send an email and SMS to this effect.
-    Args:
-        to_email: Send email here
-        phone_number: Send SMS here
-        orders: Output of get_orders_with_details
-
-    Returns:
-        None.
-        Sends email and SMS as side effect.
-    """
-    send_pickup_email(to_email, orders)
-    if phone_number is not None:
-        send_pickup_sms(phone_number, orders)
 
 
 def handle_geofence_enter(event):
@@ -787,73 +627,63 @@ def handle_geofence_enter(event):
     )
 
     # Grab the user attributes as a dictionary and pull relevant ones.
-    user_attributes = {att['Name']: att['Value'] for att in response['UserAttributes']}
-    to_email = user_attributes['email']
-    phone_number = user_attributes.get('phone_number', None)
-    if phone_number is None:
-        logger.warning(f"User {cognito_user_id} has no phone number - SMS will not work till they add one from the UI.")
+    cognito_user_attributes = {att['Name']: att['Value'] for att in response['UserAttributes']}
 
     try:
-        first_name = user_attributes['custom:profile_first_name']
-    except KeyError:
-        first_name = 'Madam/Sir'
-        logger.warning(f'No first name for user {cognito_user_id} - defaulting to "{first_name}"')
-
-    try:
-        last_name = user_attributes['custom:profile_last_name']
-    except KeyError:
-        last_name = ''
-        logger.warning(f'No last name for user {cognito_user_id} - defaulting to "{last_name}"')
-
-    try:
-        shopper_user_id = user_attributes['custom:profile_user_id']
+        shopper_user_id = cognito_user_attributes['custom:profile_user_id']
     except KeyError:
         logger.error(f'No profile (shopper) ID for {cognito_user_id} - quitting event handling.')
         return
 
     try:
-        demo_journey = user_attributes['custom:demo_journey']
+        demo_journey = cognito_user_attributes['custom:demo_journey']
         logger.info(f'User has demo_journey attribute: {demo_journey}')
     except KeyError:
         demo_journey = 'PURCHASE'
-        logger.warning(f'No demo journey configured for user {cognito_user_id} - defaulting to PURCHASE')
+        logger.warning(f'No demo journey configured for user {cognito_user_id} - defaulting to {demo_journey}')
 
     # Grab the service URLs.
     orders_service = get_orders_service()
-    carts_service = get_carts_service()
     products_service = get_products_service()
     users_service = get_users_service()
-    username = userid_to_username(shopper_user_id, users_service)
 
     if demo_journey == 'PURCHASE':
-
-        # In case we want to show users details of items in their cart, we add them as Pinpoint User Attributes
-        pinpoint_add_current_cart_details_to_user(shopper_user_id, username, carts_service, products_service)
-
-        # Update pinpoint to have an SMS endpoint for the user
-        # carrying attributes over from any email endpoint that may have been created
-        # by AmplifyAnalytics client side (AmplifyAnalytics maintains one endpoint at a time).
-        # This way, any campaigns for SMS will work also same as email.
-        if phone_number is not None:
-            pinpoint_add_sms_endpoint_to_user(shopper_user_id, phone_number, source_channel_type='EMAIL')
 
         # If there are any Pinpoint campaigns waiting for Location events of type parametrised
         # by GEOFENCE_PINPOINT_EVENTTYPE (see defined at top)
         # They should get triggered for all endpoints for this user:
         pinpoint_fire_location_approached_event(shopper_user_id, event['detail']['SampleTime'])
+        # The implementation for browser push is custom (though Apple, iOS and Android push can be also done
+        # with Pinpoint campaigns).
         send_purchase_browser_notification(cognito_user_id)
 
     elif demo_journey == 'COLLECTION':
 
+        to_email = cognito_user_attributes['email']
+
+        try:
+            first_name = cognito_user_attributes['custom:profile_first_name']
+        except KeyError:
+            first_name = 'Madam/Sir'
+            logger.warning(f'No first name for user {cognito_user_id} - defaulting to "{first_name}"')
+
+        try:
+            last_name = cognito_user_attributes['custom:profile_last_name']
+        except KeyError:
+            last_name = ''
+            logger.warning(f'No last name for user {cognito_user_id} - defaulting to "{last_name}"')
+
         # Get a list of waiting orders.
+        username = userid_to_username(shopper_user_id, users_service)
         orders = get_orders_with_details(username, orders_service, products_service)
-        send_pickup_browser_notification(cognito_user_id, orders)
 
         if len(orders) > 0:
-            logger.info(f'User {shopper_user_id}/{username} has waiting orders')
-            logger.info(f"Going to send a message to {to_email} and {phone_number} "
-                        f"for user {first_name} {last_name} ({shopper_user_id}/{username})")
-            notify_waiting_orders(to_email, phone_number, orders)
+            logger.info(f'User {shopper_user_id}/{username} (name {first_name} {last_name}) has waiting orders')
+            send_pickup_email(to_email, orders)
+            send_pickup_sms(orders)  # phone number is recorded against the order
+            send_pickup_browser_notification(cognito_user_id, orders)
+    else:
+        logger.error(f'Not a known journey type {demo_journey} for user {shopper_user_id}')
 
 
 def lambda_handler(event, context):

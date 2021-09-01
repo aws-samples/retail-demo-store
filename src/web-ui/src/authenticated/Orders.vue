@@ -29,7 +29,7 @@
           </tr>
         </table>
 
-        <div class="alert alert-secondary" v-if="!orders || orders.length == 0">You currently do not have any orders</div>
+        <div class="alert alert-secondary no-orders" v-if="!orders || orders.length == 0">You currently do not have any orders</div>
 
       </div>
     </div>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import AmplifyStore from '@/store/store'
+import { mapState } from 'vuex'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
@@ -61,17 +61,26 @@ export default {
   },
   methods: {
     async getOrders (){
+      this.orders = null;
+
       const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
+      
       this.orders = data
     },    
   },
   computed: {
-    user() { 
-      return AmplifyStore.state.user
-    },
+    ...mapState({user: state => state.user})
+  },
+  watch: {
+    user() {
+      this.getOrders()
+    }
   }
 }
 </script>
 
 <style scoped>
+.no-orders {
+  margin-bottom: 150px;
+}
 </style>

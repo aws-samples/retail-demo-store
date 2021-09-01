@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e 
+set -e
 
 LAMBDA_SOURCE=elasticsearch-pre-index.py
 PACKAGE_FILE=elasticsearch-pre-index.zip
@@ -9,7 +9,7 @@ echo "Cleaning up intermediate files"
 [ -e "package" ] && rm -rf package
 
 echo "Installing Lambda dependencies"
-pip install --target ./package requests pyyaml crhelper
+pip install -r requirements.txt --target ./package
 
 echo "Building Lambda deployment package"
 cd package
@@ -18,6 +18,5 @@ cd ${OLDPWD}
 
 echo "Adding Lambda function source code to package"
 zip -g ${PACKAGE_FILE} ${LAMBDA_SOURCE}
-
 
 echo "Done!"

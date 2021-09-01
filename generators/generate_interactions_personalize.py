@@ -32,10 +32,6 @@ from collections import defaultdict
 # Keep things deterministic
 RANDOM_SEED = 0
 
-# Without checking the contents, skip making any output files. Since this script is deterministic,
-# this will usually give the correct behaviour.
-SKIP_EXISTING = False
-
 # Where to put the generated data so that it is picked up by stage.sh
 GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-campaigns/data"
 
@@ -92,7 +88,7 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     # Product info is stored in the repository
     with open(in_products_filename, 'r') as f:
-        products = yaml.load(f, Loader=yaml.SafeLoader)
+        products = yaml.safe_load(f)
 
     products_df = pd.DataFrame(products)
 
@@ -104,10 +100,11 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id', 'category', 'style']]
+    products_dataset_df = products_df[['id', 'category', 'style', 'description']]
     products_dataset_df = products_dataset_df.rename(columns={'id': 'ITEM_ID',
                                                               'category': 'CATEGORY',
-                                                              'style': 'STYLE'})
+                                                              'style': 'STYLE',
+                                                              'description': 'DESCRIPTION'})
     products_dataset_df.to_csv(out_items_filename, index=False)
 
     users_dataset_df = users_df[['id', 'age', 'gender']]
@@ -219,9 +216,12 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             # Determine category affinity from user's persona
             persona = user['persona']
-            cstore_user = ':' in persona
+            # If user persona has sub-categories, we will use those sub-categories to find products for users to partake
+            # in interactions with. Otehrwise, we will use the high-level categories.
+            has_subcategories = ':' in user['persona']
             preferred_categories_and_subcats = persona.split('_')
             preferred_highlevel_categories = [catstring.split(':')[0] for catstring in preferred_categories_and_subcats]
+            # preferred_styles = [catstring.split(':')[1] for catstring in preferred_categories_and_subcats]
 
             p_normalised = (category_affinity_probs * category_frequencies[preferred_highlevel_categories].values)
             p_normalised /= p_normalised.sum()
@@ -229,30 +229,31 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             # Select category based on weighted preference of category order.
             chosen_category_ind = np.random.choice(list(range(len(preferred_categories_and_subcats))), 1, p=p)[0]
-            category = preferred_categories_and_subcats[chosen_category_ind].split(':')[0]
-            if ':' in preferred_categories_and_subcats[chosen_category_ind]:
-                style = preferred_categories_and_subcats[chosen_category_ind].split(':')[1]
-            else:
-                style = None
+            category = preferred_highlevel_categories[chosen_category_ind]
+            #category_and_subcat = np.random.choice(preferred_categories_and_subcats, 1, p=p)[0]
+
+
             discount_persona = user['discount_persona']
 
             gender = user['gender']
-            if cstore_user:
+
+            if has_subcategories:
                 # if there is a preferred style we choose from those products with this style and category
-                # but we ignore gender
-                cachekey = ('s', category, style)
+                # but we ignore gender.
+                # We also do not attempt to keep balance across categories.
+                style = preferred_categories_and_subcats[chosen_category_ind].split(':')[1]
+                cachekey = ('category-style', category, style)
                 prods_subset_df = subsets_cache.get(cachekey)
 
                 if prods_subset_df is None:
                     # Select products from selected category without gender affinity or that match user's gender
-                    prods_subset_df = products_df.loc[(products_df['category'] == category) &
-                                                      (products_df['style'] == style)]
-                    # Update cache
+                    prods_subset_df = products_df.loc[(products_df['category']==category) &
+                                                      (products_df['style']==style)]
+                    # Update cache for quicker lookup next time
                     subsets_cache[cachekey] = prods_subset_df
             else:
-                # we use the machinery to keep things balanced - if there is a style (subcategory)
-                # we do not engage that machinery - separate use case
-
+                # We are only going to use the machinery to keep things balanced
+                # if there is no style appointed on the user preferences.
                 # Here, in order to keep the number of products that are related to a product,
                 # we restrict the size of the set of products that are recommended to an individual
                 # user - in effect, the available subset for a particular category/gender
@@ -267,9 +268,10 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
                 if not usercat_key in user_category_to_first_prod:
                     # If the user has not yet selected a first product for this category
-                    # we do it according to the old logic of choosing between all products for gender
-                    # Check if subset data frame is already cached for category & gender
-                    cachekey = ('g', category, gender)
+                    # we do it by choosing between all products for gender.
+
+                    # First, check if subset data frame is already cached for category & gender
+                    cachekey = ('category-gender', category, gender)
                     prods_subset_df = subsets_cache.get(cachekey)
                     if prods_subset_df is None:
                         # Select products from selected category without gender affinity or that match user's gender
@@ -284,8 +286,10 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             interaction_product_counts[product.id] += 1
 
             user_to_product[user['id']].add(product['id'])
+            # if len(user_to_product[usƒer['id']])>8:
+            #     import pdb;pdb.set_trace()
 
-            if not cstore_user and not usercat_key in user_category_to_first_prod:
+            if not usercat_key in user_category_to_first_prod:
                 user_category_to_first_prod[usercat_key] = product['id']
 
             # Decide if the product the user is interacting with is discounted
@@ -389,7 +393,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     print(f"Total order completed: {order_completed_count} ({discounted_order_completed_count})")
 
     globals().update(locals())   # This can be used for inspecting in console after script ran or if run with ipython.
-    print('Generation script finished - user-product interactions')
+    print('Generation script finished')
 
 
 if __name__ == '__main__':

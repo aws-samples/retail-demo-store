@@ -1,12 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-# Utility script for local development that indexes products in a local 
-# Elasticsearch instance. Typically you would be running Elasticsearch 
+# Utility script for local development that indexes products in a local
+# Elasticsearch instance. Typically you would be running Elasticsearch
 # in a local Docker container for development. See the docker-compose.yml
 # file for details.
 
-# When deploying to AWS, products are either indexed by a Lambda function 
+# When deploying to AWS, products are either indexed by a Lambda function
 # (custom resource) or using the Search workshop notebook.
 
 import json
@@ -34,7 +34,7 @@ es_search_domain_port = os.environ.get('ES_SEARCH_DOMAIN_PORT', 9200)
 logger.info('Elasticsearch scheme: ' + es_search_domain_scheme)
 logger.info('Elasticsearch endpoint: ' + es_search_domain_host)
 logger.info('Elasticsearch port: ' + str(es_search_domain_port))
-    
+
 url = '{}://{}:{}/{}'.format(es_search_domain_scheme, es_search_domain_host, es_search_domain_port, INDEX_NAME)
 
 headers = { "Content-Type": "application/json" }
@@ -64,7 +64,7 @@ else:
     logger.info('Indexing products...')
     products_indexed = 0
     with open('../products/src/products-service/data/products.yaml') as file:
-        products_list = yaml.load(file, Loader=yaml.FullLoader)
+        products_list = yaml.safe_load(file)
 
         for product in products_list:
             url = '{}://{}:{}/{}/_doc/{}'.format(es_search_domain_scheme, es_search_domain_host, es_search_domain_port, INDEX_NAME, product['id'])

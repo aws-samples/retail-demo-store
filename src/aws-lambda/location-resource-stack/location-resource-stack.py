@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 import logging
 import os
 import random
@@ -22,11 +25,6 @@ def load_default_geofence_from_s3():
     return load_json_from_s3('location_services/store_geofence.json')
 
 
-def load_cstore_geofence_from_s3():
-    """ Retrieves GeoJson file containing C-Store Geofence from S3 """
-    return load_json_from_s3('location_services/cstore_geofence.json')
-
-
 def load_json_from_s3(object_key):
     """ Loads a JSON object from S3 and returns it as a Python dict """
     file_obj = s3.Object(RESOURCE_BUCKET, object_key)
@@ -44,7 +42,7 @@ def get_random_string(length):
 def get_geofence_collection_arn(region, account_id, collection_name):
     """ Helper to convert Geofence Collection name to ARN, since this information is not available directly from the
     Geofencing API. """
-    return f"arn:aws:geo:{region}:{account_id}:geofencecollection/{collection_name}"
+    return f"arn:aws:geo:{region}:{account_id}:geofence-collection/{collection_name}"
 
 
 def get_default_geofence_id(resource_name):
@@ -52,23 +50,11 @@ def get_default_geofence_id(resource_name):
     return f"{resource_name}-default-geofence"
 
 
-def get_cstore_geofence_id(resource_name):
-    """ Helper to ensure consistency when referring to default Geofence by id (name) """
-    return f"{resource_name}-cstore-geofence"
-
-
 def put_default_geofence(resource_name):
     """ Creates a default Geofence around central London """
     geofence_geojson = load_default_geofence_from_s3()
     logger.info("Creating default Geofence")
     put_geofence(resource_name, geofence_geojson, get_default_geofence_id(resource_name))
-
-
-def put_cstore_geofence(resource_name):
-    """ Creates a default Geofence around an Exxon in Wyoming """
-    geofence_geojson = load_cstore_geofence_from_s3()
-    logger.info("Creating C-Store Geofence")
-    put_geofence(resource_name, geofence_geojson, get_cstore_geofence_id(resource_name))
 
 
 def put_geofence(resource_name, geojson, geofence_id):
@@ -81,6 +67,17 @@ def put_geofence(resource_name, geojson, geofence_id):
         CollectionName=resource_name,
         Geometry=geofence,
         GeofenceId=geofence_id
+    )
+    logger.info(response)
+
+
+def associate_tracker(collection_arn, tracker_name):
+
+    # Associate tracker consumer ie. link tracker & geofence
+    logger.info(f"Associating Tracker {tracker_name} with Geofence Collection ARN: {collection_arn}")
+    response = location.associate_tracker_consumer(
+        ConsumerArn=collection_arn,
+        TrackerName=tracker_name
     )
     logger.info(response)
 
@@ -122,7 +119,6 @@ def create(event, context):
     # Create a geofence
     if create_default_geofence:
         put_default_geofence(resource_name)
-    put_cstore_geofence(resource_name)
 
     # Create a tracker
     logger.info(f"Creating Tracker with name: {resource_name}")
@@ -134,12 +130,7 @@ def create(event, context):
     logger.info(response)
 
     # Associate tracker consumer ie. link tracker & geofence
-    logger.info(f"Associating Tracker {resource_name} with Geofence Collection {resource_name} (ARN: {collection_arn})")
-    response = location.associate_tracker_consumer(
-        ConsumerArn=collection_arn,
-        TrackerName=resource_name
-    )
-    logger.info(response)
+    associate_tracker(collection_arn, resource_name)
 
     # Create Place Index
     logger.info(f"Creating Place Index with name: {resource_name}")

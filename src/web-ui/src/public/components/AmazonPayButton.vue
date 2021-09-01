@@ -13,7 +13,10 @@ export default {
       return {
         payload: {
           "webCheckoutDetails": {
-            "checkoutReviewReturnUrl": location.origin.includes('http://localhost:') ? location.origin : location.origin.replace('http://', 'https://')
+            // This is a truncated demo: instead of continuing the session, we route to the Amazon Pay instructions.
+            // To enable the full process we need to handle the order review and downstream processing and
+            // a full HTTPS service on the Retail Demo Store.
+            "checkoutReviewReturnUrl": 'https://developer.amazon.com/docs/amazon-pay-checkout/introduction.html'
           },
           "storeId": process.env.VUE_APP_AMAZON_PAY_STORE_ID,
           "chargePermissionType": "OneTime"
@@ -26,11 +29,17 @@ export default {
     },
     methods: {
         async loadAmazonPayButton() {
-            let recaptchaScript = document.createElement('script')
-            recaptchaScript.setAttribute('src', 'https://www.google.com/recaptcha/api.js')
-            document.head.appendChild(recaptchaScript)
+            // Load Amazon Pay script - we can do it here so we don't have to load it at start
+            if (!document.getElementById("amazon-pay-checkout-javascript")) {
+              let payscript = document.createElement('script')
+              payscript.setAttribute('src', 'https://static-na.payments-amazon.com/checkout.js')
+              payscript.setAttribute('id', 'amazon-pay-checkout-javascript')
+              document.head.appendChild(payscript)
+            }
 
+            // Sign the payload for starting a checkout session
             await this.signPayload();
+
             // eslint-disable-next-line no-undef
             amazon.Pay.renderButton('#AmazonPayButton', {
                 merchantId: process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID,
@@ -38,7 +47,7 @@ export default {
                 sandbox: true,
                 checkoutLanguage: 'en_US',
                 productType: 'PayOnly',
-                placement: 'Cart',
+                placement: 'Checkout',
                 buttonColor: 'Gold',
                 createCheckoutSessionConfig: {
                     payloadJSON: JSON.stringify(this.payload),
@@ -49,7 +58,6 @@ export default {
         },
         async signPayload () {
           const signatureResponse = await CartsRepository.signAmazonPayPayload(this.payload);
-          console.log(signatureResponse.data.body)
           this.payloadSignature = signatureResponse.data.body.Signature;
           return this.payloadSignature
         }

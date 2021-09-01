@@ -91,12 +91,16 @@ Parameters:
   CustomizeOffersRecommendationsFunctionArn:
     Type: String
 
-  ProductsServiceExternalUrl:
-    Type: String
-
   UseDefaultIVSStreams:
     Type: String
     Default: Yes
+
+  ProductsServiceExternalUrl:
+    Type: String
+
+  DeployPersonalizedOffersCampaign:
+    Type: String
+    Default: No
 
 Conditions:
   DeployPreIndexElasticsearch: !Equals
@@ -140,6 +144,7 @@ Resources:
           csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
+          DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
 
   PersonalizePreCreateLambdaExecutionRole:
@@ -266,8 +271,8 @@ Resources:
     Type: 'AWS::Events::Rule'
     Properties:
       Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
-      Description: Calls Personalize pre-create Lambda function every 2 minutes until Personalize reaches desired state
-      ScheduleExpression: rate(2 minutes)
+      Description: Calls Personalize pre-create Lambda function every 5 minutes until Personalize reaches desired state
+      ScheduleExpression: rate(5 minutes)
       State: DISABLED
       Targets:
         - Arn: !GetAtt
@@ -398,7 +403,7 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
       Runtime: python3.8
-      Timeout: 60
+      Timeout: 300
       VpcConfig:
         SecurityGroupIds:
           - !Ref ElasticsearchSecurityGroupId
@@ -439,8 +444,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*ElasticsearchPreIndexLambdaFunction*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*'
               - Effect: Allow
                 Action:
                   - es:ESHttpDelete
@@ -485,6 +490,7 @@ Resources:
           email_from_address: !Ref PinpointEmailFromAddress
           email_from_name: !Ref PinpointEmailFromName
           lambda_event_rule_name: 'RetailDemoStore-PinpointPreCreateRule'
+          DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   PinpointPreCreateLambdaExecutionRole:
     Condition: DeployPreCreatePinpointWorkshop
@@ -519,7 +525,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemo*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
               -
                 Effect: "Allow"
                 Action:

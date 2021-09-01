@@ -100,12 +100,12 @@
 
       <RecommendedProductsSection
           :key="`rec-products-${(new Date()).getTime()}`"
-          :explainRecommended="explainRecommended"
+          :experiment="experiment"
           :recommendedProducts="productRecommended"
           :feature="feature"
-          class="mt-4"
+          class="mt-5"
       >
-        <template #heading>Compare similar items</template>
+        <template #heading>Compare similar items <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></template>
       </RecommendedProductsSection>
 
     </div>
@@ -121,6 +121,9 @@ import RecommendedProductsSection from "@/components/RecommendedProductsSection/
 import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
 import {formatPrice} from "@/util/formatPrice";
 import {discountProductPrice} from "@/util/discountProductPrice";
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+
+import {getDemoGuideArticleFromPersonalizeARN} from '@/partials/AppModal/DemoGuide/config'
 
 const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -137,6 +140,7 @@ export default {
   components: {
     Layout,
     RecommendedProductsSection,
+    DemoGuideBadge,
   },
   data() {
     return {
@@ -145,7 +149,8 @@ export default {
       productDetails: [],
       activeProductId: 0,
       productRecommended: null,
-      explainRecommended: null,
+      experiment: null,
+      demoGuideBadgeArticle: null,
       productActiveExperiment: false,
       feature: PRODUCT_EXPERIMENT_FEATURE,
       metadata: [],
@@ -174,6 +179,10 @@ export default {
       return data;
     },
     async getRelatedProducts() {
+      this.experiment = null
+      this.productRecommended = null;
+      this.demoGuideBadgeArticle = null;
+
       const response = await RecommendationsRepository.getRelatedProducts(
           this.personalizeUserID ?? '',
           this.activeProductId,
@@ -185,17 +194,9 @@ export default {
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
-        if (experimentName || personalizeRecipe) {
-          const explanation = experimentName
-              ? `Active experiment: ${experimentName}`
-              : `Personalize recipe: ${personalizeRecipe}`;
+        if (experimentName) this.experiment = `Active experiment: ${experimentName}`
 
-          this.explainRecommended = {
-            activeExperiment: !!experimentName,
-            personalized: !!personalizeRecipe,
-            explanation,
-          };
-        }
+        if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe)
       }
 
       this.productRecommended = response.data;
@@ -300,6 +301,9 @@ export default {
         document.getElementById('featured-products-scrollable').scrollTop = featuredProductElement.offsetTop;
       }
     },
+    personalizeUserID() {
+      this.getRelatedProducts()
+    }
   }
 }
 </script>

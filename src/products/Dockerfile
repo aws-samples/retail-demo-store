@@ -1,9 +1,12 @@
-FROM golang:1.15-alpine AS build
+FROM public.ecr.aws/s5z3t2n9/golang:1.15-alpine AS build
+ARG GOPROXY_OVERRIDE=https://proxy.golang.org
 WORKDIR /src/
 RUN apk add --no-cache git bash
 RUN go get -u github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
 COPY src/products-service/*.* /src/
 COPY src/products-service/data/*.* /src/data/
+RUN echo "Setting GOPROXY to $GOPROXY_OVERRIDE"
+RUN go env -w GOPROXY=$GOPROXY_OVERRIDE
 RUN CGO_ENABLED=0 go build -o /bin/products-service
 RUN apk add ca-certificates
 FROM scratch

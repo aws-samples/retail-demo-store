@@ -20,11 +20,18 @@ Parameters:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
-  
+
   SegmentWriteKey:
     Type: String
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
+
+  PinpointSMSLongCode:
+    Type: String
+
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id (optional)
 
 Conditions:
   HasAmplitudeApiKey:
@@ -33,6 +40,10 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
+  HasPinpointSMSLongCode:
+    !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
+  HasGoogleAnalyticsMeasurementId:
+    !Not [!Equals [!Ref GoogleAnalyticsMeasurementId, ""]]
 
 Resources:
 
@@ -101,14 +112,6 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalize Filter Purchased Products Arn Parameter"
 
-  ParameterPersonalizeFilterCStoreArn:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-personalize-filter-cstore-arn"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Personalize Filter C-Store Products Arn Parameter"
-
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -124,7 +127,7 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
-      
+
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -157,6 +160,22 @@ Resources:
       Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
       Description: "Retail Demo Store Segment source write key"
 
+  ParameterPinpointSMSLongCode:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-pinpoint-sms-longcode"
+      Type: "String"
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Description: "Retail Demo Store Pinpoint SMS Long code"
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-google-analytics-measurement-id"
+      Type: "String"
+      Value: !If [HasGoogleAnalyticsMeasurementId, !Ref GoogleAnalyticsMeasurementId, 'NONE']
+      Description: "Retail Demo Store Google Analytics Measurement Id"
+
 Outputs:
 
   ParameterStackBucketName:
@@ -166,7 +185,7 @@ Outputs:
   ParameterRelatedProductsCampaignArn:
     Description: Related Products Campaign Arn Parameter
     Value: !Ref ParameterRelatedProductsCampaignArn
-    
+
   ParameterProductRecommendationCampaignArn:
     Description: Product Recommendation Campaign Arn Parameter
     Value: !Ref ParameterProductRecommendationCampaignArn
@@ -186,7 +205,7 @@ Outputs:
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn
     Value: !Ref ParameterPersonalizeFilterPurchasedArn
-  
+
   ParameterExperimentStrategyTableName:
     Description: Experiment Strategy Table Name
     Value: !Ref ParameterExperimentStrategyTableName
@@ -209,5 +228,12 @@ Outputs:
 
   ParameterSegmentWriteKey:
     Description: Segment write key
-    Value: !Ref ParameterSegmentWriteKey 
+    Value: !Ref ParameterSegmentWriteKey
 
+  ParameterPinpointSMSLongCode:
+    Description: Pinpoint SMS Long code
+    Value: !Ref ParameterPinpointSMSLongCode
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Description: Google Analytics Measurement Id
+    Value: !Ref ParameterGoogleAnalyticsMeasurementId

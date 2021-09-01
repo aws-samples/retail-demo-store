@@ -46,7 +46,7 @@ Parameters:
   ParentStackName:
     Type: String
     Description: Parent stack name
-  
+
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
@@ -56,6 +56,22 @@ Parameters:
     Type: String
     Description: Segment source write key (optional).
     NoEcho: true
+
+  PinpointSMSLongCode:
+    Type: String
+    Description: Pinpoint SMS Long code.
+
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id (optional)
+
+  LocationResourcePrefix:
+    Type: String
+    Description: Prefix of Location Services resources to use
+
+  GitHubUser:
+    Type: String
+    Description: Your GitHub username.
 
 Resources:
 
@@ -67,7 +83,8 @@ Resources:
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
-        
+        LocationResourcePrefix: !Ref LocationResourcePrefix
+
   # Buckets
   Buckets:
     Type: AWS::CloudFormation::Stack
@@ -86,13 +103,13 @@ Resources:
         Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
         Subnet2: !GetAtt VPC.Outputs.Subnet2
-        DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
-        
+        GitHubUser: !Ref GitHubUser
+
   # Tables
   Tables:
     Type: AWS::CloudFormation::Stack
@@ -134,17 +151,17 @@ Resources:
       AWSServiceName: es.amazonaws.com
       Description: 'Role for ES to access resources in VPC'
 
-  ElasticsearchRoleWaitHandle: 
+  ElasticsearchRoleWaitHandle:
     Condition: CreateElasticsearchServiceLinkedRole
     DependsOn: ElasticsearchServiceLinkedRole
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  WaitHandle: 
+  WaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  ElasticsearchRoleWaitCondition: 
+  ElasticsearchRoleWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
-    Properties: 
+    Properties:
       Handle: !If [CreateElasticsearchServiceLinkedRole, !Ref ElasticsearchRoleWaitHandle, !Ref WaitHandle]
       Timeout: "1"
       Count: 0
@@ -170,6 +187,8 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
+        GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
   # CodeCommit Repository
   CodeCommitRepository:
@@ -199,11 +218,11 @@ Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Authentication.Outputs.UserPoolId
-  
+
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Authentication.Outputs.UserPoolClientId
-  
+
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Authentication.Outputs.IdentityPoolId
@@ -256,25 +275,25 @@ Outputs:
     Description: Pinpoint App Id
     Value: !GetAtt Pinpoint.Outputs.PinpointAppId
 
+  PinpointSMSLongCode:
+    Description: Pinpoint SMS Long code for two way SMS
+    Value: !GetAtt SSMParameters.Outputs.ParameterPinpointSMSLongCode
+
   ProductsTable:
     Description: DynamoDB Table for Products
     Value: !GetAtt Tables.Outputs.ProductsTable
 
-  CategoriesTable: 
+  CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !GetAtt Tables.Outputs.CategoriesTable
 
-  ExperimentStrategyTable: 
+  ExperimentStrategyTable:
     Description: DynamoDB Table for Experiments
     Value: !GetAtt Tables.Outputs.ExperimentStrategyTable
 
   ParameterPersonalizeEventTrackerId:
     Description: Personalize Event Tracker ID Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterPersonalizeEventTrackerId
-
-  WorkshopRepositoryArn:
-    Description: Workshop CodeCommit Repository Arn
-    Value: !GetAtt CodeCommitRepository.Outputs.WorkshopRepositoryArn
 
   ParameterAmplitudeApiKey:
     Description: Amplitude API key Parameter
@@ -291,6 +310,10 @@ Outputs:
   ParameterSegmentWriteKey:
     Description: Segment write key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Description: Google Analytics Measurement Id Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.

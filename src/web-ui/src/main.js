@@ -5,15 +5,15 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
-import { components } from 'aws-amplify-vue'; 
+import { components } from 'aws-amplify-vue';
 import store from '@/store/store';
-import moment from 'moment'
 import Amplitude from 'amplitude-js'
+
 import AmplifyStore from '@/store/store';
+import VueGtag from "vue-gtag";
 
 import './styles/tokens.css'
 
-Vue.prototype.moment = moment
 // Base configuration for Amplify
 const amplifyConfig = {
   Auth: {
@@ -72,6 +72,23 @@ if (process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_K
   Amplitude.getInstance().init(process.env.VUE_APP_AMPLITUDE_API_KEY)
 }
 
+if (process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE') {
+  Vue.use(VueGtag, {
+    config: {
+      id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
+      params: {
+        send_page_view: false
+      }
+    }
+  }, router);
+}
+else {
+  Vue.use(VueGtag, {
+    enabled: false,
+    disableScriptLoad: true
+  });
+}
+
 // Set the configuration
 Auth.configure(amplifyConfig);
 Analytics.configure(amplifyConfig);
@@ -87,25 +104,21 @@ Auth.currentAuthenticatedUser()
   .then((user) => {
     logger.debug('Current Authenticated User Info:');
     logger.debug(user);
-    return;
   })
   .catch(err => logger.debug(err))
 
 
 Auth.currentUserInfo()
-  .then((user) => {
-    logger.debug('Current User Info:');
-    logger.debug(user);
-    return;
-  })
+  .then(user => logger.debug(user))
   .catch(err => logger.debug(err))
 
-new Vue({  
+
+new Vue({
   el: '#app',
   router: router,
   template: '<App/>',
   store,
-  components: { 
+  components: {
     App,
     ...components
   },

@@ -40,7 +40,8 @@ def lambda_handler(event, context):
             
             endpoint = endpoints.get(key)
 
-            # A workaround:
+            # A workaround: - if the address is not visible here it also does not find its way to Pinpoint
+            # allow sending.
             if 'Address' not in endpoint:
                 logger.warning("Address not in endpoint supplied - so we must fill it in ourselves.")
                 pinpoint_app_id = event['ApplicationId']

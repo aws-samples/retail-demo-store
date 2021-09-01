@@ -12,5 +12,6 @@ fi
 
 source ./bundle.sh
 
-echo "Staging bundle to S3"
-aws s3 cp ${PACKAGE_FILE} s3://${S3_BUCKET}/${S3_PATH}aws-lambda/${PACKAGE_FILE} $S3PUBLIC
+TARGET=s3://${S3_BUCKET}/${S3_PATH}aws-lambda/${PACKAGE_FILE}
+echo "Staging bundle to S3 at ${TARGET}"
+aws s3 cp ${PACKAGE_FILE} ${TARGET} $S3PUBLIC

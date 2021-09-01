@@ -2,6 +2,9 @@
 
 The Offers web service provides a RESTful API for retrieving coupons. 
 
+To see this used, see "Retail Geofencing and Location-aware Personalization"
+in the in-app Demo Guide. 
+
 When deployed to AWS, CodePipeline is used to build and deploy the Offers service as a Docker container to Amazon ECS behind an Application Load Balancer. The Offers service can also be run locally in a Docker container. This makes it easier to iterate on and test changes locally before commiting.
 
 ## Local Development

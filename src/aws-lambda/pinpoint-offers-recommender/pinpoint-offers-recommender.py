@@ -52,7 +52,8 @@ def lambda_handler(event, context):
             endpoint = endpoints.get(key)
             logger.info(f"Processing endpoint: {json.dumps(endpoint, indent=2)}")
 
-            # A workaround:
+            # A workaround: - if the address is not visible here it also does not find its way to Pinpoint to
+            # allow sending.
             if 'Address' not in endpoint:
                 logger.warning("Address not in endpoint supplied - so we must fill it in ourselves.")
                 pinpoint_app_id = event['ApplicationId']
@@ -68,7 +69,7 @@ def lambda_handler(event, context):
                     'OfferDescription': [''] * len(recommended_items)
                 }
                 for idx, item_id in enumerate(recommended_items):
-                    logger.debug('Looking up product information for product ' + item_id)
+                    logger.debug('Looking up product information for item ' + item_id)
                     offer = get_offer_by_id(item_id)
                     if offer is not None:
 

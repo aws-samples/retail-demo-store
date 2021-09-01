@@ -9,13 +9,17 @@ import CategoryDetail from '@/public/CategoryDetail.vue'
 import Live from '@/public/Live.vue'
 import Help from '@/public/Help.vue'
 import Cart from '@/public/Cart.vue'
+import AuthScreen from '@/public/Auth.vue'
 import Checkout from '@/public/Checkout.vue'
 import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
-import Profile from '@/authenticated/Profile.vue'
 import Admin from '@/authenticated/Admin.vue'
+import ShopperSelectPage from '@/authenticated/ShopperSelectPage'
 
-import { components, AmplifyEventBus } from 'aws-amplify-vue';
+import Location from "@/public/Location";
+import Collections from "@/public/Collections";
+
+import { AmplifyEventBus } from 'aws-amplify-vue';
 import { Auth, Logger, I18n, Analytics, Interactions } from 'aws-amplify';
 import { AmplifyPlugin } from 'aws-amplify-vue';
 import AmplifyStore from '@/store/store';
@@ -24,11 +28,6 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
-import Location from "@/public/Location";
-import Collections from "@/public/Collections";
-import Cstore from "@/public/Cstore";
-import LocationDemoAdmin from "@/public/LocationDemoAdmin";
-
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -62,21 +61,22 @@ AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
     AmplifyStore.dispatch('logout');
     AnalyticsHandler.clearUser()
-    
+
     if (router.currentRoute.path !== '/') router.push({ path: '/' })
-  } 
-    else if (state === 'signedIn') {
+  }
+  else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
 
     let storeUser = null
 
-    if (Object.prototype.hasOwnProperty.call(cognitoUser, 'attributes') && 
-        Object.prototype.hasOwnProperty.call(cognitoUser.attributes, 'custom:profile_user_id')) {
-        const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
-        storeUser = data
+    const hasAssignedShopperProfile = !!cognitoUser.attributes?.['custom:profile_user_id'];
+
+    if (hasAssignedShopperProfile) {
+      const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
+      storeUser = data
     }
     else {
-      // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
+            // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
       // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user
       const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
       storeUser = data
@@ -95,7 +95,7 @@ AmplifyEventBus.$on('authState', async (state) => {
     }
 
     console.log('Syncing store user state to cognito user custom attributes')
-    // Store user exists. Use this as opportunity to sync store user 
+    // Store user exists. Use this as opportunity to sync store user
     // attributes to Cognito custom attributes.
     await Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
       'custom:profile_user_id': storeUser.id.toString(),
@@ -112,7 +112,7 @@ AmplifyEventBus.$on('authState', async (state) => {
       console.log('Syncing credentials identity_id with store user profile')
       storeUser.identity_id = credentials.identityId
     }
-    
+
     // Update last sign in and sign up dates on user.
     let newSignUp = false
 
@@ -124,10 +124,10 @@ AmplifyEventBus.$on('authState', async (state) => {
       newSignUp = true
     }
 
-    // Wait for identify to complete before sending sign in/up events 
+    // Wait for identify to complete before sending sign in/up events
     // so that endpoint is created/updated first. Impacts Pinpoint campaign timing.
     await AnalyticsHandler.identify(storeUser)
-    
+
     // Fire sign in and first time sign up events.
     AnalyticsHandler.userSignedIn(storeUser)
 
@@ -140,14 +140,20 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     AmplifyStore.commit('setUser', storeUser);
 
-    router.push({path: '/'})
+    if (newSignUp && !hasAssignedShopperProfile) {
+      AmplifyStore.dispatch('firstTimeSignInDetected');
+
+      router.push({path: '/shopper-select'});
+    } else {
+      router.push({path: '/'});
+    }
   }
   else if (state === 'profileChanged') {
     const cognitoUser = await getCognitoUser()
     const storeUser = AmplifyStore.state.user
 
     if (cognitoUser && storeUser) {
-      // Store user exists. Use this as opportunity to sync store user 
+      // Store user exists. Use this as opportunity to sync store user
       // attributes to Cognito custom attributes.
       Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
         'custom:profile_user_id': storeUser.id.toString(),
@@ -158,6 +164,14 @@ AmplifyEventBus.$on('authState', async (state) => {
         'custom:profile_age': storeUser.age.toString(),
         'custom:profile_persona': storeUser.persona
       })
+    }
+
+    // Sync identityId with user to support reverse lookup.
+    const credentials = await Credentials.get();
+    if (credentials && storeUser.identity_id != credentials.identityId) {
+      console.log('Syncing credentials identity_id with store user profile')
+      storeUser.identity_id = credentials.identityId
+      UsersRepository.updateUser(storeUser)
     }
   }
 });
@@ -193,7 +207,7 @@ const router = new Router({
       component: ProductDetail,
       props: route => ({ discount: route.query.di === "true" || route.query.di === true}),
       meta: { requiresAuth: false}
-    },  
+    },
     {
       path: '/category/:id',
       name: 'CategoryDetail',
@@ -211,24 +225,41 @@ const router = new Router({
       name: 'Help',
       component: Help,
       meta: { requiresAuth: false}
-    },       
+    },
     {
       path: '/orders',
       name: 'Orders',
       component: Orders,
       meta: { requiresAuth: true}
-    },  
+    },
     {
       path: '/cart',
       name: 'Cart',
       component: Cart,
       meta: { requiresAuth: false}
-    },    
+    },
     {
       path: '/checkout',
       name: 'Checkout',
       component: Checkout,
       meta: { requiresAuth: false}
+    },
+    {
+      path: '/admin',
+      name: 'Admin',
+      component: Admin,
+      meta: { requiresAuth: true}
+    },
+    {
+      path: '/auth',
+      name: 'Authenticator',
+      component: AuthScreen,
+    },
+    {
+      path: '/shopper-select',
+      name: 'ShopperSelect',
+      component: ShopperSelectPage,
+      meta: { requiresAuth: true },
     },
     {
       path: '/location',
@@ -237,38 +268,10 @@ const router = new Router({
       meta: { requiresAuth: true}
     },
     {
-      path: '/cstore',
-      name: 'C-Store',
-      component: Cstore,
-      meta: { requiresAuth: true}
-    },
-    {
       path: '/collections',
       name: 'Collections',
       component: Collections,
       meta: { requiresAuth: true}
-    },
-    {
-      path: '/profile',
-      name: 'Profile',
-      component: Profile,
-      meta: { requiresAuth: true}
-    },       
-    {
-      path: '/admin',
-      name: 'Admin',
-      component: Admin,
-      meta: { requiresAuth: true}
-    },
-    {
-      path: '/locationadmin',
-      name: 'Location Demo Admin',
-      component: LocationDemoAdmin
-    },
-    {
-      path: '/auth',
-      name: 'Authenticator',
-      component: components.Authenticator
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {
@@ -282,7 +285,9 @@ const router = new Router({
 
 // Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication
-router.beforeResolve(async (to, _from, next) => {
+router.beforeResolve(async (to, from, next) => {
+  AmplifyStore.dispatch('pageVisited', from.fullPath);
+
   if (!AmplifyStore.state.welcomePageVisited.visited) {
     const user = await getUser();
 
@@ -290,7 +295,7 @@ router.beforeResolve(async (to, _from, next) => {
       AmplifyStore.dispatch('welcomePageVisited');
       return next('/welcome');
     }
-  }     
+  }
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await getUser();

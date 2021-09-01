@@ -1,20 +1,14 @@
 """
-
+A simple script for generating sample data for learning to give personalised offers.
 """
 import json
 import pandas as pd
 import numpy as np
-import time
-import csv
-from pathlib import Path
 import gzip
 import random
-import yaml
 import logging
-from collections import defaultdict
 
-
-INBALANCED = False
+GENERATE_INBALANCED_DATA = False
 NUM_INTERACTIONS_PER_USER = 3
 
 FIRST_TIMESTAMP = 1591803782  # 2020-06-10, 18:43:02
@@ -38,7 +32,7 @@ def generate_data(interactions_filename, users_df, offers_df):
     num_users = users_df.shape[0]
     num_interactions = NUM_INTERACTIONS_PER_USER * num_users
 
-    if INBALANCED:
+    if GENERATE_INBALANCED_DATA:
         # We may wish to assume probability is proportional to ID to show off how we can add
         # business logic around Personalize
         offer_probs = offers_df.id.values.astype(float)
@@ -58,9 +52,10 @@ def generate_data(interactions_filename, users_df, offers_df):
     # generate all users Ids
     sample_user_ids = np.tile(users_df['id'].values.astype(int), NUM_INTERACTIONS_PER_USER)
     # only one event type
-    event_type = ['OfferConverted'] * num_interactions  # Only one event type
+    event_type = ['OfferConverted'] * num_interactions
 
     # we sort it to ensure there is a correlation between user ID and offer ID.
+    # This correlation is what the personalisation will learn.
     sampled_offers = sorted(np.random.choice(offers_df.id.values, num_interactions, p=offer_probs))
 
     interactions_df = pd.DataFrame({'ITEM_ID': sampled_offers,

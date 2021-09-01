@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-  This template deploys Location & associated resources for the Location NRF 2021 demo.
+  This template deploys Location & associated resources for the Location Service demo.
 
 Parameters:
   ResourceBucket:
@@ -23,10 +23,6 @@ Parameters:
   DeployDefaultGeofence:
     Type: String
     Description: Whether the default Geofence should be added to the Geofence Collection.
-
-  DeployLocation:
-    Type: String
-    Description: Whether any location resources at all should be deployed.
 
   PinpointAppId:
     Type: String
@@ -58,44 +54,18 @@ Parameters:
     Type: String
     Default: none
 
-  AmazonPayPublicKeyId:
-    Type: String
-    Default: none
-
-  AmazonPayStoreId:
-    Type: String
-    Default: none
-
-  AmazonPayPrivateKey:
-    Type: String
-    Default: "NONE"
-    NoEcho: true
-
 Conditions:
-  DefaultGeofence: !And
-    - !Equals
+  DefaultGeofence: !Equals
       - !Ref DeployDefaultGeofence
       - 'Yes'
-    - !Equals
-      - !Ref DeployLocation
-      - 'Yes'
-
-  Location: !Equals
-    - !Ref DeployLocation
-    - 'Yes'
-
-  CreateAmazonPayResources: !And
-    - !Condition Location
-    - !Not [!Equals [!Ref AmazonPayPrivateKey, ""]]
 
 Resources:
 
   # Custom resource for managing Amazon Location resources (1 each of map, geofence collection, tracker, geofence)
   LocationResourceStackLambdaFunction:
     Type: 'AWS::Lambda::Function'
-    Condition: Location
     Properties:
-      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location NRF Demo'
+      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location Service Demo'
       Handler: location-resource-stack.lambda_handler
       Role: !GetAtt
         - LocationResourceStackLambdaExecutionRole
@@ -113,7 +83,6 @@ Resources:
 
   LocationResourceStackLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -149,12 +118,34 @@ Resources:
                   - !Sub 'arn:aws:s3:::${ResourceBucket}/*'
               - Effect: Allow
                 Action:
-                  - geo:*
-                Resource: '*'
+                  - geo:AssociateTrackerConsumer
+                  - geo:CreateTracker
+                  - geo:DeleteTracker
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:tracker*'
+              - Effect: Allow
+                Action:
+                  - geo:PutGeofence
+                  - geo:CreateGeofenceCollection
+                  - geo:BatchDeleteGeofence
+                  - geo:DeleteGeofenceCollection
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection*'
+              - Effect: Allow
+                Action:
+                  - geo:CreateMap
+                  - geo:DeleteMap
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:map*'
+              - Effect: Allow
+                Action:
+                  - geo:CreatePlaceIndex
+                  - geo:DeletePlaceIndex
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:place-index*'
 
   CustomLocationResourceStackLambdaFunction:
     Type: Custom::LocationResourceStack
-    Condition: Location
     Properties:
       ServiceToken: !GetAtt LocationResourceStackLambdaFunction.Arn
       CreateDefaultGeofence: !If [DefaultGeofence, "true", "false"]
@@ -162,15 +153,13 @@ Resources:
   # Location Events handling
   LocationGeofenceEventLogGroup:
     Type: AWS::Logs::LogGroup
-    Condition: Location
     Properties:
       LogGroupName: !Sub /aws/events/${CustomLocationResourceStackLambdaFunction.LocationResourceName}-Monitor
 
   LocationGeofenceEventRule:
     Type: 'AWS::Events::Rule'
-    Condition: Location
     Properties:
-      Description: Rule for Location NRF demo to trigger when devices enter/exit a geofence
+      Description: Rule for Location Service demo to trigger when devices enter/exit a geofence
       EventPattern: {
         "source": [
             "aws.geo"
@@ -195,7 +184,6 @@ Resources:
 
   LocationGeofenceEventRuleInvokeLambdaPermission:
     Type: AWS::Lambda::Permission
-    Condition: Location
     Properties:
       Action: "lambda:InvokeFunction"
       FunctionName: !GetAtt LocationGeofenceEventHandler.Arn
@@ -204,7 +192,6 @@ Resources:
 
   LocationGeofenceEventHandlerLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -263,12 +250,15 @@ Resources:
                   - execute-api:ManageConnections
                 Resource:
                   - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LocationGeofenceBrowserNotificationApi}/*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-pinpoint-sms-longcode'
 
   LocationGeofenceEventHandler:
     Type: 'AWS::Lambda::Function'
-    Condition: Location
     Properties:
-      Description: 'Handles Amazon Location geofence entry/exit events in Location NRF demo '
+      Description: 'Handles Amazon Location geofence entry/exit events in Location Service demo '
       Handler: location-geofence-event.lambda_handler
       Role: !GetAtt
         - LocationGeofenceEventHandlerLambdaExecutionRole
@@ -295,7 +285,6 @@ Resources:
 
   LocationGeofenceEventHandlerEventConfig:
     Type: 'AWS::Lambda::EventInvokeConfig'
-    Condition: Location
     Properties:
       FunctionName: !Ref LocationGeofenceEventHandler
       MaximumRetryAttempts: 0
@@ -304,7 +293,6 @@ Resources:
   # API Gateway & associated resources to support browser notifications via WebSockets
   LocationGeofenceBrowserNotificationApi:
     Type: 'AWS::ApiGatewayV2::Api'
-    Condition: Location
     Properties:
       Name: LocationNrfDemo
       ProtocolType: WEBSOCKET
@@ -312,7 +300,6 @@ Resources:
 
   LocationGeofenceBrowserNotificationApiDeployment:
     Type: 'AWS::ApiGatewayV2::Deployment'
-    Condition: Location
     DependsOn:
       - LocationGeofenceBrowserNotificationApiConnectRoute
       - LocationGeofenceBrowserNotificationApiDisconnectRoute
@@ -321,7 +308,6 @@ Resources:
 
   LocationGeofenceBrowserNotificationApiStage:
     Type: 'AWS::ApiGatewayV2::Stage'
-    Condition: Location
     Properties:
       StageName: Prod
       DeploymentId: !Ref LocationGeofenceBrowserNotificationApiDeployment
@@ -329,7 +315,6 @@ Resources:
 
   LocationGeofenceBrowserNotificationApiConnectRoute:
     Type: 'AWS::ApiGatewayV2::Route'
-    Condition: Location
     Properties:
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
       RouteKey: $connect
@@ -342,7 +327,6 @@ Resources:
 
   LocationGeofenceWebsocketConnectionIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
-    Condition: Location
     Properties:
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
       IntegrationType: AWS_PROXY
@@ -351,7 +335,6 @@ Resources:
 
   LocationGeofenceBrowserNotificationApiDisconnectRoute:
     Type: AWS::ApiGatewayV2::Route
-    Condition: Location
     Properties:
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
       RouteKey: $disconnect
@@ -364,7 +347,6 @@ Resources:
 
   LocationGeofenceWebsocketDisconnectIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
-    Condition: Location
     Properties:
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
       IntegrationType: AWS_PROXY
@@ -373,7 +355,6 @@ Resources:
 
   LocationGeofenceWebsocketConnectLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -410,7 +391,6 @@ Resources:
 
   LocationGeofenceWebsocketConnectLambda:
     Type: 'AWS::Lambda::Function'
-    Condition: Location
     Properties:
       Description: 'Handles connections to the WebSocket API processing Location Geofence notifications'
       Handler: websocket-connect.lambda_handler
@@ -429,7 +409,6 @@ Resources:
 
   ConnectionLambdaInvokePermission:
     Type: AWS::Lambda::Permission
-    Condition: Location
     DependsOn:
       - LocationGeofenceBrowserNotificationApi
     Properties:
@@ -439,7 +418,6 @@ Resources:
 
   LocationGeofenceWebsocketDisconnectLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
-    Condition: Location
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -476,7 +454,6 @@ Resources:
 
   LocationGeofenceWebsocketDisconnectLambda:
     Type: 'AWS::Lambda::Function'
-    Condition: Location
     Properties:
       Description: 'Handles disconnection from the WebSocket API processing Location Geofence notifications'
       Handler: websocket-disconnect.lambda_handler
@@ -495,7 +472,6 @@ Resources:
 
   DisconnectLambdaInvokePermission:
     Type: AWS::Lambda::Permission
-    Condition: Location
     DependsOn:
       - LocationGeofenceBrowserNotificationApi
     Properties:
@@ -506,7 +482,6 @@ Resources:
   # Dynamo table for handling WebSockets backend
   WebSocketConnectionTable:
     Type: AWS::DynamoDB::Table
-    Condition: Location
     Properties:
       AttributeDefinitions:
         - AttributeName: "userId"
@@ -516,76 +491,11 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
 
-  # Amazon Pay request signing Lambda function
-  AmazonPaySigningLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Condition: CreateAmazonPayResources
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: !Ref AmazonPayPrivateKeySecret
-
-  AmazonPaySigningLambda:
-    Type: 'AWS::Lambda::Function'
-    Condition: CreateAmazonPayResources
-    Properties:
-      Description: 'Signs Amazon Pay payloads to be used with Amazon Pay button'
-      Handler: amazon-pay-signing.handler
-      Role: !GetAtt
-        - AmazonPaySigningLambdaExecutionRole
-        - Arn
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/amazon-pay-signing.zip'
-      Runtime: nodejs12.x
-      Timeout: 30
-      FunctionName: LocationNrfDemoAmazonPaySigningLambda
-      Environment:
-        Variables:
-          AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
-          AmazonPayPrivateKeySecretArn: !Ref AmazonPayPrivateKeySecret
-          WebURL: !Ref WebURL
-
-  AmazonPayPrivateKeySecret:
-    Type: AWS::SecretsManager::Secret
-    Condition: CreateAmazonPayResources
-    Properties:
-      Name: LocationNrfDemoAmazonPayPrivateKey
-      SecretString: !Ref AmazonPayPrivateKey
-
-
 Outputs:
   LocationResourceName:
     Description: Name of all created Location resources
-    Value:  !If [Location, !GetAtt CustomLocationResourceStackLambdaFunction.LocationResourceName, "NotDeployed"]
+    Value:  !GetAtt CustomLocationResourceStackLambdaFunction.LocationResourceName
 
   LocationNotificationEndpoint:
     Description: URL of WebSocket API for Geofence notifications
-    Value: !If [Location, !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}", "NotDeployed"]
+    Value: !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}"

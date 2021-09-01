@@ -1,11 +1,12 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 
+# Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
-    This template deploys the Retail Demo Store reference architecture and workshop notebooks.
+    RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
 
-Metadata: 
-  AWS::CloudFormation::Interface: 
+Metadata:
+  AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
           default: "Retail Demo Store Deployment Configuration"
@@ -13,13 +14,13 @@ Metadata:
           - ResourceBucket
           - ResourceBucketRelativePath
           - CreateElasticsearchServiceLinkedRole
-      - Label: 
+      - Label:
           default: "Source Deployment Approach"
-        Parameters: 
+        Parameters:
           - SourceDeploymentType
-      - Label: 
+      - Label:
           default: "GitHub Linked Deployment (only required for GitHub deployment approach)"
-        Parameters: 
+        Parameters:
           - GitHubRepo
           - GitHubBranch
           - GitHubToken
@@ -32,28 +33,36 @@ Metadata:
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
           - PinpointEmailFromName
+          - PinpointSMSLongCode
       - Label:
           default: "Use default IVS streams"
         Parameters:
           - UseDefaultIVSStreams
       - Label:
-          default: "Create Location resources"
+          default: "Create Location and Personalised Offers resources"
         Parameters:
-          - DeployLocation
-          - DeployDefaultGeofence
+          - DeployLocationServices
+          - DeployPersonalizedOffersCampaign
       - Label:
-          default: "Amazon Pay"
+          default: "Amazon Pay (optional)"
         Parameters:
           - AmazonPayStoreId
           - AmazonPayMerchantId
           - AmazonPayPublicKeyId
           - AmazonPayPrivateKey
       - Label:
-          default: "AWS Partner Integrations"
+          default: "Alexa C-Store Demo"
+        Parameters:
+          - AlexaSkillId
+          - AlexaAmazonPayDefaultSandboxEmail
+      - Label:
+          default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
+          - IncludeSegmentDependencies
           - SegmentWriteKey
+          - GoogleAnalyticsMeasurementId
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -83,10 +92,10 @@ Metadata:
         default: "Reply-To name"
       UseDefaultIVSStreams:
         default: "Use default IVS streams"
-      DeployLocation:
-        default: "Deploy location resources"
-      DeployDefaultGeofence:
-        default: "Create a default geofence in the created Amazon Location geofence collection"
+      DeployLocationServices:
+        default: "Deploy Location Services resources"
+      DeployPersonalizedOffersCampaign:
+        default: "Deploy personalized offers and pickup notices using Location Services geofencing."
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -99,20 +108,28 @@ Metadata:
         default: "Public key ID associated with Amazon Pay sandbox account"
       AmazonPayPrivateKey:
         default: "Private key associated with Amazon Pay sandbox account"
+      AlexaSkillId:
+        default: "ID of C-Store Demo Alexa skill to access Retail Demo Store"
+      AlexaAmazonPayDefaultSandboxEmail:
+        default: "An email to test Alexa integration in case you have not set up Cognito authorisation to link your Retail Demo Store account"
+      IncludeSegmentDependencies:
+        default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      GoogleAnalyticsMeasurementId:
+        default: "Google Analytics Measurement Id"
 
 Parameters:
   ResourceBucket:
     Type: String
     Description: >
-      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).
 
   ResourceBucketRelativePath:
     Type: String
     Description: >
-      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
   CreateElasticsearchServiceLinkedRole:
@@ -127,11 +144,11 @@ Parameters:
   SourceDeploymentType:
     Type: String
     Description: >
-      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store 
-      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline 
-      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing 
-      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for 
-      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own 
+      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store
+      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline
+      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing
+      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for
+      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
       source repositories provisioned.
     AllowedValues:
       - 'GitHub'
@@ -156,12 +173,13 @@ Parameters:
   GitHubUser:
     Type: String
     Description: Your GitHub username.
+    Default: aws-samples
 
   PreIndexElasticsearch:
     Type: String
     Description: >
-      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Search workshop included in this deployment 
+      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
       - 'Yes'
@@ -171,9 +189,9 @@ Parameters:
   PreCreatePersonalizeCampaign:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment 
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes 
+      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
+      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
       and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
@@ -183,8 +201,8 @@ Parameters:
   PreCreatePinpointWorkshop:
     Type: String
     Description: >
-      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would 
-      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook 
+      Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would
+      prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
       - 'Yes'
@@ -196,7 +214,7 @@ Parameters:
     Description: >
       Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
       is set to 'Yes'.
-  
+
   PinpointEmailFromName:
     Type: String
     Description: >
@@ -213,7 +231,13 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'Yes'
-  
+
+  PinpointSMSLongCode:
+    Type: String
+    Description: >
+      A dedicated long code (i.e. a phone number) obtained for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. Follow steps 2 and 3 in the Messaging workshop(https://github.com/aws-samples/retail-demo-store/blob/master/workshop/4-Messaging/4.1-Pinpoint.ipynb)
+      to get a long code. This parameter only applies when 'Auto-Configure Pinpoint' is set to 'Yes'. Enter the number along with the country code and without any spaces or brackets. For Example: enter "+1XXXXXXXXXX" for a long code based in the United States.
+
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
@@ -224,7 +248,7 @@ Parameters:
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
 
-  DeployLocation:
+  DeployLocationServices:
     Type: String
     Description: Deploy any Location Resources
     AllowedValues:
@@ -232,9 +256,9 @@ Parameters:
       - 'No'
     Default: 'Yes'
 
-  DeployDefaultGeofence:
+  DeployPersonalizedOffersCampaign:
     Type: String
-    Description: Create a default geofence in the created Amazon Location geofence collection
+    Description: Deploy personalized offers and pickup notices using Location Services geofencing
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -242,25 +266,87 @@ Parameters:
 
   AmazonPayPublicKeyId:
     Type: String
-    Description: Public Key ID for the Amazon Pay sandbox account being used
+    Description: >
+      This demonstration store contains an example of signing Amazon Pay payloads for integration with an Amazon Pay sandbox.
+      This parameter is the Public Key ID for the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayStoreId:
     Type: String
-    Description: Store ID of the Amazon Pay sandbox account being used
+    Description: >
+      The Store ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayMerchantId:
     Type: String
-    Description: Merchant ID of the Amazon Pay sandbox account being used
+    Description: >
+      Merchant ID of the Amazon Pay sandbox account being used.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
 
   AmazonPayPrivateKey:
     Type: String
-    Description: The private key to be used for signing Amazon Pay requests for a sandbox account.
+    Description: >
+      The private key to be used for signing Amazon Pay requests for a sandbox account.
+      You will need to copy the whole contents of the .pem file into this parameter.
+      For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
     NoEcho: true
+
+  AlexaSkillId:
+    Type: String
+    Description: >
+      This Alexa skill with this SkillId will be allowed to invoke the back-end skill Lambda deployed as a part
+      of this CloudFormation stack. The back-end Lambda supports the C-Store demo allowing hands-free location
+      based searching with Location Service (if enabled), integration with the Retail Demo Store back-end, online recommendations,
+      and checkout with Amazon Pay (if enabled).
+
+  AlexaAmazonPayDefaultSandboxEmail:
+    Type: String
+    Description: >
+      If you follow the steps in the workshop to enable Alexa to authenticate with Cognito and pull back your
+      user details, you probably do not need to set this. However, the Alexa web testing
+      tool does not allow you to do this authentication either, so to test with the Alexa simulator on the web
+      and get emails and Amazon Pay integration, you need to set this value so that a default test user is set up -
+      for Amazon Pay integration, the email should be from one of the test accounts you created on SellerCentral.
+
+  IncludeSegmentDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the Segment workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
 
   SegmentWriteKey:
     Type: String
-    Description: Segment write key for real-time data collection (optional).
+    Description: >
+      Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
+
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: >
+      Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
+      events are sent to the data stream associated with the Measurement ID.
+
+Conditions:
+  DeploySegmentResources: !Equals
+    - !Ref IncludeSegmentDependencies
+    - 'Yes'
+
+  DeployLocationStack: !Equals
+    - !Ref DeployLocationServices
+    - 'Yes'
+
+  CreateAmazonPayResources: !And
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayPrivateKey, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayStoreId, "" ] ]
+    - !And
+      - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
+      - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
+
+  DeployAlexaEndpoint: !Not [ !Equals [ !Ref AlexaSkillId, "" ] ]
 
 Resources:
   # Base Resources
@@ -278,6 +364,10 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        PinpointSMSLongCode: !Ref PinpointSMSLongCode
+        GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
+        LocationResourcePrefix: !Ref AWS::StackName
+        GitHubUser: !Ref GitHubUser
 
   # Services Resources
   Services:
@@ -312,7 +402,7 @@ Resources:
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
-        ImageRootUrl: !Sub 
+        ImageRootUrl: !Sub
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
@@ -341,22 +431,23 @@ Resources:
         CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
-        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        LocationResourceName: !GetAtt Location.Outputs.LocationResourceName
-        LocationNotificationEndpoint: !GetAtt Location.Outputs.LocationNotificationEndpoint
+        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
+        ParameterGoogleAnalyticsMeasurementId: !GetAtt Base.Outputs.ParameterGoogleAnalyticsMeasurementId
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
-        ImageRootUrl: !Sub 
+        ImageRootUrl: !Sub
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
 
@@ -374,14 +465,14 @@ Resources:
   # Amazon Location Resources
   Location:
     Type: AWS::CloudFormation::Stack
+    Condition: DeployLocationStack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/location.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
-        DeployDefaultGeofence: !Ref DeployDefaultGeofence
-        DeployLocation: !Ref DeployLocation
+        DeployDefaultGeofence: !Ref DeployPersonalizedOffersCampaign
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
@@ -389,6 +480,16 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
+  AmazonPay:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateAmazonPayResources
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/amazonpay.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
         AmazonPayStoreId: !Ref AmazonPayStoreId
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
@@ -396,10 +497,21 @@ Resources:
 
   Alexa:
     Type: AWS::CloudFormation::Stack
+    Condition: DeployAlexaEndpoint
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/alexa.yaml
       Parameters:
+        AlexaSkillId: !Ref AlexaSkillId
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
 
   # Deployment support
   DeploymentSupport:
@@ -426,8 +538,9 @@ Resources:
         CustomizeOffersRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeOffersRecommendationsFunctionArn
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
-        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   # Cleanup bucket function
   CleanupBucket:
@@ -435,24 +548,25 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/cleanup-bucket.yaml
 
-  # Segment Lambda Function
+  # Segment Lambda Functions and Roles
   SegmentPersonalize:
+    Condition: DeploySegmentResources
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
-        
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Base.Outputs.UserPoolId
-  
+
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Base.Outputs.UserPoolClientId
-  
+
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Base.Outputs.IdentityPoolId
@@ -492,3 +606,7 @@ Outputs:
   PinpointAppId:
     Description: Pinpoint App Id.
     Value: !GetAtt Base.Outputs.PinpointAppId
+
+  AlexaSkillEndpointArn:
+    Description: Arn of AWS Lambda function that can be a back-end
+    Value: !If [DeployAlexaEndpoint, !GetAtt Alexa.Outputs.AlexaSkillEndpointArn, "NotDeployed"]

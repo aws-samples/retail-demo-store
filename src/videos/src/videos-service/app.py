@@ -1,6 +1,15 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+# AWS X-ray support
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+from aws_xray_sdk.core import patch_all
+
+patch_all()
+
+xray_recorder.begin_segment("Videos-init")
+
 import logging
 import json
 import os
@@ -132,8 +141,8 @@ def is_ssm_parameter_set(parameter_name):
 
 
 def log_ffmpeg_processes():
-    logger.info('Running ffmpeg processes:')
-    logger.info(os.system("ps aux|grep 'PID\|ffmpeg'"))
+    app.logger.info('Running ffmpeg processes:')
+    app.logger.info(os.system("ps aux|grep 'PID\|ffmpeg'"))
 
 
 def put_ivs_metadata(channel_arn, line):
@@ -148,11 +157,11 @@ def put_ivs_metadata(channel_arn, line):
             metadata=line
         )
     except ivs_client.exceptions.ChannelNotBroadcasting as ex:
-        logger.warning(f'Channel not broadcasting. Waiting for 5 seconds. Exception: {ex}')
+        app.logger.warning(f'Channel not broadcasting. Waiting for 5 seconds. Exception: {ex}')
         log_ffmpeg_processes()
         time.sleep(5)
     except ivs_client.exceptions.InternalServerException as ex:
-        logger.error(f'We have an internal error exception. Waiting for 30 seconds. Exception: {ex}')
+        app.logger.error(f'We have an internal error exception. Waiting for 30 seconds. Exception: {ex}')
         log_ffmpeg_processes()
         time.sleep(30)
 
@@ -298,6 +307,9 @@ app = Flask(__name__,
             static_url_path=STATIC_URL_PATH)
 corps = CORS(app)
 
+
+xray_recorder.configure(service='Videos Service')
+XRayMiddleware(app, xray_recorder)
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):

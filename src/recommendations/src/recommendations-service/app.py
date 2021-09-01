@@ -1,6 +1,13 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+# AWS X-ray support
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+from aws_xray_sdk.core import patch_all
+
+patch_all()
+
 from flask import Flask, jsonify, Response
 from flask import request
 
@@ -17,16 +24,18 @@ import pprint
 import boto3
 import uuid
 import requests
-import logging
 import random
+import logging
 
 NUM_DISCOUNTS = 2
 
 EXPERIMENTATION_LOGGING = True
 DEBUG_LOGGING = True
 
+random.seed(42)  # Keep our demonstration deterministic
+
 # Since the DescribeCampaign API easily throttles and we just need
-# the recipe from the campaign and it won't change often (if at all), 
+# the recipe from the campaign and it won't change often (if at all),
 # use a cache to help smooth out periods where we get throttled.
 personalize_meta_cache = ExpiringDict(2 * 60 * 60)
 
@@ -43,6 +52,7 @@ filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
 filter_cstore_param_name = 'retaildemostore-personalize-filter-cstore-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
+dataset_group_name_root = 'retaildemostore-'
 
 # -- Shared Functions
 
@@ -98,7 +108,6 @@ def get_parameter_values(names):
 
     return values
 
-
 def get_products(feature, user_id, current_item_id, num_results, default_campaign_arn_param_name,
                  default_filter_arn_param_name, user_reqd_for_campaign=False, fully_qualify_image_urls=False,
                  ):
@@ -119,8 +128,9 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
         user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
         fully_qualify_image_urls: Fully qualify image URLs n here
     Returns:
-        A prepared HTTP response object.
+        A prepared HTTP response object.    
     """
+
     # Check environment for host and port first in case we're running in a local Docker container (dev mode)
     products_service_host = os.environ.get('PRODUCT_SERVICE_HOST')
     products_service_port = os.environ.get('PRODUCT_SERVICE_PORT', 80)
@@ -163,7 +173,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
     else:
         # Fallback to default behavior of checking for campaign ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([ default_campaign_arn_param_name, default_filter_arn_param_name ])
+        values = get_parameter_values([default_campaign_arn_param_name, default_filter_arn_param_name])
 
         campaign_arn = values[0]
         filter_arn = values[1]
@@ -179,8 +189,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
-                user_id = user_id, 
-                product_id = current_item_id, 
+                user_id = user_id,
+                product_id = current_item_id,
                 num_results = num_results
             )
 
@@ -212,7 +222,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
 
                 product['url'] = product_url
 
-            item.update({ 
+            item.update({
                 'product': product
             })
 
@@ -260,6 +270,9 @@ app = Flask(__name__)
 logger = app.logger
 corps = CORS(app, expose_headers=['X-Experiment-Name', 'X-Experiment-Type', 'X-Experiment-Id', 'X-Personalize-Recipe'])
 
+xray_recorder.configure(service='Recommendations Service')
+XRayMiddleware(app, xray_recorder)
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(error):
     response = jsonify(error.to_dict())
@@ -278,10 +291,10 @@ def health():
 def related():
     """ Returns related products given an item/product.
 
-    If a feature name is provided and there is an active experiment for the 
-    feature, the experiment will be used to retrieve related products. Otherwise, 
-    the default behavior will be used which will look to see if an Amazon Personalize 
-    campaign for the related items campaign is available. If not, the Product service 
+    If a feature name is provided and there is an active experiment for the
+    feature, the experiment will be used to retrieve related products. Otherwise,
+    the default behavior will be used which will look to see if an Amazon Personalize
+    campaign for the related items campaign is available. If not, the Product service
     will be called to get products from the same category as the current product.
     """
     user_id = request.args.get('userID')
@@ -296,7 +309,9 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
+    # The default filter is the not-already-purchased filter
     filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    # We have short names for these filters
     if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
     elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
     app.logger.info(f"Filter SSM for /related: {filter_ssm}")
@@ -308,10 +323,10 @@ def related():
 
     try:
         return get_products(
-            feature = feature, 
-            user_id = user_id, 
+            feature = feature,
+            user_id = user_id,
             current_item_id = current_item_id, 
-            num_results = num_results, 
+            num_results = num_results,
             default_campaign_arn_param_name='retaildemostore-related-products-campaign-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
@@ -321,7 +336,6 @@ def related():
         app.logger.exception('Unexpected error generating related items', e)
         raise BadRequest(message = 'Unhandled error', status_code = 500)
 
-
 @app.route('/recommendations', methods=['GET'])
 def recommendations():
     """ Returns item/product recommendations for a given user in the context
@@ -329,9 +343,9 @@ def recommendations():
     recommendations for other products they may be interested in).
 
     If an experiment is currently active for this feature ('home_product_recs'),
-    recommendations will be provided by the experiment. Otherwise, the default 
-    behavior will be used which will look to see if an Amazon Personalize 
-    campaign is available. If not, the Product service will be called to get 
+    recommendations will be provided by the experiment. Otherwise, the default
+    behavior will be used which will look to see if an Amazon Personalize
+    campaign is available. If not, the Product service will be called to get
     products from the same category as the current product or featured products.
     """
     user_id = request.args.get('userID')
@@ -349,18 +363,21 @@ def recommendations():
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
+    # The default filter is the not-already-purchased filter
     filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    # We have short names for these filters
     if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
     elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
         response = get_products(
-            feature = feature, 
-            user_id = user_id, 
+            feature = feature,
+            user_id = user_id,
             current_item_id = current_item_id, 
-            num_results = num_results, 
+            num_results = num_results,
             default_campaign_arn_param_name='retaildemostore-product-recommendation-campaign-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
@@ -806,6 +823,11 @@ def coupon_offer():
                 # Here is where might want to incorporate some business logic
                 # for more information on how these scores are used see
                 # https://aws.amazon.com/blogs/machine-learning/introducing-recommendation-scores-in-amazon-personalize/
+
+                # An alternative approach would be to train Personalize to produce recommendations based on objectives
+                # we specify rather than the default which is to maximise the target event. For more information, see
+                # https://docs.aws.amazon.com/personalize/latest/dg/optimizing-solution-for-objective.html
+
                 user_scores = {item['itemId']: float(item['score']) for item in
                                get_recommendations_response[return_key]}
                 # We assume we have pre-calculated the adjusting factor, can be a mix of probability when applicable,
@@ -859,11 +881,11 @@ def experiment_outcome():
         correlation_id = content.get('correlationId')
     else:
         correlation_id = request.form.get('correlationId')
-        
+
     if not correlation_id:
         raise BadRequest('correlationId is required')
 
-    correlation_bits = correlation_id.split('-')
+    correlation_bits = correlation_id.split('_')
     if len(correlation_bits) != 4:
         raise BadRequest('correlationId is invalid')
 
@@ -912,9 +934,7 @@ def reset_realtime():
         if train_config_step['dataset_groups'] is not None:
             for dataset_group_name, dataset_group_config in train_config_step['dataset_groups'].items():
 
-                dataset_group_name_root = dataset_group_name.split('-')[0]
                 new_dataset_group_name = dataset_group_name_root + str(uuid.uuid4())[:8]
-
                 # Let us also bump the solution number in case some things are stored by name there
                 for campaign_type, campaign_config in dataset_group_config['campaigns'].items():
                     campaign_config['desired_campaign_suffixes'] = [v + 1 for v in campaign_config['desired_campaign_suffixes']]
