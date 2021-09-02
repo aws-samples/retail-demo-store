@@ -51,9 +51,10 @@ Resources:
           mparticle_api_key: ''
           mparticle_secret_key: ''
 
-  mParticleKinesisRole:
+  mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'
     Properties:
+      RoleName: !Sub '${AWS::Region}-mParticleKinesisCrossAccountRole'
       Description: 'Allows mParticle to write messages to your Kinesis stream.'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
