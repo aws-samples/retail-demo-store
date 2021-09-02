@@ -67,7 +67,7 @@ Resources:
               - 'sts:AssumeRole'
             Condition:
               StringEquals:
-                "sts:ExternalId": 'orgid:${mParticleOrgId}'
+                "sts:ExternalId": !Sub 'orgid:${mParticleOrgId}'
       Path: /
       Policies:
         - PolicyName: root
@@ -78,7 +78,7 @@ Resources:
                 Action:
                   - 'kinesis:PutRecord'
                 Resource:
-                  - 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
+                  - !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
 
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
