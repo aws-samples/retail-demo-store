@@ -138,12 +138,13 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 1) [Creating a Retail Demo Store account](./documentation/1-Creating-account.md)
 2) [Personalized Experience](./documentation/2-Personalization.md)
 
-# Known Issues
+# Known Issues/Limitations
 
-* The application was written for demonstration purposes and not for production use.
-* You currently cannot deploy this project multiple times in the same AWS account and the same region. However, you can deploy the project into separate regions within the same AWS account.
+* The application was written for demonstration and education purposes and not for production use.
+* You currently cannot deploy this project multiple times in the same AWS account and the same AWS region. However, you can deploy the project into separate supported regions within the same AWS account.
 * Make sure your CloudFormation stack name uses all lowercase letters.
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
+    - Amazon IVS is currently only supported in the N. Virginia (us-east-1), Oregon (us-west-2), and Ireland (eu-west-1) regions. Therefore, to deploy the Retail Demo Store in a region that does not support IVS, be sure to select to use the Default IVS Streams CloudFormation template parameter.
 
 # Reporting Bugs
 
