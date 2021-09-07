@@ -9,6 +9,10 @@ Parameters:
     Type: String
     Description: Your GitHub username.
 
+  GitHubBranch:
+    Type: String
+    Description: The GitHub branch to use for deployments.
+
   Subnets:
     Type: String
 
@@ -44,6 +48,10 @@ Conditions:
       - !Ref GitHubUser
       - ''
 
+  UseDefaultGitHubBranch: !Equals
+      - !Ref GitHubBranch
+      - ''
+
 Resources:
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
@@ -56,7 +64,7 @@ Resources:
         - !Ref SecurityGroup
       DefaultCodeRepository: !Sub
         - 'https://github.com/${User}/retail-demo-store.git'
-        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
+        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] , Branch: !If [ UseDefaultGitHubBranch, 'master', !Ref GitHubBranch]}
       Tags:
         -
           Key: "Uid"

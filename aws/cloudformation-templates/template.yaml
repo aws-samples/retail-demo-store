@@ -387,6 +387,7 @@ Resources:
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
         GitHubUser: !Ref GitHubUser
+        GitHubBranch: !Ref GitHubBranch
 
   # Services Resources
   Services:

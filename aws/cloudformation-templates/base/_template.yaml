@@ -124,6 +124,7 @@ Resources:
         UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         GitHubUser: !Ref GitHubUser
+        GitHubBranch: !Ref GitHubBranch
 
   # Tables
   Tables:
