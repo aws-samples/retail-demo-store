@@ -167,6 +167,11 @@ Resources:
                   - iam:DeleteRole
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               -
+                Effect: "Allow"
+                Action:
+                  - iam:UpdateAssumeRolePolicy
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${AWS::Region}-mParticleKinesisCrossAccountRole'
+              -
                 Effect: Allow
                 Action:
                   - codepipeline:ListPipelines
