@@ -1,6 +1,5 @@
 """
 This script exists so that when developing or internal deployment of public commits
-(to retail-demo-store-eu-west-1 and retail-demo-store-us-east-1 and retail-demo-store-us-west-2)
 the new Personalize training files can be generated, picked up, and uploaded.
 
 This script generates interactions for Amazon Personalize by heuristic simulation. It is based off the notebook
