@@ -55,7 +55,7 @@ Resources:
       CodeRepositoryName: 'retail-demo-store'
       GitConfig: 
         Branch: !Ref GitHubBranch
-        Repository:  !Sub
+        RepositoryUrl:  !Sub
         - 'https://github.com/${User}/retail-demo-store.git'
         - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
   NotebookInstance:
