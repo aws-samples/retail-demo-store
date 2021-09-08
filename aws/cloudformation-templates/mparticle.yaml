@@ -28,6 +28,7 @@ Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
     Properties: 
+      Name: 'mParticlePersonalizeEventsKinesisStream'
       ShardCount: 1
 
   mParticlePersonalizeLambda:
