@@ -48,11 +48,16 @@ Conditions:
       - !Ref GitHubUser
       - ''
 
-  UseDefaultGitHubBranch: !Equals
-      - !Ref GitHubBranch
-      - ''
-
 Resources:
+  RetailDemoStoreGitHubRepo:
+    Type: AWS::SageMaker::CodeRepository
+    Properties: 
+      CodeRepositoryName: 'retail-demo-store'
+      GitConfig: 
+        Branch: !Ref GitHubBranch
+        Repository:  !Sub
+        - 'https://github.com/${User}/retail-demo-store.git'
+        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
@@ -62,9 +67,7 @@ Resources:
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      DefaultCodeRepository: !Sub
-        - 'https://github.com/${User}/retail-demo-store.git'
-        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] , Branch: !If [ UseDefaultGitHubBranch, 'master', !Ref GitHubBranch]}
+      DefaultCodeRepository: 'retail-demo-store'
       Tags:
         -
           Key: "Uid"
