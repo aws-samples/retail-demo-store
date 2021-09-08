@@ -88,6 +88,10 @@ Parameters:
     Type: String
     Description: Your GitHub username.
 
+  GitHubBranch:
+    Type: String
+    Description: The GitHub branch used for deployment.
+    
 Resources:
 
   # Authentication
