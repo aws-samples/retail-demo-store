@@ -27,7 +27,7 @@
       <SearchItem
         v-for="result in results"
         :key="result.itemId"
-        :product_id="result.itemId"
+        :product="result.product"
         :experiment="result.experiment"
         :feature="feature"
       />
@@ -46,6 +46,7 @@ import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
 const SearchRepository = RepositoryFactory.get('search');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
+const ProductsRepository = RepositoryFactory.get('products')
 
 const EXPERIMENT_FEATURE = 'search_results';
 
@@ -88,6 +89,9 @@ export default {
       const { data } = await SearchRepository.searchProducts(val, size);
 
       await this.rerank(data);
+      if (items.length > 0) {
+        await this.lookupProducts(this.results);
+      }
 
       AnalyticsHandler.productSearched(this.user, val, data.length);
     },
@@ -101,6 +105,18 @@ export default {
         this.results = items;
       }
     },
+    async lookupProducts(items) {
+      let itemIds = items.map(item => item.itemId);
+      const { data } = await ProductsRepository.getProduct(itemIds);
+      items.forEach(function (item) {
+        for (var i = 0; i < data.length; i++) {
+          if (item.itemId == data[i].id) {
+            item.product = data[i];
+            break;
+          }
+        }
+      });
+    }
   },
   watch: {
     async searchTerm(val) {
