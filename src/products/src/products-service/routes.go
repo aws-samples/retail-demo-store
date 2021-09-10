@@ -32,7 +32,7 @@ var routes = Routes{
 	Route{
 		"ProductShow",
 		"GET",
-		"/products/id/{productID}",
+		"/products/id/{productIDs}",
 		ProductShow,
 	},
 	Route{
