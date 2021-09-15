@@ -30,7 +30,7 @@ Parameters:
 
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
-  
+
   ContainerPort:
     Type: String
     Default: 80
@@ -82,7 +82,7 @@ Parameters:
     Type: String
     Default: 80
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -100,7 +100,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -124,10 +124,10 @@ Parameters:
 
   Uid:
     Type: String
-  
+
   PinpointAppId:
     Type: String
-    
+
 Resources:
   TaskExecutionRole:
     Type: AWS::IAM::Role
@@ -324,7 +324,7 @@ Resources:
           Image: public.ecr.aws/xray/aws-xray-daemon:alpha
           PortMappings:
             - ContainerPort: 2000
-              Protocol: udp        
+              Protocol: udp
         - Name: !Ref ServiceName
           Image: !Ref ContainerImage
           Essential: true
@@ -336,13 +336,13 @@ Resources:
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
-              Value: !Ref EnvPersonalizeCampaignArn          
+              Value: !Ref EnvPersonalizeCampaignArn
             - Name: SEARCH_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeSearchCampaignArn
             - Name: PRODUCTS_SERVICE_HOST
               Value: !Ref EnvProductsServiceInternalUrl
             - Name: PRODUCTS_SERVICE_PORT
-              Value: '80'      
+              Value: '80'
             - Name: USERS_SERVICE_HOST
               Value: !Ref EnvUsersServiceInternalUrl
             - Name: USERS_SERVICE_PORT
@@ -363,9 +363,9 @@ Resources:
               Value: !Ref ParameterIVSVideoChannelMap
             - Name: USE_DEFAULT_IVS_STREAMS
               Value: !Ref UseDefaultIVSStreams
-            - Name: ES_SEARCH_DOMAIN_HOST
-              Value: !Ref EnvElasticsearchDomainEndpoint
-            - Name: ES_SEARCH_DOMAIN_PORT
+            - Name: OPENSEARCH_DOMAIN_HOST
+              Value: !Ref EnvOpenSearchDomainEndpoint
+            - Name: OPENSEARCH_DOMAIN_PORT
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
@@ -404,4 +404,3 @@ Outputs:
 
   FargateServiceName:
     Value: !GetAtt FargateService.Name
-    

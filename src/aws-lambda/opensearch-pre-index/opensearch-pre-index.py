@@ -6,7 +6,7 @@ import yaml
 import logging
 import boto3
 from crhelper import CfnResource
-from elasticsearch import Elasticsearch
+from opensearch import OpenSearch
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -24,21 +24,21 @@ MAX_BULK_BATCH_SIZE = 100
 @helper.delete
 @helper.update
 def no_op(_, __):
-    # no operation is needed, the elasticsearch domain is just deleted with the resources
+    # no operation is needed, the opensearch domain is just deleted with the resources
     pass
 
 @helper.create
-def elasticsearch_create(event,_):
-    # Conditionally creates and loads Elasticsearch products index
+def opensearch_create(event,_):
+    # Conditionally creates and loads OpenSearch products index
     # If the products index already exists, this function does nothing.
     # Otherwise, this function will create the products index and add
     # all products from the bundled products.yaml file.
 
-    es_domain_endpoint = event['ResourceProperties']['ElasticsearchDomainEndpoint']
-    logger.info('Elasticsearch endpoint: ' + es_domain_endpoint)
+    search_domain_endpoint = event['ResourceProperties']['OpenSearchDomainEndpoint']
+    logger.info('OpenSearch endpoint: ' + search_domain_endpoint)
 
-    es_host = {
-        'host' : es_domain_endpoint,
+    search_host = {
+        'host' : search_domain_endpoint,
         'port' : 443,
         'scheme' : 'https',
     }
@@ -46,17 +46,17 @@ def elasticsearch_create(event,_):
     # For testing: specify 'ForceIndex' to force existing index to be deleted and products indexed.
     force_index = event['ResourceProperties'].get('ForceIndex', 'no').lower() in [ 'true', 'yes', '1' ]
 
-    es = Elasticsearch(hosts = [es_host], timeout=30, max_retries=10, retry_on_timeout=True)
+    search = OpenSearch(hosts = [search_host], timeout=30, max_retries=10, retry_on_timeout=True)
 
     create_index_and_bulk_load = True
 
-    if es.indices.exists(INDEX_NAME):
+    if search.indices.exists(INDEX_NAME):
         logger.info(f'{INDEX_NAME} already exists')
         create_index_and_bulk_load = False
 
         if force_index:
             logger.info(f'Deleting "{INDEX_NAME}"...')
-            res = es.indices.delete(index = INDEX_NAME)
+            res = search.indices.delete(index = INDEX_NAME)
             logger.debug(" response: '%s'" % (res))
             create_index_and_bulk_load = True
     else:
@@ -70,7 +70,7 @@ def elasticsearch_create(event,_):
             }
         }
         logger.info(f'Creating "{INDEX_NAME}" index...')
-        res = es.indices.create(index = INDEX_NAME, body = request_body)
+        res = search.indices.create(index = INDEX_NAME, body = request_body)
         logger.debug(" response: '%s'" % (res))
 
         logger.info('Downloading products.yaml...')
@@ -93,19 +93,19 @@ def elasticsearch_create(event,_):
                 bulk_data.append(product)
 
                 if len(bulk_data) >= MAX_BULK_BATCH_SIZE:
-                    es.bulk(index = INDEX_NAME, body = bulk_data)
+                    search.bulk(index = INDEX_NAME, body = bulk_data)
                     bulk_data = []
 
             if len(bulk_data) > 0:
-                es.bulk(index = INDEX_NAME, body = bulk_data)
+                search.bulk(index = INDEX_NAME, body = bulk_data)
 
         logger.info('Products successfully indexed!')
 
-        helper.Data['Output'] = 'Elasticsearch product index populated'
+        helper.Data['Output'] = 'OpenSearch product index populated'
     else:
-        helper.Data['Output'] = 'Elasticsearch product index already exists'
+        helper.Data['Output'] = 'OpenSearch product index already exists'
 
-    return es_domain_endpoint
+    return search_domain_endpoint
 
 def lambda_handler(event, context):
     helper(event, context)

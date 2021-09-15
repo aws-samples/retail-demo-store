@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store ElasticSearch Cluster.
+    This template deploys the Retail Demo Store OpenSearch domain.
 
 Parameters:
 
@@ -20,13 +20,13 @@ Parameters:
 
 Resources:
 
-  ElasticsearchDomain:
+  OpenSearchDomain:
     Type: AWS::Elasticsearch::Domain
     Properties:
       ElasticsearchVersion: '7.4'
       ElasticsearchClusterConfig:
         InstanceCount: 1
-        InstanceType: t2.small.elasticsearch
+        InstanceType: t3.small.elasticsearch
         ZoneAwarenessEnabled: false
       EBSOptions:
         EBSEnabled: true
@@ -46,12 +46,12 @@ Resources:
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
       VPCOptions:
-        SubnetIds: 
+        SubnetIds:
           - !Ref Subnet1
         SecurityGroupIds:
           - !GetAtt SecurityGroup.GroupId
       Tags:
-        - 
+        -
           Key: "Name"
           Value: "retaildemostore"
 
@@ -68,10 +68,10 @@ Resources:
 
 Outputs:
   DomainArn:
-    Value: !GetAtt ElasticsearchDomain.DomainArn
- 
+    Value: !GetAtt OpenSearchDomain.DomainArn
+
   DomainEndpoint:
-    Value: !GetAtt ElasticsearchDomain.DomainEndpoint
- 
+    Value: !GetAtt OpenSearchDomain.DomainEndpoint
+
   SecurityGroupId:
     Value: !Ref SecurityGroup

@@ -1,0 +1,3 @@
+crhelper
+pyyaml
+git+https://github.com/opensearch-project/opensearch-py.git#egg=opensearch
