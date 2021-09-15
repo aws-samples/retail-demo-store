@@ -89,7 +89,7 @@ export default {
       const { data } = await SearchRepository.searchProducts(val, size);
 
       await this.rerank(data);
-      if (items.length > 0) {
+      if (this.results.length > 0) {
         await this.lookupProducts(this.results);
       }
 
@@ -106,16 +106,14 @@ export default {
       }
     },
     async lookupProducts(items) {
-      let itemIds = items.map(item => item.itemId);
+      const itemIds = items.map(item => item.itemId);
+
       const { data } = await ProductsRepository.getProduct(itemIds);
-      items.forEach(function (item) {
-        for (var i = 0; i < data.length; i++) {
-          if (item.itemId == data[i].id) {
-            item.product = data[i];
-            break;
-          }
-        }
-      });
+
+      this.results = items.map((item) => ({
+        ...item,
+        product: data.find(({id}) => id === item.itemId)
+      }));
     }
   },
   watch: {
