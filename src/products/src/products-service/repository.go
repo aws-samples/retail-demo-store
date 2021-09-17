@@ -20,6 +20,8 @@ import (
 // Root/base URL to use when building fully-qualified URLs to product detail view.
 var webRootURL = os.Getenv("WEB_ROOT_URL")
 
+var MAX_BATCH_GET_ITEM = 100
+
 func setProductURL(p *Product) {
 	if len(webRootURL) > 0 {
 		p.URL = webRootURL + "/#/product/" + p.ID
@@ -40,26 +42,22 @@ func RepoFindProduct(id string) Product {
 
 	log.Println("RepoFindProduct: ", id, ddbTableProducts)
 
-	keycond := expression.Key("id").Equal(expression.Value(id))
-	expr, err := expression.NewBuilder().WithKeyCondition(keycond).Build()
-	// Build the query input parameters
-	params := &dynamodb.QueryInput{
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		KeyConditionExpression:    expr.KeyCondition(),
-		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(ddbTableProducts),
-	}
-	// Make the DynamoDB Query API call
-	result, err := dynamoClient.Query(params)
+	result, err := dynamoClient.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(ddbTableProducts),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(id),
+			},
+		},
+	})
 
 	if err != nil {
 		log.Println("get item error " + string(err.Error()))
 		return product
 	}
 
-	if len(result.Items) > 0 {
-		err = dynamodbattribute.UnmarshalMap(result.Items[0], &product)
+	if result.Item != nil {
+		err = dynamodbattribute.UnmarshalMap(result.Item, &product)
 
 		if err != nil {
 			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
@@ -73,6 +71,66 @@ func RepoFindProduct(id string) Product {
 	return product
 }
 
+// RepoFindMultipleProducts Function
+func RepoFindMultipleProducts(ids []string) Products {
+	if len(ids) > MAX_BATCH_GET_ITEM {
+		panic(fmt.Sprintf("Failed to unmarshal Record, %d", MAX_BATCH_GET_ITEM))
+	}
+
+	var products Products
+
+	mapOfAttrKeys := []map[string]*dynamodb.AttributeValue{}
+
+	for _, id := range ids {
+		mapOfAttrKeys = append(mapOfAttrKeys, map[string]*dynamodb.AttributeValue{
+			"id": &dynamodb.AttributeValue{
+				S: aws.String(id),
+			},
+		})
+	}
+
+	input := &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]*dynamodb.KeysAndAttributes{
+			ddbTableProducts: &dynamodb.KeysAndAttributes{
+				Keys: mapOfAttrKeys,
+			},
+		},
+	}
+
+	result, err := dynamoClient.BatchGetItem(input)
+
+	if err != nil {
+		log.Println("BatchGetItem error " + string(err.Error()))
+		return products
+	}
+
+	var itemCount = 0
+
+	for _, table := range result.Responses {
+		for _, item := range table {
+			product := Product{}
+
+			err = dynamodbattribute.UnmarshalMap(item, &product)
+
+			if err != nil {
+				log.Println("Got error unmarshalling:")
+				log.Println(err.Error())
+			} else {
+				setProductURL(&product)
+			}
+
+			products = append(products, product)
+			itemCount += 1
+		}
+	}
+
+	if itemCount == 0 {
+		products = make([]Product, 0)
+	}
+
+	return products
+}
+
 // RepoFindCategory Function
 func RepoFindCategory(id string) Category {
 	var category Category
@@ -81,26 +139,22 @@ func RepoFindCategory(id string) Category {
 
 	log.Println("RepoFindCategory: ", id, ddbTableCategories)
 
-	keycond := expression.Key("id").Equal(expression.Value(id))
-	expr, err := expression.NewBuilder().WithKeyCondition(keycond).Build()
-	// Build the query input parameters
-	params := &dynamodb.QueryInput{
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		KeyConditionExpression:    expr.KeyCondition(),
-		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(ddbTableCategories),
-	}
-	// Make the DynamoDB Query API call
-	result, err := dynamoClient.Query(params)
+	result, err := dynamoClient.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(ddbTableCategories),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(id),
+			},
+		},
+	})
 
 	if err != nil {
 		log.Println("get item error " + string(err.Error()))
 		return category
 	}
 
-	if len(result.Items) > 0 {
-		err = dynamodbattribute.UnmarshalMap(result.Items[0], &category)
+	if result.Item != nil {
+		err = dynamodbattribute.UnmarshalMap(result.Item, &category)
 
 		if err != nil {
 			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
@@ -260,7 +314,7 @@ func RepoFindFeatured() Products {
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
 		TableName:                 aws.String(ddbTableProducts),
-		IndexName:                 aws.String("id-featured-index"),
+		IndexName:                 aws.String("featured-index"),
 	}
 	// Make the DynamoDB Query API call
 	result, err := dynamoClient.Scan(params)
