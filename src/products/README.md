@@ -22,8 +22,8 @@ Displays the service welcome page.
 
 ### GET /products/all
 Returns details on all products.
-### GET /products/id/{productID}
-Returns details on the product identified by `{productID}`.
+### GET /products/id/{productIDs}
+Returns details on the product(s) identified by `{productIDs}`. Multiple product IDs can be specified by separating each product ID by a comma. If a single product ID is specified, a single product will be returned. Otherwise, if multiple product IDs are specified, an array of products will be returned.
 ### GET /products/featured
 Returns details on all featured products. Featured products are those with featured attribute equal to true.
 ### GET /products/category/{categoryName}

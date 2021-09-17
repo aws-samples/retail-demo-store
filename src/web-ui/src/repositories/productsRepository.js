@@ -22,6 +22,8 @@ export default {
     getProduct(productID) {
         if (!productID || productID.length == 0)
             throw "productID required"
+        if (Array.isArray(productID))
+            productID = productID.join()
         return connection.get(`${resource}/id/${productID}`)
     },
     getProductsByCategory(categoryName) {

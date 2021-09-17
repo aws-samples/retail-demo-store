@@ -179,17 +179,19 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
 
             items = resolver.get_items(product_id = current_item_id, num_results = num_results)
 
-    for item in items:
-        itemId = item['itemId']
-        url = f'http://{products_service_host}:{products_service_port}/products/id/{itemId}?fullyQualifyImageUrls={fully_qualify_image_urls}'
-        app.logger.debug(f"Asking for product info from {url}")
-        response = requests.get(url)
-        app.logger.debug(f"Got product info: {response}")
+    item_ids_csv = ','.join([item['itemId'] for item in items])
 
-        if response.ok:
-            product = response.json()
+    url = f'http://{products_service_host}:{products_service_port}/products/id/{item_ids_csv}?fullyQualifyImageUrls={fully_qualify_image_urls}'
+    app.logger.debug(f"Asking for product info from {url}")
+    response = requests.get(url)
+    if response.ok:
+        products = response.json()
 
-            if 'experiment' in item and 'url' in product:
+        for item in items:
+            item_id = item['itemId']
+
+            product = next((p for p in products if p['id'] == item_id), None)
+            if product is not None and 'experiment' in item and 'url' in product:
                 # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
                 product_url = product.get('url')
                 if '?' in product_url:
@@ -205,7 +207,7 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
                 'product': product
             })
 
-        item.pop('itemId')
+            item.pop('itemId')
 
     resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
     return resp
