@@ -3,34 +3,23 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
     This template deploys the Retail Demo Store DynamoDB Tables.
-    
+
 Resources:
 
   ProductsTable:
     Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
+    Properties:
+      AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
         - AttributeName: "category"
           AttributeType: "S"
         - AttributeName: "featured"
           AttributeType: "S"
-      KeySchema: 
+      KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
-        - AttributeName: "category"
-          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
-      LocalSecondaryIndexes:
-        - IndexName: id-featured-index
-          KeySchema:
-            - AttributeName: "id"
-              KeyType: "HASH"
-            - AttributeName: "featured"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
       GlobalSecondaryIndexes:
         - IndexName: category-index
           KeySchema:
@@ -38,17 +27,23 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
+        - IndexName: featured-index
+          KeySchema:
+            - AttributeName: "featured"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
 
   CategoriesTable:
     DependsOn: ProductsTable
     Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
+    Properties:
+      AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
         - AttributeName: "name"
           AttributeType: "S"
-      KeySchema: 
+      KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
@@ -63,33 +58,33 @@ Resources:
   ExperimentStrategyTable:
     Type: AWS::DynamoDB::Table
     DependsOn: "ProductsTable"
-    Properties: 
-      AttributeDefinitions: 
-        - 
+    Properties:
+      AttributeDefinitions:
+        -
           AttributeName: "id"
           AttributeType: "S"
-        - 
+        -
           AttributeName: "feature"
           AttributeType: "S"
-        - 
+        -
           AttributeName: "name"
           AttributeType: "S"
-      KeySchema: 
-        - 
+      KeySchema:
+        -
           AttributeName: "id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-      GlobalSecondaryIndexes: 
-        - 
+      GlobalSecondaryIndexes:
+        -
           IndexName: "feature-name-index"
-          KeySchema: 
-            - 
+          KeySchema:
+            -
               AttributeName: "feature"
               KeyType: "HASH"
-            - 
+            -
               AttributeName: "name"
               KeyType: "RANGE"
-          Projection: 
+          Projection:
             ProjectionType: "ALL"
 
 Outputs:
@@ -98,7 +93,7 @@ Outputs:
     Description: DynamoDB Table for Products
     Value: !Ref ProductsTable
 
-  CategoriesTable: 
+  CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !Ref CategoriesTable
 
