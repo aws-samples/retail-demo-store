@@ -99,11 +99,12 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id', 'category', 'style', 'description']]
+    products_dataset_df = products_df[['id', 'category', 'style', 'description', 'where_visible']]
     products_dataset_df = products_dataset_df.rename(columns={'id': 'ITEM_ID',
                                                               'category': 'CATEGORY',
                                                               'style': 'STYLE',
-                                                              'description': 'DESCRIPTION'})
+                                                              'description': 'DESCRIPTION',
+                                                              'where_visible': 'WHERE_VISIBLE'})
     products_dataset_df.to_csv(out_items_filename, index=False)
 
     users_dataset_df = users_df[['id', 'age', 'gender']]

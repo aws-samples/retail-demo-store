@@ -99,10 +99,10 @@ do_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip
 filters_config = [
      {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
       'filter_name': 'retaildemostore-filter-purchased-products',
-      'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted") | EXCLUDE itemId WHERE ITEMS.CATEGORY NOT IN (%%%CATEGORY_LIST%%%)'},
+      'filter_expression': 'EXCLUDE itemId WHERE ITEMS.WHERE_VISIBLE NOT IN ("UI") | EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
       {'arn_param': 'retaildemostore-personalize-filter-cstore-arn',
        'filter_name': 'retaildemostore-filter-cstore-products',
-       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.CATEGORY IN(%%%CATEGORY_LIST%%%)'}
+       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.WHERE_VISIBLE NOT IN ("Alexa")'}
      ]
 
 datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
@@ -160,6 +160,11 @@ items_schema = {
             "name": "DESCRIPTION",
             "type": "string",
             "textual": True
+        },
+        {
+            "name": "WHERE_VISIBLE",
+            "type": "string",
+            "categorical": True
         }
     ],
     "version": "1.0"
@@ -260,6 +265,9 @@ dataset_type_to_detail_offers = {
 
 
 def get_all_product_categories():
+    """For the sake of building filters that filter on object categories, we pull the object categories from
+    the products service. If the service is not up or the categories not loaded, it will error out and force
+    a retry on the EventBridge time-out schedule."""
     service_url = os.environ['ProductsServiceExternalUrl']
     all_categories_url = service_url + '/categories/all'
     logger.info(f"Getting full list of categories from URL {all_categories_url}")
@@ -723,9 +731,6 @@ def create_filter(dataset_group_arn, arn_param, filter_name, filter_expression):
     """
 
     """"""
-    categories = get_all_product_categories()
-    categories_list_str = ",".join(f'"{c["name"]}"' for c in categories)
-    filter_expression = filter_expression.replace('%%%CATEGORY_LIST%%%', categories_list_str)
     logger.info(f"Making filter with name {filter_name}, SSM arn {arn_param} and expression {filter_expression}")
 
     try:

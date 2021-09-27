@@ -182,10 +182,6 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
 
             logger.info(f"get_products: Supplied campaign: {campaign_arn} (from {default_campaign_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
 
-            if filter_arn is not None and (user_id is None or len(user_id.strip()) == 0):
-                logger.warning(f"userID is required if using filter - filter Arn: {filter_arn} - spoofing user to 0")
-                user_id = "0"
-
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
