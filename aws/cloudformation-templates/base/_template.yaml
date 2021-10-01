@@ -283,6 +283,14 @@ Outputs:
     Description: DynamoDB Table for Products
     Value: !GetAtt Tables.Outputs.ProductsTable
 
+  OrdersTable:
+    Description: DynamoDB Table for Orders
+    Value: !GetAtt Tables.Outputs.OrdersTable
+
+  UsersTable:
+    Description: DynamoDB Table for Users
+    Value: !GetAtt Tables.Outputs.UsersTable
+
   CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !GetAtt Tables.Outputs.CategoriesTable

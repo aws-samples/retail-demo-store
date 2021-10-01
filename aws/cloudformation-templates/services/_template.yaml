@@ -88,6 +88,14 @@ Parameters:
     Type: String
     Default: none
 
+  OrdersTable:
+    Type: String
+    Default: none
+
+  UsersTable:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -182,6 +190,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        UsersTable: !Ref UsersTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -245,6 +254,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
+        OrdersTable: !Ref OrdersTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey

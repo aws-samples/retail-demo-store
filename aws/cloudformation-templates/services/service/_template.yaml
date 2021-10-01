@@ -167,6 +167,14 @@ Parameters:
     Type: String
     Default: none
 
+  OrdersTable:
+    Type: String
+    Default: none
+
+  UsersTable:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -286,6 +294,8 @@ Resources:
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsTable: !Ref ProductsTable
+        OrdersTable: !Ref OrdersTable
+        UsersTable: !Ref UsersTable
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         PinpointAppId: !Ref PinpointAppId

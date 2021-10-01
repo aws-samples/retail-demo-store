@@ -34,6 +34,59 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "username"
+          AttributeType: "S"
+        - AttributeName: "deliverytype"
+          AttributeType: "S"
+      KeySchema: 
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "username"
+          KeyType: "RANGE"
+      BillingMode: "PAY_PER_REQUEST"
+      LocalSecondaryIndexes:
+        - IndexName: id-deliverytype-index
+          KeySchema:
+            - AttributeName: "id"
+              KeyType: "HASH"
+            - AttributeName: "deliverytype"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "username"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+
   CategoriesTable:
     DependsOn: ProductsTable
     Type: AWS::DynamoDB::Table
@@ -96,6 +149,14 @@ Outputs:
   CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !Ref CategoriesTable
+
+  OrdersTable: 
+    Description: DynamoDB Table for Orders
+    Value: !Ref OrdersTable
+
+  UsersTable: 
+    Description: DynamoDB Table for Users
+    Value: !Ref UsersTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies
