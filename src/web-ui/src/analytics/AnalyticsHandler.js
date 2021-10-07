@@ -412,8 +412,9 @@ export const AnalyticsHandler = {
     },
     async recordAbanonedCartEvent(user, cart) {
         const hasItem = await this.recordShoppingCart(user, cart)
+        var productImages, productTitles, productURLs
         if (hasItem) {
-
+            
             if (this.mParticleEnabled()) {
 
                 const product = await ProductsRepository.getProduct(cart.items[0].product_id);
