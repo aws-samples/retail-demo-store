@@ -553,7 +553,7 @@ export const AnalyticsHandler = {
             cartItem.product_name, // Name
             cartItem.product_id, // SKU
             cartItem.price, // Price
-            origQuantity // Quantity
+            cartItem.quantity // Quantity
         );
 
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, product1, {});
