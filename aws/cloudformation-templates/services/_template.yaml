@@ -92,10 +92,6 @@ Parameters:
     Type: String
     Default: none
 
-  UsersTable:
-    Type: String
-    Default: none
-
   CategoriesTable:
     Type: String
     Default: none

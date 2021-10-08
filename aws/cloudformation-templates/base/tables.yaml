@@ -4,6 +4,26 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
     This template deploys the Retail Demo Store DynamoDB Tables.
 
+Parameters:
+  ProductsKinesisStreamArn:
+    Type: String
+    Description: ARN of the Amazon Kinesis stream to be used to stream Change Data Capture (CDC) from the products DynamoDB table.
+
+  OrdersKinesisStreamArn:
+    Type: String
+    Description: ARN of the Amazon Kinesis stream to be used to stream Change Data Capture (CDC) from the orders DynamoDB table.
+
+Conditions:
+  UseProductsKinesisStream: !Not 
+    - !Equals
+      - !Ref ProductsKinesisStreamArn
+      - ''
+
+  UseOrdersKinesisStream: !Not 
+    - !Equals
+      - !Ref OrdersKinesisStreamArn
+      - ''
+
 Resources:
 
   ProductsTable:
@@ -33,6 +53,11 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
+      KinesisStreamSpecification:
+        !If
+        - UseProductsKinesisStream
+        - StreamArn: !Ref ProductsKinesisStreamArn
+        - !Ref "AWS::NoValue"
 
   OrdersTable:
     Type: AWS::DynamoDB::Table
@@ -66,19 +91,37 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
+      KinesisStreamSpecification:
+        !If
+        - UseOrdersKinesisStream
+        - StreamArn: !Ref OrdersKinesisStreamArn
+        - !Ref "AWS::NoValue"
 
-  UsersTable:
+  OrdersTable:
     Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
+    Properties: 
+      AttributeDefinitions: 
         - AttributeName: "id"
           AttributeType: "S"
         - AttributeName: "username"
           AttributeType: "S"
-      KeySchema:
+        - AttributeName: "deliverytype"
+          AttributeType: "S"
+      KeySchema: 
         - AttributeName: "id"
           KeyType: "HASH"
+        - AttributeName: "username"
+          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      LocalSecondaryIndexes:
+        - IndexName: id-deliverytype-index
+          KeySchema:
+            - AttributeName: "id"
+              KeyType: "HASH"
+            - AttributeName: "deliverytype"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
       GlobalSecondaryIndexes:
         - IndexName: username-index
           KeySchema:
@@ -153,10 +196,6 @@ Outputs:
   OrdersTable: 
     Description: DynamoDB Table for Orders
     Value: !Ref OrdersTable
-
-  UsersTable: 
-    Description: DynamoDB Table for Users
-    Value: !Ref UsersTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies
