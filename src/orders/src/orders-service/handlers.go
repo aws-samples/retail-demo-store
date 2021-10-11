@@ -81,11 +81,27 @@ func OrderUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoUpdateOrder(order)
+	// Get existing order
+	vars := mux.Vars(r)
+	orderID := vars["orderID"]
+	existingOrder := RepoFindOrderByID(orderID)
+	if !existingOrder.Initialized() {
+		// Existing order does not exist
+		http.Error(w, "Order not found", http.StatusNotFound)
+		return
+	}
+
+	if len(order.ID) > 0 && order.ID != existingOrder.ID {
+		// Do not allow ID to be changed
+		http.Error(w, "Cannot modify order ID", http.StatusUnprocessableEntity)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(t); err != nil {
-		panic(err)
+	if err := json.NewEncoder(w).Encode(RepoUpdateOrder(&existingOrder, &order)); err != nil {
+		http.Error(w, "Internal error updating product", http.StatusInternalServerError)
+		return
 	}
 }
 

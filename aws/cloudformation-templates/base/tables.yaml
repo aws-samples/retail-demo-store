@@ -67,23 +67,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "username"
           AttributeType: "S"
-        - AttributeName: "deliverytype"
-          AttributeType: "S"
       KeySchema: 
         - AttributeName: "id"
           KeyType: "HASH"
-        - AttributeName: "username"
-          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
-      LocalSecondaryIndexes:
-        - IndexName: id-deliverytype-index
-          KeySchema:
-            - AttributeName: "id"
-              KeyType: "HASH"
-            - AttributeName: "deliverytype"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
       GlobalSecondaryIndexes:
         - IndexName: username-index
           KeySchema:
@@ -96,39 +83,6 @@ Resources:
         - UseOrdersKinesisStream
         - StreamArn: !Ref OrdersKinesisStreamArn
         - !Ref "AWS::NoValue"
-
-  OrdersTable:
-    Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
-        - AttributeName: "id"
-          AttributeType: "S"
-        - AttributeName: "username"
-          AttributeType: "S"
-        - AttributeName: "deliverytype"
-          AttributeType: "S"
-      KeySchema: 
-        - AttributeName: "id"
-          KeyType: "HASH"
-        - AttributeName: "username"
-          KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      LocalSecondaryIndexes:
-        - IndexName: id-deliverytype-index
-          KeySchema:
-            - AttributeName: "id"
-              KeyType: "HASH"
-            - AttributeName: "deliverytype"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
-      GlobalSecondaryIndexes:
-        - IndexName: username-index
-          KeySchema:
-            - AttributeName: "username"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: ALL
 
   CategoriesTable:
     DependsOn: ProductsTable

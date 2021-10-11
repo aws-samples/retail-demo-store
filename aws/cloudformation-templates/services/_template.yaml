@@ -186,7 +186,6 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        UsersTable: !Ref UsersTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey

@@ -53,16 +53,16 @@ var routes = Routes{
 		"/orders",
 		OrderCreate,
 	},
-    Route{
-        "OrderUpdate",
-        "PUT",
-        "/orders/id/{orderID}",
-        OrderUpdate,
-    },
-    Route{
-        "OrderUpdate",
-        "OPTIONS",
-        "/orders/id/{orderID}",
-        OrderUpdate,
-    },
+	Route{
+		"OrderUpdate",
+		"PUT",
+		"/orders/id/{orderID}",
+		OrderUpdate,
+	},
+	Route{
+		"OrderUpdate",
+		"OPTIONS",
+		"/orders/id/{orderID}",
+		OrderUpdate,
+	},
 }
