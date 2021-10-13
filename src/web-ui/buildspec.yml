@@ -1,4 +1,10 @@
 version: 0.2
+
+env:
+  parameter-store:
+    RETAILDEMOSTORE_MPARTICLE_API_KEY: 'RETAILDEMOSTORE_MPARTICLE_API_KEY'
+    RETAILDEMOSTORE_MPARTICLE_SECRET_KEY: 'RETAILDEMOSTORE_MPARTICLE_SECRET_KEY'
+    
 phases:
   install:
     runtime-versions:
