@@ -192,7 +192,7 @@ Resources:
   ParametermParticleApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-mparticle-api-key"
+      Name: "RETAILDEMOSTORE_MPARTICLE_API_KEY"
       Type: "String"
       Value: !If [HasmParticleApiKey, !Ref mParticleApiKey, 'NONE']
       Description: "Retail Demo Store mParticle API key"
@@ -200,7 +200,7 @@ Resources:
   ParametermParticleSecretKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-mparticle-secret-key"
+      Name: "RETAILDEMOSTORE_MPARTICLE_SECRET_KEY"
       Type: "String"
       Value: !If [HasmParticleSecretKey, !Ref mParticleSecretKey, 'NONE']
       Description: "Retail Demo Store mParticle secret key"

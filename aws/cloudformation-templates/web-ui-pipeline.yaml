@@ -416,6 +416,12 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
+          - Name: RETAILDEMOSTORE_MPARTICLE_API_KEY 
+            Type: PARAMETER_STORE
+            Value: RETAILDEMOSTORE_MPARTICLE_API_KEY 
+          - Name: RETAILDEMOSTORE_MPARTICLE_SECRET_KEY 
+            Type: PARAMETER_STORE
+            Value: RETAILDEMOSTORE_MPARTICLE_API_KEY
         Image: 'aws/codebuild/standard:2.0'
         Type: LINUX_CONTAINER
 
