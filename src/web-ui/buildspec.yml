@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   parameter-store:
-    RETAILDEMOSTORE_MPARTICLE_API_KEY: 'RETAILDEMOSTORE_MPARTICLE_API_KEY'
-    RETAILDEMOSTORE_MPARTICLE_SECRET_KEY: 'RETAILDEMOSTORE_MPARTICLE_SECRET_KEY'
+    MPARTICLE_API_KEY: '/retaildemostore/webui/mparticle_api_key'
+    MPARTICLE_SECRET_KEY: '/retaildemostore/webui/mparticle_secret_key'
     
 phases:
   install:
