@@ -182,6 +182,18 @@ Resources:
                 Action:
                   - iam:UpdateAssumeRolePolicy
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${AWS::Region}-mParticleKinesisCrossAccountRole'
+              - 
+                Effect: "Allow"
+                Action:
+                  - iam:CreatePolicy
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:policy/KinesismParticlePolicy'
+              -
+                Effect: "Allow"
+                Action:
+                  - iam:CreateUser
+                  - iam:AttachUserPolicy
+                  - iam:CreateAccessKey
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:user/mParticleRetailDemoStoreKinesis'
               -
                 Effect: Allow
                 Action:
