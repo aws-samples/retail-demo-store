@@ -186,13 +186,17 @@ Resources:
                 Effect: "Allow"
                 Action:
                   - iam:CreatePolicy
+                  - iam:DeletePolicy
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:policy/KinesismParticlePolicy'
               -
                 Effect: "Allow"
                 Action:
                   - iam:CreateUser
+                  - iam:DeleteUser
                   - iam:AttachUserPolicy
+                  - iam:DetachUserPolicy
                   - iam:CreateAccessKey
+                  - iam:DeleteAccessKey
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:user/mParticleRetailDemoStoreKinesis'
               -
                 Effect: Allow
