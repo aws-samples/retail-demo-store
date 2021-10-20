@@ -241,6 +241,7 @@ Resources:
                   - !Ref TaskRoleArn
                 Effect: Allow
                 Action:
+                  - iam:PassRole
               - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
