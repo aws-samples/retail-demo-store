@@ -114,6 +114,12 @@ Parameters:
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root path where images are located
 
+  TaskRoleArn:
+    Type: String
+
+  TaskExecutionRoleArn:
+    Type: String
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -230,7 +236,11 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-                  - iam:PassRole
+              - Resource:
+                  - !Ref TaskExecutionRoleArn
+                  - !Ref TaskRoleArn
+                Effect: Allow
+                Action:
               - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
