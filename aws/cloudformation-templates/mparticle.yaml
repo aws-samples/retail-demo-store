@@ -47,10 +47,10 @@ Resources:
       FunctionName: mParticlePersonalize
       Environment:
         Variables:
-          personalise_tracking_id:  ''
-          personalise_campaign_arn: ''
-          mparticle_api_key: ''
-          mparticle_secret_key: ''
+          PERSONALISE_TRACKING_ID:  ''
+          PERSONALISE_CAMPAIGN_ARN: ''
+          MPARTICLE_S2S_API_KEY: ''
+          MPARTICLE_S2S_SECRET_KEY: ''
 
   mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'

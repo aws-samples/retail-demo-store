@@ -4,7 +4,11 @@
   "description": "",
   "main": "mparticle-personalize.js",
   "dependencies": {
-    "json-bigint": "*",
-    "mparticle": "*"
+    "json-bigint": "^1.0.0",
+    "mparticle": "*",
+    "axios": "^0.21.1",
+    "https": "^1.0.0",
+    "request": "^2.88.2",
+    "aws-sdk": "^2.963.0"
   }
 }
