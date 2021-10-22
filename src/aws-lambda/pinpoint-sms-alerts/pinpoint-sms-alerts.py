@@ -53,7 +53,7 @@ def lambda_handler(event, context):
     pinpoint_app_id = os.environ['pinpoint_app_id']
 
     timestamp =  event['Records'][0]['Sns']['Timestamp']
-    message = eval(event['Records'][0]['Sns']['Message'])
+    message = json.loads(event['Records'][0]['Sns']['Message'])
     originationNumber = message['originationNumber']
     response = message['messageBody'].lower()
     endpointId = originationNumber[1:]
