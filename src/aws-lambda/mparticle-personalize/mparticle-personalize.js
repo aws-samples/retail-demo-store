@@ -6,26 +6,18 @@ const JSONBig = require('json-bigint')({ storeAsString: true });
 const mParticle = require('mparticle');
 const trackingId = process.env.PERSONALISE_TRACKING_ID;
 const campaignArn = process.env.PERSONALISE_CAMPAIGN_ARN;
-const report_actions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
-const mp_api_key = process.env.MPARTICLE_S2S_API_KEY;
-const mp_api_secret = process.env.MPARTICLE_S2S_SECRET_KEY;
-const personalizeevents = new AWS.PersonalizeEvents({apiVersion: '2018-03-22'});
-const personalizeruntime = new AWS.PersonalizeRuntime({apiVersion: '2018-05-22'});
-console.log("ENVIRONMENT VARIABLES:"+trackingId+":"+mp_api_key+":"+mp_api_secret);
-const mp_api = new mParticle.EventsApi(new mParticle.Configuration(mp_api_key, mp_api_secret));
-const req = require('request');
+const reportActions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
+const mpApiKey = process.env.MPARTICLE_S2S_API_KEY;
+const mpApiSecret = process.env.MPARTICLE_S2S_SECRET_KEY;
+const personalizeEvents = new AWS.PersonalizeEvents();
+const personalizeRuntime = new AWS.PersonalizeRuntime();
+const mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
 const axios = require('axios');
 
-var eventList = [];
-var mpid;
-
-//new file
-
 exports.handler = function (event, context) {
-
-    console.log(event);
-    console.log(event.Records);
-   // const record = event.Records;
+    var eventList = [];
+    var mpid;
+    
     for (const record of event.Records) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         console.log(payloadString);
@@ -62,7 +54,7 @@ exports.handler = function (event, context) {
         }
         console.log(events);
         for (const e of events) {
-            if (e.event_type === "commerce_event" && report_actions.indexOf(e.data.product_action.action) >= 0) {
+            if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
                 const action = e.data.product_action.action;
                 const event_id = e.data.event_id;
@@ -98,7 +90,7 @@ exports.handler = function (event, context) {
         }
         if (eventList.length > 0) {
             params.eventList = eventList;
-                personalizeevents.putEvents(params, async function(err, data) {
+                personalizeEvents.putEvents(params, async function(err, data) {
                 if (err) 
                 {
                     console.log(err);
@@ -113,7 +105,7 @@ exports.handler = function (event, context) {
                       userId: amazonPersonalizeId
                     };
                     console.log(params);
-                    personalizeruntime.getRecommendations(params, async function(err, data) {
+                    personalizeRuntime.getRecommendations(params, async function(err, data) {
                       if (err)
                       {
                         console.log(err);
@@ -165,7 +157,7 @@ exports.handler = function (event, context) {
                                 }
                               };
                         
-                          mp_api.bulkUploadEvents(body, mp_callback);
+                          mpApiInstance.bulkUploadEvents(body, mp_callback);
                           //uploadEvents(body, batch);
                          // return 'Success';
                       }
@@ -177,7 +169,4 @@ exports.handler = function (event, context) {
     }
 
     console.log("Successfully processed");
- 
-   
-
 };
