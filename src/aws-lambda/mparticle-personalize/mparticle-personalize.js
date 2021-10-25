@@ -23,9 +23,13 @@ exports.handler = function (event, context) {
         const payload = JSON.parse(payloadString);
         const events = payload.events;
         mpid = payload.mpid.toString();
-        var amazonPersonalizeId = mpid;
+        var amazonPersonalizeUserId = mpid;
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
-            amazonPersonalizeId = payload.user_attributes.amazonPersonalizeId;
+            amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
+
+        /* 
+        
+        THIS APPEARS TO BE UNUSED??
 
         var amazonUserId = mpid;
         if(payload.user_identities){
@@ -34,20 +38,21 @@ exports.handler = function (event, context) {
                 if(identityRecord.identity_type==="customer_id")
                     amazonUserId = identityRecord.identity;
             }
-        }
+        }*/
+
         const sessionId = payload.message_id;
         let params = {
             sessionId: sessionId,
-            userId: amazonPersonalizeId,
+            userId: amazonPersonalizeUserId,
             trackingId: trackingId
         };
+
         // Check for variant and assign one if not already assigned
-        var variant_assigned;
+        var variantAssigned;
         var variant;
-        if(payload.user_attributes && payload.user_attributes.ml_variant)
-        {
-            variant_assigned = Boolean(payload.user_attributes.ml_variant); 
-            variant = variant_assigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
+        if(payload.user_attributes && payload.user_attributes.ml_variant) {
+            variantAssigned = Boolean(payload.user_attributes.ml_variant); 
+            variant = variantAssigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
         }
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
@@ -118,7 +123,7 @@ exports.handler = function (event, context) {
                           batch.user_attributes = {};
                           batch.user_attributes.product_recs = itemList;
                           // Record variant on mParticle user profile
-                          if (!variant_assigned) {
+                          if (!variantAssigned) {
                               batch.user_attributes.ml_variant = variant
                               batch.user_attributes.product_recs_name=productNameList;
                           }
