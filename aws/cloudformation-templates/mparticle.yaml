@@ -19,6 +19,11 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
+  Uid:
+    Type: String
+    Description: >
+      Uid generated from the root template to provide unique resource names
+
   mParticleOrgId:
     Type: String
     Description: >
@@ -28,7 +33,7 @@ Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
     Properties: 
-      Name: 'mParticlePersonalizeEventsKinesisStream'
+      Name: !Sub '${Uid}-mParticlePersonalizeEventsKinesisStream'
       ShardCount: 1
 
   mParticlePersonalizeLambda:
@@ -44,7 +49,7 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/mparticle-personalize.zip'
       Runtime: nodejs12.x
       Timeout: 900
-      FunctionName: mParticlePersonalize
+      FunctionName: !Sub '${Uid}-mParticlePersonalizeLambda'
       Environment:
         Variables:
           PERSONALISE_TRACKING_ID:  ''
@@ -55,7 +60,7 @@ Resources:
   mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: !Sub '${AWS::Region}-mParticleKinesisCrossAccountRole'
+      RoleName: !Sub '${Uid}-mParticleKinesisCrossAccountRole'
       Description: 'Allows mParticle to write messages to your Kinesis stream.'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -80,7 +85,7 @@ Resources:
                 Action:
                   - 'kinesis:PutRecord'
                 Resource:
-                  - !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/mParticlePersonalizeEventsKinesisStream'
+                  - !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${Uid}-mParticlePersonalizeEventsKinesisStream'
 
   mParticlePersonalizeLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -108,8 +113,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalizeLambda*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/mParticlePersonalizeLambda*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-mParticlePersonalizeLambda*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-mParticlePersonalizeLambda*'
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                

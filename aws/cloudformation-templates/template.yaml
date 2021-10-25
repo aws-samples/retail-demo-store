@@ -343,6 +343,12 @@ Parameters:
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
 
+  Uid:
+    Type: String
+    Default: !Sub ${AWS::StackName}-${AWS::Region}
+    Description: >
+      Used to set a unique stack and region name for global named resources in the templates to allow for multiple deploys in the same region and account.
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -533,7 +539,7 @@ Resources:
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
-        Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        Uid: !Ref Uid
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
@@ -569,6 +575,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
         mParticleOrgId: !Ref mParticleOrgId
+        Uid: !Ref Uid
 
 Outputs:
   UserPoolId:
