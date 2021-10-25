@@ -52,7 +52,7 @@ Resources:
   RetailDemoStoreGitHubRepo:
     Type: AWS::SageMaker::CodeRepository
     Properties: 
-      CodeRepositoryName: 'retail-demo-store'
+      CodeRepositoryName: !Sub '${Uid}-retail-demo-store'
       GitConfig: 
         Branch: !Ref GitHubBranch
         RepositoryUrl:  !Sub
