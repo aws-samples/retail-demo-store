@@ -20,9 +20,7 @@ exports.handler = function (event, context) {
     
     for (const record of event.Records) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
-        console.log(payloadString);
         const payload = JSON.parse(payloadString);
-        console.log(payload);
         const events = payload.events;
         mpid = payload.mpid.toString();
         var amazonPersonalizeId = mpid;
@@ -43,7 +41,6 @@ exports.handler = function (event, context) {
             userId: amazonPersonalizeId,
             trackingId: trackingId
         };
-        console.log(params);
         // Check for variant and assign one if not already assigned
         var variant_assigned;
         var variant;
@@ -52,7 +49,6 @@ exports.handler = function (event, context) {
             variant_assigned = Boolean(payload.user_attributes.ml_variant); 
             variant = variant_assigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
         }
-        console.log(events);
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
@@ -76,27 +72,18 @@ exports.handler = function (event, context) {
             }
         }
 
-        console.log("Event List:");
-        console.log(eventList);
-        console.log(eventList.length);
         if(eventList.length > 10)
         {
-            console.log("eventList more than 10");
-            console.log(eventList);
             var lastTenRecords = eventList.length / 2;
             eventList = eventList.slice(lastTenRecords);
-            console.log("eventList after slice");
-            console.log(eventList);
         }
         if (eventList.length > 0) {
             params.eventList = eventList;
                 personalizeEvents.putEvents(params, async function(err, data) {
-                if (err) 
-                {
+                if (err) {
                     console.log(err);
                     console.log(err, err.stack);
-                }
-                else {
+                } else {
                     //getProductPersonalization
                     let params = {
                       // Select campaign based on variant
@@ -104,15 +91,11 @@ exports.handler = function (event, context) {
                       numResults: '5',
                       userId: amazonPersonalizeId
                     };
-                    console.log(params);
                     personalizeRuntime.getRecommendations(params, async function(err, data) {
-                      if (err)
-                      {
+                      if (err) {
                         console.log(err);
                           console.log(err, err.stack);
-                      }
-                      else {
-                          
+                      } else {
                           let batch = new mParticle.Batch(mParticle.Batch.Environment.development);
                           batch.mpid = mpid;
                           let itemList = [];
@@ -134,10 +117,6 @@ exports.handler = function (event, context) {
                           await Promise.all(promises).then(() => console.log(productNameList));
                           batch.user_attributes = {};
                           batch.user_attributes.product_recs = itemList;
-                          console.log("ItemList");
-                          console.log(itemList);
-                          console.log("poductNameList");
-                          console.log(productNameList);
                           // Record variant on mParticle user profile
                           if (!variant_assigned) {
                               batch.user_attributes.ml_variant = variant
@@ -158,15 +137,10 @@ exports.handler = function (event, context) {
                               };
                         
                           mpApiInstance.bulkUploadEvents(body, mp_callback);
-                          //uploadEvents(body, batch);
-                         // return 'Success';
                       }
                     });
-    
                 }
             });
         }
     }
-
-    console.log("Successfully processed");
 };
