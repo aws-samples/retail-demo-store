@@ -67,7 +67,7 @@ Resources:
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      DefaultCodeRepository: 'retail-demo-store'
+      DefaultCodeRepository: !Sub '${Uid}-retail-demo-store'
       Tags:
         -
           Key: "Uid"
