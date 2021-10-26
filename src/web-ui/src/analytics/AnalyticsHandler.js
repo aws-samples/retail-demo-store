@@ -697,11 +697,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.mParticleEnabled()) {
-            console.log("Inside cartViewed...");
- 
              var cartViewList = [];
-             // 2. Summarize the transaction
-     
              let totalAmount = 0;
      
              for (var cartCounter = 0; cartCounter < cart.items.length; cartCounter++) {
@@ -723,8 +719,6 @@ export const AnalyticsHandler = {
                  Tax: totalAmount * .10
              };
              window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Click, cartViewList, {}, {}, transactionAttributes);
-     
-             console.log("Finish cartViewed..."); 
          }
 
         if (this.amplitudeEnabled()) {
@@ -793,7 +787,6 @@ export const AnalyticsHandler = {
         }
 
         if (this.mParticleEnabled()) {
-            console.log("Inside checkoutStarted...");
             let totalAmount = 0;
             var checkoutList = [];
             for (var z = 0; z < cart.items.length; z++) {
@@ -814,9 +807,6 @@ export const AnalyticsHandler = {
                 Tax: totalAmount * .10
             };
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Checkout, checkoutList, {}, {}, transactionAttributes);
-    
-            console.log("Finish checkoutStarted...");
-            
         }
 
         if (this.amplitudeEnabled()) {
@@ -921,7 +911,6 @@ export const AnalyticsHandler = {
         };
 
         if (this.mParticleEnabled()) {
-            console.log("Inside orderCompleted...");
             var orderList = [];
             let totalAmount = 0;
             for (var x = 0; x < cart.items.length; x++) {
@@ -949,8 +938,6 @@ export const AnalyticsHandler = {
     
     
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Purchase, orderList, customAttributes, {}, transactionAttributes);
-            console.log("Finish orderCompleted...");
-            
         }
 
 
