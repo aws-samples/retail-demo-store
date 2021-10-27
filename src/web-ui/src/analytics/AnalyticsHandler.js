@@ -331,7 +331,7 @@ export const AnalyticsHandler = {
             );
             let totalAmount = productPrice * quantity;
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
@@ -714,7 +714,7 @@ export const AnalyticsHandler = {
      
      
              let transactionAttributes = {
-                 Id: 'foo-transaction-id',
+                 Id: cart.id,
                  Revenue: totalAmount,
                  Tax: totalAmount * .10
              };
@@ -802,7 +802,7 @@ export const AnalyticsHandler = {
             }
     
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
@@ -904,12 +904,6 @@ export const AnalyticsHandler = {
             })
         }
 
-        let eventProperties = {
-            cartId: cart.id,
-            orderId: order.id,
-            orderTotal: +order.total.toFixed(2)
-        };
-
         if (this.mParticleEnabled()) {
             var orderList = [];
             let totalAmount = 0;
@@ -926,7 +920,7 @@ export const AnalyticsHandler = {
             }
     
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
@@ -940,6 +934,11 @@ export const AnalyticsHandler = {
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Purchase, orderList, customAttributes, {}, transactionAttributes);
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            orderId: order.id,
+            orderTotal: +order.total.toFixed(2)
+        };
 
         if (this.segmentEnabled()) {
             window.analytics.track('OrderCompleted', eventProperties);
