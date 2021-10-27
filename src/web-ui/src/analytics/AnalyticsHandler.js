@@ -331,7 +331,7 @@ export const AnalyticsHandler = {
             );
             let totalAmount = productPrice * quantity;
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
@@ -412,8 +412,9 @@ export const AnalyticsHandler = {
     },
     async recordAbanonedCartEvent(user, cart) {
         const hasItem = await this.recordShoppingCart(user, cart)
+        var productImages, productTitles, productURLs
         if (hasItem) {
-
+            
             if (this.mParticleEnabled()) {
 
                 const product = await ProductsRepository.getProduct(cart.items[0].product_id);
@@ -552,7 +553,7 @@ export const AnalyticsHandler = {
             cartItem.product_name, // Name
             cartItem.product_id, // SKU
             cartItem.price, // Price
-            origQuantity // Quantity
+            cartItem.quantity // Quantity
         );
 
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, product1, {});
@@ -696,11 +697,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.mParticleEnabled()) {
-            console.log("Inside cartViewed...");
- 
              var cartViewList = [];
-             // 2. Summarize the transaction
-     
              let totalAmount = 0;
      
              for (var cartCounter = 0; cartCounter < cart.items.length; cartCounter++) {
@@ -715,15 +712,12 @@ export const AnalyticsHandler = {
                  cartViewList.push(cartViewDetails);
              }
      
-     
              let transactionAttributes = {
-                 Id: 'foo-transaction-id',
+                 Id: cart.id,
                  Revenue: totalAmount,
                  Tax: totalAmount * .10
              };
              window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Click, cartViewList, {}, {}, transactionAttributes);
-     
-             console.log("Finish cartViewed..."); 
          }
 
         if (this.amplitudeEnabled()) {
@@ -792,7 +786,6 @@ export const AnalyticsHandler = {
         }
 
         if (this.mParticleEnabled()) {
-            console.log("Inside checkoutStarted...");
             let totalAmount = 0;
             var checkoutList = [];
             for (var z = 0; z < cart.items.length; z++) {
@@ -808,14 +801,11 @@ export const AnalyticsHandler = {
             }
     
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Checkout, checkoutList, {}, {}, transactionAttributes);
-    
-            console.log("Finish checkoutStarted...");
-            
         }
 
         if (this.amplitudeEnabled()) {
@@ -913,14 +903,7 @@ export const AnalyticsHandler = {
             })
         }
 
-        let eventProperties = {
-            cartId: cart.id,
-            orderId: order.id,
-            orderTotal: +order.total.toFixed(2)
-        };
-
         if (this.mParticleEnabled()) {
-            console.log("Inside orderCompleted...");
             var orderList = [];
             let totalAmount = 0;
             for (var x = 0; x < cart.items.length; x++) {
@@ -936,7 +919,7 @@ export const AnalyticsHandler = {
             }
     
             let transactionAttributes = {
-                Id: 'foo-transaction-id',
+                Id: cart.id,
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
@@ -948,10 +931,13 @@ export const AnalyticsHandler = {
     
     
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Purchase, orderList, customAttributes, {}, transactionAttributes);
-            console.log("Finish orderCompleted...");
-            
         }
 
+        let eventProperties = {
+            cartId: cart.id,
+            orderId: order.id,
+            orderTotal: +order.total.toFixed(2)
+        };
 
         if (this.segmentEnabled()) {
             window.analytics.track('OrderCompleted', eventProperties);
