@@ -118,7 +118,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

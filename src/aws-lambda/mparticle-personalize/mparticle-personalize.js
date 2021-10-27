@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT-0
 
 const AWS = require('aws-sdk');
+const SSM = new AWS.SSM();
 const JSONBig = require('json-bigint')({ storeAsString: true });
 const mParticle = require('mparticle');
 const trackingId = process.env.PERSONALISE_TRACKING_ID;
@@ -14,12 +15,19 @@ const personalizeRuntime = new AWS.PersonalizeRuntime();
 const mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
 const axios = require('axios');
 
-exports.handler = function (event, context) {
+exports.handler = async function (event, context) {
     var eventList = [];
     var mpid;
     
-    // TODO:  ADD SERVICE DISCOVERY CALL HERE TO GET THE PRODUCTS SERVICE FOR LOOKUP LATER
-    
+    // Get the LB address for services from SSM
+    try {
+        responseFromSSM = await SSM.getParameter('/retaildemostore/services/services_load_balancer').promise();
+        var servicesURL = responseFromSSM.Parameter.Value;
+    } catch (e) {
+        console.log("Error getting SSM parameter for loadbalancer.");
+        console.log(e);    
+    }
+
     for (const record of event.Records) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         const payload = JSON.parse(payloadString);
@@ -114,8 +122,7 @@ exports.handler = function (event, context) {
                           let promises = [];
                           for (let item of data.itemList) {
                               itemList.push(item.itemId);
-                              var url = "https://products.stridesolution.com/products/id/"+item.itemId;
-                              
+                              var url = `${servicesURL}/products/id/${item.itemId}`;
                               promises.push(axios.get(url));
                               promises.push(
                                 axios.get(url).then(response => {

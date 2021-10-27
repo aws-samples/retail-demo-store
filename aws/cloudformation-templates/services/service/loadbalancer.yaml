@@ -81,6 +81,15 @@ Resources:
         - Key: deregistration_delay.timeout_seconds
           Value: '30'
 
+  # Loadbalancer SSM Parameter
+  ServicesLoadBalancerSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/services/services_load_balancer"
+      Type: "String"
+      Value: !Sub http://${LoadBalancer.DNSName} 
+      Description: "Load balancer URL for the Retail Demo Store services"
+
 Outputs:
   TargetGroup:
     Description: Target Group for Web UI Service Instances
