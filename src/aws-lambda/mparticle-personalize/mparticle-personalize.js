@@ -18,11 +18,17 @@ exports.handler = function (event, context) {
     var eventList = [];
     var mpid;
     
+    // TODO:  ADD SERVICE DISCOVERY CALL HERE TO GET THE PRODUCTS SERVICE FOR LOOKUP LATER
+    
     for (const record of event.Records) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         const payload = JSON.parse(payloadString);
         const events = payload.events;
         mpid = payload.mpid.toString();
+
+        // First, get the mParticle user ID from the payload.  In this example, mParticle will send all the events
+        // for a particular user in a batch to this lambda.
+
         var amazonPersonalizeUserId = mpid;
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
             amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;

@@ -712,7 +712,6 @@ export const AnalyticsHandler = {
                  cartViewList.push(cartViewDetails);
              }
      
-     
              let transactionAttributes = {
                  Id: cart.id,
                  Revenue: totalAmount,
