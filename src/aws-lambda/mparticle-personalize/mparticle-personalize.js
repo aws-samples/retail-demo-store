@@ -3,7 +3,6 @@
 
 const AWS = require('aws-sdk');
 const SSM = new AWS.SSM();
-const JSONBig = require('json-bigint')({ storeAsString: true });
 const mParticle = require('mparticle');
 const trackingId = process.env.PERSONALISE_TRACKING_ID;
 const campaignArn = process.env.PERSONALISE_CAMPAIGN_ARN;
@@ -21,11 +20,12 @@ exports.handler = async function (event, context) {
     
     // Get the LB address for services from SSM
     try {
-        responseFromSSM = await SSM.getParameter('/retaildemostore/services/services_load_balancer').promise();
+        responseFromSSM = await SSM.getParameter('/retaildemostore/services_load_balancers/products').promise();
         var servicesURL = responseFromSSM.Parameter.Value;
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
-        console.log(e);    
+        console.log(e); 
+        throw e;   
     }
 
     for (const record of event.Records) {

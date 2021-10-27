@@ -85,10 +85,10 @@ Resources:
   ServicesLoadBalancerSSMParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "/retaildemostore/services/services_load_balancer"
+      Name: !Sub "/retaildemostore/services_load_balancers/${ServiceName}"
       Type: "String"
       Value: !Sub http://${LoadBalancer.DNSName} 
-      Description: "Load balancer URL for the Retail Demo Store services"
+      Description: !Sub "Load balancer URL for the Retail Demo Store ${ServiceName} service"
 
 Outputs:
   TargetGroup:
