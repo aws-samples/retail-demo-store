@@ -85,6 +85,8 @@ Metadata:
         default: "Reply-To email address"
       PinpointEmailFromName:
         default: "Reply-To name"
+      PinpointSMSLongCode:
+        default: "Pinpoint SMS long code"
       UseDefaultIVSStreams:
         default: "Use default IVS streams"
       DeployLocationServices:
@@ -217,7 +219,8 @@ Parameters:
     Type: String
     Description: >
       Whether to create and use the default Interactive Video Service (IVS) streams hosted by AWS. If 'No', then new IVS streams will be created and streams
-      created based on any videos placed in the CloudFormation resource bucket.
+      created based on any videos placed in the CloudFormation resource bucket. IMPORTANT: IVS is currently only supported in the N. Virginia (us-east-1),
+      Oregon (us-west-2), and Ireland (eu-west-1) regions. If deploying to an unsupported region, be sure to select 'Yes' for this parameter.
     AllowedValues:
       - 'Yes'
       - 'No'

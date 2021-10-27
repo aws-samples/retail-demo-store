@@ -102,36 +102,26 @@ func createProductsTable() error {
 				AttributeName: aws.String("id"),
 				KeyType:       aws.String("HASH"),
 			},
-			{
-				AttributeName: aws.String("category"),
-				KeyType:       aws.String("RANGE"),
-			},
 		},
 		BillingMode: aws.String("PAY_PER_REQUEST"),
-		LocalSecondaryIndexes: []*dynamodb.LocalSecondaryIndex{
-			{
-				IndexName: aws.String("id-featured-index"),
-				KeySchema: []*dynamodb.KeySchemaElement{
-					{
-						AttributeName: aws.String("id"),
-						KeyType:       aws.String("HASH"),
-					},
-					{
-						AttributeName: aws.String("featured"),
-						KeyType:       aws.String("RANGE"),
-					},
-				},
-				Projection: &dynamodb.Projection{
-					ProjectionType: aws.String("ALL"),
-				},
-			},
-		},
 		GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 			{
 				IndexName: aws.String("category-index"),
 				KeySchema: []*dynamodb.KeySchemaElement{
 					{
 						AttributeName: aws.String("category"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String("ALL"),
+				},
+			},
+			{
+				IndexName: aws.String("featured-index"),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("featured"),
 						KeyType:       aws.String("HASH"),
 					},
 				},
