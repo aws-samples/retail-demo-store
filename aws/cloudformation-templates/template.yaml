@@ -326,7 +326,6 @@ Parameters:
     Description: >
       mParticle organization ID from your workspace.
     NoEcho: true
-    Default: 'NONE'
 
   mParticleApiKey:
     Type: String
