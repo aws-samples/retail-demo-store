@@ -20,7 +20,15 @@ exports.handler = async function (event, context) {
     
     // Get the LB address for services from SSM
     try {
-        responseFromSSM = await SSM.getParameter('/retaildemostore/services_load_balancers/products').promise();
+        let params = {
+            Names: ['/retaildemostore/services_load_balancers/products',
+                    '/retaildemostore/webui/mparticle_s2s_api_key',
+                    '/retaildemostore/webui/mparticle_s2s_secret_key',
+                    '/retaildemostore/webui/personalize_tracking_id',
+                    '/retaildemostore/webui/personalize_campaign_arn'],
+            WithDecryption: false
+        };
+        responseFromSSM = await SSM.getParameters(params).promise();
         var servicesURL = responseFromSSM.Parameter.Value;
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");

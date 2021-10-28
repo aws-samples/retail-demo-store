@@ -33,12 +33,22 @@ Parameters:
 
   mParticleApiKey:
     Type: String
-    Description: mParticle API Key
+    Description: mParticle front end API Key
     NoEcho: true
 
   mParticleSecretKey:
     Type: String
-    Description: mParticle secret key
+    Description: mParticle front end secret key
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: mParticle server to server API Key
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: mParticle server to server secret key
     NoEcho: true
 
   PinpointSMSLongCode:
@@ -61,6 +71,10 @@ Conditions:
     !Not [!Equals [!Ref mParticleApiKey, ""]]
   HasmParticleSecretKey:
     !Not [!Equals [!Ref mParticleSecretKey, ""]]
+  HasmParticleS2SApiKey:
+    !Not [!Equals [!Ref mParticleS2SApiKey, ""]]
+  HasmParticleS2SSecretKey:
+    !Not [!Equals [!Ref mParticleS2SSecretKey, ""]]
   HasPinpointSMSLongCode:
     !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
   HasGoogleAnalyticsMeasurementId:
@@ -204,6 +218,22 @@ Resources:
       Type: "String"
       Value: !If [HasmParticleSecretKey, !Ref mParticleSecretKey, 'NONE']
       Description: "Retail Demo Store mParticle secret key"
+
+  ParametermParticleS2SApiKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_s2s_api_key"
+      Type: "String"
+      Value: !If [HasmParticleS2SApiKey, !Ref mParticleS2SApiKey, 'NONE']
+      Description: "Retail Demo Store mParticle server to server API key - used for Kinesis processing"
+
+  ParametermParticleS2SSecretKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_s2s_secret_key"
+      Type: "String"
+      Value: !If [HasmParticleS2SSecretKey, !Ref mParticleS2SSecretKey, 'NONE']
+      Description: "Retail Demo Store mParticle server to server secret key - used for Kinesis processing"
 
   ParameterPinpointSMSLongCode:
     Type: "AWS::SSM::Parameter"

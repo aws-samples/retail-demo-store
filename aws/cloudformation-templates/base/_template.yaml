@@ -72,6 +72,16 @@ Parameters:
     Description: mParticle Secret Key.
     NoEcho: true
 
+  mParticleS2SApiKey:
+    Type: String
+    Description: mParticle server to server API Key.
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: mParticle server to server Secret Key.
+    NoEcho: true
+
   PinpointSMSLongCode:
     Type: String
     Description: Pinpoint SMS Long code.
@@ -210,6 +220,8 @@ Resources:
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
+        mParticleS2SApiKey: !Ref mParticleS2SApiKey
+        mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 

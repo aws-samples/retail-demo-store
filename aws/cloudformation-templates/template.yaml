@@ -118,9 +118,13 @@ Metadata:
       mParticleOrgId:
         default: "mParticle Org Id"
       mParticleApiKey:
-        default: "mParticle API Key"
+        default: "mParticle event API Key"
       mParticleSecretKey:
-        default: "mParticle Secret Key"
+        default: "mParticle event api Secret Key"
+      mParticleS2SApiKey:
+        default: "mParticle server to server API Key"
+      mParticleS2SSecretKey:
+        default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
 
@@ -330,13 +334,25 @@ Parameters:
   mParticleApiKey:
     Type: String
     Description: >
-      mParticle API Key for your mParticle tenant.
+      mParticle event API Key for your mParticle tenant.
     NoEcho: true
 
   mParticleSecretKey:
     Type: String
     Description: >
-      mParticle secret key coupled with your API key.
+      mParticle event API secret key coupled with your API key.
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: >
+      mParticle server to server API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: >
+      mParticle server to server secret key coupled with your API key.
     NoEcho: true
 
   GoogleAnalyticsMeasurementId:
