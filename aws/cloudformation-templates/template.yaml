@@ -401,6 +401,8 @@ Resources:
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
+        mParticleS2SApiKey: !Ref mParticleS2SApiKey
+        mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
