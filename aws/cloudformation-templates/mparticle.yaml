@@ -40,7 +40,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Handles sending events passed from mParticle to the Personalize tracker for user-item interactions.'
-      Handler: mparticle-personalize.lambda_handler
+      Handler: mparticle-personalize.handler
       Role: !GetAtt 
         - mParticlePersonalizeLambdaExecutionRole
         - Arn
@@ -118,7 +118,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter                
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
+                Resource: 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/*' 
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

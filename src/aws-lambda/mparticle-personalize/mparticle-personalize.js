@@ -29,7 +29,7 @@ exports.handler = async function (event, context) {
             WithDecryption: false
         };
         responseFromSSM = await SSM.getParameters(params).promise();
-        var servicesURL = responseFromSSM.Parameter.Value;
+        console.log(`${responseFromSSM.Parameters}`);
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
         console.log(e); 
