@@ -32,9 +32,9 @@ exports.handler = async function (event, context) {
                 var mpApiKey = param.Value;
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
                 var mpApiSecret = param.Value;
-            } else if (param.Name === '/retaildemostore/webui/personalize_tracking_id') {
+            } else if (param.Name === 'retaildemostore-personalize-event-tracker-id') {
                 var trackingId = param.Value; 
-            } else if (param.Name === '/retaildemostore/webui/personalize_campaign_arn') {
+            } else if (param.Name === 'retaildemostore-product-recommendation-campaign-arn') {
                 var campaignArn = param.Value;
             }
         }
