@@ -13,7 +13,7 @@ exports.handler = async function (event, context) {
     var eventList = [];
     var mpid;
     
-    // Get the LB address for services from SSM
+    // Load all of our variables from SSM
     try {
         let params = {
             Names: ['/retaildemostore/services_load_balancers/products',
