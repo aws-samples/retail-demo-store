@@ -27,7 +27,7 @@ exports.handler = async function (event, context) {
         
         for(const param of responseFromSSM.Parameters) {
             if( param.Name === '/retaildemostore/services_load_balancers/products') {
-                var url = param.Value;
+                var productsServiceURL = param.Value;
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_api_key') {
                 var mpApiKey = param.Value;
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
@@ -140,8 +140,8 @@ exports.handler = async function (event, context) {
                           let promises = [];
                           for (let item of data.itemList) {
                               itemList.push(item.itemId);
-                              var url = `${servicesURL}/products/id/${item.itemId}`;
-                              promises.push(axios.get(url));
+                              var productRequestURL = `${productsServiceURL}/products/id/${item.itemId}`;
+                              promises.push(axios.get(productRequestURL));
                               promises.push(
                                 axios.get(url).then(response => {
                                   // do something with response
