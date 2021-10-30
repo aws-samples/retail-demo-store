@@ -4,14 +4,9 @@
 const AWS = require('aws-sdk');
 const SSM = new AWS.SSM();
 const mParticle = require('mparticle');
-const trackingId = process.env.PERSONALISE_TRACKING_ID;
-const campaignArn = process.env.PERSONALISE_CAMPAIGN_ARN;
 const reportActions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
-const mpApiKey = process.env.MPARTICLE_S2S_API_KEY;
-const mpApiSecret = process.env.MPARTICLE_S2S_SECRET_KEY;
 const personalizeEvents = new AWS.PersonalizeEvents();
 const personalizeRuntime = new AWS.PersonalizeRuntime();
-const mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
 const axios = require('axios');
 
 exports.handler = async function (event, context) {
@@ -28,8 +23,24 @@ exports.handler = async function (event, context) {
                     '/retaildemostore/webui/personalize_campaign_arn'],
             WithDecryption: false
         };
-        responseFromSSM = await SSM.getParameters(params).promise();
-        console.log(`${responseFromSSM.Parameters}`);
+        let responseFromSSM = await SSM.getParameters(params).promise();
+        
+        for(const param of responseFromSSM.Parameters) {
+            if( param.Name === '/retaildemostore/services_load_balancers/products') {
+                var url = param.Value;
+            } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_api_key') {
+                var mpApiKey = param.Value;
+            } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
+                var mpApiSecret = param.Value;
+            } else if (param.Name === '/retaildemostore/webui/personalize_tracking_id') {
+                var trackingId = param.Value; 
+            } else if (param.Name === '/retaildemostore/webui/personalize_campaign_arn') {
+                var campaignArn = param.Value;
+            }
+        }
+        
+        // Init mParticle libraries for the function invocation
+        var mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
         console.log(e); 
@@ -44,7 +55,6 @@ exports.handler = async function (event, context) {
 
         // First, get the mParticle user ID from the payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
-
         var amazonPersonalizeUserId = mpid;
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
             amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
@@ -62,9 +72,8 @@ exports.handler = async function (event, context) {
             }
         }*/
 
-        const sessionId = payload.message_id;
         let params = {
-            sessionId: sessionId,
+            sessionId: payload.message_id,
             userId: amazonPersonalizeUserId,
             trackingId: trackingId
         };
@@ -76,6 +85,7 @@ exports.handler = async function (event, context) {
             variantAssigned = Boolean(payload.user_attributes.ml_variant); 
             variant = variantAssigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
         }
+        
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
@@ -106,7 +116,7 @@ exports.handler = async function (event, context) {
         }
         if (eventList.length > 0) {
             params.eventList = eventList;
-                personalizeEvents.putEvents(params, async function(err, data) {
+            personalizeEvents.putEvents(params, async function(err, data) {
                 if (err) {
                     console.log(err);
                     console.log(err, err.stack);

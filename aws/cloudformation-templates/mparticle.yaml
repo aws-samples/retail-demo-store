@@ -117,10 +117,11 @@ Resources:
                   - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-mParticlePersonalizeLambda*'
               - Effect: Allow
                 Action:
-                  - ssm:GetParameter                
+                  - ssm:GetParameter
+                  - ssm:GetParameters                
                 Resource: 
                   - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/*' 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/services_load_balancers/*' 
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
