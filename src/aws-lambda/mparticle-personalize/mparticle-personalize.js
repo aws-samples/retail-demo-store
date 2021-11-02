@@ -126,7 +126,7 @@ exports.handler = async function (event, context) {
                       // Select campaign based on variant
                       campaignArn: campaignArn,
                       numResults: '5',
-                      userId: amazonPersonalizeId
+                      userId: amazonPersonalizeUserId
                     };
                     personalizeRuntime.getRecommendations(params, async function(err, data) {
                       if (err) {
@@ -143,7 +143,7 @@ exports.handler = async function (event, context) {
                               var productRequestURL = `${productsServiceURL}/products/id/${item.itemId}`;
                               promises.push(axios.get(productRequestURL));
                               promises.push(
-                                axios.get(url).then(response => {
+                                axios.get(productRequestURL).then(response => {
                                   // do something with response
                                   productNameList.push(response.data.name);
                                 })
@@ -155,7 +155,7 @@ exports.handler = async function (event, context) {
                           batch.user_attributes.product_recs = itemList;
                           // Record variant on mParticle user profile
                           if (!variantAssigned) {
-                              batch.user_attributes.ml_variant = variant
+                              batch.user_attributes.ml_variant = variant;
                               batch.user_attributes.product_recs_name=productNameList;
                           }
     
