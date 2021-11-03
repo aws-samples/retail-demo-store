@@ -6,7 +6,7 @@ const SSM = new AWS.SSM();
 const mParticle = require('mparticle');
 const reportActions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
 const personalizeEvents = new AWS.PersonalizeEvents();
-const personalizeRuntime = new AWS.PersonalizeRuntime();
+const personalizeEventsClient = new AWS.PersonalizeEventsClient();
 const axios = require('axios');
 
 exports.handler = async function (event, context) {
