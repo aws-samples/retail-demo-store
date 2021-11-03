@@ -6,14 +6,11 @@ const SSM = new AWS.SSM();
 const mParticle = require('mparticle');
 const reportActions = ["purchase", "view_detail", "add_to_cart", "checkout","add_to_wishlist"];
 const personalizeEvents = new AWS.PersonalizeEvents();
-const personalizeRuntime = new AWS.PersonalizeRuntime();
+const personalizeEventsClient = new AWS.PersonalizeEventsClient();
 const axios = require('axios');
 
 exports.handler = async function (event, context) {
-    var eventList = [];
-    var mpid;
-    
-    // Load all of our variables from SSM
+    // Load all of the environment varaibles to run this function from SSM 
     try {
         let params = {
             Names: ['/retaildemostore/services_load_balancers/products',
@@ -47,15 +44,17 @@ exports.handler = async function (event, context) {
         throw e;   
     }
 
+    // Process the events sent from Kinesis
+
     for (const record of event.Records) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         const payload = JSON.parse(payloadString);
         const events = payload.events;
-        mpid = payload.mpid.toString();
+        let mpid = payload.mpid.toString();
 
         // First, get the mParticle user ID from the payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
-        var amazonPersonalizeUserId = mpid;
+        let amazonPersonalizeUserId = mpid;
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
             amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
 
@@ -72,43 +71,55 @@ exports.handler = async function (event, context) {
             }
         }*/
 
-        let params = {
-            sessionId: payload.message_id,
-            userId: amazonPersonalizeUserId,
-            trackingId: trackingId
-        };
-
+        // IS THIS REQUIRED?
         // Check for variant and assign one if not already assigned
-        var variantAssigned;
+        /* var variantAssigned;
         var variant;
         if(payload.user_attributes && payload.user_attributes.ml_variant) {
             variantAssigned = Boolean(payload.user_attributes.ml_variant); 
             variant = variantAssigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
-        }
+        }*/
         
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
                 const action = e.data.product_action.action;
                 const event_id = e.data.event_id;
-                const discount = Math.random() > 0.5 ? "Yes" : "No";
-                for (const product of e.data.product_action.products) {
-                    const obj = {itemId: product.id,discount: discount};
+                //const discount = Math.random() > 0.5 ? "Yes" : "No";  // NOT SURE WE SHOULD DO STUFF LIKE THIS IN SAMPLE CODE
 
-                    if(eventList.length > 10){
-                        eventList.shift();
-                        
-                    }
-                    eventList.push({
-                        properties: obj,
+                let params = {
+                    sessionId: payload.message_id,
+                    userId: amazonPersonalizeUserId,
+                    trackingId: trackingId,
+                    eventList: []
+                };
+
+                // Build the list of events for the user session...
+                for (const product of e.data.product_action.products) {
+                    const product = { itemId: product.id,
+                                    discount: discount };
+                    params.eventList.push({
+                        properties: product,
                         sentAt: timestamp,
                         eventId: event_id,
                         eventType: action
                     });
                 }
+
+                // Send the events to the personalize tracker
+                try {
+                    await personalizeEvents.putEvents(params);
+                } catch (e) {
+                    console.log(`ERROR - Personalize putEvents: ${e}`);
+                }
+
+                // Send a personalization event back to mParticle
             }
         }
+    }
+};
 
+/* 
         if(eventList.length > 10)
         {
             var lastTenRecords = eventList.length / 2;
@@ -180,3 +191,4 @@ exports.handler = async function (event, context) {
         }
     }
 };
+*/
