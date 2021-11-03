@@ -7,12 +7,19 @@
 
 set -e
 
+# Supply the flag '--private' if you want to keep the objects private in your S3 bucket
+export S3PUBLIC=" --acl public-read"
+for arg in "$@"; do
+    shift
+    case "$arg" in
+      "--private") S3PUBLIC="";;
+      *) set -- "$@" "$arg";;
+    esac 
+done 
+
 BUCKET=$1
 #Path with trailing /
 S3PATH=$2
-
-# remove this line if you want to keep the objects private in your S3 bucket
-export S3PUBLIC=" --acl public-read"
 
 if [ ! -d "local" ]; then
     mkdir local
@@ -20,7 +27,7 @@ fi
 touch local/stage.log
 
 if [ "$BUCKET" == "" ]; then
-    echo "Usage: $0 BUCKET [S3PATH]"
+    echo "Usage: $0 BUCKET [S3PATH] [--private]"
     echo "  where BUCKET is the S3 bucket to upload resources to and S3PATH is optional path but if specified must have a trailing '/'"
     exit 1
 fi
