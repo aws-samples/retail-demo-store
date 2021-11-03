@@ -60,6 +60,7 @@ logger.setLevel(logging.INFO)
 
 load_dotenv()
 
+CARTS_SERVICE_URL = os.environ.get('CartsServiceExternalUrl')
 ORDER_SERVICE_URL = os.environ.get('OrdersServiceExternalUrl')
 PRODUCT_SERVICE_URL = os.environ.get('ProductsServiceExternalUrl')
 RECOMMENDATIONS_SERVICE_URL = os.environ.get('RecommendationsServiceExternalUrl')
@@ -135,7 +136,13 @@ def get_cognito_user_details(handler_input):
         req.add_header('Authorization', f'Bearer {access_token}')
         user_details = json.loads(urlopen(req).read().decode('utf-8'))
         logger.info(f"Got user info from Cognito: {user_details}")
-        user_details['cognito_loaded'] = True
+
+        if 'custom:profile_user_id' not in user_details:
+            logger.warning(f"Profile user has not been selected for Cognito user")
+            raise Exception("Must use default user because simulation user not selected.")
+        else:
+            user_details['cognito_loaded'] = True
+
     except Exception as e:
         # Here, we allow for easy testing without having to do the authentication of Alexa with Cognito
         # This is important if you want to test Retail Demo Store on the web because only the mobile app
@@ -144,7 +151,7 @@ def get_cognito_user_details(handler_input):
         # we use that for emails, otherwise you will unfortunately not
         # receive any emails.
         user_details = {
-            'username': 'daemon',
+            'username': 'guest',
             'custom:profile_user_id': '0',
             'custom:profile_first_name': 'Testy',
             'custom:profile_last_name': 'McTest',
@@ -304,7 +311,8 @@ def fetch_product_slot_directive(handler_input):
         session_attr['Products'] = {}
         for product in products:
             session_attr['Products'][product['id']] = {'name': product['name'], 'price': product['price'],
-                                                       'image': product['image'], 'url': product['url']}
+                                                       'image': product['image'], 'url': product['url'],
+                                                       'id': product['id']}
 
     entity_list_values = []
     for product in products:
@@ -378,6 +386,7 @@ def get_recommended_product(handler_input, product_id):
 def get_product_by_id(handler_input, product_id):
     """
     Returns product dict associated with product ID.
+    Products have already been loaded into the session object.
     Args:
         handler_input: As passed into the Alexa skill Lambda handler.
         product_id: As converted from user input.
@@ -391,15 +400,13 @@ def get_product_by_id(handler_input, product_id):
 
 def submit_order(handler_input):
     """
-    Grab the order from the session and send it to orders service.
+    Grab the order from the cart and send it to orders service.
     Args:
         handler_input:  As passed into the Alexa skill Lambda handler.
 
     Returns:
         None
     """
-    session_attr = handler_input.attributes_manager.session_attributes
-
     user_details = get_cognito_user_details(handler_input)
     if user_details['custom:profile_user_id'].isnumeric():
         username = f"user{user_details['custom:profile_user_id']}"
@@ -412,7 +419,7 @@ def submit_order(handler_input):
 
     order = {
         "items": [],
-        "total": get_basket_total(handler_input),
+        "total": get_cart_total(handler_input),
         "delivery_type": 'COLLECTION',
         "username": username,
         "billing_address": {
@@ -422,13 +429,8 @@ def submit_order(handler_input):
         "channel": "alexa"
     }
 
-    for item_id, basket_item in session_attr['Basket'].items():
-        order_item = {
-            'product_id': item_id,
-            'quantity': basket_item['quantity'],
-            'price': get_product_by_id(handler_input, item_id)['price']
-        }
-        order['items'].append(order_item)
+    cart = get_cart(handler_input)
+    order['items'] = cart['items']
 
     logger.info(f"Submitting order: {order}")
     req = Request(f'{ORDER_SERVICE_URL}/orders', method='POST', data=json.dumps(order).encode('utf-8'))
@@ -507,23 +509,43 @@ def location_search_cstore() -> Tuple[str, float]:
     return spoken_address, shop_dist_miles
 
 
-def get_basket_id(handler_input):
+def get_cart(handler_input):
     """
-    We saved our basket ID into Alexa session parameters. Retrieve it.
+    Retrieve cart from carts service or create a new one.
+    Username will be from Cognito integration or "guest".
     Args:
         handler_input: As passed into the Alexa skill Lambda handler.
 
     Returns:
-        str: Basket ID
+        dict: shopping cart, including id, username and items
     """
+
     session_attr = handler_input.attributes_manager.session_attributes
-    if 'BasketId' in session_attr:
-        return session_attr['BasketId']
+    user_details = get_cognito_user_details(handler_input)
+    username = user_details['username']
+
+    if 'CartId' not in session_attr:
+
+        cart = {'username': username, 'items': []}
+
+        req = Request(f'{CARTS_SERVICE_URL}/carts', method='POST', data=json.dumps(cart).encode('utf-8'))
+        resp = urlopen(req).read().decode('utf-8')
+        cart = json.loads(resp)
+        logger.info(f"Cart created response: {cart}")
+
+        session_attr['CartId'] = cart['id']
+
     else:
-        return None
+
+        req = Request(f'{CARTS_SERVICE_URL}/carts/{session_attr["CartId"]}', method='GET')
+        resp = urlopen(req).read().decode('utf-8')
+        cart = json.loads(resp)
+        logger.info(f"Cart retrieved response: {cart}")
+
+    return cart
 
 
-def get_basket_total(handler_input):
+def get_cart_total(handler_input):
     """
     We total up what is in our user's basket.
     Args:
@@ -532,21 +554,17 @@ def get_basket_total(handler_input):
     Returns:
         float: price in currency
     """
-    total = 0
-    session_attr = handler_input.attributes_manager.session_attributes
 
-    if 'Basket' not in session_attr:
-        return total
-
-    for item_id, basket_item in session_attr['Basket'].items():
-        total += session_attr['Products'][item_id]['price'] * basket_item['quantity']
-
+    cart = get_cart(handler_input)
+    total = sum(item['price'] * item['quantity'] for item in cart['items'])
     return total
 
 
-def add_product_to_basket(handler_input, product_id):
+def add_product_to_cart(handler_input, product):
     """
-    Save a product in session attributes.
+    Save a product in cart for user.
+    A new cart will be created in the carts service if necessary.
+    If cognito integration is not enabled, user will be "guest".
     Args:
         handler_input: As passed into the Alexa skill Lambda handler.
         product_id: As converted from user input.
@@ -554,16 +572,30 @@ def add_product_to_basket(handler_input, product_id):
     Returns:
 
     """
-    session_attr = handler_input.attributes_manager.session_attributes
+    cart = get_cart(handler_input)
 
-    if 'Basket' not in session_attr:
-        session_attr['Basket'] = {}
-        session_attr['BasketId'] = str(uuid.uuid4())[:32]
+    incremented_quantity = False
+    for item in cart['items']:
+        if item['product_id'] == product['id']:
+            item['quantity'] += 1
+            incremented_quantity = True
+            break
 
-    if product_id not in session_attr['Basket']:
-        session_attr['Basket'][product_id] = {'quantity': 1}
-    else:
-        session_attr['Basket'][product_id]['quantity'] += 1
+    if not incremented_quantity:
+        cart['items'].append({
+          'product_id': product['id'],
+          'quantity': 1,
+          'price': product['price'],
+          'product_name': product['name']
+        })
+
+    req = Request(f'{CARTS_SERVICE_URL}/carts/{cart["id"]}',
+                  method='PUT',
+                  data=json.dumps(cart).encode('utf-8'))
+    resp = urlopen(req).read().decode('utf-8')
+    cart = json.loads(resp)
+
+    logger.debug(f"Cart updated: {cart}")
 
 
 def set_question_asked(handler_input, question=''):
@@ -715,8 +747,9 @@ class OrderProductIntentHandler(AbstractRequestHandler):
 
         product_id = get_matched_product_id(handler_input)
         recommended_product = get_recommended_product(handler_input, product_id)
-        add_product_to_basket(handler_input, product_id)
         product = get_product_by_id(handler_input, product_id)
+        add_product_to_cart(handler_input, product)
+
 
         speak_output = f"Sure. Ordering {product_name} for ${product['price']}. " \
                        f"Would you like to add {recommended_product['name']} to your basket too?"
@@ -748,11 +781,6 @@ class AddRecommendedProductHandler(AbstractRequestHandler):
                 and ask_utils.get_dialog_state(handler_input) == DialogState.IN_PROGRESS
         )
 
-    def add_recommended_product(self, handler_input):
-        product_id = get_matched_product_id(handler_input)
-        recommended_product = get_recommended_product(handler_input, product_id)
-        add_product_to_basket(handler_input, recommended_product['id'])
-
     def handle(self, handler_input):
         """
         Handle this intent. Results are provided using response_builder.
@@ -769,9 +797,9 @@ class AddRecommendedProductHandler(AbstractRequestHandler):
         ask_utils.get_slot(handler_input, 'AddRecommendedProduct').resolutions.resolutions_per_authority[0].values[
             0].value.id
         if should_add_recommended_product == "1":
-            self.add_recommended_product(handler_input)
             recommended_product = get_recommended_product(handler_input, get_matched_product_id(handler_input))
             speak_output = f"Adding {recommended_product['name']} for ${recommended_product['price']}!"
+            add_product_to_cart(handler_input, recommended_product)
         else:
             speak_output = "Sure."
 
@@ -851,7 +879,7 @@ class CheckoutIntentHandler(AbstractRequestHandler):
         logger.info(
             f"Calling CheckoutIntentHandler {json.dumps(handler_input.request_envelope.to_dict(), default=str, indent=2)}")
 
-        basket_total = get_basket_total(handler_input)
+        basket_total = get_cart_total(handler_input)
         user_details = get_cognito_user_details(handler_input)
         user_email = user_details['email']
 
@@ -940,7 +968,7 @@ class CheckoutIntentHandler(AbstractRequestHandler):
             if user_details['cognito_loaded']:
                 speak = ''
             else:
-                speak = ('Not authenticated as a retail demo store user -'
+                speak = ('Not authenticated as a retail demo store user with a simulated profile chosen -'
                          ' using configured default as Amazon Pay account. ')
 
             permissions_not_granted = (scopes is None or
@@ -1035,10 +1063,10 @@ class AmazonPaySetupResponseHandler(AbstractRequestHandler):
             # keyed by, for example, seller_billing_agreement_id (sellerBillingAgreementId).
             handler_input.attributes_manager.session_attributes = json.loads(correlation_token)
 
-            basket_total = get_basket_total(handler_input)
-            basket_id = get_basket_id(handler_input)
+            basket_total = get_cart_total(handler_input)
+            cart = get_cart(handler_input)
 
-            if basket_id is None:
+            if basket_total == 0:
                 return (
                     handler_input.response_builder
                         .speak('Your basket is empty. Thank you for playing!')
@@ -1064,7 +1092,7 @@ class AmazonPaySetupResponseHandler(AbstractRequestHandler):
 
             authorize_attributes = AuthorizeAttributes(
                 version="2",
-                authorization_reference_id=basket_id,
+                authorization_reference_id=cart['id'],
                 authorization_amount=authorization_amount,
                 seller_authorization_note="Retail Demo Store Sandbox Transaction",
             )

@@ -9,7 +9,7 @@
             "Is there a convenience store nearby?"
           ],
           "keywords": [],
-          "name": "C-Store Demo",
+          "name": "Location Service Convenience Store Demo",
           "description": "The Alexa Skill for the C-Store Demo",
           "smallIconUri": "file://assets/images/en-US_smallIconUri.png",
           "largeIconUri": "file://assets/images/en-US_largeIconUri.png"

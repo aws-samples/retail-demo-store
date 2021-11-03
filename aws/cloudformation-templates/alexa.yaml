@@ -38,6 +38,9 @@ Parameters:
   OrdersServiceExternalUrl:
     Type: String
 
+  CartsServiceExternalUrl:
+    Type: String
+
   RecommendationsServiceExternalUrl:
     Type: String
 
@@ -103,6 +106,7 @@ Resources:
       Environment:
         Variables:
           OrdersServiceExternalUrl: !Ref OrdersServiceExternalUrl
+          CartsServiceExternalUrl: !Ref CartsServiceExternalUrl
           RecommendationsServiceExternalUrl: !Ref RecommendationsServiceExternalUrl
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
           LocationServiceExternalUrl: !Ref LocationServiceExternalUrl

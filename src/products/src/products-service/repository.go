@@ -87,6 +87,7 @@ func RepoFindMultipleProducts(ids []string) Products {
 				S: aws.String(id),
 			},
 		})
+		log.Println(string(id))
 	}
 
 	input := &dynamodb.BatchGetItemInput{
@@ -101,6 +102,7 @@ func RepoFindMultipleProducts(ids []string) Products {
 
 	if err != nil {
 		log.Println("BatchGetItem error " + string(err.Error()))
+
 		return products
 	}
 

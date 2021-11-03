@@ -511,6 +511,7 @@ Resources:
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
         LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
         AmazonPayMerchantId: !Ref AmazonPayMerchantId
