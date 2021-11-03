@@ -320,7 +320,6 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-                  - iam:PassRole
               - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
