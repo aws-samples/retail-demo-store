@@ -38,7 +38,6 @@ exports.handler = async function (event, context) {
         
         // Init mParticle libraries for the function invocation
         var mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
-        console.log(`GOT PARAMS!`);
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
         console.log(e); 
@@ -49,31 +48,32 @@ exports.handler = async function (event, context) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         const payload = JSON.parse(payloadString);
         const events = payload.events;
-        
+        var amazonPersonalizeUserId;
         console.log(`EVENTS: ${JSON.stringify(events)}`);
         
-        let anonymousID = payload.mpid.toString();
-
-        // First, get the mParticle user ID from the payload.  In this example, mParticle will send all the events
+        // First, get the mParticle user ID from the events payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
-        var amazonPersonalizeUserId = anonymousID;
-        if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
-            amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
-
-        /* 
+        // retreive the mParticle user id which is available for anonymous and known customer profiles
+        var anonymousID = events[0].data.custom_attributes.mpid.toString();
         
-        THIS APPEARS TO BE UNUSED??
-
-        var amazonUserId = mpid;
+        // if the customer profile is known then replace the amazon Personalize User id with the actual
+        // personalize Id captured from the user's profile
+        if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
+            amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId; 
+        else
+            amazonPersonalizeUserId = anonymousID;
+        // Verify in mParticle's payload if there is a customer id set within the customer profile
+        // this will be used for identity resolution later on within mParticle.
+        var customerId = null;
         if(payload.user_identities){
-            for (const identityRecord of payload.user_identities)
-            {
-                if(identityRecord.identity_type==="customer_id")
-                    amazonUserId = identityRecord.identity;
+                for (const identityRecord of payload.user_identities)
+                {
+                    if(identityRecord.identity_type==="customer_id")
+                        customerId = identityRecord.identity; 
+                }
             }
-        }*/
 
-        let params = {
+        var params = {
             sessionId: payload.message_id,
             userId: amazonPersonalizeUserId,
             trackingId: trackingId,
@@ -131,88 +131,34 @@ exports.handler = async function (event, context) {
             console.log(`ERROR - Could not get recommendations - ${e}`);
         }
     }
-};
 
-/*        
-        if(eventList.length > 10)
+        // if Events are more than 10 splice the events 
+        if(params.eventList.length > 10)
         {
-            var lastTenRecords = eventList.length / 2;
-            eventList = eventList.slice(lastTenRecords);
+            var lastTenRecords = params.eventList.length / 2;
+            params.eventList = params.eventList.slice(lastTenRecords);
         }
-        if (eventList.length > 0) {
-            
-
-            paramsPut.eventList = eventList;
-            try{
-                //put Events into Personalize
-                await personalizeEvents.putEvents(paramsPut).promise().then(async function(data, err){
-                    if (err) {
-                        console.log(err);
-                        console.log(err, err.stack);
-                    } else {
-                    console.log("AWS Personalization Put Events Successful");
-                        return Promise.resolve(data); 
-                    }
-                });
-            }catch(e){
-                console.log("Put Event Personalize");
-                console.log(e);
-            }
-
-            //get Recommendation from Personalize
-
-            let params = {
-                // Select campaign based on variant
-                campaignArn: campaignArn,
-                numResults: '5',
-                userId: amazonPersonalizeUserId
-              };
-              console.log(params);
-
-              try{
-                var recommendationData = await personalizeRuntime.getRecommendations(params).promise().then(async function(data,err){
-                    console.log("AWS Personalization Get Recommendation Start");
-                    if (err) {
-                        console.log(err);
-                        console.log(err, err.stack);
-                    }
-                    if (!err)
-                    {
-                        return Promise.resolve(data.itemList); 
-                        console.log("AWS Personalization Get Recommendation Successful");
-                    }
-                   
-                   
-                });
-            }catch(e)
-            {
-                console.log("Get Event Personalize");
-                console.log(e);    
-            }
+        if (params.eventList.length > 0) {
             
             
+            // Reverse Lookup the product ids to actual product name using the product service url
             let itemList = [];
             var productNameList = [];
-            let promises = [];
-            for (let item of recommendationData) {
+            for (let item of recommendations.itemList) {
                 itemList.push(item.itemId);
                 var productRequestURL = `${productsServiceURL}/products/id/${item.itemId}`;
-                promises.push(axios.get(productRequestURL));
-                promises.push(
-                 axios.get(productRequestURL).then(response => {
-                // do something with response
-                productNameList.push(response.data.name);
-                 })
-                 );
-             }
-             
-            await Promise.all(promises).then(() => console.log(productNameList));
+                var productInfo = await axios.get(productRequestURL);
+                productNameList.push(productInfo.data.name);
+            }
+
+            
+           //build the mParticle object and send it to mParticle
               let batch = new mParticle.Batch(mParticle.Batch.Environment.development);
 
                         // if the customer profile is anonymous, we'll use the mParticle ID to tie this recommendation back to the anonymous user
                         // else we will use the customer Id which was provided earlier
                         if(customerId == null){
-                            batch.mpid = mpid;
+                            batch.mpid = anonymousID;
                         }
                         else{
                             batch.user_identities = new mParticle.UserIdentities();
@@ -240,7 +186,7 @@ exports.handler = async function (event, context) {
                         
                          // Send to Event to mParticle
                           await mpApiInstance.bulkUploadEvents(body, mp_callback);
+                          
         }
-    }
 };
-*/
+        
