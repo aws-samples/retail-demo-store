@@ -10,17 +10,14 @@ const personalizeRuntime = new AWS.PersonalizeRuntime();
 const axios = require('axios');
 
 exports.handler = async function (event, context) {
-    var eventList = [];
-    var mpid;
-
     // Load all of our variables from SSM
     try {
         let params = {
             Names: ['/retaildemostore/services_load_balancers/products',
                     '/retaildemostore/webui/mparticle_s2s_api_key',
                     '/retaildemostore/webui/mparticle_s2s_secret_key',
-                    '/retaildemostore/webui/personalize_tracking_id',
-                    '/retaildemostore/webui/personalize_campaign_arn'],
+                    'retaildemostore-personalize-event-tracker-id',
+                    'retaildemostore-product-recommendation-campaign-arn'],
             WithDecryption: false
         };
         let responseFromSSM = await SSM.getParameters(params).promise();
@@ -32,15 +29,16 @@ exports.handler = async function (event, context) {
                 var mpApiKey = param.Value;
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
                 var mpApiSecret = param.Value;
-            } else if (param.Name === '/retaildemostore/webui/personalize_tracking_id') {
+            } else if (param.Name === 'retaildemostore-personalize-event-tracker-id') {
                 var trackingId = param.Value; 
-            } else if (param.Name === '/retaildemostore/webui/personalize_campaign_arn') {
+            } else if (param.Name === 'retaildemostore-product-recommendation-campaign-arn') {
                 var campaignArn = param.Value;
             }
         }
         
         // Init mParticle libraries for the function invocation
         var mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
+        console.log(`GOT PARAMS!`);
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
         console.log(e); 
@@ -51,34 +49,45 @@ exports.handler = async function (event, context) {
         const payloadString = Buffer.from(record.kinesis.data, 'base64').toString('ascii');
         const payload = JSON.parse(payloadString);
         const events = payload.events;
-       
-       // First, get the mParticle user ID from the events payload.  In this example, mParticle will send all the events
-        // for a particular user in a batch to this lambda.
-        mpid = events[0].data.custom_attributes.mpid.toString();
+        
+        console.log(`EVENTS: ${JSON.stringify(events)}`);
+        
+        let anonymousID = payload.mpid.toString();
 
         // First, get the mParticle user ID from the payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
-        var amazonPersonalizeUserId = mpid;
-        
+        var amazonPersonalizeUserId = anonymousID;
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
             amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
-        
-        var customerId = null;
-        if(payload.user_identities){
-                for (const identityRecord of payload.user_identities)
-                {
-                    if(identityRecord.identity_type==="customer_id")
-                        customerId = identityRecord.identity;
-                }
-            }
 
-        var paramsPut = {
+        /* 
+        
+        THIS APPEARS TO BE UNUSED??
+
+        var amazonUserId = mpid;
+        if(payload.user_identities){
+            for (const identityRecord of payload.user_identities)
+            {
+                if(identityRecord.identity_type==="customer_id")
+                    amazonUserId = identityRecord.identity;
+            }
+        }*/
+
+        let params = {
             sessionId: payload.message_id,
             userId: amazonPersonalizeUserId,
-            trackingId: trackingId
+            trackingId: trackingId,
+            eventList: []
         };
 
-
+        // Check for variant and assign one if not already assigned
+        /*var variantAssigned;
+        var variant;
+        if(payload.user_attributes && payload.user_attributes.ml_variant) {
+            variantAssigned = Boolean(payload.user_attributes.ml_variant); 
+            variant = variantAssigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
+        }*/
+        
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
@@ -86,14 +95,10 @@ exports.handler = async function (event, context) {
                 const event_id = e.data.event_id;
                 const discount = Math.random() > 0.5 ? "Yes" : "No";
                 for (const product of e.data.product_action.products) {
-                    const obj = {itemId: product.id,discount: discount};
-
-                    if(eventList.length > 10){
-                        eventList.shift();
-                        
-                    }
-                    eventList.push({
-                        properties: obj,
+                    const purchasedItem = { itemId: product.id,
+                                  discount: discount };
+                    params.eventList.push({
+                        properties: purchasedItem,
                         sentAt: timestamp,
                         eventId: event_id,
                         eventType: action
@@ -101,8 +106,34 @@ exports.handler = async function (event, context) {
                 }
             }
         }
+        
+        console.log(JSON.stringify(params));
+        
+        // Send the events to Amazon Personalize for training purposes
+        try {
+            await personalizeEvents.putEvents(params).promise();
+        } catch (e) {
+            console.log(`ERROR - Could not put events - ${e}`);
+        }
+        
+        // Get Recommendations from Personalize for the user ID we got up top
+        let recommendationsParams = {
+            // Select campaign based on variant
+            campaignArn: campaignArn,
+            numResults: '5',
+            userId: amazonPersonalizeUserId
+        };
+              
+        try {
+            var recommendations = await personalizeRuntime.getRecommendations(recommendationsParams).promise();
+            console.log(`RECOMMENDATIONS - ${JSON.stringify(recommendations)}`);
+        } catch (e) {
+            console.log(`ERROR - Could not get recommendations - ${e}`);
+        }
+    }
+};
 
-
+/*        
         if(eventList.length > 10)
         {
             var lastTenRecords = eventList.length / 2;
@@ -212,3 +243,4 @@ exports.handler = async function (event, context) {
         }
     }
 };
+*/
