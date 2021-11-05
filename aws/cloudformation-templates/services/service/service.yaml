@@ -412,4 +412,10 @@ Outputs:
 
   FargateServiceName:
     Value: !GetAtt FargateService.Name
+
+  TaskRoleArn:
+    Value: !GetAtt TaskRole.Arn
+
+  TaskExecutionRoleArn:
+    Value: !GetAtt TaskExecutionRole.Arn
     

@@ -19,7 +19,6 @@ type Product struct {
 	Featured         string  `json:"featured,omitempty" yaml:"featured,omitempty"`
 	GenderAffinity   string  `json:"gender_affinity,omitempty" yaml:"gender_affinity,omitempty"`
 	CurrentStock     int     `json:"current_stock" yaml:"current_stock"`
-	WhereVisible     string  `json:"where_visible" yaml:"where_visible"`
 }
 
 // Initialized - indicates if instance has been initialized or not

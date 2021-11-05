@@ -11,6 +11,7 @@ phases:
     commands:
       - echo Entered the install phase...
       - yum -y install git python3 golang
+      - yum -y update ca-certificates
       - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       - python3 get-pip.py
       - python3 -m venv retailstore/env

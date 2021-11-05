@@ -151,7 +151,9 @@ func RepoUpdateOrder(existingOrder *Order, updatedOrder *Order) Order {
 func RepoCreateOrder(order Order) Order {
 	log.Printf("RepoNeworder --> %#v", order)
 
-	order.ID = strings.ToLower(guuuid.New().String())
+	if len(order.ID) == 0 {
+	    order.ID = strings.ToLower(guuuid.New().String())
+	}
 	av, err := dynamodbattribute.MarshalMap(order)
 
 	if err != nil {

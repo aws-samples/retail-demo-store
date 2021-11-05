@@ -99,10 +99,10 @@ do_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip
 filters_config = [
      {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
       'filter_name': 'retaildemostore-filter-purchased-products',
-      'filter_expression': 'EXCLUDE itemId WHERE ITEMS.WHERE_VISIBLE NOT IN ("UI") | EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
+      'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
       {'arn_param': 'retaildemostore-personalize-filter-cstore-arn',
        'filter_name': 'retaildemostore-filter-cstore-products',
-       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.WHERE_VISIBLE NOT IN ("Alexa")'}
+       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.CATEGORY NOT IN ("hot drinks", "salty snacks", "hot dispensed", "food service")'}
      ]
 
 datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
@@ -160,11 +160,6 @@ items_schema = {
             "name": "DESCRIPTION",
             "type": "string",
             "textual": True
-        },
-        {
-            "name": "WHERE_VISIBLE",
-            "type": "string",
-            "categorical": True
         }
     ],
     "version": "1.0"
@@ -262,23 +257,6 @@ dataset_type_to_detail_offers = {
     'INTERACTIONS': {'schema': {'name': 'retaildemostore-schema-interactions-offers',
                                 'avro': interactions_schema_offers},
                      'filename': offer_interactions_filename}}
-
-
-def get_all_product_categories():
-    """For the sake of building filters that filter on object categories, we pull the object categories from
-    the products service. If the service is not up or the categories not loaded, it will error out and force
-    a retry on the EventBridge time-out schedule."""
-    service_url = os.environ['ProductsServiceExternalUrl']
-    all_categories_url = service_url + '/categories/all'
-    logger.info(f"Getting full list of categories from URL {all_categories_url}")
-    response = urllib3.PoolManager().request('GET', all_categories_url, retries=False)
-    if response.status != 200:
-        errmsg = f"{response.status}: Products service not working - reason: {response.reason} response: {response.data}"
-        logger.error(errmsg)
-        raise Exception(errmsg)
-    else:
-        categories = json.loads(response.data)
-        return categories
 
 
 def create_schema(schema, name):
