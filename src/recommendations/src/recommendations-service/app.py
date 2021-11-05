@@ -49,6 +49,7 @@ cw_events = boto3.client('events')
 
 # SSM parameter name for the Personalize filter for purchased items
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
+filter_cstore_param_name = 'retaildemostore-personalize-filter-cstore-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 dataset_group_name_root = 'retaildemostore-'
@@ -107,7 +108,9 @@ def get_parameter_values(names):
 
     return values
 
-def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
+def get_products(feature, user_id, current_item_id, num_results, default_campaign_arn_param_name,
+                 default_filter_arn_param_name, user_reqd_for_campaign=False, fully_qualify_image_urls=False,
+                 ):
     """ Returns products given a UI feature, user, item/product.
 
     If a feature name is provided and there is an active experiment for the
@@ -115,6 +118,17 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
     the default behavior will be used which will look to see if an Amazon Personalize
     campaign is available. If not, the Product service will be called to get products
     from the same category as the current product.
+    Args:
+        feature: Used to track different experiments - different experiments pertain to different features
+        user_id: If supplied we are looking at user personalization
+        current_item_id: Or maybe we are looking at related items
+        num_results: Num to return
+        default_campaign_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
+        default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
+        user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
+        fully_qualify_image_urls: Fully qualify image URLs n here
+    Returns:
+        A prepared HTTP response object.    
     """
 
     # Check environment for host and port first in case we're running in a local Docker container (dev mode)
@@ -159,12 +173,15 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
     else:
         # Fallback to default behavior of checking for campaign ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([ campaign_arn_param_name, filter_purchased_param_name ])
+        values = get_parameter_values([default_campaign_arn_param_name, default_filter_arn_param_name])
 
         campaign_arn = values[0]
         filter_arn = values[1]
 
         if campaign_arn and (user_id or not user_reqd_for_campaign):
+
+            logger.info(f"get_products: Supplied campaign: {campaign_arn} (from {default_campaign_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
+
             resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
@@ -290,6 +307,13 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
+    # The default filter is the not-already-purchased filter
+    filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    # We have short names for these filters
+    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    app.logger.info(f"Filter SSM for /related: {filter_ssm}")
+
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
@@ -299,9 +323,10 @@ def related():
         return get_products(
             feature = feature,
             user_id = user_id,
-            current_item_id = current_item_id,
+            current_item_id = current_item_id, 
             num_results = num_results,
-            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn',
+            default_campaign_arn_param_name='retaildemostore-related-products-campaign-arn',
+            default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
@@ -336,15 +361,23 @@ def recommendations():
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
 
+    # The default filter is the not-already-purchased filter
+    filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    # We have short names for these filters
+    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
+
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
         response = get_products(
             feature = feature,
             user_id = user_id,
-            current_item_id = current_item_id,
+            current_item_id = current_item_id, 
             num_results = num_results,
-            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn',
+            default_campaign_arn_param_name='retaildemostore-product-recommendation-campaign-arn',
+            default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
         app.logger.debug(f"Recommendations response to be returned: {response}")

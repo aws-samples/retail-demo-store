@@ -17,6 +17,9 @@ s3 = boto3.resource('s3')
 store_location = {}
 customer_route = {}
 
+cstore_location = {}
+cstore_route = {}
+
 
 def load_s3_data():
     global customer_route
@@ -26,6 +29,14 @@ def load_s3_data():
     global store_location
     location_file_obj = s3.Object(RESOURCE_BUCKET, 'location_services/store_location.json')
     store_location = json.loads(location_file_obj.get()['Body'].read().decode('utf-8'))
+
+    global cstore_route
+    route_file_obj = s3.Object(RESOURCE_BUCKET, 'location_services/cstore_route.json')
+    cstore_route = json.loads(route_file_obj.get()['Body'].read().decode('utf-8'))
+
+    global cstore_location
+    route_file_obj = s3.Object(RESOURCE_BUCKET, 'location_services/cstore_location.json')
+    cstore_location = json.loads(route_file_obj.get()['Body'].read().decode('utf-8'))
 
 
 # -- Logging
@@ -63,6 +74,16 @@ def get_store_location():
 @app.route('/customer_route')
 def get_customer_route():
     return jsonify(customer_route)
+
+
+@app.route('/cstore_location')
+def get_cstore_location():
+    return jsonify(cstore_location)
+
+
+@app.route('/cstore_route')
+def get_cstore_route():
+    return jsonify(cstore_route)
 
 
 if __name__ == '__main__':

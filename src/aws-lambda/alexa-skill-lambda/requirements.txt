@@ -1,0 +1,4 @@
+boto3>=1.16.38
+botocore>=1.19.38
+python-dotenv==0.15.0
+ask-sdk-core==1.11.0

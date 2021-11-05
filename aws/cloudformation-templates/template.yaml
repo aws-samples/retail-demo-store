@@ -51,6 +51,11 @@ Metadata:
           - AmazonPayPublicKeyId
           - AmazonPayPrivateKey
       - Label:
+          default: "Alexa C-Store Demo"
+        Parameters:
+          - AlexaSkillId
+          - AlexaAmazonPayDefaultSandboxEmail
+      - Label:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
@@ -105,6 +110,10 @@ Metadata:
         default: "Public key ID associated with Amazon Pay sandbox account"
       AmazonPayPrivateKey:
         default: "Private key associated with Amazon Pay sandbox account"
+      AlexaSkillId:
+        default: "ID of C-Store Demo Alexa skill to access Retail Demo Store"
+      AlexaAmazonPayDefaultSandboxEmail:
+        default: "An email to test Alexa integration in case you have not set up Cognito authorisation to link your Retail Demo Store account"
       IncludeSegmentDependencies:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
@@ -285,6 +294,23 @@ Parameters:
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
     NoEcho: true
 
+  AlexaSkillId:
+    Type: String
+    Description: >
+      This Alexa skill with this SkillId will be allowed to invoke the back-end skill Lambda deployed as a part
+      of this CloudFormation stack. The back-end Lambda supports the C-Store demo allowing hands-free location
+      based searching with Location Service (if enabled), integration with the Retail Demo Store back-end, online recommendations,
+      and checkout with Amazon Pay (if enabled).
+
+  AlexaAmazonPayDefaultSandboxEmail:
+    Type: String
+    Description: >
+      If you follow the steps in the workshop to enable Alexa to authenticate with Cognito and pull back your
+      user details, you probably do not need to set this. However, the Alexa web testing
+      tool does not allow you to do this authentication either, so to test with the Alexa simulator on the web
+      and get emails and Amazon Pay integration, you need to set this value so that a default test user is set up -
+      for Amazon Pay integration, the email should be from one of the test accounts you created on SellerCentral.
+
   IncludeSegmentDependencies:
     Type: String
     Description: >
@@ -322,6 +348,8 @@ Conditions:
     - !And
       - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
       - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
+
+  DeployAlexaEndpoint: !Not [ !Equals [ !Ref AlexaSkillId, "" ] ]
 
 Resources:
   # Base Resources
@@ -470,6 +498,25 @@ Resources:
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
+  Alexa:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployAlexaEndpoint
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/alexa.yaml
+      Parameters:
+        AlexaSkillId: !Ref AlexaSkillId
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
+
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
@@ -496,6 +543,7 @@ Resources:
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   # Cleanup bucket function
@@ -562,3 +610,7 @@ Outputs:
   PinpointAppId:
     Description: Pinpoint App Id.
     Value: !GetAtt Base.Outputs.PinpointAppId
+
+  AlexaSkillEndpointArn:
+    Description: Arn of AWS Lambda function that can be a back-end
+    Value: !If [DeployAlexaEndpoint, !GetAtt Alexa.Outputs.AlexaSkillEndpointArn, "NotDeployed"]
