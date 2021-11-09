@@ -640,3 +640,39 @@ Outputs:
   AlexaSkillEndpointArn:
     Description: Arn of AWS Lambda function that can be a back-end
     Value: !If [DeployAlexaEndpoint, !GetAtt Alexa.Outputs.AlexaSkillEndpointArn, "NotDeployed"]
+
+  ProductsServiceUrl: 
+    Description: Products load balancer URL.
+    Value: !GetAtt Services.Outputs.ProductsServiceUrl
+
+  UsersServiceUrl: 
+    Description: Users load balancer URL.
+    Value: !GetAtt Services.Outputs.UsersServiceUrl
+
+  CartsServiceUrl: 
+    Description: Carts load balancer URL.
+    Value: !GetAtt Services.Outputs.CartsServiceUrl
+
+  OrdersServiceUrl: 
+    Description: Orders load balancer URL.
+    Value: !GetAtt Services.Outputs.OrdersServiceUrl
+
+  LocationServiceUrl:
+    Description: Location load balancer URL.
+    Value: !GetAtt Services.Outputs.LocationServiceUrl
+
+  RecommendationsServiceUrl:
+    Description: Recommendations load balancer URL.
+    Value: !GetAtt Services.Outputs.RecommendationsServiceUrl
+
+  VideosServiceUrl:
+    Description: Videos load balancer URL.
+    Value: !GetAtt Services.Outputs.VideosServiceUrl
+
+  SearchServiceUrl: 
+    Description: Search load balancer URL.
+    Value: !GetAtt Services.Outputs.SearchServiceUrl
+
+  OffersServiceUrl:
+    Description: Offers service load balancer URL.
+    Value: !GetAtt Services.Outputs.OffersServiceUrl
