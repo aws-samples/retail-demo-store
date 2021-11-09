@@ -30,9 +30,9 @@ exports.handler = async function (event, context) {
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
                 var mpApiSecret = param.Value;
             } else if (param.Name === 'retaildemostore-personalize-event-tracker-id') {
-                var trackingId = param.Value; 
+                var personalizeTrackerID = param.Value; 
             } else if (param.Name === 'retaildemostore-product-recommendation-campaign-arn') {
-                var campaignArn = param.Value;
+                var personalizeCampaignARN = param.Value;
             }
         }
         
@@ -93,7 +93,16 @@ exports.handler = async function (event, context) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
                 const action = e.data.product_action.action;
                 const event_id = e.data.event_id;
-                const discount = Math.random() > 0.5 ? "Yes" : "No";
+                //const discount = Math.random() > 0.5 ? "Yes" : "No";  // NOT SURE WE SHOULD DO STUFF LIKE THIS IN SAMPLE CODE
+
+                let params = {
+                    sessionId: payload.message_id,
+                    userId: amazonPersonalizeUserId,
+                    trackingId: personalizeTrackerID,
+                    eventList: []
+                };
+
+                // Build the list of events for the user session...
                 for (const product of e.data.product_action.products) {
                     const purchasedItem = { itemId: product.id,
                                   discount: discount };
@@ -119,7 +128,7 @@ exports.handler = async function (event, context) {
         // Get Recommendations from Personalize for the user ID we got up top
         let recommendationsParams = {
             // Select campaign based on variant
-            campaignArn: campaignArn,
+            campaignArn: personalizeCampaignARN,
             numResults: '5',
             userId: amazonPersonalizeUserId
         };
@@ -130,63 +139,51 @@ exports.handler = async function (event, context) {
         } catch (e) {
             console.log(`ERROR - Could not get recommendations - ${e}`);
         }
-    }
-
-        // if Events are more than 10 splice the events 
-        if(params.eventList.length > 10)
-        {
-            var lastTenRecords = params.eventList.length / 2;
-            params.eventList = params.eventList.slice(lastTenRecords);
+            
+        // Reverse Lookup the product ids to actual product name using the product service url
+        let itemList = [];
+        var productNameList = [];
+        for (let item of recommendations.itemList) {
+            itemList.push(item.itemId);
+            var productRequestURL = `${productsServiceURL}/products/id/${item.itemId}`;
+            var productInfo = await axios.get(productRequestURL);
+            productNameList.push(productInfo.data.name);
         }
-        if (params.eventList.length > 0) {
+
             
-            
-            // Reverse Lookup the product ids to actual product name using the product service url
-            let itemList = [];
-            var productNameList = [];
-            for (let item of recommendations.itemList) {
-                itemList.push(item.itemId);
-                var productRequestURL = `${productsServiceURL}/products/id/${item.itemId}`;
-                var productInfo = await axios.get(productRequestURL);
-                productNameList.push(productInfo.data.name);
+        //build the mParticle object and send it to mParticle
+        let batch = new mParticle.Batch(mParticle.Batch.Environment.development);
+
+        // if the customer profile is anonymous, we'll use the mParticle ID to tie this recommendation back to the anonymous user
+        // else we will use the customer Id which was provided earlier
+        if(customerId == null) {
+            batch.mpid = anonymousID;
+        } else {
+            batch.user_identities = new mParticle.UserIdentities();
+            batch.user_identities.customerid = customerId; // identify the user via the customer id 
+        }    
+        batch.user_attributes = {};
+        batch.user_attributes.product_recs = itemList;
+        batch.user_attributes.product_recs_name=productNameList;
+        
+        
+        // Create an Event Object using an event type of Other
+        let event = new mParticle.AppEvent(mParticle.AppEvent.CustomEventType.other, 'AWS Product Personalization Recs Update');
+        event.custom_attributes = {product_recs: itemList.join()};
+        batch.addEvent(event);
+        var body = [batch]; // {[Batch]} Up to 100 Batch objects
+        console.log(event);
+        console.log(batch);
+        let mp_callback = function(error, data, response) {
+            if (error) {
+                console.error(error);
+            } else {
+                console.log('API called successfully.');
             }
-
-            
-           //build the mParticle object and send it to mParticle
-              let batch = new mParticle.Batch(mParticle.Batch.Environment.development);
-
-                        // if the customer profile is anonymous, we'll use the mParticle ID to tie this recommendation back to the anonymous user
-                        // else we will use the customer Id which was provided earlier
-                        if(customerId == null){
-                            batch.mpid = anonymousID;
-                        }
-                        else{
-                            batch.user_identities = new mParticle.UserIdentities();
-                            batch.user_identities.customerid = customerId; // identify the user via the customer id 
-                        }    
-                         batch.user_attributes = {};
-                         batch.user_attributes.product_recs = itemList;
-                         batch.user_attributes.product_recs_name=productNameList;
-                          
-                          
-                          // Create an Event Object using an event type of Other
-                          let event = new mParticle.AppEvent(mParticle.AppEvent.CustomEventType.other, 'AWS Product Personalization Recs Update');
-                          event.custom_attributes = {product_recs: itemList.join()};
-                          batch.addEvent(event);
-                          var body = [batch]; // {[Batch]} Up to 100 Batch objects
-                          console.log(event);
-                          console.log(batch);
-                          let mp_callback = async function(error, data, response) {
-                              if (error) {
-                                  console.error(error);
-                                } else {
-                                  console.log('API called successfully.');
-                                }
-                              };
-                        
-                         // Send to Event to mParticle
-                          await mpApiInstance.bulkUploadEvents(body, mp_callback);
-                          
-        }
+        };
+    
+        // Send to Event to mParticle
+        mpApiInstance.bulkUploadEvents(body, mp_callback);
+    }
 };
         
