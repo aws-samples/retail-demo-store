@@ -76,7 +76,7 @@ exports.handler = async function (event, context) {
         var params = {
             sessionId: payload.message_id,
             userId: amazonPersonalizeUserId,
-            trackingId: trackingId,
+            trackingId: personalizeTrackerID,
             eventList: []
         };
 
@@ -93,7 +93,7 @@ exports.handler = async function (event, context) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
                 const action = e.data.product_action.action;
                 const event_id = e.data.event_id;
-                //const discount = Math.random() > 0.5 ? "Yes" : "No";  // NOT SURE WE SHOULD DO STUFF LIKE THIS IN SAMPLE CODE
+             
 
                 let params = {
                     sessionId: payload.message_id,
@@ -104,8 +104,7 @@ exports.handler = async function (event, context) {
 
                 // Build the list of events for the user session...
                 for (const product of e.data.product_action.products) {
-                    const purchasedItem = { itemId: product.id,
-                                  discount: discount };
+                    const purchasedItem = { itemId: product.id };
                     params.eventList.push({
                         properties: purchasedItem,
                         sentAt: timestamp,
@@ -186,4 +185,5 @@ exports.handler = async function (event, context) {
         mpApiInstance.bulkUploadEvents(body, mp_callback);
     }
 };
+        
         
