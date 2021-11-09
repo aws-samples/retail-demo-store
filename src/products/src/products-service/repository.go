@@ -516,7 +516,9 @@ func RepoUpdateInventoryDelta(product *Product, stockDelta int) error {
 func RepoNewProduct(product *Product) error {
 	log.Printf("RepoNewProduct --> %#v", product)
 
-	product.ID = strings.ToLower(guuuid.New().String())
+	if len(product.ID) == 0 {
+		product.ID = strings.ToLower(guuuid.New().String())
+	}
 	av, err := dynamodbattribute.MarshalMap(product)
 
 	if err != nil {
