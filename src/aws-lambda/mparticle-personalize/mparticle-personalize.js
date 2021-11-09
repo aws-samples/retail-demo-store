@@ -10,7 +10,7 @@ const personalizeRuntime = new AWS.PersonalizeRuntime();
 const axios = require('axios');
 
 exports.handler = async function (event, context) {
-    // Load all of our variables from SSM
+    // Load all of our environment variables from SSM
     try {
         let params = {
             Names: ['/retaildemostore/services_load_balancers/products',
@@ -49,7 +49,6 @@ exports.handler = async function (event, context) {
         const payload = JSON.parse(payloadString);
         const events = payload.events;
         var amazonPersonalizeUserId;
-        console.log(`EVENTS: ${JSON.stringify(events)}`);
         
         // First, get the mParticle user ID from the events payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
@@ -80,14 +79,6 @@ exports.handler = async function (event, context) {
             eventList: []
         };
 
-        // Check for variant and assign one if not already assigned
-        /*var variantAssigned;
-        var variant;
-        if(payload.user_attributes && payload.user_attributes.ml_variant) {
-            variantAssigned = Boolean(payload.user_attributes.ml_variant); 
-            variant = variantAssigned ? payload.user_attributes.ml_variant : Math.random() > 0.5 ? "A" : "B";
-        }*/
-        
         for (const e of events) {
             if (e.event_type === "commerce_event" && reportActions.indexOf(e.data.product_action.action) >= 0) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
@@ -115,8 +106,6 @@ exports.handler = async function (event, context) {
             }
         }
         
-        console.log(JSON.stringify(params));
-        
         // Send the events to Amazon Personalize for training purposes
         try {
             await personalizeEvents.putEvents(params).promise();
@@ -134,7 +123,6 @@ exports.handler = async function (event, context) {
               
         try {
             var recommendations = await personalizeRuntime.getRecommendations(recommendationsParams).promise();
-            console.log(`RECOMMENDATIONS - ${JSON.stringify(recommendations)}`);
         } catch (e) {
             console.log(`ERROR - Could not get recommendations - ${e}`);
         }

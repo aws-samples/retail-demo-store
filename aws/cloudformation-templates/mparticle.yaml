@@ -121,7 +121,7 @@ Resources:
                   - ssm:GetParameters                
                 Resource: 
                   - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/services_load_balancers/*' 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*' 
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
