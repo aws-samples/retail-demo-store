@@ -54,9 +54,9 @@ Resources:
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      # DefaultCodeRepository: !Sub
-      #   - 'https://github.com/${User}/retail-demo-store.git'
-      #   - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
+      DefaultCodeRepository: !Sub
+        - 'https://github.com/${User}/retail-demo-store.git'
+        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
       Tags:
         -
           Key: "Uid"
