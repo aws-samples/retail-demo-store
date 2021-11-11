@@ -87,6 +87,7 @@ func RepoFindMultipleProducts(ids []string) Products {
 				S: aws.String(id),
 			},
 		})
+		log.Println(string(id))
 	}
 
 	input := &dynamodb.BatchGetItemInput{
@@ -101,6 +102,7 @@ func RepoFindMultipleProducts(ids []string) Products {
 
 	if err != nil {
 		log.Println("BatchGetItem error " + string(err.Error()))
+
 		return products
 	}
 
@@ -514,7 +516,9 @@ func RepoUpdateInventoryDelta(product *Product, stockDelta int) error {
 func RepoNewProduct(product *Product) error {
 	log.Printf("RepoNewProduct --> %#v", product)
 
-	product.ID = strings.ToLower(guuuid.New().String())
+	if len(product.ID) == 0 {
+		product.ID = strings.ToLower(guuuid.New().String())
+	}
 	av, err := dynamodbattribute.MarshalMap(product)
 
 	if err != nil {

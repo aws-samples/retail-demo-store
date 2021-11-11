@@ -100,6 +100,9 @@ filters_config = [
      {'arn_param': 'retaildemostore-personalize-filter-purchased-arn',
       'filter_name': 'retaildemostore-filter-purchased-products',
       'filter_expression': 'EXCLUDE itemId WHERE INTERACTIONS.event_type IN ("OrderCompleted")'},
+      {'arn_param': 'retaildemostore-personalize-filter-cstore-arn',
+       'filter_name': 'retaildemostore-filter-cstore-products',
+       'filter_expression': 'EXCLUDE itemId WHERE ITEMS.CATEGORY NOT IN ("hot drinks", "salty snacks", "hot dispensed", "food service")'}
      ]
 
 datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'

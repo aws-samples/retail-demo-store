@@ -95,6 +95,9 @@ Parameters:
     Type: String
     Default: Yes
 
+  ProductsServiceExternalUrl:
+    Type: String
+
   DeployPersonalizedOffersCampaign:
     Type: String
     Default: No
@@ -142,6 +145,7 @@ Resources:
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
+          ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
 
   PersonalizePreCreateLambdaExecutionRole:
     Condition: DeployPreCreateCampaign

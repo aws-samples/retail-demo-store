@@ -1,0 +1,148 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+
+Description: >
+  This template deploys the supporting infrastructure for the C-Store Alexa Skill, in particular,
+  the back-end Lambda function supporting the skill and the role that gives Alexa permission
+  to invoke it.
+
+Parameters:
+
+  AlexaSkillId:
+    Type: String
+    Description: >
+      The ID of the Alexa Skill that is allowed to invoke this Alexa Lambda.
+
+  PinpointAppId:
+    Type: String
+
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  ProductsServiceExternalUrl:
+    Type: String
+
+  LocationServiceExternalUrl:
+    Type: String
+
+  OrdersServiceExternalUrl:
+    Type: String
+
+  CartsServiceExternalUrl:
+    Type: String
+
+  RecommendationsServiceExternalUrl:
+    Type: String
+
+  LocationResourceName:
+    Type: String
+
+  AmazonPayMerchantId:
+    Type: String
+
+  AlexaAmazonPayDefaultSandboxEmail:
+    Type: String
+    Description: Fallback email for testing if no Cognito integration possible (e.g. testing on Alexa web simulator).
+
+
+Resources:
+
+  AlexaSkillIAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: /
+        Policies:
+          - PolicyName: "AlexaLambdaExecutionPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - mobiletargeting:SendMessages
+                  Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/messages"
+                - Effect: Allow
+                  Action:
+                    - geo:SearchPlaceIndexForPosition
+                    - geo:SearchPlaceIndexForText
+                  Resource:
+                    - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:place-index/${LocationResourceName}*'
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                    - logs:CreateLogGroup
+                  Resource: '*'
+
+  AlexaSkillFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/alexa-skill-lambda.zip'
+      Handler: alexa-skill-lambda.lambda_handler
+      Runtime: python3.8
+      Role: !GetAtt AlexaSkillIAMRole.Arn
+      MemorySize: 512
+      Timeout: 60
+      Environment:
+        Variables:
+          OrdersServiceExternalUrl: !Ref OrdersServiceExternalUrl
+          CartsServiceExternalUrl: !Ref CartsServiceExternalUrl
+          RecommendationsServiceExternalUrl: !Ref RecommendationsServiceExternalUrl
+          ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
+          LocationServiceExternalUrl: !Ref LocationServiceExternalUrl
+          PinpointAppId: !Ref PinpointAppId
+          LocationResourceName: !Ref LocationResourceName
+          AmazonPayMerchantId: !Ref AmazonPayMerchantId
+          AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
+
+  AlexaSkillFunctionEventPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt AlexaSkillFunction.Arn
+      Principal: alexa-appkit.amazon.com
+      EventSourceToken: !Ref AlexaSkillId
+
+  AlexaSkillFunctionEventPermissionSmartHome:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt AlexaSkillFunction.Arn
+      Principal: alexa-connectedhome.amazon.com
+      EventSourceToken: !Ref AlexaSkillId
+
+  AlexaSkillFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlexaSkillFunction}
+      RetentionInDays: 14
+
+Outputs:
+
+  AlexaSkillEndpointArn:
+    Description: LambdaARN for the regional endpoint
+    Value: !GetAtt AlexaSkillFunction.Arn
+
+  AlexaExecutionRoleArn:
+    Description: ARN of execution role required by Alexa-hosted Lambda function.
+    Value: !GetAtt AlexaSkillIAMRole.Arn

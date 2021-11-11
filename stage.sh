@@ -69,7 +69,9 @@ done
 
 # Sync product images
 echo " + Copying product images"
-aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC
+aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote dataset 1.3"
+aws s3 sync s3://retail-demo-store-code/datasets/1.4/images/  s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote dataset 1.4"
+aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of local dataset 1.4"
 
 # Sync location data files
 echo " + Copying location location data"
