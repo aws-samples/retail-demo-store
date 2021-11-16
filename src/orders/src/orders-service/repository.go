@@ -123,6 +123,48 @@ func RepoFindOrdersByUsername(username string) Orders {
 	return f
 }
 
+// RepoFindALLOrders Function
+func RepoFindALLOrders() Orders {
+
+	log.Println("RepoFindALLOrders")
+
+	var f Orders
+
+	// Build the query input parameters
+	params := &dynamodb.ScanInput{
+		TableName: aws.String(ddbTableOrders),
+	}
+	// Make the DynamoDB Query API call
+	result, err := dynamoClient.Scan(params)
+
+	if err != nil {
+		log.Println("Got error scan expression:")
+		log.Println(err.Error())
+	}
+
+	log.Println("RepoFindALLOrders / items found =  ", len(result.Items))
+
+	for _, i := range result.Items {
+		item := Order{}
+
+		err = dynamodbattribute.UnmarshalMap(i, &item)
+
+		if err != nil {
+			log.Println("Got error unmarshalling:")
+			log.Println(err.Error())
+		}
+
+		f = append(f, item)
+	}
+
+	if len(result.Items) == 0 {
+		f = make([]Order, 0)
+	}
+
+	return f
+}
+
+
 func RepoUpdateOrder(existingOrder *Order, updatedOrder *Order) Order {
 	log.Printf("UpdateOrder from %#v to %#v", existingOrder, updatedOrder)
 

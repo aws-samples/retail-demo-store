@@ -23,8 +23,7 @@ func OrderIndex(w http.ResponseWriter, r *http.Request) {
 
 	enableCors(&w)
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	orders := RepoFindALLOrders()
 
 	if err := json.NewEncoder(w).Encode(orders); err != nil {
 		panic(err)
