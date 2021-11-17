@@ -3,6 +3,10 @@
 
 package main
 
+import (
+	"time"
+)
+
 // Order Struct
 type Order struct {
 	ID               string        `json:"id" yaml:"id"`
@@ -17,6 +21,8 @@ type Order struct {
 	DeliveryComplete bool          `json:"delivery_complete" yaml:"delivery_complete"`
 	Channel          string        `json:"channel" yaml:"channel"`
 	ChannelDetail    ChannelDetail `json:"channel_detail" yaml:"channel_detail"`
+	UpdatedAt        time.Time     `json:"updated_at" yaml:"updated_at"`
+	CreatedAt        time.Time     `json:"created_at" yaml:"created_at"`
 }
 
 // Initialized - indicates if instance has been initialized or not
