@@ -10,7 +10,9 @@
         which can be important signals in personalization systems.
       </li>
       <li class="type">
-        Items – This data is intended to provide information about your items, such as price, SKU type, or availability.
+        Items – This data is intended to provide information about your items, such as their description, price, SKU type, or
+        availability. In the case of unstructured text such as product descriptions, Personalize will use ML-based
+        natural language processing (NLP) to extract key information about your products to provide more relevant recommendations.
       </li>
       <li class="type">
         Interactions – This data is historical interactions between users and items. It can also provide information on

@@ -29,6 +29,11 @@ export default {
             throw "username required"
         return connection.get(`${resource}/username/${username}`)
     },
+    updateOrder(order) {
+        if (!order)
+            throw "order required"
+        return connection.put(`${resource}/id/${order.id}`, order)
+    },
     createOrder(order) {
         if (!order)
             throw "order required"

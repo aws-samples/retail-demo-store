@@ -18,11 +18,14 @@ successfully. Therefore, under normal conditions, this function will be executed
 
 import json
 import boto3
-import botocore
 import logging
 import os
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
+from collections import defaultdict
+import time
+
+GEOFENCE_PINPOINT_EVENTTYPE = 'LocationApproachLocalShop'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -32,122 +35,177 @@ sts = boto3.client('sts')
 pinpoint = boto3.client('pinpoint')
 cw_events = boto3.client('events')
 
+do_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip().lower() in ['yes', 'true', '1']
+
 welcome_template_name = 'RetailDemoStore-Welcome'
 abandoned_cart_template_name = 'RetailDemoStore-AbandonedCart'
 recommendations_template_name = 'RetailDemoStore-Recommendations'
 sms_recommendation_template_name = 'RetailDemoStore-SMSRecommendations'
 
 recommender_name = 'retaildemostore-recommender'
+offers_recommender_name = 'retaildemooffers-recommender'
+
+location_abandoned_cart_template_name = 'RetailDemoStore-LocationAbandonedCart'
+location_offers_recommendations_template_name = 'RetailDemoStore-LocationOfferRecommendations'
+
+
+def create_email_template(template_name, template_fname_root, subject, description, recommender_id=None):
+    """
+    Grab email template from file, create Pinpoint template. Default substitute user first name as "there".
+    Args:
+        template_name: What to call this Pinpoint template
+        template_fname_root: Where to look for both HTML and TXT templates inside pinpoint-templates/
+        subject: Email subject
+        description: For Pinpoint console.
+        recommender_id: If supplied, attach Pinpoint "machine learning model" (wraps Personalize) to template.
+
+    Returns:
+        Email template config. Deletes earlier version if already exists.
+    """
+    logger.info(f"Creating email template: {template_name}")
+
+    with open('pinpoint-templates/'+template_fname_root+'.html', 'r') as html_file:
+        html_template = html_file.read()
+
+    with open('pinpoint-templates/'+template_fname_root+'.txt', 'r') as text_file:
+        text_template = text_file.read()
+
+    request = {
+        'Subject': subject,
+        'TemplateDescription': description,
+        'HtmlPart': html_template,
+        'TextPart': text_template,
+        'DefaultSubstitutions': json.dumps({
+            'User.UserAttributes.FirstName': 'there'
+        })
+    }
+
+    if recommender_id is not None:
+        request['RecommenderId'] = recommender_id
+
+    while True:
+        try:
+            response = pinpoint.create_email_template(
+                EmailTemplateRequest=request,
+                TemplateName=template_name
+            )
+            break
+        except pinpoint.exceptions.BadRequestException as e:
+            try:
+                delete_response = pinpoint.delete_email_template(TemplateName=template_name)
+            except:
+                pass
+            backoff_seconds = 30
+            logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
+            time.sleep(backoff_seconds)
+
+    return response['CreateTemplateMessageBody']
+
+
+def create_sms_template(template_name, body, description, recommender_id=None):
+    """
+        Grab SMS template from file, create Pinpoint template. Default substitute user first name as "there".
+    Args:
+        template_name: What to call this Pinpoint template
+        body: Message to send.
+        description: For Pinpoint console.
+        recommender_id: If supplied, attach Pinpoint "machine learning model" (wraps Personalize) to template.
+
+    Returns:
+        SMS template config. Returns even if already exists.
+
+    """
+    logger.info(f"Creating SMS template: {template_name}")
+
+    request = {
+        'TemplateDescription': description,
+        'Body': body,
+        'DefaultSubstitutions': json.dumps({
+            'User.UserAttributes.FirstName': 'there'
+        })
+    }
+
+    if recommender_id is not None:
+        request['RecommenderId'] = recommender_id
+
+    while True:
+        try:
+            response = pinpoint.create_sms_template(
+                SMSTemplateRequest=request,
+                TemplateName=template_name
+            )
+            break
+        except pinpoint.exceptions.BadRequestException as e:
+            try:
+                delete_response = pinpoint.delete_sms_template(TemplateName=template_name)
+            except:
+                pass
+            backoff_seconds = 30
+            logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
+            time.sleep(backoff_seconds)
+
+    return response['CreateTemplateMessageBody']
+
 
 def create_welcome_email_template():
-    try:
-        response = pinpoint.get_email_template(TemplateName=welcome_template_name)
-        logger.info('Welcome email message template already exists')
-        return response['EmailTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info('Welcome email message template does not exist; creating')
+    return create_email_template(welcome_template_name, 'welcome-email-template',
+                                 subject='Welcome to the Retail Demo Store',
+                                 description='Welcome email sent to new customers',
+                                 recommender_id=None)
 
-        with open('pinpoint-templates/welcome-email-template.html', 'r') as html_file:
-            html_template = html_file.read()
-
-        with open('pinpoint-templates/welcome-email-template.txt', 'r') as text_file:
-            text_template = text_file.read()
-
-        response = pinpoint.create_email_template(
-            EmailTemplateRequest={
-                'Subject': 'Welcome to the Retail Demo Store',
-                'TemplateDescription': 'Welcome email sent to new customers',
-                'HtmlPart': html_template,
-                'TextPart': text_template,
-                'DefaultSubstitutions': json.dumps({
-                    'User.UserAttributes.FirstName': 'there'
-                })
-            },
-            TemplateName=welcome_template_name
-        )
-
-        return response['CreateTemplateMessageBody']
 
 def create_abandoned_cart_email_template():
-    try:
-        response = pinpoint.get_email_template(TemplateName=abandoned_cart_template_name)
-        logger.info('Abandoned cart email message template already exists')
-        return response['EmailTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info('Abandoned cart email message template does not exist; creating')
+    return create_email_template(abandoned_cart_template_name, 'abandoned-cart-email-template',
+                                 subject='Retail Demo Store - Motivation to Complete Your Order',
+                                 description='Abandoned cart email template',
+                                 recommender_id=None)
 
-        with open('pinpoint-templates/abandoned-cart-email-template.html', 'r') as html_file:
-            html_template = html_file.read()
-
-        with open('pinpoint-templates/abandoned-cart-email-template.txt', 'r') as text_file:
-            text_template = text_file.read()
-
-        response = pinpoint.create_email_template(
-            EmailTemplateRequest={
-                'Subject': 'Retail Demo Store - Motivation to Complete Your Order',
-                'TemplateDescription': 'Abandoned cart email template',
-                'HtmlPart': html_template,
-                'TextPart': text_template,
-                'DefaultSubstitutions': json.dumps({
-                    'User.UserAttributes.FirstName': 'there'
-                })   
-            },
-            TemplateName=abandoned_cart_template_name
-        )
-
-        return response['CreateTemplateMessageBody']
 
 def create_recommendations_email_template(recommender_id):
-    try:
-        response = pinpoint.get_email_template(TemplateName=recommendations_template_name)
-        logger.info('Recommendations email message template already exists')
-        return response['EmailTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info('Recommendations email message template does not exist; creating')
+    return create_email_template(recommendations_template_name, 'recommendations-email-template',
+                                 subject='Retail Demo Store - Products Just for You',
+                                 description='Personalized recommendations email template',
+                                 recommender_id=recommender_id)
 
-        with open('pinpoint-templates/recommendations-email-template.html', 'r') as html_file:
-            html_template = html_file.read()
 
-        with open('pinpoint-templates/recommendations-email-template.txt', 'r') as text_file:
-            text_template = text_file.read()
+def create_location_abandoned_cart_email_template():
+    return create_email_template(location_abandoned_cart_template_name, 'location-abandoned-cart-email-template',
+                                 subject='Your local store has the products you were looking at!',
+                                 description='Abandoned cart email template - for location',
+                                 recommender_id=None)
 
-        response = pinpoint.create_email_template(
-            EmailTemplateRequest={
-                'Subject': 'Retail Demo Store - Products Just for You',
-                'TemplateDescription': 'Personalized recommendations email template',
-                'RecommenderId': recommender_id,
-                'HtmlPart': html_template,
-                'TextPart': text_template,
-                'DefaultSubstitutions': json.dumps({
-                    'User.UserAttributes.FirstName': 'there'
-                })
-            },
-            TemplateName=recommendations_template_name
-        )
 
-        return response['CreateTemplateMessageBody']
+def create_location_offers_email_template(recommender_id):
+    return create_email_template(location_offers_recommendations_template_name, 'location-offers-email-template',
+                                 subject="You're close to Retail Demo Store! -"
+                                         " visit our store today to redeem this offer",
+                                 description='Personalized recommendations email template',
+                                 recommender_id=recommender_id)
+
+
+def create_location_abandoned_cart_sms_template():
+    return create_sms_template(location_abandoned_cart_template_name,
+                               body='Hi {{User.UserAttributes.FirstName}}! You have items in your shopping cart. '
+                                    'Grab them now at your local AWS Retail Demo store!',
+                               description='Abandoned cart SMS template', recommender_id=None)
+
+
+def create_location_offers_sms_template(recommender_id):
+    return create_sms_template(location_offers_recommendations_template_name,
+                               body='Hi {{User.UserAttributes.FirstName}}! Pop into our store near you, use the code '
+                                    '{{Recommendations.OfferCode.[0]}} for any purchase and get '
+                                    '{{Recommendations.OfferDescription.[0]}}. We are looking forward to seeing you.',
+                               description='Personalized recommendations SMS template', recommender_id=recommender_id)
+
 
 def create_recommendation_sms_template(recommender_id):
-    try:
-        response = pinpoint.get_sms_template(TemplateName=sms_recommendation_template_name)
-        logger.info('Recommendations SMS template already exists')
-        return response['SMSTemplateResponse']
-    except pinpoint.exceptions.NotFoundException:
-        logger.info('Recommendations SMS template does not exist; creating')
+    return create_sms_template(sms_recommendation_template_name,
+                               body='Retail Demo Store \n'
+                                    ' TOP PICK Just For you \n'
+                                    ' Shop Now: {{Recommendations.URL.[0]}}',
+                               description='Personalized recommendations SMS template',
+                               recommender_id=recommender_id)
 
-        response = pinpoint.create_sms_template(
-            SMSTemplateRequest={
-                'Body': 'Retail Demo Store \n TOP PICK Just For you \n Shop Now: {{Recommendations.URL.[0]}}',
-                'TemplateDescription': 'Personalized recommendations SMS template',
-                'RecommenderId': recommender_id,
-                'DefaultSubstitutions': json.dumps({
-                    'User.UserAttributes.FirstName': 'there'
-                })
-            },
-            TemplateName=sms_recommendation_template_name
-        )
-
-        return response['CreateTemplateMessageBody']
 
 def get_recommender_configuration(recommender_name):
     response = pinpoint.get_recommender_configurations()
@@ -158,37 +216,82 @@ def get_recommender_configuration(recommender_name):
     
     return None
 
+
 def create_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, lambda_function_arn):
+
     recommender_config = get_recommender_configuration(recommender_name)
 
-    if not recommender_config:
-        logger.info('Pinpoint/Personalize recommender does not exist; creating')
+    if recommender_config:
+        recommender_id = recommender_config['Id']
+        logger.warning(f"Deleting previous recommender config with id {recommender_id}")
+        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
 
-        response = pinpoint.create_recommender_configuration(
-            CreateRecommenderConfiguration={
-                'Attributes': {
-                    'Recommendations.Name': 'Product Name',
-                    'Recommendations.URL': 'Product Detail URL',
-                    'Recommendations.Category': 'Product Category',
-                    'Recommendations.Description': 'Product Description',
-                    'Recommendations.Price': 'Product Price',
-                    'Recommendations.ImageURL': 'Product Image URL'
-                },
-                'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
-                'Name': recommender_name,
-                'RecommendationProviderIdType': 'PINPOINT_USER_ID',
-                'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
-                'RecommendationProviderUri': personalize_campaign_arn,
-                'RecommendationTransformerUri': lambda_function_arn,
-                'RecommendationsPerMessage': 4
-            }
-        )
-    
-        recommender_config = response['RecommenderConfigurationResponse']
-    else:
-        logger.info('Pinpoint/Personalize recommender already exists')
+    logger.info('Creating Pinpoint/Personalize recommender')
+
+    response = pinpoint.create_recommender_configuration(
+        CreateRecommenderConfiguration={
+            'Attributes': {
+                'Recommendations.Name': 'Product Name',
+                'Recommendations.URL': 'Product Detail URL',
+                'Recommendations.Category': 'Product Category',
+                'Recommendations.Description': 'Product Description',
+                'Recommendations.Price': 'Product Price',
+                'Recommendations.ImageURL': 'Product Image URL'
+            },
+            'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
+            'Name': recommender_name,
+            'RecommendationProviderIdType': 'PINPOINT_USER_ID',
+            'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
+            'RecommendationProviderUri': personalize_campaign_arn,
+            'RecommendationTransformerUri': lambda_function_arn,
+            'RecommendationsPerMessage': 4
+        }
+    )
+
+    recommender_config = response['RecommenderConfigurationResponse']
 
     return recommender_config['Id']
+
+
+def create_offers_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, lambda_function_arn):
+    recommender_config = get_recommender_configuration(offers_recommender_name)
+
+    if recommender_config:
+        recommender_id = recommender_config['Id']
+        logger.warning(f"Deleting previous recommender config for offers with id {recommender_id}")
+        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
+
+    logger.info('Creating Pinpoint/Personalize recommender for offers')
+
+    response = pinpoint.create_recommender_configuration(
+        CreateRecommenderConfiguration={
+            'Attributes': {
+                # We may wish to push product recommendations
+                'Recommendations.Name': 'Product Name',
+                'Recommendations.URL': 'Product Detail URL',
+                'Recommendations.Category': 'Product Category',
+                'Recommendations.Style': 'Product Style',
+                'Recommendations.Description': 'Product Description',
+                'Recommendations.Price': 'Product Price',
+                'Recommendations.ImageURL': 'Product Image URL',
+                # We may also wish to push offer recommendations
+                'Recommendations.OfferCode': 'Coupon offer code',
+                'Recommendations.OfferDescription': 'Coupon offer description',
+            },
+            'Description': 'Retail Demo Store Personalize recommender for Pinpoint',
+            'Name': offers_recommender_name,
+            'RecommendationProviderIdType': 'PINPOINT_USER_ID',
+            'RecommendationProviderRoleArn': pinpoint_personalize_role_arn,
+            'RecommendationProviderUri': personalize_campaign_arn,
+            'RecommendationTransformerUri': lambda_function_arn,
+            'RecommendationsPerMessage': 1
+        }
+    )
+
+    recommender_config = response['RecommenderConfigurationResponse']
+
+    return recommender_config['Id']
+
 
 def get_segment(application_id, segment_name):
     response = pinpoint.get_segments(ApplicationId=application_id)
@@ -199,12 +302,76 @@ def get_segment(application_id, segment_name):
         
     return None
 
+
 def create_all_email_users_segment(application_id):
-    segment_name = 'AllEmailUsers'
+    """
+    Create a segment from all users for the given channel type. Default channel type: email
+    Args:
+        application_id: Also Pinpoint project ID.
+        channel_type: E.g. 'SMS' 'EMAIL' 'CUSTOM' - see Pinpoint docs
+
+    Returns:
+    Segment config. Returns even if already exists.
+    """
+    segment_name = f'AllEmailUsers'
     segment_config = get_segment(application_id, segment_name)
-    
+
     if not segment_config:
-        logger.info('AllEmailUsers segment does not; creating')
+        logger.info(f'{segment_name} segment does not exist; creating')
+
+        response = pinpoint.create_segment(
+            ApplicationId=application_id,
+            WriteSegmentRequest={
+                'Name': segment_name,
+                'SegmentGroups': {
+                    'Groups': [
+                        {
+                            'Dimensions': [
+                                {
+                                    'Demographic': {
+                                        'Channel': {
+                                            'DimensionType': 'INCLUSIVE',
+                                            'Values': ['EMAIL']
+                                        }
+                                    }
+                                }
+                            ],
+                            'SourceType': 'ANY',
+                            'Type': 'ANY'
+                        }
+                    ],
+                    'Include': 'ALL'
+                }
+            }
+        )
+
+        segment_config = response['SegmentResponse']
+    else:
+        logger.info(f'{segment_name} segment already exists')
+
+    return segment_config
+
+
+def create_users_with_cart_segment(application_id, source_segment,
+                                   segment_name_suffix='', cart_dimension_type='INCLUSIVE'):
+    """
+    Create a Pinpoint segment using the HasShoppingCart endpoint attribute. The complement of this segment
+    can be obtained by setting cart_dimension_type='EXCLUSIVE'.
+    Args:
+        application_id (str): Also called Pinpoint project ID.
+        all_email_users_segment_id (str): Earlier created all users segment
+        cart_dimension_type (str): INCLUSIVE: include users with cart EXCLUSIVE: users without cart
+        segment_name_suffix (str): Add to segment name.
+    Returns:
+        Segment config. Returns even if already exists.
+    """
+
+    segment_name = 'Users' + ('With' if cart_dimension_type=='INCLUSIVE' else 'Without') + 'Cart' + segment_name_suffix
+
+    segment_config = get_segment(application_id, segment_name)
+
+    if not segment_config:
+        logger.info(f'{segment_name} segment does not; creating')
 
         response = pinpoint.create_segment(
             ApplicationId = application_id,
@@ -215,51 +382,12 @@ def create_all_email_users_segment(application_id):
                         {
                             'Dimensions': [
                                 {
-                                    'Demographic': {
-                                        'Channel': {
-                                            'DimensionType': 'INCLUSIVE',
-                                            'Values': [ 'EMAIL' ]
-                                        }
-                                    }
-                                }
-                            ],
-                            'SourceType': 'ANY',
-                            'Type': 'ANY'
-                        }
-                    ],
-                    'Include': 'ALL'
-                }
-            }
-        )
-        
-        segment_config = response['SegmentResponse']
-    else:
-        logger.info('AllEmailUsers segment already exists')
-        
-    return segment_config
-
-def create_users_with_cart_segment(application_id, all_email_users_segment_id):
-    segment_name = 'UsersWithCart'
-    segment_config = get_segment(application_id, segment_name)
-    
-    if not segment_config:
-        logger.info('UsersWithCart segment does not; creating')
-
-        response = pinpoint.create_segment(
-            ApplicationId = application_id,
-            WriteSegmentRequest = {
-                'Name': 'UsersWithCart',
-                'SegmentGroups': {
-                    'Groups': [
-                        {
-                            'Dimensions': [
-                                {
-                                    'Attributes': {
+                                    'UserAttributes': {
                                         'HasShoppingCart': {
-                                            'AttributeType': 'INCLUSIVE',
+                                            'AttributeType': cart_dimension_type,
                                             'Values': [ 'true' ]
                                         }
-                                    },
+                                      },
                                     'Behavior': {
                                         'Recency': {
                                             'Duration': 'DAY_30',
@@ -270,7 +398,7 @@ def create_users_with_cart_segment(application_id, all_email_users_segment_id):
                             ],
                             'SourceSegments': [
                                 {
-                                    'Id': all_email_users_segment_id
+                                    'Id': source_segment
                                 }
                             ],
                             'SourceType': 'ANY',
@@ -281,14 +409,18 @@ def create_users_with_cart_segment(application_id, all_email_users_segment_id):
                 }
             }
         )
-        
+
         segment_config = response['SegmentResponse']
     else:
-        logger.info('UsersWithCart segment already exists')
-        
+        logger.info(f'{segment_name} segment already exists')
+
     return segment_config
 
+
 def create_users_with_verified_sms_segment(application_id):
+
+    # Note that we do not need to filter on the OptOut property of an endpoint as that is not a generic
+    # attribute but has a meaning to Pinpoint and Pinpoint will enforce the opt out.
     segment_name = 'AllSMSUsers'
     segment_config = get_segment(application_id, segment_name)
     
@@ -327,6 +459,7 @@ def create_users_with_verified_sms_segment(application_id):
         
     return segment_config
 
+
 def get_campaign(application_id, campaign_name):
     response = pinpoint.get_campaigns(ApplicationId=application_id)
     
@@ -336,32 +469,64 @@ def get_campaign(application_id, campaign_name):
         
     return None 
 
-def create_welcome_campaign(application_id, email_from, all_email_users_segment_id, all_email_users_segment_version):
-    campaign_name = 'WelcomeEmail'
-    campaign_config = get_campaign(application_id, campaign_name)
-    
-    if not campaign_config:
-        logger.info('WelcomeEmail campaign does not exist; creating')
 
-        campaign_start = datetime.now() + timedelta(minutes=20)
+def create_campaign(application_id,
+                  segment_id, segment_version,
+                  event_type,
+                  campaign_name,
+                  email_from=None,
+                  email_template_name=None,
+                  sms_template_name=None):
+    """
+    Sets Pinpoint to send messages to users in a particular segment using the provided template and channel
+    when event of event_type happens
+    Args:
+        application_id (str): Also called project ID - pinpoint project
+        segment_id (str): Segment for users to run campaign
+        segment_version (str): The segment version
+        event_type (str): Change this to change the trigger
+        campaign_name (str): Name to give this campaign inside the Pinpoint project.
+        email_from (Union[str,None]): Where email looks to be coming from in campaign emails. If None do not send email.
+        email_template_name (Union[str,None]): The message template to send. If None do not send email.
+        sms_template_name (Union[str,None]): The message template to send. If None do not send SMS.
+
+    Returns:
+        Campaign config.
+    """
+    campaign_config = get_campaign(application_id, campaign_name)
+
+    if not campaign_config:
+        logger.info(f'{campaign_name} campaign does not exist; creating')
+
+        campaign_start = datetime.utcnow() + timedelta(minutes=16)
         campaign_end = campaign_start + timedelta(days=180)
 
+        message_config = {}
+        template_config = {}
+        if email_from is not None and email_template_name is not None:
+            if len(email_from) > 0:
+                message_config["EmailMessage"] = {"FromAddress": email_from}
+                template_config["EmailTemplate"] = {"Name": email_template_name}
+            else:
+                logger.warning(f"Empty email - not creating campaign {campaign_name}")
+                return None
+        if (email_template_name and not email_from) or (not email_template_name and email_from):
+            logger.error('Specify both or none of "email_from" and "email_template_name"')
+        if sms_template_name is not None:
+            template_config["SMSTemplate"] = {"Name": sms_template_name}
+
         response = pinpoint.create_campaign(
-            ApplicationId = application_id,
-            WriteCampaignRequest = {
+            ApplicationId=application_id,
+            WriteCampaignRequest={
                 'Name': campaign_name,
-                "MessageConfiguration": {
-                    "EmailMessage": {
-                        "FromAddress": email_from
-                    }
-                },
+                "MessageConfiguration": message_config,
                 "Schedule": {
                     "EventFilter": {
                         "Dimensions": {
                             "EventType": {
                                 "DimensionType": "INCLUSIVE",
                                 "Values": [
-                                    "UserSignedUp"
+                                    event_type
                                 ]
                             },
                         },
@@ -369,129 +534,22 @@ def create_welcome_campaign(application_id, email_from, all_email_users_segment_
                     },
                     "Frequency": "EVENT",
                     "IsLocalTime": False,
-                    "StartTime": campaign_start.isoformat(timespec = 'seconds'),
-                    "EndTime": campaign_end.isoformat(timespec = 'seconds')
+                    "StartTime": campaign_start.isoformat(timespec='seconds'),
+                    "EndTime": campaign_end.isoformat(timespec='seconds')
                 },
-                "SegmentId": all_email_users_segment_id,
-                "SegmentVersion": all_email_users_segment_version,
+                "SegmentId": segment_id,
+                "SegmentVersion": segment_version,
                 "tags": {},
-                "TemplateConfiguration": {
-                    "EmailTemplate": {
-                        "Name": "RetailDemoStore-Welcome"
-                    }
-                },
+                "TemplateConfiguration": template_config,
             }
         )
-        
+
         campaign_config = response['CampaignResponse']
     else:
-        logger.info('WelcomeEmail campaign already exists')
-    
+        logger.info(f'{campaign_name} campaign already exists')
+
     return campaign_config
 
-def create_abandoned_cart_campaign(application_id, email_from, users_with_cart_segment_id, users_with_cart_segment_version):
-    campaign_name = 'AbandonedCartEmail'
-    campaign_config = get_campaign(application_id, campaign_name)
-    
-    if not campaign_config:
-        logger.info('AbandonedCartEmail campaign does not exist; creating')
-
-        campaign_start = datetime.now() + timedelta(minutes=20)
-        campaign_end = campaign_start + timedelta(days=180)
-        
-        response = pinpoint.create_campaign(
-            ApplicationId = application_id,
-            WriteCampaignRequest = {
-                'Name': campaign_name,
-                "MessageConfiguration": {
-                    "EmailMessage": {
-                        "FromAddress": email_from
-                    }
-                },
-                "Schedule": {
-                    "EventFilter": {
-                        "Dimensions": {
-                            "EventType": {
-                                "DimensionType": "INCLUSIVE",
-                                "Values": [
-                                    "_session.stop"
-                                ]
-                            },
-                        },
-                        "FilterType": "ENDPOINT"
-                    },
-                    "Frequency": "EVENT",
-                    "IsLocalTime": False,
-                    "StartTime": campaign_start.isoformat(timespec = 'seconds'),
-                    "EndTime": campaign_end.isoformat(timespec = 'seconds')
-                },
-                "SegmentId": users_with_cart_segment_id,
-                "SegmentVersion": users_with_cart_segment_version,
-                "tags": {},
-                "TemplateConfiguration": {
-                    "EmailTemplate": {
-                        "Name": "RetailDemoStore-AbandonedCart"
-                    }
-                },
-            }
-        )
-        
-        campaign_config = response['CampaignResponse']
-    else:
-        logger.info('AbandonedCartEmail campaign already exists')
-    
-    return campaign_config
-
-def create_sms_alerts_campaign(application_id, sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version):
-    campaign_name = 'SMSAlerts'
-    campaign_config = get_campaign(application_id, campaign_name)
-    if not campaign_config:
-        logger.info('SMSAlerts campaign does not exist; creating')
-
-        campaign_start = datetime.now() + timedelta(minutes=20)
-        campaign_end = campaign_start + timedelta(days=180)
-        
-        response = pinpoint.create_campaign(
-            ApplicationId = application_id,
-            WriteCampaignRequest = {
-                'Name': campaign_name,
-                "MessageConfiguration": {
-                    "SMSMessage": {
-                        "MessageType": "TRANSACTIONAL"
-                    }
-                },
-                "Schedule": {
-                    "EventFilter": {
-                        "Dimensions": {
-                            "EventType": {
-                                "DimensionType": "INCLUSIVE",
-                                "Values": [
-                                    "UserVerifiedSMS"
-                                ]
-                            },
-                        },
-                        "FilterType": "ENDPOINT"
-                    },
-                    "Frequency": "EVENT",
-                    "IsLocalTime": False,
-                    "StartTime": campaign_start.isoformat(timespec = 'seconds'),
-                    "EndTime": campaign_end.isoformat(timespec = 'seconds')
-                },
-                "SegmentId": all_sms_users_segment_id,
-                "SegmentVersion": all_sms_users_segment_version,
-                "tags": {},
-                "TemplateConfiguration": {
-                    "SMSTemplate": {
-                        "Name": sms_recommendation_template_name
-                    }
-                },
-            }
-        )
-        
-        campaign_config = response['CampaignResponse']
-    else:
-        logger.info('SMS alerts campaign already exists')
-    return campaign_config
 
 def delete_event_rule(rule_name):
     ''' Deletes CloudWatch event rule used to trigger this lambda function '''
@@ -522,15 +580,16 @@ def delete_event_rule(rule_name):
             logger.error(e)
 
 def lambda_handler(event, context):
-    logger.debug('## ENVIRONMENT VARIABLES')
-    logger.debug(os.environ)
-    logger.debug('## EVENT')
-    logger.debug(event)
+    logger.info('## ENVIRONMENT VARIABLES')
+    logger.info(os.environ)
+    logger.info('## EVENT')
+    logger.info(event)
 
     region = os.environ['AWS_REGION']
     account_id = sts.get_caller_identity()['Account']
     pinpoint_app_id = os.environ['pinpoint_app_id']
     lambda_function_arn = os.environ['pinpoint_recommender_arn']
+    offers_lambda_function_arn = os.environ['pinpoint_offers_recommender_arn']
     pinpoint_personalize_role_arn = os.environ['pinpoint_personalize_role_arn']
     email_from_address = os.environ['email_from_address']
     email_from_name = os.environ.get('email_from_name', 'AWS Retail Demo Store')
@@ -540,17 +599,29 @@ def lambda_handler(event, context):
     response = ssm.get_parameter(Name='retaildemostore-product-recommendation-campaign-arn')
     personalize_campaign_arn = response['Parameter']['Value']
 
+    response = ssm.get_parameter(Name='retaildemostore-personalized-offers-campaign-arn')
+    offers_campaign_arn = response['Parameter']['Value']
+
     assert personalize_campaign_arn != 'NONE', 'Personalize Campaign ARN not initialized'
 
     logger.info('Personalize Campaign ARN: ' + personalize_campaign_arn)
 
     recommender_id = create_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, lambda_function_arn)
-    logger.info('Pinpoint recommender configuration ID: ' + recommender_id)
+    logger.info('Pinpoint recommender configuration ID: ' + str(recommender_id))
+
+    if do_deploy_offers_campaign:
+        offers_recommender_id = create_offers_recommender(pinpoint_personalize_role_arn, offers_campaign_arn, offers_lambda_function_arn)
+        logger.info('Pinpoint offers configuration ID: ' + str(recommender_id))
 
     # Create email templates
     create_welcome_email_template()
     create_abandoned_cart_email_template()
     create_recommendations_email_template(recommender_id)
+
+    # Locations services and personalized offers templates
+    if do_deploy_offers_campaign:
+        create_location_offers_email_template(offers_recommender_id)
+        create_location_abandoned_cart_email_template()
 
     # Enable email for Pinpoint project
     email_from = email_from_address
@@ -575,27 +646,57 @@ def lambda_handler(event, context):
     all_email_users_segment_id = segment_config['Id']
     all_email_users_segment_version = segment_config['Version']
 
-    # Create UsersWithCart segment
-    segment_config = create_users_with_cart_segment(pinpoint_app_id, all_email_users_segment_id)
-    logger.debug(json.dumps(segment_config, indent = 2, default = str))
-    users_with_cart_segment_id = segment_config['Id']
-    users_with_cart_segment_version = segment_config['Version']
+    # Create UsersWithCartEmail segment
+    segment_config = create_users_with_cart_segment(pinpoint_app_id, all_email_users_segment_id,
+                                                    segment_name_suffix='Email')
+    logger.debug('Email cart segment config: ' + json.dumps(segment_config, indent=2, default=str))
+    email_users_with_cart_segment_id = segment_config['Id']
+    email_users_with_cart_segment_version = segment_config['Version']
 
-    # Create Welcome campaign
-    campaign_config = create_welcome_campaign(pinpoint_app_id, email_from, all_email_users_segment_id, all_email_users_segment_version)
-    logger.debug(json.dumps(campaign_config, indent = 2, default = str))
+    # Create Welcome campaign (triggered on sign up)
+    welcome_campaign_config = create_campaign(
+        pinpoint_app_id, all_email_users_segment_id, all_email_users_segment_version,
+        event_type="UserSignedUp", campaign_name='WelcomeEmail',
+        email_from=email_from, email_template_name=welcome_template_name, sms_template_name=None)
+    logger.debug('welcome_campaign_config:'+json.dumps(welcome_campaign_config,
+                                                       indent=2, default=str))
 
-    # Create Abandoned Cart campaign
-    campaign_config = create_abandoned_cart_campaign(pinpoint_app_id, email_from, users_with_cart_segment_id, users_with_cart_segment_version)
-    logger.debug(json.dumps(campaign_config, indent = 2, default = str))
+    # Create Abandoned Cart campaign (triggered on session stop)
+    abandoned_cart_campaign_config = create_campaign(
+        pinpoint_app_id, email_users_with_cart_segment_id, email_users_with_cart_segment_version,
+        event_type="_session.stop", campaign_name='AbandonedCartEmail',
+        email_from=email_from, email_template_name=abandoned_cart_template_name, sms_template_name=None)
+    logger.debug('abandoned_cart_campaign_config:'+json.dumps(abandoned_cart_campaign_config,
+                                                       indent=2, default=str))
 
+    if do_deploy_offers_campaign:
+        # If offers campaign and geofence are not deployed, there is no point deploying these campaigns as
+        # geofence will not trigger.
+
+        # Create Abandoned Cart campaign with Location geofence
+        location_abandoned_cart_campaign_config = create_campaign(
+            pinpoint_app_id, email_users_with_cart_segment_id, email_users_with_cart_segment_version,
+            event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationAbandonedCartCampaign',
+            email_from=email_from, email_template_name=location_abandoned_cart_template_name, sms_template_name=None)
+        logger.debug('location_abandoned_cart_campaign_config:' + json.dumps(location_abandoned_cart_campaign_config,
+                                                                             indent=2, default=str))
+        # Send an offer when a user approaches your store.
+        location_recommender_campaign_config = create_campaign(
+            pinpoint_app_id, all_email_users_segment_id, all_email_users_segment_version,
+            event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationRecommendationsCampaign',
+            email_from=email_from, email_template_name=location_offers_recommendations_template_name, sms_template_name=None)
+        logger.debug('location_recommender_campaign_config:'+json.dumps(location_recommender_campaign_config,
+                                                                        indent=2, default=str))
+
+    # Now let us set up SMS segments and campaigns.
+
+    # Are we set up to send SMS?
     response = ssm.get_parameter(Name='retaildemostore-pinpoint-sms-longcode')
     pinpoint_sms_long_code = response['Parameter']['Value']
 
     if(pinpoint_sms_long_code != 'NONE'):
-        logger.info('Creating SMS recommendation template template')
-        create_recommendation_sms_template(recommender_id)
-        logger.info('Enabling SMS channel for Pinpoint project')
+
+        logger.info('Enabling SMS channel for Pinpoint project...')
         update_sms_channel_response = pinpoint.update_sms_channel(
             ApplicationId = pinpoint_app_id,
             SMSChannelRequest={
@@ -603,17 +704,73 @@ def lambda_handler(event, context):
                 'ShortCode': pinpoint_sms_long_code
             }
         )
-        logger.debug(json.dumps(update_sms_channel_response, indent = 2, default = str))
-        # create AllSMSUsers segment
-        segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
-        all_sms_users_segment_id = segment_config['Id']
-        all_sms_users_segment_version = segment_config['Version']
 
-        # Create SMS alerts Campaign
-        campaign_config = create_sms_alerts_campaign(pinpoint_app_id, pinpoint_sms_long_code, all_sms_users_segment_id, all_sms_users_segment_version)
-        logger.debug(json.dumps(campaign_config, indent = 2, default = str))
     else:
-        print('Pinpoint SMS long code value not set. Please set the value for Pinpoint SMS Long code in SSM Parameters. Refer to Messaging workshop to know more details.')
+
+        logger.info('Enabling SMS channel for Pinpoint project (no long code)...')
+        update_sms_channel_response = pinpoint.update_sms_channel(
+            ApplicationId=pinpoint_app_id,
+            SMSChannelRequest={
+                'Enabled': True
+            }
+        )
+
+    logger.debug('SMS enable response: ' + json.dumps(update_sms_channel_response, indent = 2, default = str))
+
+    logger.info('Creating SMS templates')
+    create_recommendation_sms_template(recommender_id)
+    if do_deploy_offers_campaign:
+        create_location_offers_sms_template(offers_recommender_id)
+        create_location_abandoned_cart_sms_template()
+
+    # create AllSMSUsers segment
+    segment_config = create_users_with_verified_sms_segment(pinpoint_app_id)
+    all_sms_users_segment_id = segment_config['Id']
+    all_sms_users_segment_version = segment_config['Version']
+
+    # Create UsersWithCartSMS segment
+    segment_config = create_users_with_cart_segment(pinpoint_app_id, all_sms_users_segment_id,
+                                                    segment_name_suffix='SMS')
+    logger.debug('SMS cart segment config: ' + json.dumps(segment_config, indent=2, default=str))
+    sms_users_with_cart_segment_id = segment_config['Id']
+    sms_users_with_cart_segment_version = segment_config['Version']
+
+    # Create SMS alerts Campaign
+    sms_signup_recommendations_campaign_config_sms = create_campaign(
+        pinpoint_app_id, all_sms_users_segment_id,
+        all_sms_users_segment_version,
+        event_type='UserVerifiedSMS', campaign_name='SMSAlerts',
+        email_from=None, email_template_name=None,
+        sms_template_name=sms_recommendation_template_name)
+    logger.debug(
+        'sms_signup_recommendations_campaign_config_sms:' + json.dumps(sms_signup_recommendations_campaign_config_sms,
+                                                                    indent=2, default=str))
+
+    if do_deploy_offers_campaign:
+        # If offers campaign and geofence are not deployed, there is no point deploying these campaigns as
+        # geofence will not trigger.
+
+        # Location demo: When the user gets near our geofence (local store) and they have products in their cart
+        # we tell them to come pick them up.
+        location_abandoned_cart_campaign_config_sms = create_campaign(
+            pinpoint_app_id, sms_users_with_cart_segment_id,
+            sms_users_with_cart_segment_version,
+            event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationAbandonedCartCampaignSMS',
+            email_from=None, email_template_name=None,
+            sms_template_name=location_abandoned_cart_template_name)
+        logger.debug(
+            'location_abandoned_cart_campaign_config sms:' + json.dumps(location_abandoned_cart_campaign_config_sms,
+                                                                        indent=2, default=str))
+
+        # Location demo: When a user gets near a store we want to send a recommendation of an offer
+        location_recommender_campaign_config_sms = create_campaign(
+            pinpoint_app_id, all_sms_users_segment_id,
+            all_sms_users_segment_version,
+            event_type=GEOFENCE_PINPOINT_EVENTTYPE, campaign_name='LocationRecommendationsCampaignSMS',
+            email_from=None, email_template_name=None, sms_template_name=location_offers_recommendations_template_name)
+        logger.debug('location_recommender_campaign_config_sms:' + json.dumps(location_recommender_campaign_config_sms,
+                                                                          indent=2, default=str))
+
     # No need for this lambda function to be called anymore so delete CW event rule that has been calling us.
     delete_event_rule(lambda_event_rule_name)
 

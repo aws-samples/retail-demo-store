@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store SSM Parameters.
+  This template deploys the Retail Demo Store SSM Parameters.
 
 Parameters:
   StackBucketName:
@@ -20,34 +20,34 @@ Parameters:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
-  
+
   SegmentWriteKey:
     Type: String
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
-  
+
   Layer0DeployToken:
     Type: String
     Description: Layer0 deploy token for deploying (optional).
     NoEcho: true
-  
+
   PinpointSMSLongCode:
     Type: String
 
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id (optional)
+
 Conditions:
-  HasAmplitudeApiKey:
-    !Not [!Equals [!Ref AmplitudeApiKey, ""]]
-  HasOptimizelySdkKey:
-    !Not [!Equals [!Ref OptimizelySdkKey, ""]]
-  HasSegmentWriteKey:
-    !Not [!Equals [!Ref SegmentWriteKey, ""]]
-  HasLayer0DeployToken:
-    !Not [!Equals [!Ref Layer0DeployToken, ""]]
-  HasPinpointSMSLongCode:
-    !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
+  HasAmplitudeApiKey: !Not [!Equals [!Ref AmplitudeApiKey, ""]]
+  HasOptimizelySdkKey: !Not [!Equals [!Ref OptimizelySdkKey, ""]]
+  HasSegmentWriteKey: !Not [!Equals [!Ref SegmentWriteKey, ""]]
+  HasLayer0DeployToken: !Not [!Equals [!Ref Layer0DeployToken, ""]]
+  HasPinpointSMSLongCode: !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
+  HasGoogleAnalyticsMeasurementId:
+    !Not [!Equals [!Ref GoogleAnalyticsMeasurementId, ""]]
 
 Resources:
-
   ParameterStackBucketName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -80,6 +80,14 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
 
+  ParameterPersonalizedOffersCampaignArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-personalized-offers-campaign-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalized Coupon Offers Campaign Arn Parameter"
+
   ParameterPersonalizeTrainConfig:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -87,6 +95,15 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Train Config"
+      Tier: "Advanced"
+
+  ParameterPersonalizeTrainState:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-training-state"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Train State"
 
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
@@ -111,13 +128,13 @@ Resources:
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
-      
+
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-amplitude-api-key"
       Type: "String"
-      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
+      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, "NONE"]
       Description: "Retail Demo Store Amplitude API key"
 
   ParameterOptimizelySdkKey:
@@ -125,7 +142,7 @@ Resources:
     Properties:
       Name: "retaildemostore-optimizely-sdk-key"
       Type: "String"
-      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
+      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, "NONE"]
       Description: "Retail Demo Store Optimizely SDK key"
 
   ParameterIVSVideoChannelMap:
@@ -141,27 +158,39 @@ Resources:
     Properties:
       Name: "retaildemostore-segment-write-key"
       Type: "String"
-      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
+      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, "NONE"]
       Description: "Retail Demo Store Segment source write key"
-  
+
   ParameterLayer0DeployToken:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-layer0-deploy-token"
       Type: "String"
-      Value: !If [HasLayer0DeployToken, !Ref Layer0DeployToken, 'NONE']
+      Value: !If [HasLayer0DeployToken, !Ref Layer0DeployToken, "NONE"]
       Description: "Retail Demo Store Layer0 deploy token"
-  
+
   ParameterPinpointSMSLongCode:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-pinpoint-sms-longcode"
       Type: "String"
-      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, "NONE"]
       Description: "Retail Demo Store Pinpoint SMS Long code"
 
-Outputs:
+  ParameterGoogleAnalyticsMeasurementId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-google-analytics-measurement-id"
+      Type: "String"
+      Value:
+        !If [
+          HasGoogleAnalyticsMeasurementId,
+          !Ref GoogleAnalyticsMeasurementId,
+          "NONE",
+        ]
+      Description: "Retail Demo Store Google Analytics Measurement Id"
 
+Outputs:
   ParameterStackBucketName:
     Description: Stack Bucket Name Parameter
     Value: !Ref ParameterStackBucketName
@@ -169,7 +198,7 @@ Outputs:
   ParameterRelatedProductsCampaignArn:
     Description: Related Products Campaign Arn Parameter
     Value: !Ref ParameterRelatedProductsCampaignArn
-    
+
   ParameterProductRecommendationCampaignArn:
     Description: Product Recommendation Campaign Arn Parameter
     Value: !Ref ParameterProductRecommendationCampaignArn
@@ -182,10 +211,14 @@ Outputs:
     Description: Train config
     Value: !Ref ParameterPersonalizeTrainConfig
 
+  ParameterPersonalizeTrainState:
+    Description: Train state
+    Value: !Ref ParameterPersonalizeTrainState
+
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn
     Value: !Ref ParameterPersonalizeFilterPurchasedArn
-  
+
   ParameterExperimentStrategyTableName:
     Description: Experiment Strategy Table Name
     Value: !Ref ParameterExperimentStrategyTableName
@@ -213,7 +246,11 @@ Outputs:
   ParameterLayer0DeployToken:
     Description: Layer0 deploy token
     Value: !Ref ParameterLayer0DeployToken
-  
+
   ParameterPinpointSMSLongCode:
     Description: Pinpoint SMS Long code
     Value: !Ref ParameterPinpointSMSLongCode
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Description: Google Analytics Measurement Id
+    Value: !Ref ParameterGoogleAnalyticsMeasurementId

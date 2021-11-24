@@ -74,6 +74,14 @@ Parameters:
     Type: String
     Default: 80
 
+  EnvOffersServiceInternalUrl:
+    Type: String
+    Default: offers.retaildemostore.local
+
+  EnvOffersServiceInternalPort:
+    Type: String
+    Default: 80
+
   EnvElasticsearchDomainEndpoint:
     Type: String
     Default: none
@@ -219,7 +227,7 @@ Resources:
                   - personalize:DeleteEventTracker
                   - personalize:DescribeEventTracker
                 Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemostore*'
+                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -263,6 +271,11 @@ Resources:
                   - events:EnableRule
                 Resource:
                   - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
@@ -340,6 +353,10 @@ Resources:
               Value: !Ref EnvSearchServiceInternalUrl
             - Name: SEARCH_SERVICE_PORT
               Value: '80'
+            - Name: OFFERS_SERVICE_HOST
+              Value: !Ref EnvOffersServiceInternalUrl
+            - Name: OFFERS_SERVICE_PORT
+              Value: '80'
             - Name: STACK_BUCKET
               Value: none
             - Name: RESOURCE_BUCKET
@@ -389,4 +406,10 @@ Outputs:
 
   FargateServiceName:
     Value: !GetAtt FargateService.Name
+
+  TaskRoleArn:
+    Value: !GetAtt TaskRole.Arn
+
+  TaskExecutionRoleArn:
+    Value: !GetAtt TaskExecutionRole.Arn
     

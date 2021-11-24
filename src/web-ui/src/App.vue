@@ -16,6 +16,7 @@ export default {
     this.getCategories();
 
     this.getCart();
+
   },
 };
 </script>

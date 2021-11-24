@@ -16,6 +16,9 @@ import Orders from '@/authenticated/Orders.vue'
 import Admin from '@/authenticated/Admin.vue'
 import ShopperSelectPage from '@/authenticated/ShopperSelectPage'
 
+import Location from "@/public/Location";
+import Collections from "@/public/Collections";
+
 import { AmplifyEventBus } from 'aws-amplify-vue';
 import { Auth, Logger, I18n, Analytics, Interactions } from 'aws-amplify';
 import { AmplifyPlugin } from 'aws-amplify-vue';
@@ -58,9 +61,9 @@ AmplifyEventBus.$on('authState', async (state) => {
   if (state === 'signedOut') {
     AmplifyStore.dispatch('logout');
     AnalyticsHandler.clearUser()
-    
+
     if (router.currentRoute.path !== '/') router.push({ path: '/' })
-  } 
+  }
   else if (state === 'signedIn') {
     const cognitoUser = await getCognitoUser()
 
@@ -73,6 +76,8 @@ AmplifyEventBus.$on('authState', async (state) => {
       storeUser = data
     }
     else {
+            // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
+      // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user
       const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
       storeUser = data
     }
@@ -81,6 +86,7 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     if (!storeUser.id) {
       // Store user does not exist. Create one on the fly.
+      // This takes the personalize User ID which was a UUID4 for the current session and turns it into a user user ID.
       console.log('store user does not exist for cognito user... creating on the fly')
       let identityId = credentials ? credentials.identityId : null;
       let provisionalUserId = AmplifyStore.getters.personalizeUserID;
@@ -89,7 +95,7 @@ AmplifyEventBus.$on('authState', async (state) => {
     }
 
     console.log('Syncing store user state to cognito user custom attributes')
-    // Store user exists. Use this as opportunity to sync store user 
+    // Store user exists. Use this as opportunity to sync store user
     // attributes to Cognito custom attributes.
     await Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
       'custom:profile_user_id': storeUser.id.toString(),
@@ -106,7 +112,7 @@ AmplifyEventBus.$on('authState', async (state) => {
       console.log('Syncing credentials identity_id with store user profile')
       storeUser.identity_id = credentials.identityId
     }
-    
+
     // Update last sign in and sign up dates on user.
     let newSignUp = false
 
@@ -118,10 +124,10 @@ AmplifyEventBus.$on('authState', async (state) => {
       newSignUp = true
     }
 
-    // Wait for identify to complete before sending sign in/up events 
+    // Wait for identify to complete before sending sign in/up events
     // so that endpoint is created/updated first. Impacts Pinpoint campaign timing.
     await AnalyticsHandler.identify(storeUser)
-    
+
     // Fire sign in and first time sign up events.
     AnalyticsHandler.userSignedIn(storeUser)
 
@@ -136,7 +142,7 @@ AmplifyEventBus.$on('authState', async (state) => {
 
     if (newSignUp && !hasAssignedShopperProfile) {
       AmplifyStore.dispatch('firstTimeSignInDetected');
-      
+
       router.push({path: '/shopper-select'});
     } else {
       router.push({path: '/'});
@@ -147,7 +153,7 @@ AmplifyEventBus.$on('authState', async (state) => {
     const storeUser = AmplifyStore.state.user
 
     if (cognitoUser && storeUser) {
-      // Store user exists. Use this as opportunity to sync store user 
+      // Store user exists. Use this as opportunity to sync store user
       // attributes to Cognito custom attributes.
       Vue.prototype.$Amplify.Auth.updateUserAttributes(cognitoUser, {
         'custom:profile_user_id': storeUser.id.toString(),
@@ -158,6 +164,14 @@ AmplifyEventBus.$on('authState', async (state) => {
         'custom:profile_age': storeUser.age.toString(),
         'custom:profile_persona': storeUser.persona
       })
+    }
+
+    // Sync identityId with user to support reverse lookup.
+    const credentials = await Credentials.get();
+    if (credentials && storeUser.identity_id != credentials.identityId) {
+      console.log('Syncing credentials identity_id with store user profile')
+      storeUser.identity_id = credentials.identityId
+      UsersRepository.updateUser(storeUser)
     }
   }
 });
@@ -193,7 +207,7 @@ const router = new Router({
       component: ProductDetail,
       props: route => ({ discount: route.query.di === "true" || route.query.di === true}),
       meta: { requiresAuth: false}
-    },  
+    },
     {
       path: '/category/:id',
       name: 'CategoryDetail',
@@ -211,19 +225,19 @@ const router = new Router({
       name: 'Help',
       component: Help,
       meta: { requiresAuth: false}
-    },       
+    },
     {
       path: '/orders',
       name: 'Orders',
       component: Orders,
       meta: { requiresAuth: true}
-    },  
+    },
     {
       path: '/cart',
       name: 'Cart',
       component: Cart,
       meta: { requiresAuth: false}
-    },    
+    },
     {
       path: '/checkout',
       name: 'Checkout',
@@ -235,7 +249,7 @@ const router = new Router({
       name: 'Admin',
       component: Admin,
       meta: { requiresAuth: true}
-    },      
+    },
     {
       path: '/auth',
       name: 'Authenticator',
@@ -246,6 +260,18 @@ const router = new Router({
       name: 'ShopperSelect',
       component: ShopperSelectPage,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/location',
+      name: 'Location',
+      component: Location,
+      meta: { requiresAuth: true}
+    },
+    {
+      path: '/collections',
+      name: 'Collections',
+      component: Collections,
+      meta: { requiresAuth: true}
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {
@@ -269,7 +295,7 @@ router.beforeResolve(async (to, from, next) => {
       AmplifyStore.dispatch('welcomePageVisited');
       return next('/welcome');
     }
-  }     
+  }
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await getUser();

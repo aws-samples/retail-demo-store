@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This script is called during the build stage in CodePipeline to generate the 
-# .env file based off environment variables. The .env file is loaded by the 
+# This script is called during the build stage in CodePipeline to generate the
+# .env file based off environment variables. The .env file is loaded by the
 # web-ui service to set its configuration.
 
 set -e
@@ -19,6 +19,8 @@ printf 'VUE_APP_ORDERS_SERVICE_DOMAIN=%s\n' "$ORDERS_SERVICE_URL" >> .env
 printf 'VUE_APP_ORDERS_SERVICE_PORT=%s\n' "80" >> .env
 printf 'VUE_APP_RECOMMENDATIONS_SERVICE_DOMAIN=%s\n' "$RECOMMENDATIONS_SERVICE_URL" >> .env
 printf 'VUE_APP_RECOMMENDATIONS_SERVICE_PORT=%s\n' "80" >> .env
+printf 'VUE_APP_LOCATION_SERVICE_DOMAIN=%s\n' "$LOCATION_SERVICE_URL" >> .env
+printf 'VUE_APP_LOCATION_SERVICE_PORT=80\n' >> .env
 printf 'VUE_APP_SEARCH_SERVICE_DOMAIN=%s\n' "$SEARCH_SERVICE_URL" >> .env
 printf 'VUE_APP_SEARCH_SERVICE_PORT=80\n' >> .env
 printf 'VUE_APP_VIDEOS_SERVICE_DOMAIN=%s\n' "$VIDEOS_SERVICE_URL" >> .env
@@ -35,10 +37,17 @@ printf 'VUE_APP_BOT_REGION=%s\n' "$DEPLOYED_REGION" >> .env
 printf 'VUE_APP_PINPOINT_APP_ID=%s\n' "$PINPOINT_APP_ID" >> .env
 printf 'VUE_APP_PINPOINT_REGION=%s\n' "$DEPLOYED_REGION" >> .env
 printf 'VUE_APP_PERSONALIZE_TRACKING_ID=%s\n' "$PERSONALIZE_TRACKING_ID" >> .env
+printf 'VUE_APP_LOCATION_RESOURCE_NAME=%s\n' "$LOCATION_RESOURCE_NAME" >> .env
+printf 'VUE_APP_LOCATION_NOTIFICATION_URL=%s\n' "$LOCATION_NOTIFICATION_URL" >> .env
+printf 'VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID=%s\n' "$AMAZON_PAY_PUBLIC_KEY_ID" >> .env
+printf 'VUE_APP_AMAZON_PAY_STORE_ID=%s\n' "$AMAZON_PAY_STORE_ID" >> .env
+printf 'VUE_APP_AMAZON_PAY_MERCHANT_ID=%s\n' "$AMAZON_PAY_MERCHANT_ID" >> .env
 
 printf 'VUE_APP_AMPLITUDE_API_KEY=%s\n' "$AMPLITUDE_API_KEY" >> .env
 printf 'VUE_APP_OPTIMIZELY_SDK_KEY=%s\n' "$OPTIMIZELY_SDK_KEY" >> .env
 printf 'VUE_APP_SEGMENT_WRITE_KEY=%s\n' "$SEGMENT_WRITE_KEY" >> .env
+
+printf 'VUE_APP_GOOGLE_ANALYTICS_ID=%s\n' "$GOOGLE_ANALYTICS_ID" >> .env
 
 # Layer0
 if [ $LAYER0_DEPLOY_TOKEN = "NONE" ]; then

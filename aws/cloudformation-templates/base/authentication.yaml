@@ -12,6 +12,10 @@ Parameters:
     Type: String
     Description: Pinpoint project/application ID
 
+  LocationResourcePrefix:
+    Type: String
+    Description: Prefix of Location Services resources to use
+
 Resources:
   # Creates a role that allows Cognito to send SNS messages
   SNSRole:
@@ -87,6 +91,12 @@ Resources:
             MinLength: '1'
             MaxLength: '200'
         - Name: profile_persona
+          AttributeDataType: String
+          Mutable: true
+          StringAttributeConstraints:
+            MinLength: '1'
+            MaxLength: '200'
+        - Name: demo_journey
           AttributeDataType: String
           Mutable: true
           StringAttributeConstraints:
@@ -204,6 +214,35 @@ Resources:
                   - "lex:PostText"
                 Resource:
                   - !Sub "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot:RetailDemoStore:*"
+              - Effect: Allow
+                Action:
+                  - geo:BatchGetDevicePosition
+                  - geo:BatchUpdateDevicePosition
+                  - geo:DescribeTracker
+                  - geo:GetDevicePosition
+                  - geo:GetDevicePositionHistory
+                  - geo:ListDevicePositions
+                  - geo:ListTrackers
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:tracker/${LocationResourcePrefix}*'
+              - Effect: Allow
+                Action:
+                  - geo:ListGeofences
+                  - geo:ListGeofenceCollections
+                  - geo:GetGeofence
+                  - geo:DescribeGeofenceCollection
+                Resource:
+                  - !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/${LocationResourcePrefix}*"
+              - Effect: Allow
+                Action:
+                  - geo:GetMapGlyphs
+                  - geo:GetMapSprites
+                  - geo:GetMapStyleDescriptor
+                  - geo:GetMapTile
+                  - geo:DescribeMap
+                  - geo:ListMaps
+                Resource:
+                  - !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:map/${LocationResourcePrefix}*"
 
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:

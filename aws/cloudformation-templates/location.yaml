@@ -1,0 +1,501 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys Location & associated resources for the Location Service demo.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  UserPoolId:
+    Type: String
+    Description: The Cognito user pool ID. Required by the event handler Lambda function to message users.
+
+  DeployDefaultGeofence:
+    Type: String
+    Description: Whether the default Geofence should be added to the Geofence Collection.
+
+  PinpointAppId:
+    Type: String
+
+  PinpointEmailFromAddress:
+    Type: String
+
+  ProductsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OrdersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OffersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  CartsServiceExternalUrl:
+    Type: String
+    Default: none
+
+  UsersServiceExternalUrl:
+    Type: String
+    Default: none
+
+  WebURL:
+    Type: String
+    Default: none
+
+Conditions:
+  DefaultGeofence: !Equals
+      - !Ref DeployDefaultGeofence
+      - 'Yes'
+
+Resources:
+
+  # Custom resource for managing Amazon Location resources (1 each of map, geofence collection, tracker, geofence)
+  LocationResourceStackLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Function which manages the lifecycle (creation, update & deletion) of the Amazon Location resources used in the Location Service Demo'
+      Handler: location-resource-stack.lambda_handler
+      Role: !GetAtt
+        - LocationResourceStackLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-resource-stack.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: LocationNrfDemoLocationResourceStack
+      Environment:
+        Variables:
+          RESOURCE_BUCKET: !Ref ResourceBucket
+
+
+  LocationResourceStackLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoLocationResourceStack:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoLocationResourceStack'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}'
+                  - !Sub 'arn:aws:s3:::${ResourceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - geo:AssociateTrackerConsumer
+                  - geo:CreateTracker
+                  - geo:DeleteTracker
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:tracker*'
+              - Effect: Allow
+                Action:
+                  - geo:PutGeofence
+                  - geo:CreateGeofenceCollection
+                  - geo:BatchDeleteGeofence
+                  - geo:DeleteGeofenceCollection
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection*'
+              - Effect: Allow
+                Action:
+                  - geo:CreateMap
+                  - geo:DeleteMap
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:map*'
+              - Effect: Allow
+                Action:
+                  - geo:CreatePlaceIndex
+                  - geo:DeletePlaceIndex
+                Resource:
+                  - !Sub 'arn:aws:geo:${AWS::Region}:${AWS::AccountId}:place-index*'
+
+  CustomLocationResourceStackLambdaFunction:
+    Type: Custom::LocationResourceStack
+    Properties:
+      ServiceToken: !GetAtt LocationResourceStackLambdaFunction.Arn
+      CreateDefaultGeofence: !If [DefaultGeofence, "true", "false"]
+
+  # Location Events handling
+  LocationGeofenceEventLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/events/${CustomLocationResourceStackLambdaFunction.LocationResourceName}-Monitor
+
+  LocationGeofenceEventRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: Rule for Location Service demo to trigger when devices enter/exit a geofence
+      EventPattern: {
+        "source": [
+            "aws.geo"
+        ],
+        "resources": [
+            !Sub "arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/${CustomLocationResourceStackLambdaFunction.LocationResourceName}"
+        ],
+        "detail": {
+          "EventType": ["ENTER"]
+        },
+        "detail-type": [
+            "Location Geofence Event"
+        ]
+      }
+      Targets:
+        -
+          Id: LocationEventLogging
+          Arn: !GetAtt LocationGeofenceEventLogGroup.Arn
+        -
+          Id: GeofenceEventHandlerLambda
+          Arn: !GetAtt LocationGeofenceEventHandler.Arn
+
+  LocationGeofenceEventRuleInvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt LocationGeofenceEventHandler.Arn
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt LocationGeofenceEventRule.Arn
+
+  LocationGeofenceEventHandlerLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoGeofenceEventHandler'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminGetUser
+                Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:SendMessages
+                Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/messages"
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:GetUserEndpoints
+                Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/users/*"
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:UpdateEndpoint
+                Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/endpoints/*"
+              - Effect: Allow
+                Action:
+                  - mobiletargeting:PutEvents
+                Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/events"
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+              - Effect: Allow
+                Action:
+                  - execute-api:ManageConnections
+                Resource:
+                  - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LocationGeofenceBrowserNotificationApi}/*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-pinpoint-sms-longcode'
+
+  LocationGeofenceEventHandler:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles Amazon Location geofence entry/exit events in Location Service demo '
+      Handler: location-geofence-event.lambda_handler
+      Role: !GetAtt
+        - LocationGeofenceEventHandlerLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-geofence-event.zip'
+      Runtime: python3.8
+      Timeout: 900
+      FunctionName: LocationNrfDemoGeofenceEventHandler
+      Environment:
+        Variables:
+          UserPoolId: !Ref UserPoolId
+          PinpointAppId: !Ref PinpointAppId
+          EmailFromAddress: !Ref PinpointEmailFromAddress
+          ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
+          CartsServiceExternalUrl: !Ref CartsServiceExternalUrl
+          OrdersServiceExternalUrl: !Ref OrdersServiceExternalUrl
+          OffersServiceExternalUrl: !Ref OffersServiceExternalUrl
+          UsersServiceExternalUrl: !Ref UsersServiceExternalUrl
+          WebURL: !Ref WebURL
+          NotificationEndpointUrl: !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}"
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  LocationGeofenceEventHandlerEventConfig:
+    Type: 'AWS::Lambda::EventInvokeConfig'
+    Properties:
+      FunctionName: !Ref LocationGeofenceEventHandler
+      MaximumRetryAttempts: 0
+      Qualifier: $LATEST
+
+  # API Gateway & associated resources to support browser notifications via WebSockets
+  LocationGeofenceBrowserNotificationApi:
+    Type: 'AWS::ApiGatewayV2::Api'
+    Properties:
+      Name: LocationNrfDemo
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+
+  LocationGeofenceBrowserNotificationApiDeployment:
+    Type: 'AWS::ApiGatewayV2::Deployment'
+    DependsOn:
+      - LocationGeofenceBrowserNotificationApiConnectRoute
+      - LocationGeofenceBrowserNotificationApiDisconnectRoute
+    Properties:
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+
+  LocationGeofenceBrowserNotificationApiStage:
+    Type: 'AWS::ApiGatewayV2::Stage'
+    Properties:
+      StageName: Prod
+      DeploymentId: !Ref LocationGeofenceBrowserNotificationApiDeployment
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+
+  LocationGeofenceBrowserNotificationApiConnectRoute:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref LocationGeofenceWebsocketConnectionIntegration
+
+  LocationGeofenceWebsocketConnectionIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LocationGeofenceWebsocketConnectLambda.Arn}/invocations"
+
+  LocationGeofenceBrowserNotificationApiDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: DisconnectRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref LocationGeofenceWebsocketDisconnectIntegration
+
+  LocationGeofenceWebsocketDisconnectIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref LocationGeofenceBrowserNotificationApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LocationGeofenceWebsocketDisconnectLambda.Arn}/invocations"
+
+  LocationGeofenceWebsocketConnectLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiConnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiConnect'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:PutItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+
+  LocationGeofenceWebsocketConnectLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles connections to the WebSocket API processing Location Geofence notifications'
+      Handler: websocket-connect.lambda_handler
+      Role: !GetAtt
+        - LocationGeofenceWebsocketConnectLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-connect.zip'
+      Runtime: python3.8
+      Timeout: 30
+      FunctionName: LocationNrfDemoNotificationApiConnect
+      Environment:
+        Variables:
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  ConnectionLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - LocationGeofenceBrowserNotificationApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LocationGeofenceWebsocketConnectLambda
+      Principal: apigateway.amazonaws.com
+
+  LocationGeofenceWebsocketDisconnectLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiDisconnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/LocationNrfDemoNotificationApiDisconnect'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+
+  LocationGeofenceWebsocketDisconnectLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles disconnection from the WebSocket API processing Location Geofence notifications'
+      Handler: websocket-disconnect.lambda_handler
+      Role: !GetAtt
+        - LocationGeofenceWebsocketDisconnectLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-disconnect.zip'
+      Runtime: python3.8
+      Timeout: 30
+      FunctionName: LocationNrfDemoNotificationApiDisconnect
+      Environment:
+        Variables:
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  DisconnectLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - LocationGeofenceBrowserNotificationApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LocationGeofenceWebsocketDisconnectLambda
+      Principal: apigateway.amazonaws.com
+
+  # Dynamo table for handling WebSockets backend
+  WebSocketConnectionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "userId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "userId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+Outputs:
+  LocationResourceName:
+    Description: Name of all created Location resources
+    Value:  !GetAtt CustomLocationResourceStackLambdaFunction.LocationResourceName
+
+  LocationNotificationEndpoint:
+    Description: URL of WebSocket API for Geofence notifications
+    Value: !Sub "${LocationGeofenceBrowserNotificationApi.ApiEndpoint}/${LocationGeofenceBrowserNotificationApiStage}"

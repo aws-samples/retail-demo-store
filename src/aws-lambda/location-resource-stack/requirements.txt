@@ -1,0 +1,4 @@
+packaging==20.4
+crhelper
+boto3>=1.16.38
+botocore>=1.19.38

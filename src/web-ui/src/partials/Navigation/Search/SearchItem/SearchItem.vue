@@ -19,14 +19,11 @@ import { product } from '@/mixins/product';
 export default {
   name: 'SearchItem',
   props: {
-    product_id: { type: String, required: true },
+    product: { type: Object, required: true },
     feature: { type: String, required: true },
     experiment: { type: Object, required: false },
   },
   mixins: [product],
-  created() {
-    this.getProductByID(this.product_id);
-  },
   computed: {
     experimentCorrelationId() {
       return this.experiment?.correlationId;

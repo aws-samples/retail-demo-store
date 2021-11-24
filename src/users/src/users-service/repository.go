@@ -129,8 +129,10 @@ func RepoFindRandomUsersByPrimaryPersonaAndAgeRange (primaryPersona string , age
 				break
 			}
 			if containsInt(primaryPersonaFilteredUserIds,idx) && !(usersClaimedByIdentityId[idx]) {
-				log.Println("User found matching filter criteria:", idx)
-				unclaimedUsers = append(unclaimedUsers, users[idx])
+			    if users[idx].SelectableUser {
+				    log.Println("User found matching filter criteria:", idx)
+				    unclaimedUsers = append(unclaimedUsers, users[idx])
+				}
 			}	
 	}
 	return unclaimedUsers
@@ -155,9 +157,11 @@ func RepoFindRandomUser(count int) Users {
 				log.Println("Random number Selected:",randomUserId)
 				if randomUserId!=0 {
 					if !(usersClaimedByIdentityId[randomUserId]) {
-						log.Println("Random user id selected:",randomUserId)
-						randomUsers = append(randomUsers,RepoFindUserByID(strconv.Itoa(randomUserId)))
-						log.Println("Random users :",randomUsers)
+					    if users[randomUserId].SelectableUser {
+						    log.Println("Random user id selected:",randomUserId)
+						    randomUsers = append(randomUsers,RepoFindUserByID(strconv.Itoa(randomUserId)))
+						    log.Println("Random users :",randomUsers)
+						}
 					} 
 				}
 		}

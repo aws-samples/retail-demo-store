@@ -27,7 +27,7 @@
       <SearchItem
         v-for="result in results"
         :key="result.itemId"
-        :product_id="result.itemId"
+        :product="result.product"
         :experiment="result.experiment"
         :feature="feature"
       />
@@ -46,8 +46,12 @@ import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
 
 const SearchRepository = RepositoryFactory.get('search');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
+const ProductsRepository = RepositoryFactory.get('products')
 
 const EXPERIMENT_FEATURE = 'search_results';
+
+const DISPLAY_SEARCH_PAGE_SIZE = 10;
+const EXTENDED_SEARCH_PAGE_SIZE = 25;
 
 export default {
   name: 'Search',
@@ -67,7 +71,7 @@ export default {
   },
   computed: {
     ...mapState(['user']),
-    ...mapGetters(['personalizeUserID']),
+    ...mapGetters(['personalizeUserID', 'personalizeRecommendationsForVisitor']),
   },
   methods: {
     onInputFocus() {
@@ -77,22 +81,40 @@ export default {
       this.inputFocused = false;
     },
     async search(val) {
-      const { data } = await SearchRepository.searchProducts(val);
+      // If personalized ranking is going to be called, bring back more items than we
+      // intend to display so we have a larger set of products to rerank before
+      // trimming for final display. Particularly import for short search phrases to
+      // improve the relevancy of results.
+      const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
+      const { data } = await SearchRepository.searchProducts(val, size);
 
       await this.rerank(data);
+      if (this.results.length > 0) {
+        await this.lookupProducts(this.results);
+      }
 
       AnalyticsHandler.productSearched(this.user, val, data.length);
     },
     async rerank(items) {
-      if (this.personalizeUserID && items && items.length > 0) {
+      if (this.personalizeRecommendationsForVisitor && items && items.length > 0) {
         const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
-        this.results = data;
+        this.results = data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
       } else {
         this.isReranked = false;
         this.results = items;
       }
     },
+    async lookupProducts(items) {
+      const itemIds = items.map(item => item.itemId);
+
+      const { data } = await ProductsRepository.getProduct(itemIds);
+
+      this.results = items.map((item) => ({
+        ...item,
+        product: data.find(({id}) => id === item.itemId)
+      }));
+    }
   },
   watch: {
     async searchTerm(val) {

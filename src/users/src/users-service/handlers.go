@@ -368,9 +368,9 @@ func UserVerifyAndUpdatePhone(w http.ResponseWriter, r *http.Request){
 			return
 		} else {
 			fmt.Println(res)
-			mobilePhoneCode := int(*res.NumberValidateResponse.PhoneTypeCode)
-			if (mobilePhoneCode != 0) {
-				var errMessage string = "The phone number provided is not a MOBILE phone number. The number is not capable of receiving SMS. Cannot create SMS endpoint for this number. Try entering a mobile phone number."
+			mobilePhoneType := aws.StringValue(res.NumberValidateResponse.PhoneType)
+			if (mobilePhoneType == "INVALID" || mobilePhoneType == "LANDLINE") {
+				var errMessage string = "The phone number provided is phone number of type "  + mobilePhoneType + ". The number would not not be capable of receiving SMS. Cannot create SMS endpoint for this number. Try entering a valid phone number."
 				panic(errMessage)
 				http.Error(w, errMessage, 422)
 				return
