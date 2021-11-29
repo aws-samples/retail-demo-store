@@ -21,6 +21,17 @@ func RepoFindCartByID(id string) Cart {
 	return cart
 }
 
+// RepoFindCartByID Function
+func RepoFindCartsByUsername(username string) []Cart {
+	var userCarts []Cart
+	for _, cart := range carts {
+		if cart.Username == username {
+			userCarts = append(userCarts, cart)
+		}
+	}
+	return userCarts
+}
+
 // RepoUpdateCart Function
 func RepoUpdateCart(id string, cart Cart) Cart {
 	_, ok := carts[id]

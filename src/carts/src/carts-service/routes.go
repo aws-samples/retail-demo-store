@@ -36,6 +36,12 @@ var routes = Routes{
 		CartShowByID,
 	},
 	Route{
+		"CartsShowByUsername",
+		"GET",
+		"/carts/username/{username}",
+		CartsShowByUsername,
+	},
+	Route{
 		"CartCreate",
 		"POST",
 		"/carts",

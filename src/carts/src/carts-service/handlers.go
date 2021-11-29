@@ -6,13 +6,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/gorilla/mux"
 )
 
 // Index Handler
@@ -45,6 +46,18 @@ func CartShowByID(w http.ResponseWriter, r *http.Request) {
 	cartID := vars["cartID"]
 
 	if err := json.NewEncoder(w).Encode(RepoFindCartByID(cartID)); err != nil {
+		panic(err)
+	}
+}
+
+// CartShowByUsername Handler
+func CartsShowByUsername(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+
+	vars := mux.Vars(r)
+	cartID := vars["username"]
+
+	if err := json.NewEncoder(w).Encode(RepoFindCartsByUsername(cartID)); err != nil {
 		panic(err)
 	}
 }
