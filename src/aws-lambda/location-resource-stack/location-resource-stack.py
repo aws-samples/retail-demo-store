@@ -143,7 +143,7 @@ def create(event, context):
     logger.info(response)
 
     logger.info("Creation complete.")
-    return
+    return resource_name
 
 
 @helper.update
