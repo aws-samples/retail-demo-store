@@ -38,7 +38,7 @@ export default {
 
       this.connection.onopen = (e) => {
         console.log(e)
-        console.log("Websocket connection open for notifcations.")
+        console.log("Websocket connection open for notifications.")
       }
 
       this.connection.onmessage = (e) => {

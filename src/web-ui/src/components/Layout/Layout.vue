@@ -23,6 +23,8 @@
 
     <ConfirmationModal></ConfirmationModal>
 
+    <ClientelingModal></ClientelingModal>
+
     <DemoGuideButton v-if="showDemoGuide" class="demo-guide-button"></DemoGuideButton>
   </div>
 </template>
@@ -37,10 +39,12 @@ import AppModal from '@/partials/AppModal/AppModal';
 import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
 import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
 import Notifications from '@/public/Notifications'
+import ClientelingModal from "@/partials/ClientelingModal/ClientelingModal";
 
 export default {
   name: 'Layout',
   components: {
+    ClientelingModal,
     Navigation,
     Notifications,
     LoadingFallback,

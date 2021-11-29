@@ -20,6 +20,11 @@
               </h4>
             </div>
             <div class="col text-right">
+              <router-link :to="`/clienteling/${order.username}`" class="btn btn-link">
+                <button type="button" class="btn btn-primary mr-3">
+                  Clienteling
+                </button>
+              </router-link>
               <button type="button" class="btn btn-primary" v-on:click="() => completeCollection(order) ">
                 Collection complete
               </button>
@@ -45,27 +50,25 @@ export default {
     Layout,
     LocationDemoNavigation
   },
-  data () {
+  data() {
     return {
       ordersLoaded: false,
       orders: null
     }
   },
-  async created () {
+  async created() {
     await this.getOrders();
   },
   methods: {
-    async getOrders () {
+    async getOrders() {
       const allOrders = (await OrdersRepository.get()).data;
-      console.log("All your orders:")
-      console.log(allOrders)
       this.orders = allOrders.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE");
       this.ordersLoaded = true;
     },
-    async completeCollection (order) {
+    async completeCollection(order) {
       order.delivery_status = 'COMPLETE';
       OrdersRepository.updateOrder(order)
-        .then(() => this.getOrders())
+          .then(() => this.getOrders())
     }
   }
 }

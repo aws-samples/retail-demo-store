@@ -28,6 +28,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
+import Clienteling from "@/public/Clienteling";
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -265,13 +266,19 @@ const router = new Router({
       path: '/location',
       name: 'Location',
       component: Location,
-      meta: { requiresAuth: true}
+      meta: { requiresAuth: true }
     },
     {
       path: '/collections',
       name: 'Collections',
       component: Collections,
-      meta: { requiresAuth: true}
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/clienteling/:username',
+      name: 'Clienteling',
+      component: Clienteling,
+      meta: { requiresAuth: true }
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {

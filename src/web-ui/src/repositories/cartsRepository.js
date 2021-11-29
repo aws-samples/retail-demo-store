@@ -20,7 +20,12 @@ export default {
         if (!cartID || cartID.length == 0)
             throw "cartID required"
         return connection.get(`${resource}/${cartID}`)
-    },    
+    },
+    getCartsByUsername(username) {
+        if (!username || username.length == 0)
+            throw "cartID required"
+        return connection.get(`${resource}/username/${username}`)
+    },
     createCart(username) {
 
         if (!username || username.length == 0)
