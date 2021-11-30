@@ -534,7 +534,7 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
-        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
+        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt NotificationsApi.Outputs.NotificationEndpoint, "NotDeployed"]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -567,6 +567,9 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        NotificationEndpoint: !GetAtt NotificationsApi.Outputs.NotificationEndpoint
+        NotificationApiId: !GetAtt NotificationsApi.Outputs.NotificationApiId
+        NotificationApiConnectionTableArn: !GetAtt NotificationsApi.Outputs.NotificationApiConnectionTableArn
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         DeployDefaultGeofence: !Ref DeployPersonalizedOffersCampaign
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
@@ -577,6 +580,14 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
+
+  NotificationsApi:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/notifications-api.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   AmazonPay:
     Type: AWS::CloudFormation::Stack

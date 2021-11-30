@@ -1,0 +1,325 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys Websocket API for browser notifications
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+Resources:
+  NotificationApi:
+    Type: 'AWS::ApiGatewayV2::Api'
+    Properties:
+      Name: RetailDemoStoreNotifications
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+
+  NotificationApiDeployment:
+    Type: 'AWS::ApiGatewayV2::Deployment'
+    DependsOn:
+      - NotificationApiConnectRoute
+      - NotificationApiDisconnectRoute
+      - PushProductRoute
+    Properties:
+      ApiId: !Ref NotificationApi
+
+  NotificationApiStage:
+    Type: 'AWS::ApiGatewayV2::Stage'
+    Properties:
+      StageName: Prod
+      DeploymentId: !Ref NotificationApiDeployment
+      ApiId: !Ref NotificationApi
+
+  # API Connect Route
+  NotificationApiConnectRoute:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref NotificationApi
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref NotificationWebsocketConnectionIntegration
+
+  NotificationWebsocketConnectionIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref NotificationApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationWebsocketConnectLambda.Arn}/invocations"
+
+  NotificationWebsocketConnectLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles connections to the WebSocket API processing notifications'
+      Handler: websocket-connect.lambda_handler
+      Role: !GetAtt
+        - NotificationWebsocketConnectLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-connect.zip'
+      Runtime: python3.8
+      Timeout: 30
+      FunctionName: NotificationApiConnect
+      Environment:
+        Variables:
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  ConnectionLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - NotificationApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref NotificationWebsocketConnectLambda
+      Principal: apigateway.amazonaws.com
+
+  NotificationWebsocketConnectLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/NotificationApiConnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/NotificationApiConnect'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:PutItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+
+  # API Disconnect Route
+  NotificationApiDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref NotificationApi
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: DisconnectRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref NotificationWebsocketDisconnectIntegration
+
+  NotificationWebsocketDisconnectIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref NotificationApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationWebsocketDisconnectLambda.Arn}/invocations"
+
+  NotificationWebsocketDisconnectLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles disconnection from the WebSocket API processing notifications'
+      Handler: websocket-disconnect.lambda_handler
+      Role: !GetAtt
+        - NotificationWebsocketDisconnectLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-disconnect.zip'
+      Runtime: python3.8
+      Timeout: 30
+      FunctionName: NotificationApiDisconnect
+      Environment:
+        Variables:
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  DisconnectLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - NotificationApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref NotificationWebsocketDisconnectLambda
+      Principal: apigateway.amazonaws.com
+
+  NotificationWebsocketDisconnectLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/NotificationApiDisconnect:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/NotificationApiDisconnect'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+
+  # API Push Product Route
+  PushProductRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref NotificationApi
+      RouteKey: pushproduct
+      AuthorizationType: NONE
+      OperationName: PushProductRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref PushProductInteg
+
+  PushProductInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref NotificationApi
+      Description: Push product API integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PushProductWebsocketLambda.Arn}/invocations
+
+  PushProductWebsocketLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles connections to the WebSocket API processing notifications'
+      Handler: websocket-pushproduct.lambda_handler
+      Role: !GetAtt
+        - PushProductWebsocketLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-pushproduct.zip'
+      Runtime: python3.8
+      Timeout: 30
+      FunctionName: PushProductWebsocket
+      Environment:
+        Variables:
+          WebsocketDynamoTableName: !Ref WebSocketConnectionTable
+
+  PushProductLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - NotificationApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PushProductWebsocketLambda
+      Principal: apigateway.amazonaws.com
+
+  PushProductWebsocketLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PushProductWebsocket:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PushProductWebsocket'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:PutItem
+                Resource: !GetAtt WebSocketConnectionTable.Arn
+              - Effect: Allow
+                Action:
+                  - execute-api:ManageConnections
+                Resource:
+                  - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationApi}/*'
+
+  # Dynamo table for handling WebSockets backend
+  WebSocketConnectionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "userId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "userId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+Outputs:
+  NotificationEndpoint:
+    Description: URL of WebSocket API for Geofence notifications
+    Value: !Sub "${NotificationApi.ApiEndpoint}/${NotificationApiStage}"
+
+  NotificationApiId:
+    Description: The ID of the API Gateway for notifications
+    Value: !Ref NotificationApi
+
+  NotificationApiConnectionTableArn:
+    Description: The ARN of the Dynamo DB table storing connection details for the notification API.
+    Value: !GetAtt WebSocketConnectionTable.Arn
