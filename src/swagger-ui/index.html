@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="http://unpkg.com/swagger-ui-dist@3/swagger-ui.css">
+
+  <title>Swagger UI for Retail Demo Store services</title>
+
+<body>
+
+  <div id="swaggerui-docs" />
+
+  <script src="http://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  <script>
+
+    window.onload = function() {
+
+      const queryString = window.location.search;
+      console.log(queryString)
+      if (queryString) {
+      
+        const urlParams = new URLSearchParams(queryString);
+        const serviceName = urlParams.get('service')
+
+        const ui = SwaggerUIBundle({
+          url: `specs/${serviceName}/spec.yaml`,
+          dom_id: "#swaggerui-docs",
+          deepLinking: true,
+        })
+      }
+
+    }
+
+  </script>
+
+  <h1>Swagger UI pages</h1>
+  <a href="?service=offers">Offers API</a>
+
+</body>
+</html>
