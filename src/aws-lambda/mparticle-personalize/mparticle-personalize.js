@@ -55,7 +55,7 @@ exports.handler = async function (event, context) {
         // retreive the mParticle user id which is available for anonymous and known customer profiles
         var anonymousID = events[0].data.custom_attributes.mpid.toString();
         
-        // if the customer profile is known then replace the amazon Personalize User id with the actual
+        // if the customer profile is known then replace the Amazon Personalize User id with the actual
         // personalize Id captured from the user's profile
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
             amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId; 
@@ -84,18 +84,10 @@ exports.handler = async function (event, context) {
                 const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
                 const action = e.data.product_action.action;
                 const event_id = e.data.event_id;
-             
-
-                let params = {
-                    sessionId: payload.message_id,
-                    userId: amazonPersonalizeUserId,
-                    trackingId: personalizeTrackerID,
-                    eventList: []
-                };
 
                 // Build the list of events for the user session...
                 for (const product of e.data.product_action.products) {
-                    const purchasedItem = { itemId: product.id };
+                    const purchasedItem = { itemId: product.id, discount:"No" };
                     params.eventList.push({
                         properties: purchasedItem,
                         sentAt: timestamp,
@@ -173,5 +165,3 @@ exports.handler = async function (event, context) {
         mpApiInstance.bulkUploadEvents(body, mp_callback);
     }
 };
-        
-        
