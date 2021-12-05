@@ -62,3 +62,19 @@
   name: tools
   image: 8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg
   has_gender_affinity: false
+- id: 17
+  name: hot dispensed
+  image: 4f0c1b1d-87f8-4ee3-9db1-bddb4acc7908jpg
+  has_gender_affinity: false
+- id: 18
+  name: cold dispensed
+  image: 90f60d9d-146d-4a22-95bb-60b66b97fe4ajpg
+  has_gender_affinity: false
+- id: 19
+  name: food service
+  image: 00d41b99-9fa6-4f88-90f6-10f6fe1b4076jpg
+  has_gender_affinity: false
+- id: 20
+  name: salty snacks
+  image: 9c1a2048-7aac-4565-b836-d8d4f726322cjpg
+  has_gender_affinity: false

@@ -254,6 +254,8 @@ Resources:
         DeleteRepositoryLambdaArn: !Ref DeleteRepositoryLambdaArn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        TaskRoleArn: !GetAtt Service.Outputs.TaskRoleArn
+        TaskExecutionRoleArn: !GetAtt Service.Outputs.TaskExecutionRoleArn
 
   Service:
     Type: AWS::CloudFormation::Stack

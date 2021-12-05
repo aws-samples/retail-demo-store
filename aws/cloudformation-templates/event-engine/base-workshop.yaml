@@ -46,7 +46,7 @@ Resources:
         GitHubRepo: 'retail-demo-store' # N/A SO DO NOT CHANGE
         GitHubBranch: 'master' # N/A SO DO NOT CHANGE
         GitHubToken: 'dummy' # N/A SO DO NOT CHANGE
-        GitHubUser: 'dummy' # N/A SO DO NOT CHANGE
+        GitHubUser: 'aws-samples' # Clone from upstream repo into SageMaker notebook instance by default
         PreIndexElasticsearch: 'No' # Change to 'Yes' if you don't want customers to have to do ES workshop
         PreCreatePersonalizeCampaign: 'No' # Change to 'Yes' if you don't want customers to have to do Personalize workshop (requires 2.5 hours AFTER CFN deployment to complete)
         PreCreatePinpointWorkshop: 'No' # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
@@ -62,6 +62,8 @@ Resources:
         AmazonPayMerchantId: ''
         AmazonPayPublicKeyId: ''
         AmazonPayPrivateKey: ''
+        AlexaSkillId: ''
+        AlexaAmazonPayDefaultSandboxEmail: ''
         IncludeSegmentDependencies: 'No' # Change to 'Yes' for Segment workshop
         SegmentWriteKey: 'NONE'
         GoogleAnalyticsMeasurementId: 'NONE'
