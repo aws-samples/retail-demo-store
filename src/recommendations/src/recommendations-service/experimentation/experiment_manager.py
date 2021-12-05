@@ -3,12 +3,14 @@
 
 import boto3
 import logging
+from typing import Dict
 
 from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
 from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk, optimizely_configured
+from experimentation.experiment_external import ExternalExperiment, ExternalExperimentConfig
 from experimentation.tracking import KinesisTracker
 
 log = logging.getLogger(__name__)
@@ -60,11 +62,11 @@ class ExperimentManager:
                         return OptimizelyFeatureTest(None, **data)
 
         table = self.__get_table()
-        
+
         if table:
             log.debug(f'ExperimentManager - querying {table.table_name} for active experiments for {feature}')
 
-            # Get active experiments for the feature. 
+            # Get active experiments for the feature.
             response = table.query(
                 IndexName='feature-name-index',
                 KeyConditionExpression=Key('feature').eq(feature),
@@ -105,8 +107,23 @@ class ExperimentManager:
 
         return experiment
 
+    def create_external(self, config: ExternalExperimentConfig) -> ExternalExperiment:
+        table = self.__get_table()
+
+        experiment_config = {
+            'id': config.id,
+            'feature': config.feature,
+            'name': config.name,
+            'status': 'ACTIVE',
+            'type': config.type,
+            'variation_index': config.variation_index,
+            'variations': [ config.variation_config ]
+        }
+
+        return ExternalExperiment(table, **experiment_config)
+
     def default_tracker(self):
-        """ Creates a Kinesis stream tracker for an experiment if environment is 
+        """ Creates a Kinesis stream tracker for an experiment if environment is
         configured with a Kinesis stream
         """
         tracker = None
@@ -116,7 +133,7 @@ class ExperimentManager:
             if response['Parameter']['Value'] != 'NONE':
                 stream_name = response['Parameter']['Value']
                 tracker = KinesisTracker(
-                    exposure_stream_name = stream_name, 
+                    exposure_stream_name = stream_name,
                     outcome_stream_name = stream_name
                 )
         except ssm.exceptions.ParameterNotFound:

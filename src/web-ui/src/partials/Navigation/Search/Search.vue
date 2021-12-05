@@ -97,7 +97,17 @@ export default {
     },
     async rerank(items) {
       if (this.personalizeRecommendationsForVisitor && items && items.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
+        var extExpParams = {}
+        const experimentConfig = await AnalyticsHandler.getExternalExperiment(this.personalizeUserID, EXPERIMENT_FEATURE);
+        if (experimentConfig) {
+          extExpParams['extExpVariationType'] = experimentConfig.variationType;
+          extExpParams['extExpVariationIdx'] = experimentConfig.variationIndex;
+          extExpParams['extExpId'] = experimentConfig.id;
+          extExpParams['extExpName'] = experimentConfig.name;
+          extExpParams['extExpType'] = experimentConfig.type;
+        }
+
+        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE, extExpParams);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
         this.results = data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
       } else {

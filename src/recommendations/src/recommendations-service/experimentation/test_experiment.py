@@ -7,12 +7,10 @@ import botocore
 import uuid
 
 from unittest.mock import patch
-from experimentation.resolvers import ResolverFactory, Resolver, PersonalizeRecommendationsResolver, DefaultProductResolver
-from experimentation.experiment import Variation
-from experimentation.experiment_manager import ExperimentManager
+from experimentation.resolvers import ResolverFactory, PersonalizeRecommendationsResolver, DefaultProductResolver
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
-from experimentation.experiment_mab import MultiArmedBanditExperiment
+from experimentation.experiment_external import ExternalExperiment
 
 """
 python -m unittest experimentation/test_experiment.py
@@ -105,3 +103,28 @@ class TestExperiments(unittest.TestCase):
         #print(f'Interleaved results: {results}')
 
         self.assertEqual(len(results), 5)
+
+    def test_external_evidently(self):
+        exp_config = {
+            'id': 'home_product_recs',
+            'feature': 'home_product_recs',
+            'name': 'evidently',
+            'status': 'ACTIVE',
+            'type': 'evidently',
+            'variations': [ {
+                'type': 'product',
+                'index': 0
+             }]
+        }
+
+        experiment = ExternalExperiment('ExperimentStrategy', **exp_config)
+
+        self.assertEqual(experiment.id, exp_config['id'])
+        self.assertEqual(experiment.feature, exp_config['feature'])
+        self.assertEqual(experiment.name, exp_config['name'])
+        self.assertEqual(experiment.status, exp_config['status'])
+
+        self.assertEqual(len(experiment.variations), 1)
+        self.assertTrue(type(experiment.variations[0].resolver) is DefaultProductResolver)
+
+        self.assertEqual(experiment.variation_index, 0)

@@ -191,11 +191,24 @@ export default {
       this.experiment = null;
       this.demoGuideBadgeArticle = null;
 
+      var extExpParams = {}
+      if (this.personalizeUserID) {
+        const experimentConfig = await AnalyticsHandler.getExternalExperiment(this.personalizeUserID, EXPERIMENT_FEATURE);
+        if (experimentConfig) {
+          extExpParams['extExpVariationType'] = experimentConfig.variationType;
+          extExpParams['extExpVariationIdx'] = experimentConfig.variationIndex;
+          extExpParams['extExpId'] = experimentConfig.id;
+          extExpParams['extExpName'] = experimentConfig.name;
+          extExpParams['extExpType'] = experimentConfig.type;
+        }
+      }
+
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,
         MAX_RECOMMENDATIONS,
         EXPERIMENT_FEATURE,
+        extExpParams
       );
 
       if (response.headers) {

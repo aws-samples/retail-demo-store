@@ -307,8 +307,8 @@ router.beforeResolve(async (to, from, next) => {
         }
       });
     }
-    return next()
   }
+
   return next()
 })
 

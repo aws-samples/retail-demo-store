@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "preinstall": "npm-force-resolutions",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -12,7 +13,8 @@
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
-    "axios": "^0.21.1",
+    "aws-sdk": "^2.1043.0",
+    "axios": "^0.21.4",
     "mapbox-gl": "^1.12.0",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
@@ -34,8 +36,12 @@
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.21",
+    "npm-force-resolutions": "0.0.10",
     "vue-template-compiler": "^2.6.14",
     "webpack-bundle-analyzer": "^3.8.0"
+  },
+  "resolutions": {
+    "aws-sdk": "2.1043.0"
   },
   "eslintConfig": {
     "root": true,

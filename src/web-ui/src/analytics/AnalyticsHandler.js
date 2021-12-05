@@ -11,6 +11,8 @@ import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
+import Evidently from 'aws-sdk/clients/evidently';
+import { toCamel } from '@/util/toCamel';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const ProductsRepository = RepositoryFactory.get('products')
@@ -209,6 +211,10 @@ export const AnalyticsHandler = {
                     "variation": experiment.variationIndex
                 });
             }
+
+            if (this.evidentlyEnabled()) {
+                this.recordEvidentlyExposore(user, experiment);
+            }
         }
     },
 
@@ -302,7 +308,8 @@ export const AnalyticsHandler = {
             });
         }
     },
-   async recordShoppingCart (user, cart) {
+
+    async recordShoppingCart (user, cart) {
         if (user && cart) {
             const hasItem = cart.items.length > 0
             var productImages, productTitles, productURLs
@@ -479,7 +486,17 @@ export const AnalyticsHandler = {
         }
 
         if (experimentCorrelationId) {
-            RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
+            if (experimentCorrelationId.startsWith("evidently_")) {
+                if (this.evidentlyEnabled()) {
+                    this.recordEvidentlyConversion(user, product, feature);
+                }
+                else {
+                    console.error("Evidently experiment correlationId but Evidently not configured; ignoring")
+                }
+            }
+            else {
+                RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
+            }
         }
 
         let eventProperties = {
@@ -839,4 +856,108 @@ export const AnalyticsHandler = {
     googleAnalyticsEnabled() {
         return process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE';
     },
+
+    evidentlyEnabled() {
+        return process.env.VUE_APP_EVIDENTLY_PROJECT && process.env.VUE_APP_EVIDENTLY_PROJECT != 'NONE' &&
+                process.env.VUE_APP_EVIDENTLY_REGION && process.env.VUE_APP_EVIDENTLY_REGION != 'NONE' &&
+                process.env.VUE_APP_EVIDENTLY_ENDPOINT && process.env.VUE_APP_EVIDENTLY_ENDPOINT != 'NONE'
+    },
+
+    async getExternalExperiment(userId, feature) {
+        if (this.evidentlyEnabled()) {
+            try {
+                const cognitoUser = await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser()
+                if (cognitoUser && cognitoUser.signInUserSession) {
+                    const creds = await Vue.prototype.$Amplify.Auth.currentUserCredentials();
+                    const evidentlyClient = new Evidently({
+                        region: process.env.VUE_APP_EVIDENTLY_REGION,
+                        endpoint: process.env.VUE_APP_EVIDENTLY_ENDPOINT,
+                        credentials: creds
+                    });
+
+                    const config = await evidentlyClient.evaluateFeature({
+                        entityId: userId,
+                        feature: feature,
+                        project: process.env.VUE_APP_EVIDENTLY_PROJECT
+                    }).promise();
+
+                    if (config.reason == 'EXPERIMENT_RULE_MATCH') {
+                        return {
+                            id: config.details.experiment,
+                            name: config.details.experiment,
+                            type: 'evidently',
+                            variationType: config.value.stringValue,
+                            variationIndex: (parseInt(config.variation.replace('Variation','')) - 1)
+                        }
+                    }
+                    else if (config.reason == 'DEFAULT') {
+                        console.log(`Evidently feature ${feature} configured but experiment rule was not matched; experiment likely not active/running`);
+                    }
+                }
+                else {
+                    console.log("User not signed so cannot call Evidently")
+                }
+            }
+            catch(error) {
+                // eslint-disable-next-line
+                console.error("Unable to evaluate feature", error)
+            }
+        }
+    },
+
+    async recordEvidentlyExposore(user, experiment) {
+        const dataCustom = `{
+            "details": {
+                "${toCamel(experiment.feature)}Clicked": 0.0000001
+            },
+            "userDetails": {
+                "userId": "${user.id}",
+                "username": "${user.username}"
+            }
+        }`;
+
+        this.recordEvidentlyEvent(dataCustom);
+    },
+
+    async recordEvidentlyConversion(user, product, feature) {
+        const dataCustom = `{
+            "details": {
+                "${toCamel(feature)}Clicked": 1.0000001,
+                "productId": "${product.id}",
+                "productCategory": "${product.category}",
+                "productPrice": ${+product.price.toFixed(2)}
+            },
+            "userDetails": {
+                "userId": "${user.id}",
+                "username": "${user.username}"
+            }
+        }`;
+
+        this.recordEvidentlyEvent(dataCustom);
+    },
+
+    async recordEvidentlyEvent(dataCustom) {
+        try {
+            const creds = await Vue.prototype.$Amplify.Auth.currentCredentials();
+            const evidentlyClient = new Evidently({
+                region: process.env.VUE_APP_EVIDENTLY_REGION,
+                endpoint: process.env.VUE_APP_EVIDENTLY_ENDPOINT,
+                credentials: creds
+            });
+
+            evidentlyClient.putProjectEvents({
+                project: process.env.VUE_APP_EVIDENTLY_PROJECT,
+                events: [
+                    {
+                        timestamp: new Date(),
+                        type: 'aws.evidently.custom',
+                        data: JSON.parse(dataCustom)
+                    }
+                ]
+            }).promise();
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
 }

@@ -20,19 +20,50 @@ const experimentOutcome = "/experiment/outcome"
 const resetTracker = "/reset/realtime"
 
 export default {
-    getRelatedProducts(userID, currentItemID, numResults, feature) {
-        return connection.get(`${related}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
-    }, 
-    getRecommendationsForUser(userID, currentItemID, numResults, feature) {
-        return connection.get(`${recommendations}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
-    }, 
-    getRerankedItems(userID, items, feature) {
-        let payload = {
+    getRelatedProducts(userID, currentItemID, numResults, feature, moreParams) {
+        var params = {
+            userID: userID,
+            currentItemID: currentItemID,
+            numResults: numResults,
+            feature: feature,
+            fullyQualifyImageUrls: '1'
+        }
+        if (moreParams) {
+            params = Object.assign({}, params, moreParams);
+        }
+        var queryString = Object.keys(params).map((key) => {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+        }).join('&');
+
+        return connection.get(`${related}?${queryString}`)
+    },
+    getRecommendationsForUser(userID, currentItemID, numResults, feature, moreParams) {
+        var params = {
+            userID: userID,
+            currentItemID: currentItemID,
+            numResults: numResults,
+            feature: feature,
+            fullyQualifyImageUrls: '1'
+        }
+        if (moreParams) {
+            params = Object.assign({}, params, moreParams);
+        }
+        var queryString = Object.keys(params).map((key) => {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+        }).join('&');
+
+        return connection.get(`${recommendations}?${queryString}`)
+    },
+    getRerankedItems(userID, items, feature, moreParams) {
+        var payload = {
             userID: userID,
             items: items,
             feature: feature
         }
-        
+        if (moreParams) {
+            payload = Object.assign({}, payload, moreParams);
+        }
+
         return connection.post(`${rerank}`, payload)
     },
     chooseDiscounts(userID, items, feature) {

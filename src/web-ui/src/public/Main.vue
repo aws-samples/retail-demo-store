@@ -126,10 +126,21 @@ export default {
       const { data: featuredProducts } = await ProductsRepository.getFeatured();
 
       if (this.personalizeUserID && featuredProducts.length > 0) {
+        var extExpParams = {}
+        const experimentConfig = await AnalyticsHandler.getExternalExperiment(this.personalizeUserID, EXPERIMENT_RERANK_FEATURE);
+        if (experimentConfig) {
+          extExpParams['extExpVariationType'] = experimentConfig.variationType;
+          extExpParams['extExpVariationIdx'] = experimentConfig.variationIndex;
+          extExpParams['extExpId'] = experimentConfig.id;
+          extExpParams['extExpName'] = experimentConfig.name;
+          extExpParams['extExpType'] = experimentConfig.type;
+        }
+
         const { data: rerankedProducts, headers } = await RecommendationsRepository.getRerankedItems(
           this.personalizeUserID,
           featuredProducts,
           EXPERIMENT_RERANK_FEATURE,
+          extExpParams
         );
 
         const personalizeRecipe = headers['x-personalize-recipe'];
@@ -152,11 +163,22 @@ export default {
       this.recommendationsExperiment = null;
       this.userRecommendationsDemoGuideBadgeArticle = null;
 
+      const experimentConfig = await AnalyticsHandler.getExternalExperiment(this.personalizeUserID, EXPERIMENT_USER_RECS_FEATURE);
+      var extExpParams = {}
+      if (experimentConfig) {
+        extExpParams['extExpVariationType'] = experimentConfig.variationType;
+        extExpParams['extExpVariationIdx'] = experimentConfig.variationIndex;
+        extExpParams['extExpId'] = experimentConfig.id;
+        extExpParams['extExpName'] = experimentConfig.name;
+        extExpParams['extExpType'] = experimentConfig.type;
+      }
+
       const response = await RecommendationsRepository.getRecommendationsForUser(
         this.personalizeUserID,
         '',
         MAX_RECOMMENDATIONS,
         EXPERIMENT_USER_RECS_FEATURE,
+        extExpParams
       );
 
       if (response.headers) {

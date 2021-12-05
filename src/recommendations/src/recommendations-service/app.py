@@ -3,6 +3,7 @@
 
 # AWS X-ray support
 from aws_xray_sdk.core import xray_recorder
+from werkzeug.datastructures import ImmutableMultiDict
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
 
@@ -13,7 +14,8 @@ from flask import request
 
 from flask_cors import CORS
 from experimentation.experiment_manager import ExperimentManager
-from experimentation.resolvers import DefaultProductResolver, PersonalizeRecommendationsResolver, \
+from experimentation.experiment_external import ExternalExperimentConfig
+from experimentation.resolvers import ResolverFactory, DefaultProductResolver, PersonalizeRecommendationsResolver, \
     PersonalizeRankingResolver, RankingProductsNoOpResolver, PersonalizeContextComparePickResolver, RandomPickResolver
 from experimentation.utils import CompatEncoder
 from expiring_dict import ExpiringDict
@@ -47,13 +49,47 @@ codepipeline = boto3.client('codepipeline')
 sts = boto3.client('sts')
 cw_events = boto3.client('events')
 
-# SSM parameter name for the Personalize filter for purchased items
+# SSM parameter names
+product_recs_param_name = 'retaildemostore-product-recommendation-campaign-arn'
+related_products_param_name = 'retaildemostore-related-products-campaign-arn'
 filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 dataset_group_name_root = 'retaildemostore-'
 
 # -- Shared Functions
+
+def get_external_experiment_config(feature: str, campaign_arn_param_name: str, args: ImmutableMultiDict) -> ExternalExperimentConfig:
+    variation_type = args.get('extExpVariationType')
+    if not variation_type:
+        return None
+
+    if not ResolverFactory.is_registered(variation_type):
+        raise BadRequest('extExpVariationType is not a registered resolver type')
+
+    name = args.get('extExpName')
+    id = args.get('extExpId', name)
+    type = args.get('extExpType')
+    variation_idx = args.get('extExpVariationIdx', 0)
+
+    variation_config = {
+        'type': variation_type
+    }
+
+    if (variation_type == ResolverFactory.TYPE_PERSONALIZE_RECOMMENDATIONS or
+        variation_type == ResolverFactory.TYPE_PERSONALIZE_RANKING):
+
+        values = get_parameter_values([ campaign_arn_param_name, filter_purchased_param_name ])
+        variation_config['campaign_arn'] = values[0]
+        variation_config['filter_arn'] = values[1]
+
+    return ExternalExperimentConfig(
+        id = id,
+        feature = feature,
+        name = name,
+        type = type,
+        variation_config = variation_config,
+        variation_index = variation_idx)
 
 def get_recipe(campaign_arn):
     """ Returns the Amazon Personalize recipe ARN for the specified campaign ARN """
@@ -107,7 +143,8 @@ def get_parameter_values(names):
 
     return values
 
-def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False, fully_qualify_image_urls = False):
+def get_products(feature, user_id, current_item_id, num_results, campaign_arn_param_name, user_reqd_for_campaign = False,
+        fully_qualify_image_urls = False, external_experiment_config = None):
     """ Returns products given a UI feature, user, item/product.
 
     If a feature name is provided and there is an active experiment for the
@@ -140,7 +177,11 @@ def get_products(feature, user_id, current_item_id, num_results, campaign_arn_pa
     # Get active experiment if one is setup for feature and we have a user.
     if feature and user_id:
         exp_manager = ExperimentManager()
-        experiment = exp_manager.get_active(feature)
+
+        if external_experiment_config:
+            experiment = exp_manager.create_external(external_experiment_config)
+        else:
+            experiment = exp_manager.get_active(feature)
 
     if experiment:
         # Get items from experiment.
@@ -292,6 +333,8 @@ def related():
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
+    # Externally managed experiments can specify their details as request parameters.
+    external_exp_config = get_external_experiment_config(feature, product_recs_param_name, request.args)
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
@@ -301,8 +344,9 @@ def related():
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            campaign_arn_param_name = 'retaildemostore-related-products-campaign-arn',
-            fully_qualify_image_urls = fully_qualify_image_urls
+            campaign_arn_param_name = related_products_param_name,
+            fully_qualify_image_urls = fully_qualify_image_urls,
+            external_experiment_config = external_exp_config
         )
 
     except Exception as e:
@@ -335,6 +379,8 @@ def recommendations():
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
+    # Externally managed experiments can specify their details as request parameters.
+    external_exp_config = get_external_experiment_config(feature, product_recs_param_name, request.args)
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
@@ -344,8 +390,9 @@ def recommendations():
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            campaign_arn_param_name = 'retaildemostore-product-recommendation-campaign-arn',
-            fully_qualify_image_urls = fully_qualify_image_urls
+            campaign_arn_param_name = product_recs_param_name,
+            fully_qualify_image_urls = fully_qualify_image_urls,
+            external_experiment_config = external_exp_config
         )
         app.logger.debug(f"Recommendations response to be returned: {response}")
         return response
@@ -355,7 +402,7 @@ def recommendations():
         raise BadRequest(message = 'Unhandled error', status_code = 500)
 
 
-def ranking_request_params():
+def ranking_request_params(ranking_param_name='retaildemostore-personalized-ranking-campaign-arn'):
     """
     Utility function which grabs a JSON body and extracts the UserID, item list and feature name.
     Returns:
@@ -380,12 +427,15 @@ def ranking_request_params():
 
     app.logger.info(f"Items pulled from json: {items}")
 
-    return user_id, items, feature
+    # Externally managed experiments can specify their details as request parameters.
+    external_exp_config = get_external_experiment_config(feature, ranking_param_name, content)
+
+    return user_id, items, feature, external_exp_config
 
 
 def get_ranking(user_id, items, feature,
                 default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn',
-                top_n=None, context=None):
+                top_n=None, context=None, external_exp_config=None):
     """
     Re-ranks a list of items using personalized reranking.
     Or delegates to experiment manager if there is an active experiment.
@@ -398,6 +448,7 @@ def get_ranking(user_id, items, feature,
         default_campaign_arn_param_name: For discounts this would be different.
         top_n (Optional[int]): Only return the top N ranked if not None.
         context (Optional[dict]): If available, passed to the reranking Personalization recipe.
+        external_exp_config: external experiment configuration
 
     Returns:
         Items as passed in, but ordered according to reranker - also might have experimentation metadata added.
@@ -424,7 +475,11 @@ def get_ranking(user_id, items, feature,
     # Get active experiment if one is setup for feature.
     if feature:
         exp_manager = ExperimentManager()
-        experiment = exp_manager.get_active(feature)
+
+        if external_exp_config:
+            experiment = exp_manager.create_external(external_exp_config)
+        else:
+            experiment = exp_manager.get_active(feature)
 
     if experiment:
         app.logger.info('Using experiment: ' + experiment.name)
@@ -504,9 +559,14 @@ def rerank():
     """
     items = []
     try:
-        user_id, items, feature = ranking_request_params()
+        user_id, items, feature, external_exp_config = ranking_request_params()
         print('ITEMS', items)
-        response_items, resp_headers = get_ranking(user_id, items, feature)
+        response_items, resp_headers = get_ranking(
+            user_id = user_id,
+            items = items,
+            feature = feature,
+            external_exp_config = external_exp_config
+        )
         app.logger.debug(f"Response items for reranking: {response_items}")
         resp = Response(json.dumps(response_items, cls=CompatEncoder), content_type='application/json',
                         headers=resp_headers)
