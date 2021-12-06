@@ -14,15 +14,16 @@
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@layer0/core": "^3.5.0",
-    "@layer0/devtools": "^3.5.0",
-    "@layer0/prefetch": "^3.5.0",
+    "@layer0/core": "^3.17.5",
+    "@layer0/devtools": "^3.17.5",
+    "@layer0/prefetch": "^3.17.5",
     "@optimizely/optimizely-sdk": "4.0.0",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
     "axios": "^0.21.2",
     "mapbox-gl": "^1.12.0",
+    "register-service-worker": "^1.7.2",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
     "vue": "^2.6.14",
@@ -31,10 +32,11 @@
     "vue-router": "^3.5.1",
     "vue-the-mask": "^0.11.1",
     "vuex": "^3.6.2",
-    "vuex-persistedstate": "^3.2.0"
+    "vuex-persistedstate": "^3.2.0",
+    "workbox-webpack-plugin": "^6.4.1"
   },
   "devDependencies": {
-    "@layer0/cli": "^3.5.0",
+    "@layer0/cli": "^3.17.5",
     "@vue/cli-plugin-babel": "^4.5.13",
     "@vue/cli-plugin-eslint": "^4.5.13",
     "@vue/cli-service": "^4.5.13",
