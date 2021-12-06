@@ -21,6 +21,19 @@ export const CACHE_PAGES = {
   },
 };
 
+export const CACHE_FALLBACK_PAGES = {
+  edge: {
+    maxAgeSeconds: TIME_4H,
+    forcePrivateCaching: true,
+    staleWhileRevalidateSeconds: TIME_1H, // this way stale items can still be prefetched
+  },
+  browser: {
+    maxAgeSeconds: 0,
+    serviceWorkerSeconds: TIME_4H,
+    spa: true,
+  },
+};
+
 /**
  * The default cache setting for static assets like JS, CSS, and images.
  */
