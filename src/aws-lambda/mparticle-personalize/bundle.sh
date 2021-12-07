@@ -9,7 +9,7 @@ echo "Cleaning up intermediate files"
 [ -e "package" ] && rm -rf package
 [ -e "node_modules" ] && rm -rf node_modules
 
-npm install
+npm ci 
 
 echo "Adding Lambda function source code to package"
 zip -gr ${PACKAGE_FILE} ${LAMBDA_SOURCE} package.json node_modules

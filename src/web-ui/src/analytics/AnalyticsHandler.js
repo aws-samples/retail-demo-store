@@ -22,6 +22,15 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().setUserId(null)
             Amplitude.getInstance().regenerateDeviceId()
         }
+        if (this.mParticleEnabled()) {
+            var identityCallback = function() { 
+             window.mParticle.logEvent(
+                        'Logout',
+                        window.mParticle.EventType.Transaction, {}
+                    );
+            };
+            window.mParticle.Identity.logout({}, identityCallback);
+           }
     },
 
     async identify(user) {
@@ -337,6 +346,7 @@ export const AnalyticsHandler = {
             };
     
             let customAttributes = {
+                mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
                 cartId: cart.id,
                 category: product.category,
                 image: product.image,
@@ -424,6 +434,7 @@ export const AnalyticsHandler = {
                 productURLs = [cartItem.url]
 
                 let customAttributes = {
+                   mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
                    HasShoppingCart: cart.items.length > 0 ? true : false,
                    WebsiteCartURL: process.env.VUE_APP_WEB_ROOT_URL + '#/cart',
                    WebsiteLogoImageURL: process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg',
@@ -482,7 +493,7 @@ export const AnalyticsHandler = {
             origQuantity // Quantity
         );
 
-            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.RemoveFromCart, product1, {});
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.RemoveFromCart, product1, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
         }
 
         if (this.segmentEnabled()) {
@@ -556,7 +567,7 @@ export const AnalyticsHandler = {
             cartItem.quantity // Quantity
         );
 
-            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, product1, {});
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, product1, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
         }
 
         if (this.segmentEnabled()) {
@@ -623,7 +634,7 @@ export const AnalyticsHandler = {
                parseFloat(product.price.toFixed(2)),
                1
            );
-           window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails);
+           window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails,{mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
         }
 
         if (this.amplitudeEnabled()) {
@@ -717,7 +728,7 @@ export const AnalyticsHandler = {
                  Revenue: totalAmount,
                  Tax: totalAmount * .10
              };
-             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Click, cartViewList, {}, {}, transactionAttributes);
+             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Click, cartViewList, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}, {}, transactionAttributes);
          }
 
         if (this.amplitudeEnabled()) {
@@ -805,7 +816,7 @@ export const AnalyticsHandler = {
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
-            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Checkout, checkoutList, {}, {}, transactionAttributes);
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Checkout, checkoutList, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}, {}, transactionAttributes);
         }
 
         if (this.amplitudeEnabled()) {
@@ -924,7 +935,7 @@ export const AnalyticsHandler = {
                 Tax: totalAmount * .10
             };
     
-            let customAttributes = {}
+            let customAttributes = {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}
     
             if (order.promo_code != null && order.promo_code != "")
                 customAttributes = { promo_code: order.promo_code };
@@ -1004,6 +1015,7 @@ export const AnalyticsHandler = {
         if (this.mParticleEnabled()) {
             let customAttributes = {
                 resultCount: numResults,
+                mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
                 query: query,
                 reranked: (user ? 'true' : 'false')
             };
