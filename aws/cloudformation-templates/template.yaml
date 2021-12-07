@@ -61,6 +61,8 @@ Metadata:
           - mParticleOrgId
           - mParticleApiKey
           - mParticleSecretKey
+          - mParticleS2SApiKey
+          - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
     ParameterLabels:
       ResourceBucket:
