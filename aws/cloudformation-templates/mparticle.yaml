@@ -50,12 +50,6 @@ Resources:
       Runtime: nodejs12.x
       Timeout: 900
       FunctionName: !Sub '${Uid}-mParticlePersonalizeLambda'
-      Environment:
-        Variables:
-          PERSONALISE_TRACKING_ID:  ''
-          PERSONALISE_CAMPAIGN_ARN: ''
-          MPARTICLE_S2S_API_KEY: ''
-          MPARTICLE_S2S_SECRET_KEY: ''
 
   mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'
