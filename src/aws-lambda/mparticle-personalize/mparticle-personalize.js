@@ -162,6 +162,13 @@ exports.handler = async function (event, context) {
         };
     
         // Send to Event to mParticle
-        mpApiInstance.bulkUploadEvents(body, mp_callback);
+        try{
+             await mpApiInstance.uploadEvents(body, mp_callback);
+        }catch(e)
+        {
+              console.log("Error Uploading Recommendations back to mParticle.");
+             console.log(e); 
+                throw e;   
+        }
     }
 };
