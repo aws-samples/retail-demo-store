@@ -52,7 +52,7 @@ Resources:
   RetailDemoStoreGitHubRepo:
     Type: AWS::SageMaker::CodeRepository
     Properties: 
-      CodeRepositoryName: !Sub '${Uid}-retail-demo-store'
+      CodeRepositoryName: !Sub '${Uid}-demo-store'
       GitConfig: 
         Branch: !Ref GitHubBranch
         RepositoryUrl:  !Sub
@@ -67,7 +67,7 @@ Resources:
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      DefaultCodeRepository: !Sub '${Uid}-retail-demo-store'
+      DefaultCodeRepository: !Sub '${Uid}-demo-store'
       Tags:
         -
           Key: "Uid"
