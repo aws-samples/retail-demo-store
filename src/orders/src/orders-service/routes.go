@@ -30,6 +30,12 @@ var routes = Routes{
 		OrderIndex,
 	},
 	Route{
+		"OrdersByDeliveryStatus",
+		"GET",
+		"/orders/status/{deliveryStatus}",
+		OrdersIndexByDeliveryStatus ,
+	},
+	Route{
 		"OrderShowByID",
 		"GET",
 		"/orders/id/{orderID}",

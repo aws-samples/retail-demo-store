@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     async getOrders() {
-      const allOrders = (await OrdersRepository.get()).data;
+      const allOrders = (await OrdersRepository.getOrderByDeliveryStatus('AWAITING_COLLECTION')).data;
       this.orders = allOrders.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE");
       this.ordersLoaded = true;
     },

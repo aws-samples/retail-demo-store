@@ -30,6 +30,21 @@ func OrderIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// OrdersOpen Handler
+func OrdersIndexByDeliveryStatus(w http.ResponseWriter, r *http.Request) {
+
+	enableCors(&w)
+
+	vars := mux.Vars(r)
+	deliveryStatus := vars["deliveryStatus"]
+
+	orders := RepoFindOrdersByDeliveryStatus(deliveryStatus)
+
+	if err := json.NewEncoder(w).Encode(orders); err != nil {
+		panic(err)
+	}
+}
+
 // OrderIndexByUsername Handler
 func OrderIndexByUsername(w http.ResponseWriter, r *http.Request) {
 

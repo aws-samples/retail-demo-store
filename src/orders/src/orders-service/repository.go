@@ -164,6 +164,70 @@ func RepoFindALLOrders() Orders {
 	return f
 }
 
+func RepoFindOrdersByDeliveryStatus(deliveryStatus string) Orders {
+	log.Println("RepoFindOrdersByDeliveryType: ", deliveryStatus)
+
+	var f Orders
+
+	keycond := expression.Key("delivery_status").Equal(expression.Value(strings.ToUpper(deliveryStatus)))
+	proj := expression.NamesList(expression.Name("id"),
+		expression.Name("username"),
+		expression.Name("billing_address"),
+		expression.Name("channel"),
+		expression.Name("channel_detail"),
+		expression.Name("collection_phone"),
+		expression.Name("delivery_complete"),
+		expression.Name("delivery_status"),
+		expression.Name("delivery_type"),
+		expression.Name("items"),
+		expression.Name("shipping_address"),
+		expression.Name("total"),
+	)
+	expr, err := expression.NewBuilder().WithKeyCondition(keycond).WithProjection(proj).Build()
+
+	if err != nil {
+		log.Println("Got error building expression:")
+		log.Println(err.Error())
+	}
+
+	params := &dynamodb.QueryInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(ddbTableOrders),
+		IndexName:                 aws.String("delivery_status-index"),
+	}
+	// Make the DynamoDB Query API call
+	result, err := dynamoClient.Query(params)
+
+	if err != nil {
+		log.Println("Got error QUERY expression:")
+		log.Println(err.Error())
+	}
+
+	log.Println("RepoFindOrdersByDeliveryType / items found =  ", len(result.Items))
+
+	for _, i := range result.Items {
+		item := Order{}
+
+		err = dynamodbattribute.UnmarshalMap(i, &item)
+
+		if err != nil {
+			log.Println("Got error unmarshalling:")
+			log.Println(err.Error())
+		}
+
+		f = append(f, item)
+	}
+
+	if len(result.Items) == 0 {
+		f = make([]Order, 0)
+	}
+
+	return f
+}
+
 
 func RepoUpdateOrder(existingOrder *Order, updatedOrder *Order) Order {
 	log.Printf("UpdateOrder from %#v to %#v", existingOrder, updatedOrder)

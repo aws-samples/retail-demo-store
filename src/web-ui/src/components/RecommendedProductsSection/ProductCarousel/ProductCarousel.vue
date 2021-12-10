@@ -64,7 +64,7 @@ export default {
       windowWidth: window.innerWidth
     };
   },
-  mounted () {
+  mounted() {
     this.$nextTick(() => {
       window.addEventListener('resize', this.onResize);
     })
@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    showCarousel () {
+    showCarousel() {
       if (this.windowWidth > 768) {
         return this.recommendedProducts.length > 3
       } else if (this.windowWidth > 480) {
@@ -86,7 +86,6 @@ export default {
       } else {
         return this.recommendedProducts.length > 1
       }
-
     }
   }
 };

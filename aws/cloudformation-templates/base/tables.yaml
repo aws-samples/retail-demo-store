@@ -67,6 +67,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "username"
           AttributeType: "S"
+        - AttributeName: "delivery_status"
+          AttributeType: "S"
       KeySchema: 
         - AttributeName: "id"
           KeyType: "HASH"
@@ -75,6 +77,12 @@ Resources:
         - IndexName: username-index
           KeySchema:
             - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: delivery_status-index
+          KeySchema:
+            - AttributeName: "delivery_status"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL

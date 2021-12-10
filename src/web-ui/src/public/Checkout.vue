@@ -235,6 +235,7 @@ export default {
       if (this.collection) {
         this.order.shipping_address = {}
         this.order.delivery_type = 'COLLECTION'
+        this.order.delivery_status = 'AWAITING_COLLECTION'
         // we tack the + back on the phone number - we mask out non-numeric characters in our input
         // but Pinpoint expects it.
         this.order.collection_phone = '+' + this.collectionPhone
@@ -243,11 +244,9 @@ export default {
       }
       console.log(this.order)
       OrdersRepository.createOrder(this.cart).then(response => {
-
-      AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
-      AmplifyStore.dispatch('getNewCart')
-      callback()
-
+        AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
+        AmplifyStore.dispatch('getNewCart')
+        callback()
      })
     },
   },

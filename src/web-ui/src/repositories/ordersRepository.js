@@ -21,6 +21,11 @@ export default {
             throw "orderID required"
         return connection.get(`${resource}/id/${orderID}`)
     },
+    getOrderByDeliveryStatus(deliveryStatus) {
+        if (!deliveryStatus || deliveryStatus.length == 0)
+            throw "deliveryStatus required"
+        return connection.get(`${resource}/status/${deliveryStatus}`)
+    },
     getOrdersByUsername(username) {
         if (!username || username.length == 0)
             throw "username required"
