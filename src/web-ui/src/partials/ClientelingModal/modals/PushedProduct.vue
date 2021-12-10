@@ -1,5 +1,5 @@
 <template>
-  <ModalLayout :name="name" :show-close-button="false" @closeModal="this.closeClientelingModal">
+  <ModalLayout :name="name" :show-close-button="false" @closeModal="closeClientelingModal">
     <h2 class="mb-4">
       Product shared
     </h2>
