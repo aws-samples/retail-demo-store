@@ -9,6 +9,7 @@ import {Auth} from "aws-amplify";
 import swal from "sweetalert";
 import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
+import {mapActions} from "vuex";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const ProductsRepository = RepositoryFactory.get('products')
@@ -25,6 +26,7 @@ export default {
     this.getCognitoUser().then(() => this.openWebsocketConnection());
   },
   methods: {
+    ...mapActions(['openClientelingModal']),
     async getCognitoUser() {
       this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
@@ -47,69 +49,85 @@ export default {
         console.log(messageData)
         if (this.isInstoreView) {
           if (messageData.EventType === "COLLECTION") {
-            const customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`
-            let orderDetail;
-            const orders = messageData.Orders;
-            if (orders.length > 1) {
-              const orderIds = orders.map((order => `#${order.id}`))
-              orderDetail = `orders ${orderIds.join(', ')}`;
-            } else {
-              orderDetail = `order #${orders[0].id}`;
-            }
-            let pickupTime = new Date();
-            pickupTime.setMinutes(pickupTime.getMinutes() + 20);
-            const formattedPickupTime = pickupTime.toLocaleString('en-US');
-            swal({
-              title: 'New Collection',
-              text: `${customerName} will be at level 3 at ${formattedPickupTime} to collect ${orderDetail}`
-            });
+            this.handleInStoreCollectionMessage(messageData)
           }
         } else if (!this.isLocationView) {
           if (messageData.EventType === "PURCHASE") {
-            RecommendationsRepository.getCouponOffer(this.user.id)
-                .then((offer_recommendation) => {
-                  const offer = offer_recommendation.data.offer;
+            this.handleCustomerPurchaseMessage(messageData)
+          } else if (messageData.EventType === "COLLECTION") {
+            this.handleCustomerCollectionMessage(messageData)
+          } else if (messageData.EventType === "PUSHPRODUCT") {
+            this.handleProductPushMessage(messageData)
+          }
+        }
+      }
+    },
+    handleCustomerPurchaseMessage () {
+      RecommendationsRepository.getCouponOffer(this.user.id)
+          .then((offer_recommendation) => {
+            const offer = offer_recommendation.data.offer;
 
-                  let offerDiv = document.createElement("div");
-                  offerDiv.innerHTML = `
+            let offerDiv = document.createElement("div");
+            offerDiv.innerHTML = `
                                 <div class='row'>
                                     <div class='col'>
                                         <b>${offer.codes[0]}:</b> ${offer.description}
                                     </div>
                                 </div>`
-                  swal({
-                    title: 'Store nearby',
-                    text: `We noticed that you are close to your Local AWS Retail Demo Store. Pop into our store near you, check our newest collection, and use the code: ${offer.codes[0]} for any purchase and get ${offer.description}.`,
-                    content: offerDiv
-                  });
-                });
-          } else if (messageData.EventType === "COLLECTION") {
-            const orders = messageData.Orders;
-            const orderListDiv = document.createElement("div");
+            swal({
+              title: 'Store nearby',
+              text: `We noticed that you are close to your Local AWS Retail Demo Store. Pop into our store near you, check our newest collection, and use the code: ${offer.codes[0]} for any purchase and get ${offer.description}.`,
+              content: offerDiv
+            });
+          });
+    },
+    handleCustomerCollectionMessage (messageData) {
+      const orders = messageData.Orders;
+      const orderListDiv = document.createElement("div");
 
-            const ordersHtml = orders.slice(0, 3).map((order) => {
-              const orderHtml = order.items.slice(0, 3).map(async (product) => {
-                const { data } = await ProductsRepository.getProduct(product.product_id)
-                const productImageUrl = this.getProductImageURL(data)
-                return `<div class="col-4"><img src="${productImageUrl}" style="width: 100%"><small>${data.name}</small></div>`
-              })
+      const ordersHtml = orders.slice(0, 3).map((order) => {
+        const orderHtml = order.items.slice(0, 3).map(async (product) => {
+          const { data } = await ProductsRepository.getProduct(product.product_id)
+          const productImageUrl = this.getProductImageURL(data)
+          return `<div class="col-4"><img src="${productImageUrl}" style="width: 100%"><small>${data.name}</small></div>`
+        })
 
-              return Promise.all(orderHtml).then((productHtml) => {
-                 return `<div>Order #${order.id}</div><div class="row">${productHtml.join('')}</div>`
-              })
-            })
+        return Promise.all(orderHtml).then((productHtml) => {
+          return `<div>Order #${order.id}</div><div class="row">${productHtml.join('')}</div>`
+        })
+      })
 
-            Promise.all(ordersHtml).then((responses) => {
-              orderListDiv.innerHTML = responses.join('')
-              swal({
-                title: 'Collection available',
-                text: `Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):`,
-                content: orderListDiv
-              });
-            })
-          }
-        }
+      Promise.all(ordersHtml).then((responses) => {
+        orderListDiv.innerHTML = responses.join('')
+        swal({
+          title: 'Collection available',
+          text: `Welcome! We are waiting for you at Level 3, Door 2 of your Local Retail Demo Store, and Steve from our team will be greeting you with your following order(s):`,
+          content: orderListDiv
+        });
+      })
+    },
+    handleInStoreCollectionMessage (messageData) {
+      const customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`
+      let orderDetail;
+      const orders = messageData.Orders;
+      if (orders.length > 1) {
+        const orderIds = orders.map((order => `#${order.id}`))
+        orderDetail = `orders ${orderIds.join(', ')}`;
+      } else {
+        orderDetail = `order #${orders[0].id}`;
       }
+      let pickupTime = new Date();
+      pickupTime.setMinutes(pickupTime.getMinutes() + 20);
+      const formattedPickupTime = pickupTime.toLocaleString('en-US');
+      swal({
+        title: 'New Collection',
+        text: `${customerName} will be at level 3 at ${formattedPickupTime} to collect ${orderDetail}`
+      });
+    },
+    async handleProductPushMessage (messageData) {
+      const { data } = await ProductsRepository.getProduct(messageData.ProductId)
+      this.openClientelingModal({name: 'pushed-product', product: data})
+      return true
     },
     getProductImageURL (product) {
       if (product.image.includes('://')) {
@@ -122,7 +140,7 @@ export default {
   },
   computed: {
     isInstoreView() {
-      return this.$route.name.toLowerCase() === 'collections';
+      return ['collections', 'clienteling'].includes(this.$route.name.toLowerCase());
     },
     isLocationView() {
       return this.$route.name.toLowerCase() === 'location';

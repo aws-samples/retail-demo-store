@@ -8,7 +8,7 @@
         query: { feature, exp: experimentCorrelationId },
       }"
     >
-      <div>
+      <div @click="onClick">
         <div><img :src="productImageURL" class="card-img-top" :alt="product.name" /></div>
 
         <div class="p-3">
@@ -55,7 +55,11 @@ export default {
     experiment: { type: Object, required: false },
     feature: { type: String, required: true },
   },
-
+  methods: {
+    onClick (e) {
+      this.$emit('click', e, this.product)
+    }
+  },
   computed: {
     productImageURL() {
       return getProductImageUrl(this.product);

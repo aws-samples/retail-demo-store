@@ -23,6 +23,7 @@
           :recommendedProducts="userRecommendations"
           feature="FEATURE"
           class="mt-4"
+          @productClick="onProductClick"
       >
         <template #heading>
           Recommended for {{ userFullName }}
@@ -84,9 +85,6 @@ export default {
   },
   methods: {
     ...mapActions(['openClientelingModal']),
-    openModal() {
-      this.openClientelingModal({name: 'share-product', product: this.orderedProductDetail[0].product})
-    },
     async fetchData() {
       this.getUser();
       this.getUserRecommendations()
@@ -116,7 +114,7 @@ export default {
       })
     },
     async getAbandonedCartProductDetails() {
-      if (this.userAbandonedCarts.length > 0) {
+      if (this.userAbandonedCarts?.length > 0) {
         let detail = await this.getItemDetails(this.userAbandonedCarts)
         this.abandonedCartProductDetail = detail.map((product) => {
           return {product: product}
@@ -140,6 +138,10 @@ export default {
         data = new Array(data)
       }
       return data
+    },
+    onProductClick (e, product) {
+      e.preventDefault()
+      this.openClientelingModal({name: 'share-product', product: product})
     }
   },
   computed: {

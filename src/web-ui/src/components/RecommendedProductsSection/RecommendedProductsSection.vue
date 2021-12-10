@@ -15,6 +15,7 @@
         v-else
         :recommendedProducts="recommendedProducts"
         :feature="feature"
+        @productClick="onProductClick"
         class="col"
       ></ProductCarousel>
     </div>
@@ -50,6 +51,11 @@ export default {
       return !this.recommendedProducts;
     },
   },
+  methods: {
+    onProductClick (e, product) {
+      this.$emit('productClick', e, product)
+    }
+  }
 };
 </script>
 

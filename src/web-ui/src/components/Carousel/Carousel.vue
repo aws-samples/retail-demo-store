@@ -50,7 +50,7 @@ export default {
 
 @media (min-width: 576px) {
   .agile__nav-button {
-    --button-distance: -15px;
+    --button-distance: -30px;
     color: var(--grey-200);
   }
 

@@ -55,7 +55,10 @@ def lambda_handler(event, context):
             for connection_id in dynamo_entry['Item']['connectionIds']['SS']:
                 try:
                     logger.info(f'Posting to connection ID: {connection_id}')
-                    send_body = {'productId': product_id}
+                    send_body = {
+                        'EventType': 'PUSHPRODUCT',
+                        'ProductId': product_id,
+                    }
                     apigateway.post_to_connection(Data=json.dumps(send_body), ConnectionId=connection_id)
                 except apigateway.exceptions.GoneException:
                     logger.info(f'Connection ID {connection_id} is gone, will remove.')
