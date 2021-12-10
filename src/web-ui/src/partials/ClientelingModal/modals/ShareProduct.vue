@@ -8,12 +8,15 @@
         <Product :product="product" feature="dogs"/>
       </div>
       <div class="col-6 d-flex">
-        <div class="my-auto pb-5">
-          <div class="mb-4">
-            Would you like to push this product to the customer's device?
+        <div class="my-auto pb-3">
+          <div>
+            Would you like to send this product to the customer's device?
           </div>
-          <button class="btn btn-outline-primary" @click="pushProduct">
-            Yes
+          <div class="font-weight-bold font-small mt-2" v-if="!isOutfitBuilderProduct">
+            Note: This product is not available for outfit builder.
+          </div>
+          <button class="btn btn-primary mt-3" @click="pushProduct">
+            Send
           </button>
         </div>
       </div>
@@ -64,6 +67,11 @@ export default {
       name: (state) => state.clientelingModal.name,
       product: (state) => state.clientelingModal.product,
     }),
+    isOutfitBuilderProduct () {
+      let categories = ['accessories', 'footwear']
+      let styles = ['jacket', 'shirt']
+      return categories.includes(this.product.category) || styles.includes(this.product.style)
+    }
   },
 }
 </script>

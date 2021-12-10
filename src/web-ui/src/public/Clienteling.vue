@@ -33,15 +33,17 @@
           :recommendedProducts="orderedProductDetail"
           feature="FEATURE"
           class="mt-4"
+          @productClick="onProductClick"
       >
         <template #heading>
           Recently ordered products
         </template>
       </RecommendedProductsSection>
       <RecommendedProductsSection
-          :recommendedProducts="abandonedCartProductDetail"
+          :recommendedProducts="abandonedCartWithoutOrdered"
           feature="FEATURE"
           class="mt-4"
+          @productClick="onProductClick"
       >
         <template #heading>
           Abandoned carts
@@ -53,7 +55,7 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 import Layout from "@/components/Layout/Layout";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
@@ -86,8 +88,7 @@ export default {
   methods: {
     ...mapActions(['openClientelingModal']),
     async fetchData() {
-      this.getUser();
-      this.getUserRecommendations()
+      this.getUser().then(this.getUserRecommendations)
       this.getUserOrders(this.$route.params.username).then(this.getOrderProductDetails)
       this.getUserAbandonedCarts(this.$route.params.username).then(this.getAbandonedCartProductDetails)
     },
@@ -104,8 +105,21 @@ export default {
       this.userOrders = data
     },
     async getUserRecommendations() {
-      let {data} = await RecommendationsRepository.getRecommendationsForUser(this.$route.params.username)
-      this.userRecommendations = data
+      // let {data} = await RecommendationsRepository.getRecommendationsForUser(this.$route.params.username)
+      // this.userRecommendations = data
+      let apparel = ProductsRepository.getProductsByCategory('apparel').then((response) => {
+        return response.data.filter(p => p.gender_affinity === this.user.gender && ['jacket', 'shirt'].includes(p.style))
+      })
+      let footwear = ProductsRepository.getProductsByCategory('footwear').then((response) => {
+        return response.data.filter(p => p.gender_affinity === this.user.gender)
+      })
+      let accessories = ProductsRepository.getProductsByCategory('accessories').then((response) => {
+        return response.data.filter(p => p.gender_affinity === this.user.gender)
+      })
+      Promise.all([apparel, footwear, accessories]).then(async (x) => {
+        let {data} = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, x.flat())
+        this.userRecommendations = data.map((p) => {return {product: p}}).slice(0, 15)
+      })
     },
     async getOrderProductDetails() {
       let detail = await this.getItemDetails(this.userOrders)
@@ -145,6 +159,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['personalizeUserID']),
     totalOrders() {
       return this.userOrders ? this.userOrders.length : 0
     },
@@ -160,6 +175,13 @@ export default {
     userFullName() {
       return this.user?.first_name + ' ' + this.user?.last_name
     },
+    abandonedCartWithoutOrdered () {
+      if (this.abandonedCartProductDetail && this.orderedProductDetail) {
+        let orderedIds = this.orderedProductDetail.map(p => p.product.id)
+        return this.abandonedCartProductDetail.filter(p => !orderedIds.includes(p.product.id))
+      }
+      return null
+    }
   },
   watch: {
     '$route.params.username': function () {

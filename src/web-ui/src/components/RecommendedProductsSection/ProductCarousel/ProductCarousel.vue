@@ -15,7 +15,7 @@
         <div
             v-for="item in recommendedProducts"
             :key="item.product.id"
-            class="col-3 px-1 text-left align-self-stretch d-flex align-items-stretch text-decoration-none"
+            class="col-6 col-sm-4 col-md-3 px-1 text-left align-self-stretch d-flex align-items-stretch text-decoration-none"
         >
           <Product :product="item.product" :experiment="item.experiment" :feature="feature"
                    @click="onProductClick"></Product>
@@ -64,7 +64,7 @@ export default {
       windowWidth: window.innerWidth
     };
   },
-  mounted() {
+  mounted () {
     this.$nextTick(() => {
       window.addEventListener('resize', this.onResize);
     })
@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    showCarousel() {
+    showCarousel () {
       if (this.windowWidth > 768) {
         return this.recommendedProducts.length > 3
       } else if (this.windowWidth > 480) {
