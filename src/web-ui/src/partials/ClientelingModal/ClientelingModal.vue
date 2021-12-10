@@ -8,6 +8,7 @@ import { ClientelingModals } from './config';
 
 import ShareProduct from "@/partials/ClientelingModal/modals/ShareProduct";
 import PushedProduct from "@/partials/ClientelingModal/modals/PushedProduct";
+import ScannedProduct from "@/partials/ClientelingModal/modals/ScannedProduct";
 
 export default {
   name: 'ClientelingModal',
@@ -20,7 +21,9 @@ export default {
         case ClientelingModals.ShareProduct:
           return ShareProduct;
         case ClientelingModals.PushedProduct:
-          return PushedProduct
+          return PushedProduct;
+        case ClientelingModals.ScannedProduct:
+          return ScannedProduct
       }
 
       throw new Error('Invalid clienteling modal name');

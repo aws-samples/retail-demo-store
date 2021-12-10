@@ -6,6 +6,8 @@
       <Search class="search mx-lg-4"></Search>
       <UserDropdown class="user-dropdown"></UserDropdown>
       <NavSeparator class="d-none d-lg-block mx-2"></NavSeparator>
+      <ScanLink class="scan"></ScanLink>
+      <NavSeparator class="sep-1 mx-2"></NavSeparator>
       <SupportLink class="support"></SupportLink>
       <NavSeparator class="sep-2 mx-2"></NavSeparator>
       <CartLink class="cart"></CartLink>
@@ -21,10 +23,12 @@ import SupportLink from './SupportLink/SupportLink';
 import NavSeparator from './NavSeparator/NavSeparator';
 import CartLink from './CartLink/CartLink';
 import UserDropdown from './UserDropdown/UserDropdown';
+import ScanLink from "@/partials/Navigation/ScanLink/ScanLink";
 
 export default {
   name: 'Navigation',
   components: {
+    ScanLink,
     HomeLink,
     ShopDropdown,
     Search,
@@ -67,6 +71,15 @@ export default {
   grid-area: Support;
 }
 
+.scan {
+  grid-area: Scan;
+}
+
+.sep-1 {
+  grid-area: Sep1;
+  justify-self: end;
+}
+
 .sep-2 {
   grid-area: Sep2;
   justify-self: end;
@@ -79,13 +92,13 @@ export default {
 
 .nav-contents {
   display: grid;
-  grid-template-columns: repeat(2, auto) auto 1fr auto repeat(3, auto);
+  grid-template-columns: repeat(2, auto) auto 1fr auto repeat(5, auto);
   grid-template-rows: repeat(2, auto);
   grid-row-gap: 10px;
   /* let second row components take more space if they need to */
   grid-template-areas:
-    'Shop Logo . . . Support Sep2 Cart'
-    'UserDropdown UserDropdown UserDropdown . Search Search Search Search';
+    'Shop Logo . . . Scan Sep1 Support Sep2 Cart'
+    'UserDropdown UserDropdown UserDropdown UserDropdown . Search Search Search Search Search';
 }
 
 @media (min-width: 992px) {

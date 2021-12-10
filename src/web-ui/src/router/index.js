@@ -30,6 +30,7 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 import { Credentials } from '@aws-amplify/core';
 import Clienteling from "@/public/Clienteling";
 import OutfitBuilder from "@/public/OutfitBuilder";
+import ProductScan from "@/public/ProductScan";
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -287,6 +288,12 @@ const router = new Router({
       component: OutfitBuilder,
       meta: { requiresAuth: true }
     },
+    {
+      path: '/scan',
+      name: 'ScanProduct',
+      component: ProductScan,
+      meta: { requiresAuth: false }
+    },
   ],
   scrollBehavior (_to, _from, savedPosition) {
     if (savedPosition) {
@@ -326,4 +333,27 @@ router.beforeResolve(async (to, from, next) => {
   return next()
 })
 
+router.beforeEach(async (to, from, next) => {
+  // This manual routing for the scan product view is a workaround to account for the fact that the deployed application
+  // backend isn't currently served over HTTPS, but camera functionality required for the scan view is only available in
+  //  secure (HTTPS) sessions. We route to the HTTPS view for the scan view. This is only feasible while the scan view
+  // isn't required to make any API calls.
+  if (to.name === 'ScanProduct') {
+    if (window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
+      return next()
+    } else {
+      window.location = `https://${window.location.host}/#/scan`
+      return next(false)
+    }
+  }
+  if (from.name === 'ScanProduct') {
+    if (window.location.protocol === 'http:' || window.location.hostname === 'localhost') {
+      return next()
+    } else {
+      window.location = `http://${window.location.host}/#${to.fullPath}`
+      return next(false)
+    }
+  }
+  return next()
+})
 export default router
