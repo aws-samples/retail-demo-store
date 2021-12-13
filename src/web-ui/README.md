@@ -35,7 +35,7 @@ Layer0 application works with Vue application production build files.
 To create it, follow the next steps.
 
 1. Make sure your terminal is open in `%project_root%/src/web-ui` folder
-2. Set NodeJS version >= 12 (to check your version use `node -v`)
+2. Set NodeJS version to 14 (to check your version use `node -v`)
 3. Install packages: run `npm install` (or just `npm i`)
 4. Set `VUE_APP_LAYER0_ENABLED` environment variable to `true` in `.env` file
 5. Build Vue application: `npm run build` (build files will appear in `dist` folder)
@@ -43,7 +43,8 @@ To create it, follow the next steps.
 ## Development
 
 Run Layer0 locally using one of the following modes:
-1. `npm run layer0:start` - default run 
+
+1. `npm run layer0:start` - default run
 2. `npm run layer0:start:cache` - run with cache
 3. `npm run layer0:start:prod` - serve production files (requires Layer0 build before, see next section)
 
@@ -55,7 +56,20 @@ To build Layer0 production files run `npm run layer0:build` (Layer0 build files 
 
 ## Deployment
 
-Make sure all the steps of [Build](#Build) section are done before deployment! 
+Make sure all the steps of [Build](#Build) section are done before deployment!
 To check if everything is OK you can try running production build via `npm run layer0:start:prod`.
 
 To deploy files on Layer0 run `npm run layer0:deploy`
+
+To summarize, make sure all of these commands are run to ensure all changes are picked up.
+
+```bash
+# Build app
+npm run build
+
+# Build Layer0 configurations
+npm run layer0:build
+
+# Deploy to Layer0
+npm run layer0:deploy
+```
