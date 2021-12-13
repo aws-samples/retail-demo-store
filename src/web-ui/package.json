@@ -6,17 +6,20 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "layer0:start": "concurrently \"npx webpack --watch --config layer0/webpack.layer0.config.js\" \"npx layer0 run\"",
+    "layer0:start": "concurrently \"npx webpack --watch --config layer0/webpack.layer0.config.js\" \"npx layer0 run --verbose\"",
     "layer0:start:cache": "concurrently \"npx webpack --watch --config layer0/webpack.layer0.config.js\" \"npx layer0 run --cache\"",
     "layer0:start:prod": "npx layer0 run --production",
     "layer0:build": "npx webpack --progress --config layer0/webpack.layer0.config.js && npx layer0 build",
     "layer0:deploy": "npx layer0 deploy --skip-build",
+    "layer0:app:build": "npm run build && npm run layer0:build",
+    "layer0:app:build:deploy": "npm run build && npm run layer0:build && npm run layer0:deploy",
+    "layer0:build:deploy": "npm run layer0:build && npm run layer0:deploy",
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@layer0/core": "^3.17.5",
-    "@layer0/devtools": "^3.17.5",
-    "@layer0/prefetch": "^3.17.5",
+    "@layer0/core": "^4.6.0",
+    "@layer0/devtools": "^4.6.0",
+    "@layer0/prefetch": "^4.6.0",
     "@optimizely/optimizely-sdk": "4.0.0",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
@@ -36,7 +39,7 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "devDependencies": {
-    "@layer0/cli": "^3.17.5",
+    "@layer0/cli": "^4.6.0",
     "@vue/cli-plugin-babel": "^4.5.13",
     "@vue/cli-plugin-eslint": "^4.5.13",
     "@vue/cli-service": "^4.5.13",
@@ -46,11 +49,11 @@
     "eslint-loader": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^4.2.0",
     "lodash": "^4.17.21",
     "vue-template-compiler": "^2.6.14",
-    "webpack-bundle-analyzer": "^3.8.0"
+    "webpack": "^4.44.2",
+    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack-cli": "^4.2.0"
   },
   "eslintConfig": {
     "root": true,
