@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT-0
 
 import { Router } from "@layer0/core/router";
-import { CACHE_ASSETS, CACHE_FALLBACK_PAGES, CACHE_PAGES } from "./cache";
+import { CACHE_ASSETS, CACHE_PAGES } from "./cache";
+import transform from "./transform";
 
 const DIST_APP = "dist";
 const DIST_LAYER0 = "dist-layer0";
@@ -17,25 +18,30 @@ router.prerender([
 
 // layer0 static files
 router.get("/service-worker.js", ({ serviceWorker, cache }) => {
-  cache(CACHE_ASSETS);
+  cache(CACHE_PAGES);
   serviceWorker(`${DIST_LAYER0}/service-worker.js`);
 });
 router.get("/main.js", ({ serveStatic, cache }) => {
-  cache(CACHE_ASSETS);
+  cache(CACHE_PAGES);
   serveStatic(`${DIST_LAYER0}/browser.js`);
 });
 
 // retail demo store services
-router.get("/products-service/:path*", ({ proxy, cache, allowCors }) => {
+router.match({ path: "/products-service/:path*" }, ({ proxy, cache }) => {
   cache(CACHE_PAGES);
-  allowCors();
-  proxy("products-service", { path: "/:path*" });
+  proxy("products-service", { path: "/:path*", transformResponse: transform });
 });
 router.match("/recommendations-service/:path*", ({ proxy }) => {
   proxy("recommendations-service", { path: "/:path*" });
 });
 router.match("/carts-service/:path*", ({ proxy }) => {
   proxy("carts-service", { path: "/:path*" });
+});
+router.match("/carts/:path*", ({ proxy }) => {
+  proxy("carts-service", { path: "/carts/:path*" });
+});
+router.match("/carts", ({ proxy }) => {
+  proxy("carts-service", { path: "/carts" });
 });
 router.match("/users-service/:path*", ({ proxy }) => {
   proxy("users-service", { path: "/:path*" });
@@ -52,6 +58,10 @@ router.match("/videos-service/:path*", ({ proxy }) => {
 router.match("/location-service/:path*", ({ proxy }) => {
   proxy("location-service", { path: "/:path*" });
 });
+router.match("/images/:path*", ({ proxy, cache }) => {
+  cache(CACHE_ASSETS);
+  proxy("images");
+});
 
 // vue static files
 router.static(DIST_APP, {
@@ -64,7 +74,7 @@ router.static(DIST_APP, {
 
 // fallback: index.html
 router.fallback(({ serveStatic, cache }) => {
-  cache(CACHE_FALLBACK_PAGES);
+  cache(CACHE_PAGES);
   serveStatic(`${DIST_APP}/index.html`);
 });
 
