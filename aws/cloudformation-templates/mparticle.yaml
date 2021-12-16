@@ -35,7 +35,10 @@ Resources:
     Properties: 
       Name: !Sub '${Uid}-mParticlePersonalizeEventsKinesisStream'
       ShardCount: 1
-
+      StreamEncryption:
+        EncryptionType: KMS
+        KeyId: alias/aws/kinesis
+        
   mParticlePersonalizeLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
