@@ -4,13 +4,13 @@
       Product shared
     </h2>
     <div class="row">
-      <div class="col-6">
+      <div class="col-12 col-md-6">
         <Product :product="product" feature="clienteling_push" @click="onProductClick"/>
       </div>
-      <div class="col-6 d-flex flex-column">
+      <div class="col-12 col-md-6 d-flex flex-column">
         <div v-if="isOutfitBuilderProduct">
-          <div class="mt-5 mb-3">
-            A customer assistant has shared a product with you. Would you like use it to build an outfit to try on?
+          <div class="mt-3 mt-md-5 mb-3">
+            A customer assistant has shared a product with you. Would you like to build an outfit to try on?
           </div>
           <div>
             <button class="btn btn-primary" @click="onClickTryOn">
@@ -19,7 +19,7 @@
           </div>
         </div>
         <div v-else>
-          <div class="mt-5 mb-3">
+          <div class="mt-3 mt-md-5 mb-3">
             A customer assistant has shared a product with you. Click below to discover more about it.
           </div>
           <div>

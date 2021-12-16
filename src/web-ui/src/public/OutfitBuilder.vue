@@ -105,7 +105,7 @@
 import Layout from "@/components/Layout/Layout";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import Product from "@/components/Product/Product";
-import {mapGetters, mapState} from "vuex";
+import {mapActions, mapGetters, mapState} from "vuex";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
 import LoadingFallback from "@/components/LoadingFallback/LoadingFallback";
 
@@ -133,6 +133,7 @@ export default {
     this.fetchData()
   },
   methods: {
+    ...mapActions(['openClientelingModal']),
     fetchData() {
       this.fetchProduct().then(this.fetchRecommendedProducts)
     },
@@ -141,7 +142,8 @@ export default {
       this.product = product
     },
     onTryOnClick() {
-      console.log('Trying on!')
+      console.log('click')
+      this.openClientelingModal({name: 'outfit-builder-complete'})
     },
     async fetchRecommendedProducts() {
       ProductsRepository.getProductsByCategory('apparel').then(async (response) => {

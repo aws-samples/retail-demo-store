@@ -1,5 +1,6 @@
 export const ClientelingModals = {
-  ShareProduct: 'share-product',
+  OutfitBuilderComplete: 'outfit-builder-complete',
   PushedProduct: 'pushed-product',
+  ShareProduct: 'share-product',
   ScannedProduct: 'scanned-product',
 };

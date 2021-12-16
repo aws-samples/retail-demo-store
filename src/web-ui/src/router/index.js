@@ -31,6 +31,7 @@ import { Credentials } from '@aws-amplify/core';
 import Clienteling from "@/public/Clienteling";
 import OutfitBuilder from "@/public/OutfitBuilder";
 import ProductScan from "@/public/ProductScan";
+import store from "@/store/store";
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -308,7 +309,6 @@ const router = new Router({
 // Check For Authentication
 router.beforeResolve(async (to, from, next) => {
   AmplifyStore.dispatch('pageVisited', from.fullPath);
-
   if (!AmplifyStore.state.welcomePageVisited.visited) {
     const user = await getUser();
 
@@ -356,4 +356,9 @@ router.beforeEach(async (to, from, next) => {
   }
   return next()
 })
+
+router.afterEach(() => {
+  store.dispatch('closeClientelingModal')
+})
+
 export default router
