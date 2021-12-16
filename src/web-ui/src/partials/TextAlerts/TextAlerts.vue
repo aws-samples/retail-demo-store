@@ -12,7 +12,7 @@
           placeholder="Enter cellphone number"
           v-model="phoneNumber"
           mask="+1 (###) ### - ####"
-          class="input py-1 px-2"
+          class="input py-1 px-2 w-100"
         />
 
         <button type="submit" class="submit btn" :disabled="!hasConsented">Submit</button>

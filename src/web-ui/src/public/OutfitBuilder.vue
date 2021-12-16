@@ -85,8 +85,8 @@
               Selected outfit
             </h3>
           </div>
-          <div v-for="prod in selectedOutfit" class="col-3" v-bind:key="prod.id">
-            <product feature="" :product="prod"/>
+          <div v-for="prod in selectedOutfit" class="col-6 col-xs-4 col-md-3" v-bind:key="prod.id">
+            <Product class="mb-3" feature="" :product="prod" @click="e => e.preventDefault()"/>
           </div>
         </div>
         <div class="row" v-if="isValidProduct">
@@ -212,9 +212,9 @@ export default {
     baseProductType() {
       let categories = ['accessories', 'footwear']
       let styles = ['jacket', 'shirt']
-      if (categories.includes(this.product.category)) {
+      if (categories.includes(this.product?.category)) {
         return this.product.category
-      } else if (styles.includes(this.product.style)) {
+      } else if (styles.includes(this.product?.style)) {
         return this.product.style
       }
       return null

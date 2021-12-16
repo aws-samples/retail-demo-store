@@ -1,7 +1,7 @@
 <template>
   <button class="button btn btn-primary" @click="openDemoGuide">
     <div class="demo-guide">DEMO GUIDE</div>
-    <div class="learn-more">Learn more about this demo</div>
+    <div class="learn-more d-none d-md-block">Learn more about this demo</div>
   </button>
 </template>
 

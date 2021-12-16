@@ -5,7 +5,7 @@
     </h2>
     <div class="row">
       <div class="col">
-        <Product class="mb-4" :product="product" feature="dogs" @click="onClickProduct"/>
+        <Product class="mb-4" :product="product" feature="" @click="onClickProduct"/>
       </div>
     </div>
   </ModalLayout>

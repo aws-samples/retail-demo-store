@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <div class="container">
-      <section class="mb-5">
+      <section>
         <div v-if="userRecommendationsTitle" class="mb-3 text-left">
           <h2 class="recommendations-heading">
             {{ userRecommendationsTitle }}

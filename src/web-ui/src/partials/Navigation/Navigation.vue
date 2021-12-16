@@ -1,16 +1,19 @@
 <template>
-  <nav class="navigation fixed-top pt-2 pb-3 p-lg-1">
+  <nav class="navigation fixed-top pt-2 p-lg-1">
     <div class="nav-contents container d-lg-flex align-items-center">
       <HomeLink class="logo"></HomeLink>
       <ShopDropdown class="shop mx-lg-2"></ShopDropdown>
-      <Search class="search mx-lg-4"></Search>
-      <UserDropdown class="user-dropdown"></UserDropdown>
+      <Search class="search mx-lg-4 d-lg-inline-flex collapse multi-collapse"></Search>
+      <UserDropdown class="user-dropdown d-lg-block collapse multi-collapse"></UserDropdown>
       <NavSeparator class="d-none d-lg-block mx-2"></NavSeparator>
       <ScanLink class="scan"></ScanLink>
       <NavSeparator class="sep-1 mx-2"></NavSeparator>
       <SupportLink class="support"></SupportLink>
       <NavSeparator class="sep-2 mx-2"></NavSeparator>
       <CartLink class="cart"></CartLink>
+    </div>
+    <div class="collapse-area d-lg-none">
+      <button class="btn collapse-button collapsed w-100" data-toggle="collapse" data-target=".multi-collapse"/>
     </div>
   </nav>
 </template>
@@ -88,6 +91,35 @@ export default {
 .cart {
   grid-area: Cart;
   justify-self: end;
+}
+
+.collapse-area {
+  line-height: 1 !important;
+}
+
+.collapse-button {
+  background-color: var(--grey-300);
+  border-radius: 0;
+  height: 10px;
+  line-height: 10px;
+  font-size: 12px;
+}
+
+.collapse-button:hover {
+  background-color: var(--grey-400);
+}
+
+.collapse-button:focus {
+  box-shadow: none;
+}
+
+button.btn.collapsed:before {
+  content: ' ̌' ;
+  font-size: 22px;
+}
+button.btn:before {
+  content: '^' ;
+  font-size: 12px;
 }
 
 .nav-contents {

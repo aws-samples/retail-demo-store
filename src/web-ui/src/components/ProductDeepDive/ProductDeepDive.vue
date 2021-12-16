@@ -81,7 +81,7 @@ export default {
       let prefersEnv = ['instruments', 'electronics', 'furniture', 'groceries', 'books']
       let prefersSourcing = ['outdoors', 'accessories', 'tools', 'housewares', 'seasonal']
       let prefersLive = ['beauty', 'homedecor', 'apparel', 'footwear', 'floral']
-      let userPersonaFirst = this.user.persona.split('_')[0].toLowerCase()
+      let userPersonaFirst = this.user?.persona.split('_')[0].toLowerCase()
       if (prefersEnv.includes(userPersonaFirst)) {
         return 'environment'
       } else if (prefersSourcing.includes(userPersonaFirst)) {

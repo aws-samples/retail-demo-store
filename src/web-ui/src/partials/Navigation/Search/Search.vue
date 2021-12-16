@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex dropdown">
+  <div class="dropdown">
     <i :class="{ 'fa fa-search': true, 'fa-search--focused': inputFocused }" aria-hidden></i>
     <input
       type="text"

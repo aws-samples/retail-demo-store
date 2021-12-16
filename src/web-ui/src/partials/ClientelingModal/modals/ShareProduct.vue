@@ -1,11 +1,11 @@
 <template>
-  <ModalLayout :name="name" :show-close-button="false" @closeModal="this.closeClientelingModal">
+  <ModalLayout :name="name" :show-close-button="false" @closeModal="closeClientelingModal">
     <h2 class="mb-4">
       Share with customer
     </h2>
     <div class="row">
       <div class="col-6">
-        <Product :product="product" feature="dogs"/>
+        <Product :product="product" feature="" @click="(e) => e.preventDefault()"/>
       </div>
       <div class="col-6 d-flex">
         <div class="my-auto pb-3">

@@ -173,7 +173,7 @@ export default {
       }
     },
     userFullName() {
-      return this.user?.first_name + ' ' + this.user?.last_name
+      return this.user ? this.user?.first_name + ' ' + this.user?.last_name : ''
     },
     abandonedCartWithoutOrdered () {
       if (this.abandonedCartProductDetail && this.orderedProductDetail) {
