@@ -7,13 +7,23 @@
  */
 import Vue from 'vue';
 import AmplifyStore from '@/store/store';
-import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
+import {Analytics as AmplifyAnalytics} from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
-import { RepositoryFactory } from '@/repositories/RepositoryFactory'
+import {RepositoryFactory} from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
+import tealiumCollect from 'tealium-collect'
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const ProductsRepository = RepositoryFactory.get('products')
+
+let Tealium = require('tealium')
+let tealiumConfig = {
+    "account": "aws-sandbox",
+    "profile": "c360",
+    "datasource": process.env.VUE_APP_TEALIUM_DATA_SOURCE_ID
+}
+let tealium = Tealium(tealiumConfig)
+tealium.addModule(tealiumCollect)
 
 export const AnalyticsHandler = {
     clearUser() {
@@ -50,23 +60,23 @@ export const AnalyticsHandler = {
                 userId: user.id,
                 optOut: 'NONE',
                 userAttributes: {
-                    Username: [ user.username ],
-                    ProfileEmail: [ user.email ],
-                    FirstName: [ user.first_name ],
-                    LastName: [ user.last_name ],
-                    Gender: [ user.gender ],
-                    Age: [ user.age.toString() ],
+                    Username: [user.username],
+                    ProfileEmail: [user.email],
+                    FirstName: [user.first_name],
+                    LastName: [user.last_name],
+                    Gender: [user.gender],
+                    Age: [user.age.toString()],
                     Persona: user.persona.split("_")
                 },
                 attributes: {}
             }
 
             if (user.sign_up_date) {
-                endpoint.attributes.SignUpDate = [ user.sign_up_date ]
+                endpoint.attributes.SignUpDate = [user.sign_up_date]
             }
 
             if (user.last_sign_in_date) {
-                endpoint.attributes.LastSignInDate = [ user.last_sign_in_date ]
+                endpoint.attributes.LastSignInDate = [user.last_sign_in_date]
             }
 
             if (user.addresses && user.addresses.length > 0) {
@@ -121,12 +131,10 @@ export const AnalyticsHandler = {
                 endpoint.address = cognitoUser.attributes.email
                 endpoint.channelType = 'EMAIL'
                 promise = AmplifyAnalytics.updateEndpoint(endpoint)
-            }
-            else {
+            } else {
                 promise = Promise.resolve()
             }
-        }
-        catch(error) {
+        } catch (error) {
             // eslint-disable-next-line
             console.log(error)
             promise = Promise.reject(error)
@@ -356,6 +364,17 @@ export const AnalyticsHandler = {
     
             // Send details of viewed product to mParticle
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, productDetails, customAttributes, {}, transactionAttributes);
+        if (this.tealiumEnabled() && user) {
+            let event_type = 'PRODUCT_ADD'
+            let now = new Date()
+            tealium.track(event_type, {
+                username: user.username,
+                product_id: eventProperties.productId,
+                product_name: eventProperties.name,
+                product_unit_price: eventProperties.price,
+                event_time: now.toISOString().replace(/.$/,"000+00:00"),
+                event_name: 'PRODUCT_ADD'
+            });
         }
 
         if (this.amplitudeEnabled()) {
@@ -376,19 +395,20 @@ export const AnalyticsHandler = {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
-                  {
-                    "item_id": product.id,
-                    "item_name": product.name,
-                    "item_category": product.category,
-                    "quantity": quantity,
-                    "currency": "USD",
-                    "price": +product.price.toFixed(2)
-                  }
+                    {
+                        "item_id": product.id,
+                        "item_name": product.name,
+                        "item_category": product.category,
+                        "quantity": quantity,
+                        "currency": "USD",
+                        "price": +product.price.toFixed(2)
+                    }
                 ]
             });
         }
     },
-   async recordShoppingCart (user, cart) {
+
+    async recordShoppingCart(user, cart) {
         if (user && cart) {
             const hasItem = cart.items.length > 0
             var productImages, productTitles, productURLs
@@ -398,7 +418,7 @@ export const AnalyticsHandler = {
                 productImages = [cartItem.image]
                 productTitles = [cartItem.name]
                 productURLs = [cartItem.url]
-            }else {
+            } else {
                 productImages = []
                 productTitles = []
                 productURLs = []
@@ -406,12 +426,12 @@ export const AnalyticsHandler = {
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 userAttributes: {
-                    WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
-                    WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
-                    WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
-                    ShoppingCartItemImageURL:  productImages,
-                    ShoppingCartItemTitle :  productTitles,
-                    ShoppingCartItemURL : productURLs,
+                    WebsiteCartURL: [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
+                    WebsiteLogoImageURL: [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
+                    WebsitePinpointImageURL: [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
+                    ShoppingCartItemImageURL: productImages,
+                    ShoppingCartItemTitle: productTitles,
+                    ShoppingCartItemURL: productURLs,
                     HasShoppingCart: hasItem ? ['true'] : ['false']
                 }
             })
@@ -420,6 +440,7 @@ export const AnalyticsHandler = {
             return false;
         }
     },
+
     async recordAbanonedCartEvent(user, cart) {
         const hasItem = await this.recordShoppingCart(user, cart)
         var productImages, productTitles, productURLs
@@ -510,13 +531,13 @@ export const AnalyticsHandler = {
                 "currency": "USD",
                 "value": +cartItem.price.toFixed(2),
                 "items": [
-                  {
-                    "item_id": cartItem.product_id,
-                    "item_name": cartItem.product_name,
-                    "quantity": origQuantity,
-                    "currency": "USD",
-                    "price": +cartItem.price.toFixed(2)
-                  }
+                    {
+                        "item_id": cartItem.product_id,
+                        "item_name": cartItem.product_name,
+                        "quantity": origQuantity,
+                        "currency": "USD",
+                        "price": +cartItem.price.toFixed(2)
+                    }
                 ]
             });
         }
@@ -578,6 +599,7 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().logEvent('ProductQuantityUpdated', eventProperties);
         }
     },
+
     productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
             AmplifyAnalytics.record({
@@ -603,7 +625,7 @@ export const AnalyticsHandler = {
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: product.id,
-                    discount: discount?"Yes":"No"
+                    discount: discount ? "Yes" : "No"
                 }
             }, 'AmazonPersonalize');
             AmplifyStore.commit('incrementSessionEventsRecorded');
@@ -635,6 +657,17 @@ export const AnalyticsHandler = {
                1
            );
            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails,{mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
+        if (this.tealiumEnabled() && user) {
+            let event_type = 'PRODUCT_VIEW'
+            let now = new Date()
+            tealium.track(event_type, {
+                username: user.username,
+                product_id: eventProperties.productId,
+                product_name: eventProperties.name,
+                event_name: event_type,
+                event_time: now.toISOString().replace(/.$/,"000+00:00"),
+                product_unit_price: eventProperties.price,
+            });
         }
 
         if (this.amplitudeEnabled()) {
@@ -655,14 +688,14 @@ export const AnalyticsHandler = {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
-                  {
-                    "item_id": product.id,
-                    "item_name": product.name,
-                    "item_category": product.category,
-                    "quantity": 1,
-                    "currency": "USD",
-                    "price": +product.price.toFixed(2)
-                  }
+                    {
+                        "item_id": product.id,
+                        "item_name": product.name,
+                        "item_category": product.category,
+                        "quantity": 1,
+                        "currency": "USD",
+                        "price": +product.price.toFixed(2)
+                    }
                 ]
             });
         }
@@ -954,6 +987,17 @@ export const AnalyticsHandler = {
             window.analytics.track('OrderCompleted', eventProperties);
         }
 
+        if (this.tealiumEnabled() && user) {
+            let event_type = 'ORDER'
+            let now = new Date()
+            tealium.track(event_type, {
+                username: user.username,
+                order_id: eventProperties.orderId,
+                event_time: now.toISOString().replace(/.$/,"000+00:00"),
+                event_name: event_type,
+            });
+        }
+
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('OrderCompleted', eventProperties);
         }
@@ -1042,6 +1086,10 @@ export const AnalyticsHandler = {
         return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
     },
 
+    tealiumEnabled() {
+        return process.env.VUE_APP_TEALIUM_DATA_SOURCE_ID && process.env.VUE_APP_TEALIUM_DATA_SOURCE_ID != 'NONE';
+    },
+
     amplitudeEnabled() {
         return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE';
     },
@@ -1064,7 +1112,7 @@ export const AnalyticsHandler = {
 
     optimizelyClientInstance() {
         if (!this._optimizelyClientInstance && this.optimizelyEnabled()) {
-            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
+            this._optimizelyClientInstance = optimizelySDK.createInstance({sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY});
         }
         return this._optimizelyClientInstance;
     },

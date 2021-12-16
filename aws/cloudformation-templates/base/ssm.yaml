@@ -50,6 +50,9 @@ Parameters:
     Type: String
     Description: mParticle server to server secret key
     NoEcho: true
+  TealiumDataSourceId:
+    Type: String
+    Description: Tealium data source ID (optional)
 
   PinpointSMSLongCode:
     Type: String
@@ -75,6 +78,8 @@ Conditions:
     !Not [!Equals [!Ref mParticleS2SApiKey, ""]]
   HasmParticleS2SSecretKey:
     !Not [!Equals [!Ref mParticleS2SSecretKey, ""]]
+  HasTealiumDataSourceId:
+    !Not [ !Equals [ !Ref TealiumDataSourceId, "" ] ]
   HasPinpointSMSLongCode:
     !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
   HasGoogleAnalyticsMeasurementId:
@@ -234,6 +239,13 @@ Resources:
       Type: "String"
       Value: !If [HasmParticleS2SSecretKey, !Ref mParticleS2SSecretKey, 'NONE']
       Description: "Retail Demo Store mParticle server to server secret key - used for Kinesis processing"
+  ParameterTealiumDataSourceId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-tealium-data-source-id"
+      Type: "String"
+      Value: !If [HasTealiumDataSourceId, !Ref TealiumDataSourceId, 'NONE']
+      Description: "Retail Demo Store Tealium data source ID"
 
   ParameterPinpointSMSLongCode:
     Type: "AWS::SSM::Parameter"
@@ -305,10 +317,13 @@ Outputs:
     Description: Segment write key
     Value: !Ref ParameterSegmentWriteKey
 
+  ParameterTealiumDataSourceId:
+    Description: Tealium data source ID
+    Value: !Ref ParameterTealiumDataSourceId
+
   ParameterPinpointSMSLongCode:
     Description: Pinpoint SMS Long code
     Value: !Ref ParameterPinpointSMSLongCode
 
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id
-    Value: !Ref ParameterGoogleAnalyticsMeasurementId

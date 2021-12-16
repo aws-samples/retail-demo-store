@@ -11,7 +11,7 @@
       aria-expanded="false"
     >
       <template v-if="user.persona">
-        <div class="shopper">Shopper:</div>
+        <div class="shopper">Shopper: {{ user.username }}</div>
 
         <div>
           <div>{{ username }} - {{ user.age }} years - {{ gender }}</div>

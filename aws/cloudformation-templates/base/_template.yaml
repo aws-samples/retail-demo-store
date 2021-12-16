@@ -90,6 +90,10 @@ Parameters:
     Type: String
     Description: Google Analytics Measurement Id (optional)
 
+  TealiumDataSourceId:
+    Type: String
+    Description: Tealium data source ID (optional)
+
   LocationResourcePrefix:
     Type: String
     Description: Prefix of Location Services resources to use
@@ -222,6 +226,7 @@ Resources:
         mParticleSecretKey: !Ref mParticleSecretKey
         mParticleS2SApiKey: !Ref mParticleS2SApiKey
         mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
+        TealiumDataSourceId: !Ref TealiumDataSourceId
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
@@ -346,6 +351,10 @@ Outputs:
     Description: Segment write key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
 
+  ParameterTealiumDataSourceId:
+    Description: Tealium data source ID Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterTealiumDataSourceId
+
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
@@ -360,4 +369,3 @@ Outputs:
 
   WebUICDNURL:
     Description: The URL for the web application
-    Value: !GetAtt CloudFront.Outputs.WebUICDNURL
