@@ -62,7 +62,7 @@ Resources:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
       NotebookInstanceName: !Sub ${Uid}
-      InstanceType: "ml.t3.medium"
+      InstanceType: "ml.t2.medium"  # Ensure instance type is supported by all target regions in README before changing
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
