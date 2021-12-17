@@ -16,6 +16,9 @@ img_dir = os.path.join(base_path, 'codes')
 os.makedirs(img_dir, exist_ok=True)
 for product in products:
     if product['id'] in args.product_ids:
+        drop_keys = ['description', 'gender_affinity', 'current_stock']
+        for key in drop_keys:
+            product.pop(key)
         img = qrcode.make(json.dumps(product))
         img_path = os.path.join(img_dir, f'{product["id"]}.png')
         img.save(img_path)
