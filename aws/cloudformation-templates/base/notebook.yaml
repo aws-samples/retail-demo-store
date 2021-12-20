@@ -176,7 +176,7 @@ Resources:
                   - iam:PassRole
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
-                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersS3'
               -
                 Effect: "Allow"
                 Action:

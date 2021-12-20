@@ -92,7 +92,7 @@ dataset_group_name_root_offers = 'retaildemooffers-'
 training_config_param_name = 'retaildemostore-training-config'  # ParameterPersonalizeTrainConfig
 training_state_param_name = 'retaildemostore-training-state'
 
-role_name = os.environ.get('Uid') + '-PersonalizeS3'
+role_name = os.environ.get('Uid') + '-PersS3'
 event_tracking_id_param = 'retaildemostore-personalize-event-tracker-id'
 do_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip().lower() in ['yes', 'true', '1']
 
@@ -396,7 +396,7 @@ def create_personalize_role(role_name):
 def delete_personalize_role():
     try:
         response = iam.detach_role_policy(
-            RoleName=os.environ.get('Uid')+'-PersonalizeS3',
+            RoleName=os.environ.get('Uid')+'-PersS3',
             PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
         )
     except ClientError as e:
@@ -406,7 +406,7 @@ def delete_personalize_role():
 
     try:
         response = iam.delete_role(
-            RoleName=os.environ.get('Uid')+'-PersonalizeS3'
+            RoleName=os.environ.get('Uid')+'-PersS3'
         )
     except ClientError as e:
         error_code = e.response['Error']['Code']
