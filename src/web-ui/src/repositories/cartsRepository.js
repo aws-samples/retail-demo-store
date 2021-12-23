@@ -25,6 +25,7 @@ export default {
         return connection.get(`${resource}/${cartID}`)
     },    
     createCart(username) {
+
         if (!username || username.length == 0)
             throw "username required"
         let payload = {
@@ -36,5 +37,8 @@ export default {
         if (!cart)
             throw "cart required"
         return connection.put(`${resource}/${cart.id}`, cart)
+    },
+    signAmazonPayPayload(payload) {
+        return connection.post('/sign', payload)
     }
 }

@@ -26,18 +26,19 @@ import (
 // Product Struct
 // using omitempty as a DynamoDB optimization to create indexes
 type Product struct {
-	ID             string  `json:"id" yaml:"id"`
-	URL            string  `json:"url" yaml:"url"`
-	SK             string  `json:"sk" yaml:"sk"`
-	Name           string  `json:"name" yaml:"name"`
-	Category       string  `json:"category" yaml:"category"`
-	Style          string  `json:"style" yaml:"style"`
-	Description    string  `json:"description" yaml:"description"`
-	Price          float32 `json:"price" yaml:"price"`
-	Image          string  `json:"image" yaml:"image"`
-	Featured       string  `json:"featured,omitempty" yaml:"featured,omitempty"`
-	GenderAffinity string  `json:"gender_affinity,omitempty" yaml:"gender_affinity,omitempty"`
-	CurrentStock   int     `json:"current_stock" yaml:"current_stock"`
+	ID             string   `json:"id" yaml:"id"`
+	URL            string   `json:"url" yaml:"url"`
+	SK             string   `json:"sk" yaml:"sk"`
+	Name           string   `json:"name" yaml:"name"`
+	Category       string   `json:"category" yaml:"category"`
+	Style          string   `json:"style" yaml:"style"`
+	Description    string   `json:"description" yaml:"description"`
+	Aliases        []string `json:"aliases" yaml:"aliases"` // keywords for use with e.g. Alexa
+	Price          float32  `json:"price" yaml:"price"`
+	Image          string   `json:"image" yaml:"image"`
+	Featured       string   `json:"featured,omitempty" yaml:"featured,omitempty"`
+	GenderAffinity string   `json:"gender_affinity,omitempty" yaml:"gender_affinity,omitempty"`
+	CurrentStock   int      `json:"current_stock" yaml:"current_stock"`
 }
 
 // Products Array
@@ -160,6 +161,8 @@ func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
 
 // HandleRequest - handles Lambda request
 func HandleRequest(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
+
+    fmt.Printf("Received event: %s!", event )
 
 	if event.RequestType == "Create" || event.RequestType == "Update" {
 		Bucket, _ := event.ResourceProperties["Bucket"].(string)

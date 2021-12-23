@@ -5,14 +5,14 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router';
 import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
-import { components } from 'aws-amplify-vue'; 
+import { components } from 'aws-amplify-vue';
 import store from '@/store/store';
-import moment from 'moment'
 import Amplitude from 'amplitude-js'
 
-import './styles/tokens.css'
+import AmplifyStore from '@/store/store';
+import VueGtag from "vue-gtag";
 
-Vue.prototype.moment = moment
+import './styles/tokens.css'
 
 // Base configuration for Amplify
 const amplifyConfig = {
@@ -44,6 +44,12 @@ const amplifyConfig = {
   }
 }
 
+if (AmplifyStore.state.user?.id) {
+    amplifyConfig.Analytics.AWSPinpoint.endpoint = {
+        userId: AmplifyStore.state.user.id
+    }
+}
+
 Analytics.addPluggable(new AWSPinpointProvider());
 
 // Only add Personalize event tracking if configured.
@@ -66,6 +72,23 @@ if (process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_K
   Amplitude.getInstance().init(process.env.VUE_APP_AMPLITUDE_API_KEY)
 }
 
+if (process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE') {
+  Vue.use(VueGtag, {
+    config: {
+      id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
+      params: {
+        send_page_view: false
+      }
+    }
+  }, router);
+}
+else {
+  Vue.use(VueGtag, {
+    enabled: false,
+    disableScriptLoad: true
+  });
+}
+
 // Set the configuration
 Auth.configure(amplifyConfig);
 Analytics.configure(amplifyConfig);
@@ -75,20 +98,27 @@ require('dotenv').config()
 
 Vue.config.productionTip = false
 
-// Logger.LOG_LEVEL = 'DEBUG'
 const logger = new Logger('main')
+
+Auth.currentAuthenticatedUser()
+  .then((user) => {
+    logger.debug('Current Authenticated User Info:');
+    logger.debug(user);
+  })
+  .catch(err => logger.debug(err))
+
 
 Auth.currentUserInfo()
   .then(user => logger.debug(user))
   .catch(err => logger.debug(err))
 
 
-new Vue({  
+new Vue({
   el: '#app',
   router: router,
   template: '<App/>',
   store,
-  components: { 
+  components: {
     App,
     ...components
   },

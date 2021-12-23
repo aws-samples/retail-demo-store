@@ -40,6 +40,20 @@ func RepoFindOrdersByUsername(username string) Orders {
 	return o
 }
 
+func RepoUpdateOrder(t Order) Order {
+
+	for i := 0; i < len(orders); i++ {
+		o := &orders[i]
+		if o.ID == t.ID {
+			orders[i] = t
+			return RepoFindOrderByID(t.ID)
+		}
+	}
+
+	// return empty Order if not found
+	return Order{}
+}
+
 // RepoCreateOrder Function
 func RepoCreateOrder(t Order) Order {
 	currentID++

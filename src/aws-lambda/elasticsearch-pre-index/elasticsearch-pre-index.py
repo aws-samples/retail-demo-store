@@ -77,7 +77,7 @@ def elasticsearch_create(event,_):
         s3.meta.client.download_file(event['ResourceProperties']['Bucket'], event['ResourceProperties']['File'], '/tmp/products.yaml')
         with open('/tmp/products.yaml') as file:
             logger.info('Loading products.yaml...')
-            products_list = yaml.load(file, Loader=yaml.FullLoader)
+            products_list = yaml.safe_load(file)
 
             logger.info(f'Bulk indexing {len(products_list)} products in batches...')
             bulk_data = []

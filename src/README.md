@@ -8,7 +8,7 @@ Before you can run the Retail Demo Store web services locally, you must first de
 
 Besides cloning this repository to your local system, you also need to have the AWS CLI [installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) and [configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) locally.
 
-Docker Compose will load the [.env](./.env) file to resolve environment variables referenced in the [docker-compose.yml](./docker-compose.yml) file. This is where you can customize variables to match your desired configuration.
+Docker Compose will load the [.env](.env) file to resolve environment variables referenced in the [docker-compose.yml](./docker-compose.yml) file. You can copy the [.env.template](.env.template) file to [.env](.env) as a starting point. This is where you can customize variables to match your desired configuration.
 
 ### AWS credentials
 
@@ -42,4 +42,4 @@ For instructions specific to each Retail Demo Store web service, view the README
 
 ## Web UI Service
 
-When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the [Web UI's .env](./web-ui/.env) file to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
+When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the [Web UI's .env](web-ui/.env) file for which there is an example at [web-ui/.env.template](web-ui/.env.template) to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.

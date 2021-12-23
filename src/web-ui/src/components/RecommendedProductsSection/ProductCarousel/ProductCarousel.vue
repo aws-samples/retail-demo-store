@@ -1,11 +1,11 @@
 <template>
   <Carousel :settings="carouselSettings">
     <div
-      v-for="{ product, experiment } in recommendedProducts"
-      :key="product.id"
+      v-for="item in recommendedProducts"
+      :key="item.product.id"
       class="px-1 text-left align-self-stretch d-flex align-items-stretch text-decoration-none"
     >
-      <Product :product="product" :experiment="experiment" :feature="feature"></Product>
+      <Product :product="item.product" :experiment="item.experiment" :feature="feature"></Product>
     </div>
   </Carousel>
 </template>

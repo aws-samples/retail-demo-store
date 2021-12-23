@@ -2,6 +2,8 @@
   <div :class="{ 'layout--has-nav': showNav, 'layout--has-demo-guide': showDemoGuide }">
     <Navigation v-if="showNav"></Navigation>
 
+    <Notifications/>
+
     <LoadingFallback v-if="isLoading" class="container mb-4"></LoadingFallback>
 
     <PreviousPageLink
@@ -34,11 +36,13 @@ import Navigation from '@/partials/Navigation/Navigation';
 import AppModal from '@/partials/AppModal/AppModal';
 import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
 import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
+import Notifications from '@/public/Notifications'
 
 export default {
   name: 'Layout',
   components: {
     Navigation,
+    Notifications,
     LoadingFallback,
     PreviousPageLink,
     TextAlerts,

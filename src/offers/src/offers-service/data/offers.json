@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "codes": [
+        "DISCOUNT1",
+        "FIVEPERCENT",
+        "SALE5"
+    ],
+    "description": "5% off any purchase",
+    "preference": 1,
+    "expiry": null
+  },
+  {
+    "id": 2,
+    "codes": [
+        "DISCOUNT2",
+        "TENPERCENT",
+        "SAGEMAKER10"
+    ],
+    "description": "10% off any purchase",
+    "preference": 1,
+    "expiry": null
+  },
+  {
+    "id": 3,
+    "codes": [
+        "DISCOUNT3",
+        "FIFTEENPERCENT",
+        "PERSONALIZE15"
+    ],
+    "description": "15% off any purchase",
+    "preference": 1,
+    "expiry": null
+  },
+  {
+    "id": 4,
+    "codes": [
+        "DISCOUNT4",
+        "TWENTYPERCENT",
+        "AMAZON20"
+    ],
+    "description": "20% off any purchase",
+    "preference": 1,
+    "expiry": null
+  },
+  {
+    "id": 5,
+    "codes": [
+        "DISCOUNT5",
+        "TWENTYFIVEPERCENT",
+        "AWS25"
+    ],
+    "description": "25% off any purchase",
+    "preference": 1,
+    "expiry": null
+  }
+]
+

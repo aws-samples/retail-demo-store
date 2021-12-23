@@ -1,0 +1,229 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "location service convenience store demo",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "FindStoreIntent",
+          "slots": [],
+          "samples": [
+            "take me to the nearest c store",
+            "i want to buy something from a c store",
+            "where is the nearest c store",
+            "where the nearest c store is",
+            "is there an c store nearby",
+            "is there a nearby c store",
+            "take me to the nearest convenience store",
+            "i want to buy something from a convenience store",
+            "where is the nearest convenience store",
+            "where the nearest convenience store is",
+            "is there an convenience store nearby",
+            "is there a nearby convenience store",
+            "convenience store please",
+            "c store please",
+            "c store",
+            "convenience store",
+            "store"
+          ]
+        },
+        {
+          "name": "OrderProductIntent",
+          "slots": [
+            {
+              "name": "ProductName",
+              "type": "Product"
+            },
+            {
+              "name": "AddRecommendedProduct",
+              "type": "YesNoSlot"
+            }
+          ],
+          "samples": [
+            "get me {ProductName}",
+            "yes get me {ProductName}",
+            "yes order a {ProductName}",
+            "yes i want {ProductName}",
+            "yes can i have some {ProductName}",
+            "can i have some {ProductName}",
+            "can i have a {ProductName}",
+            "yes can i have a {ProductName}",
+            "yes can i have {ProductName}",
+            "yes get me a {ProductName}",
+            "yes {ProductName}",
+            "{ProductName}",
+            "{ProductName} please",
+            "yes {ProductName} please",
+            "get me a {ProductName}",
+            "Can i have {ProductName}",
+            "i want {ProductName}",
+            "order a {ProductName}",
+            "yes {ProductName}"
+          ]
+        },
+        {
+          "name": "CheckoutIntent",
+          "slots": [],
+          "samples": [
+            "yes finish",
+            "check out",
+            "yes checkout",
+            "yes i\u0027m ready to pay",
+            "yes how much is it ",
+            "yes can i pay",
+            "can i pay",
+            "how much ",
+            "i\u0027m ready to pay ",
+            "Finish",
+            "Pay ",
+            "Checkout"
+          ]
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "placeholder"
+              }
+            }
+          ],
+          "name": "Product"
+        },
+        {
+          "values": [
+            {
+              "id": "0",
+              "name": {
+                "value": "no",
+                "synonyms": [
+                  "no thank you ",
+                  "no thanks",
+                  "nope"
+                ]
+              }
+            },
+            {
+              "id": "1",
+              "name": {
+                "value": "yes",
+                "synonyms": [
+                  "go on then",
+                  "o.k.",
+                  "o k ",
+                  "okay ",
+                  "okay then",
+                  "please",
+                  "of course",
+                  "sure",
+                  "alright then",
+                  "alright",
+                  "ok",
+                  "yeah ",
+                  "yes please",
+                  "yes sure",
+                  "yeah sure",
+                  "yep",
+                  "yup"
+                ]
+              }
+            }
+          ],
+          "name": "YesNoSlot"
+        }
+      ]
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "OrderProductIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "ProductName",
+              "type": "Product",
+              "elicitationRequired": true,
+              "confirmationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.1192926543130.1369566456585"
+              }
+            },
+            {
+              "name": "AddRecommendedProduct",
+              "type": "YesNoSlot",
+              "elicitationRequired": true,
+              "confirmationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.698869517922.934370967771"
+              }
+            }
+          ]
+        },
+        {
+          "name": "CheckoutIntent",
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "Confirm.Intent.630696903742"
+          },
+          "slots": []
+        }
+      ],
+      "delegationStrategy": "SKILL_RESPONSE"
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.1192926543130.1369566456585",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "What would you like to buy?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.698869517922.934370967771",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Would you like to add the recommended product?"
+          }
+        ]
+      },
+      {
+        "id": "Confirm.Intent.630696903742",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Do you want to confirm your order and pay?"
+          }
+        ]
+      }
+    ]
+  },
+  "version": "18"
+}

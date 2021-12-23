@@ -20,6 +20,7 @@ import AboutThisDemo from './articles/AboutThisDemo';
 import Datasets from './articles/Datasets';
 import ShopperPersonas from './articles/ShopperPersonas';
 import EnablingShopperProfiles from './articles/EnablingShopperProfiles';
+import LocationServices from './articles/LocationServices';
 
 export default {
   name: 'DemoGuideArticle',
@@ -61,6 +62,8 @@ export default {
           return ShopperPersonas;
         case Articles.ENABLING_SHOPPER_PROFILES:
           return EnablingShopperProfiles
+        case Articles.LOCATION_SERVICES:
+          return LocationServices
       }
 
       throw new Error(`Invalid article id: ${this.article}`);

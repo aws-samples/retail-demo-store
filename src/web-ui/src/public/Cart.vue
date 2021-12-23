@@ -56,6 +56,7 @@ export default {
   },
   created() {
     AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
+    AnalyticsHandler.recordShoppingCart(this.user, this.cart);
   },
   computed: {
     ...mapState({

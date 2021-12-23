@@ -13,6 +13,7 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
+const ProductsRepository = RepositoryFactory.get('products')
 
 export const AnalyticsHandler = {
     clearUser() {
@@ -32,6 +33,9 @@ export const AnalyticsHandler = {
 
         try {
             const cognitoUser = await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser()
+            const endpointId = AmplifyAnalytics.getPluggable('AWSPinpoint')._config.endpointId;
+            console.log('Pinpoint EndpointId Currently Active:');
+            console.log(endpointId);
 
             let endpoint = {
                 userId: user.id,
@@ -81,12 +85,14 @@ export const AnalyticsHandler = {
             promise = Promise.reject(error)
         }
 
-        AmplifyAnalytics.record({
-            eventType: "Identify",
-            properties: {
-                "userId": user.id
-            }
-        }, 'AmazonPersonalize')
+        if (this.personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: "Identify",
+                properties: {
+                    "userId": user.id
+                }
+            }, 'AmazonPersonalize')
+        }
 
         if (this.segmentEnabled()) {
             let userProperties = {
@@ -128,6 +134,17 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().identify(identify)
         }
 
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.set({
+                "user_id": user.id,
+                "user_properties": {
+                    "age": user.age,
+                    "gender": user.gender,
+                    "persona": user.persona
+                }
+            });
+        }
+
         return promise
     },
 
@@ -140,6 +157,12 @@ export const AnalyticsHandler = {
                     signUpDate: user.sign_up_date
                 }
             })
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("sign_up", {
+                    "method": "Web"
+                });
+            }
         }
     },
 
@@ -152,6 +175,12 @@ export const AnalyticsHandler = {
                     signInDate: user.last_sign_in_date
                 }
             })
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("login", {
+                    "method": "Web"
+                });
+            }
         }
     },
 
@@ -171,6 +200,14 @@ export const AnalyticsHandler = {
                     const userId = user.id.toString();
                     optimizelyClientInstance.activate(experiment.experiment_key, userId);
                 }
+            }
+
+            if (this.googleAnalyticsEnabled()) {
+                Vue.prototype.$gtag.event("exp_" + experiment.feature, {
+                    "feature": experiment.feature,
+                    "name": experiment.name,
+                    "variation": experiment.variationIndex
+                });
             }
         }
     },
@@ -197,7 +234,7 @@ export const AnalyticsHandler = {
 
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: ['true']
                 },
                 metrics: {
@@ -206,15 +243,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductAdded',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: product.id,
-                discount: "No"
-            }
-        }, 'AmazonPersonalize')
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (this.personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductAdded',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: product.id,
+                    discount: "No"
+                }
+            }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         let eventProperties = {
             userId: user ? user.id : null,
@@ -245,31 +284,65 @@ export const AnalyticsHandler = {
                 optimizelyClientInstance.track('ProductAdded', userId);
             }
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('add_to_cart', {
+                "currency": "USD",
+                "value": +product.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": product.id,
+                    "item_name": product.name,
+                    "item_category": product.category,
+                    "quantity": quantity,
+                    "currency": "USD",
+                    "price": +product.price.toFixed(2)
+                  }
+                ]
+            });
+        }
     },
-
-    recordAbanonedCartEvent(user,cart,cartProduct) {
-        if (user && cart && cartProduct) {
-            AmplifyAnalytics.record({
-                name: '_session.stop',
-                attributes: {
-                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
-                }
-            })
-
-        return AmplifyAnalytics.updateEndpoint({
+   async recordShoppingCart (user, cart) {
+        if (user && cart) {
+            const hasItem = cart.items.length > 0
+            var productImages, productTitles, productURLs
+            if (hasItem) {
+                const product = await ProductsRepository.getProduct(cart.items[0].product_id);
+                const cartItem = product.data
+                productImages = [cartItem.image]
+                productTitles = [cartItem.name]
+                productURLs = [cartItem.url]
+            }else {
+                productImages = []
+                productTitles = []
+                productURLs = []
+            }
+            AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
-                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false'],
+                userAttributes: {
                     WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
                     WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
                     WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
-                    ShoppingCartItemImageURL:  [cartProduct.image],
-                    ShoppingCartItemTitle :  [cartProduct.name],
-                    ShoppingCartItemURL : [cartProduct.url],
-                },
+                    ShoppingCartItemImageURL:  productImages,
+                    ShoppingCartItemTitle :  productTitles,
+                    ShoppingCartItemURL : productURLs,
+                    HasShoppingCart: hasItem ? ['true'] : ['false']
+                }
+            })
+            return hasItem
+        } else {
+            return false;
+        }
+    },
+    async recordAbanonedCartEvent(user, cart) {
+        const hasItem = await this.recordShoppingCart(user, cart)
+        if (hasItem) {
+            AmplifyAnalytics.record({
+                name: '_session.stop',
             })
         }
     },
+
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
             AmplifyAnalytics.record({
@@ -287,7 +360,7 @@ export const AnalyticsHandler = {
 
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false']
                 },
                 metrics: {
@@ -310,6 +383,23 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductRemoved', eventProperties);
         }
+
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('remove_from_cart', {
+                "currency": "USD",
+                "value": +cartItem.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": cartItem.product_id,
+                    "item_name": cartItem.product_name,
+                    "quantity": origQuantity,
+                    "currency": "USD",
+                    "price": +cartItem.price.toFixed(2)
+                  }
+                ]
+            });
+        }
     },
 
     productQuantityUpdatedInCart(user, cart, cartItem, change) {
@@ -329,15 +419,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductQuantityUpdated',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: cartItem.product_id,
-                discount: "No"
-            }
-        }, 'AmazonPersonalize')
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (this.personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductQuantityUpdated',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: cartItem.product_id,
+                    discount: "No"
+                }
+            }, 'AmazonPersonalize')
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         let eventProperties = {
             cartId: cart.id,
@@ -355,7 +447,6 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().logEvent('ProductQuantityUpdated', eventProperties);
         }
     },
-
     productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
             AmplifyAnalytics.record({
@@ -375,15 +466,17 @@ export const AnalyticsHandler = {
             })
         }
 
-        AmplifyAnalytics.record({
-            eventType: 'ProductViewed',
-            userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-            properties: {
-                itemId: product.id,
-                discount: discount?"Yes":"No"
-            }
-        }, 'AmazonPersonalize');
-        AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (this.personalizeEventTrackerEnabled()) {
+            AmplifyAnalytics.record({
+                eventType: 'ProductViewed',
+                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                properties: {
+                    itemId: product.id,
+                    discount: discount?"Yes":"No"
+                }
+            }, 'AmazonPersonalize');
+            AmplifyStore.commit('incrementSessionEventsRecorded');
+        }
 
         if (experimentCorrelationId) {
             RecommendationsRepository.recordExperimentOutcome(experimentCorrelationId)
@@ -415,6 +508,23 @@ export const AnalyticsHandler = {
                 optimizelyClientInstance.track('ProductViewed', userId);
             }
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('view_item', {
+                "currency": "USD",
+                "value": +product.price.toFixed(2),
+                "items": [
+                  {
+                    "item_id": product.id,
+                    "item_name": product.name,
+                    "item_category": product.category,
+                    "quantity": 1,
+                    "currency": "USD",
+                    "price": +product.price.toFixed(2)
+                  }
+                ]
+            });
+        }
     },
 
     cartViewed(user, cart, cartQuantity, cartTotal) {
@@ -432,16 +542,18 @@ export const AnalyticsHandler = {
             })
         }
 
-        for (var item in cart.items) {
-            AmplifyAnalytics.record({
-                eventType: 'CartViewed',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: cart.items[item].product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (this.personalizeEventTrackerEnabled()) {
+            for (var item in cart.items) {
+                AmplifyAnalytics.record({
+                    eventType: 'CartViewed',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: cart.items[item].product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
         }
 
         let eventProperties = {
@@ -457,6 +569,26 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             // Amplitude event
             Amplitude.getInstance().logEvent('CartViewed', eventProperties);
+        }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in cart.items) {
+                gaItems.push({
+                    "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
+                    "quantity": cart.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +cart.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('view_cart', {
+                "value": +cartTotal.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
         }
     },
 
@@ -475,16 +607,18 @@ export const AnalyticsHandler = {
             })
         }
 
-        for (var item in cart.items) {
-            AmplifyAnalytics.record({
-                eventType: 'CheckoutStarted',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: cart.items[item].product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+        if (this.personalizeEventTrackerEnabled()) {
+            for (var item in cart.items) {
+                AmplifyAnalytics.record({
+                    eventType: 'CheckoutStarted',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: cart.items[item].product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
         }
 
         let eventProperties = {
@@ -499,6 +633,26 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('CheckoutStarted', eventProperties);
+        }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in cart.items) {
+                gaItems.push({
+                    "item_id": cart.items[i].product_id,
+                    "item_name": cart.items[i].product_name,
+                    "quantity": cart.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +cart.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('begin_checkout', {
+                "value": +cartTotal.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
         }
     },
 
@@ -537,15 +691,17 @@ export const AnalyticsHandler = {
                 })
             }
 
-            AmplifyAnalytics.record({
-                eventType: 'OrderCompleted',
-                userId: user ? user.id : AmplifyStore.state.provisionalUserID,
-                properties: {
-                    itemId: orderItem.product_id,
-                    discount: "No"
-                }
-            }, 'AmazonPersonalize')
-            AmplifyStore.commit('incrementSessionEventsRecorded');
+            if (this.personalizeEventTrackerEnabled()) {
+                AmplifyAnalytics.record({
+                    eventType: 'OrderCompleted',
+                    userId: user ? user.id : AmplifyStore.state.provisionalUserID,
+                    properties: {
+                        itemId: orderItem.product_id,
+                        discount: "No"
+                    }
+                }, 'AmazonPersonalize')
+                AmplifyStore.commit('incrementSessionEventsRecorded');
+            }
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue
@@ -560,7 +716,7 @@ export const AnalyticsHandler = {
         if (user && user.id) {
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
-                attributes: {
+                userAttributes: {
                     HasShoppingCart: ['false'],
                     HasCompletedOrder: ['true']
                 },
@@ -582,6 +738,27 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('OrderCompleted', eventProperties);
+        }
+
+        if (this.googleAnalyticsEnabled()) {
+            let gaItems = [];
+            for (var i in order.items) {
+                gaItems.push({
+                    "item_id": order.items[i].product_id,
+                    "item_name": order.items[i].product_name,
+                    "quantity": order.items[i].quantity,
+                    "index": gaItems.length + 1,
+                    "currency": "USD",
+                    "price": +order.items[i].price.toFixed(2)
+                });
+            }
+
+            Vue.prototype.$gtag.event('purchase', {
+                "transaction_id": order.id.toString(),
+                "value": +order.total.toFixed(2),
+                "currency": "USD",
+                "items": gaItems
+            });
         }
     },
 
@@ -620,6 +797,16 @@ export const AnalyticsHandler = {
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
+
+        if (this.googleAnalyticsEnabled()) {
+            Vue.prototype.$gtag.event('search', {
+                "search_term": query
+            });
+        }
+    },
+
+    personalizeEventTrackerEnabled() {
+        return process.env.VUE_APP_PERSONALIZE_TRACKING_ID && process.env.VUE_APP_PERSONALIZE_TRACKING_ID != 'NONE';
     },
 
     segmentEnabled() {
@@ -647,5 +834,9 @@ export const AnalyticsHandler = {
             this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
         }
         return this._optimizelyClientInstance;
+    },
+
+    googleAnalyticsEnabled() {
+        return process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE';
     },
 }

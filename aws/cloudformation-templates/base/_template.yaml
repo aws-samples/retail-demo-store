@@ -2,12 +2,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store.
+  This template deploys the Retail Demo Store.
 
 Conditions:
   CreateElasticsearchServiceLinkedRole: !Equals
     - !Ref CreateElasticsearchServiceLinkedRole
-    - 'Yes'
+    - "Yes"
 
 Parameters:
   ResourceBucket:
@@ -22,17 +22,17 @@ Parameters:
     Type: String
     Description: Retail Demo Store source deployment type
     AllowedValues:
-      - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - "GitHub"
+      - "CodeCommit"
+    Default: "CodeCommit"
 
   CreateElasticsearchServiceLinkedRole:
     Type: String
     Description: Whether to create Elasticsearch Service Linked Role
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   CleanupBucketLambdaArn:
     Type: String
@@ -46,7 +46,7 @@ Parameters:
   ParentStackName:
     Type: String
     Description: Parent stack name
-  
+
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
@@ -56,18 +56,29 @@ Parameters:
     Type: String
     Description: Segment source write key (optional).
     NoEcho: true
-  
+
   Layer0DeployToken:
     Type: String
     Description: Layer0 token for deploying (optional).
     NoEcho: true
-  
+
   PinpointSMSLongCode:
     Type: String
     Description: Pinpoint SMS Long code.
 
-Resources:
+  GoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id (optional)
 
+  LocationResourcePrefix:
+    Type: String
+    Description: Prefix of Location Services resources to use
+
+  GitHubUser:
+    Type: String
+    Description: Your GitHub username.
+
+Resources:
   # Authentication
   Authentication:
     Type: AWS::CloudFormation::Stack
@@ -76,7 +87,8 @@ Resources:
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
-        
+        LocationResourcePrefix: !Ref LocationResourcePrefix
+
   # Buckets
   Buckets:
     Type: AWS::CloudFormation::Stack
@@ -95,11 +107,13 @@ Resources:
         Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
         Subnet2: !GetAtt VPC.Outputs.Subnet2
-        DefaultCodeRepository: !GetAtt CodeCommitRepository.Outputs.WorkshopCloneUrlHttp
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        
+        UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
+        PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        GitHubUser: !Ref GitHubUser
+
   # Tables
   Tables:
     Type: AWS::CloudFormation::Stack
@@ -136,23 +150,28 @@ Resources:
   # Create role here rather than in ES nested template so role has time to become consistent
   ElasticsearchServiceLinkedRole:
     Condition: CreateElasticsearchServiceLinkedRole
-    Type: 'AWS::IAM::ServiceLinkedRole'
+    Type: "AWS::IAM::ServiceLinkedRole"
     Properties:
       AWSServiceName: es.amazonaws.com
-      Description: 'Role for ES to access resources in VPC'
+      Description: "Role for ES to access resources in VPC"
 
-  ElasticsearchRoleWaitHandle: 
+  ElasticsearchRoleWaitHandle:
     Condition: CreateElasticsearchServiceLinkedRole
     DependsOn: ElasticsearchServiceLinkedRole
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  WaitHandle: 
+  WaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  ElasticsearchRoleWaitCondition: 
+  ElasticsearchRoleWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
-    Properties: 
-      Handle: !If [CreateElasticsearchServiceLinkedRole, !Ref ElasticsearchRoleWaitHandle, !Ref WaitHandle]
+    Properties:
+      Handle:
+        !If [
+          CreateElasticsearchServiceLinkedRole,
+          !Ref ElasticsearchRoleWaitHandle,
+          !Ref WaitHandle,
+        ]
       Timeout: "1"
       Count: 0
 
@@ -179,6 +198,7 @@ Resources:
         SegmentWriteKey: !Ref SegmentWriteKey
         Layer0DeployToken: !Ref Layer0DeployToken
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
+        GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
   # CodeCommit Repository
   CodeCommitRepository:
@@ -208,11 +228,11 @@ Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
     Value: !GetAtt Authentication.Outputs.UserPoolId
-  
+
   UserPoolClientId:
     Description: Authentication Cognito User Pool Client Id.
     Value: !GetAtt Authentication.Outputs.UserPoolClientId
-  
+
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Authentication.Outputs.IdentityPoolId
@@ -264,7 +284,7 @@ Outputs:
   PinpointAppId:
     Description: Pinpoint App Id
     Value: !GetAtt Pinpoint.Outputs.PinpointAppId
-  
+
   PinpointSMSLongCode:
     Description: Pinpoint SMS Long code for two way SMS
     Value: !GetAtt SSMParameters.Outputs.ParameterPinpointSMSLongCode
@@ -273,21 +293,17 @@ Outputs:
     Description: DynamoDB Table for Products
     Value: !GetAtt Tables.Outputs.ProductsTable
 
-  CategoriesTable: 
+  CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !GetAtt Tables.Outputs.CategoriesTable
 
-  ExperimentStrategyTable: 
+  ExperimentStrategyTable:
     Description: DynamoDB Table for Experiments
     Value: !GetAtt Tables.Outputs.ExperimentStrategyTable
 
   ParameterPersonalizeEventTrackerId:
     Description: Personalize Event Tracker ID Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterPersonalizeEventTrackerId
-
-  WorkshopRepositoryArn:
-    Description: Workshop CodeCommit Repository Arn
-    Value: !GetAtt CodeCommitRepository.Outputs.WorkshopRepositoryArn
 
   ParameterAmplitudeApiKey:
     Description: Amplitude API key Parameter
@@ -304,6 +320,10 @@ Outputs:
   ParameterSegmentWriteKey:
     Description: Segment write key Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterSegmentWriteKey
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Description: Google Analytics Measurement Id Parameter
+    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
 
   ParameterLayer0DeployToken:
     Description: Layer0 deploy token Parameter

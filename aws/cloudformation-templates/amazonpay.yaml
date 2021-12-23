@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys an Amazon Pay signing Lambda.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  AmazonPayPublicKeyId:
+    Type: String
+    Default: none
+
+  AmazonPayStoreId:
+    Type: String
+    Default: none
+
+  AmazonPayPrivateKey:
+    Type: String
+    Default: "NONE"
+    NoEcho: true
+
+  WebURL:
+    Type: String
+    Default: none
+
+Resources:
+
+  # Amazon Pay request signing Lambda function
+  AmazonPaySigningLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/AmazonPaySigningLambda:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/AmazonPaySigningLambda'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref AmazonPayPrivateKeySecret
+
+  AmazonPaySigningLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Signs Amazon Pay payloads to be used with Amazon Pay button'
+      Handler: amazon-pay-signing.handler
+      Role: !GetAtt
+        - AmazonPaySigningLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/amazon-pay-signing.zip'
+      Runtime: nodejs12.x
+      Timeout: 30
+      FunctionName: AmazonPaySigningLambda
+      Environment:
+        Variables:
+          AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
+          AmazonPayPrivateKeySecretArn: !Ref AmazonPayPrivateKeySecret
+          WebURL: !Ref WebURL
+
+  AmazonPayPrivateKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: AmazonPayPrivateKey
+      SecretString: !Ref AmazonPayPrivateKey
+

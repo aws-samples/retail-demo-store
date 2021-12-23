@@ -11,6 +11,10 @@ type Order struct {
 	Total           float32    		`json:"total" yaml:"total"`
 	BillingAddress  Address    		`json:"billing_address" yaml:"billing_address"`
 	ShippingAddress Address    		`json:"shipping_address" yaml:"shipping_address"`
+	CollectionPhone string          `json:"collection_phone" yaml:"collection_phone"`
+	DeliveryType    string          `json:"delivery_type" yaml:"delivery_type"`
+	DeliveryStatus  string          `json:"delivery_status" yaml:"delivery_status"`
+	DeliveryComplete bool           `json:"delivery_complete" yaml:"delivery_complete"`
 	Channel			string	   		`json:"channel" yaml:"channel"`
 	ChannelDetail   ChannelDetail	`json:"channel_detail" yaml:"channel_detail"`
 }
@@ -20,9 +24,10 @@ type Orders []Order
 
 // OrderItem Struct
 type OrderItem struct {
-	ProductID string  `json:"product_id" yaml:"product_id"`
-	Quantity  int     `json:"quantity" yaml:"quantity"`
-	Price     float32 `json:"price" yaml:"price"`
+	ProductID   string  `json:"product_id" yaml:"product_id"`
+	ProductName string  `json:"product_name" yaml:"product_name"`
+	Quantity    int     `json:"quantity" yaml:"quantity"`
+	Price       float32 `json:"price" yaml:"price"`
 }
 
 // OrderItems Array

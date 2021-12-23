@@ -15,7 +15,7 @@ export const CACHE_PAGES = {
     staleWhileRevalidateSeconds: TIME_1H, // this way stale items can still be prefetched
   },
   browser: {
-    maxAgeSeconds: TIME_4H,
+    maxAgeSeconds: 0,
     serviceWorkerSeconds: TIME_4H,
     spa: true,
   },
@@ -31,7 +31,7 @@ export const CACHE_ASSETS = {
     staleWhileRevalidateSeconds: TIME_1H, // this way stale items can still be prefetched
   },
   browser: {
-    maxAgeSeconds: TIME_1D,
+    maxAgeSeconds: 0,
     serviceWorkerSeconds: TIME_1D,
     spa: true,
   },

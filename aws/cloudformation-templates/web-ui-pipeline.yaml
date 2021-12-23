@@ -54,6 +54,18 @@ Parameters:
   GitHubUser:
     Type: String
 
+  AmazonPayPublicKeyId:
+    Type: String
+    Description: Public Key ID for the Amazon Pay sandbox account being used
+
+  AmazonPayStoreId:
+    Type: String
+    Description: Store ID of the Amazon Pay sandbox account being used
+
+  AmazonPayMerchantId:
+    Type: String
+    Description: Merchant ID of the Amazon Pay sandbox account being used
+
   UserPoolId:
     Type: String
 
@@ -83,7 +95,15 @@ Parameters:
     Type: String
     Default: none
 
+  LocationServiceExternalUrl:
+    Type: String
+    Default: none
+
   SearchServiceExternalUrl:
+    Type: String
+    Default: none
+
+  OffersServiceExternalUrl:
     Type: String
     Default: none
 
@@ -100,15 +120,19 @@ Parameters:
 
   ParameterAmplitudeApiKey:
     Type: String
-    Description: SSM parameter name for the Amplitude API key
+    Description: SSM parameter name for the Amplitude API key parameter name
 
   ParameterOptimizelySdkKey:
     Type: String
-    Description: SSM Parameter name for the Optimizely SDK key
+    Description: SSM Parameter name for the Optimizely SDK key parameter name
 
   ParameterSegmentWriteKey:
     Type: String
-    Description: SSM Parameter name for the Segment write key
+    Description: SSM Parameter name for the Segment write key parameter name
+
+  ParameterGoogleAnalyticsMeasurementId:
+    Type: String
+    Description: Google Analytics Measurement Id parameter name
 
   ParameterLayer0DeployToken:
     Type: String
@@ -117,6 +141,14 @@ Parameters:
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
+
+  LocationResourceName:
+    Type: String
+    Description: Name of Location resources (Map, Geofence collection, Tracker)
+
+  LocationNotificationEndpoint:
+    Type: String
+    Description: URL of WebSocket API for Geofence notifications
 
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
@@ -292,7 +324,6 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-                  - iam:PassRole
               - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
@@ -333,6 +364,12 @@ Resources:
             Value: !Ref WebUIBucketName
           - Name: CLOUDFRONT_DIST_ID
             Value: !Ref WebUICDN
+          - Name: AMAZON_PAY_PUBLIC_KEY_ID
+            Value: !Ref AmazonPayPublicKeyId
+          - Name: AMAZON_PAY_STORE_ID
+            Value: !Ref AmazonPayStoreId
+          - Name: AMAZON_PAY_MERCHANT_ID
+            Value: !Ref AmazonPayMerchantId
           - Name: COGNITO_USER_POOL_ID
             Value: !Sub ${UserPoolId}
           - Name: COGNITO_USER_POOL_CLIENT_ID
@@ -349,6 +386,8 @@ Resources:
             Value: !Sub ${OrdersServiceExternalUrl}
           - Name: RECOMMENDATIONS_SERVICE_URL
             Value: !Sub ${RecommendationsServiceExternalUrl}
+          - Name: LOCATION_SERVICE_URL
+            Value: !Sub ${LocationServiceExternalUrl}
           - Name: SEARCH_SERVICE_URL
             Value: !Sub ${SearchServiceExternalUrl}
           - Name: VIDEOS_SERVICE_URL
@@ -366,9 +405,16 @@ Resources:
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey
+          - Name: LOCATION_RESOURCE_NAME
+            Value: !Ref LocationResourceName
+          - Name: LOCATION_NOTIFICATION_URL
+            Value: !Ref LocationNotificationEndpoint
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterSegmentWriteKey
+          - Name: GOOGLE_ANALYTICS_ID
+            Type: PARAMETER_STORE
+            Value: !Ref ParameterGoogleAnalyticsMeasurementId
           - Name: LAYER0_DEPLOY_TOKEN
             Type: PARAMETER_STORE
             Value: !Ref ParameterLayer0DeployToken

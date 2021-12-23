@@ -16,6 +16,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"strconv"
+	"strings"
 )
 
 var imageRootURL = os.Getenv("IMAGE_ROOT_URL")
@@ -117,17 +118,34 @@ func ProductShow(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	ret := RepoFindProduct(vars["productID"])
+	productIds := strings.Split(vars["productIDs"], ",")
 
-	if !ret.Initialized() {
-		http.Error(w, "Product not found", http.StatusNotFound)
+	if len(productIds) > MAX_BATCH_GET_ITEM {
+		http.Error(w, fmt.Sprintf("Maximum number of product IDs per request is %d", MAX_BATCH_GET_ITEM), http.StatusUnprocessableEntity)
 		return
 	}
 
-	fullyQualifyProductImageURL(r, &ret)
+	if len(productIds) > 1 {
+		ret := RepoFindMultipleProducts(productIds)
 
-	if err := json.NewEncoder(w).Encode(ret); err != nil {
-		panic(err)
+		fullyQualifyProductImageURLs(r, &ret)
+
+		if err := json.NewEncoder(w).Encode(ret); err != nil {
+			panic(err)
+		}
+	} else {
+		ret := RepoFindProduct(productIds[0])
+
+		if !ret.Initialized() {
+			http.Error(w, "Product not found", http.StatusNotFound)
+			return
+		}
+
+		fullyQualifyProductImageURL(r, &ret)
+
+		if err := json.NewEncoder(w).Encode(ret); err != nil {
+			panic(err)
+		}
 	}
 }
 
