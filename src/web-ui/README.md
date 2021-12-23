@@ -26,8 +26,7 @@ Once the container is up and running, you can access it in your browser at [http
 # Site Optimization with Layer0
 
 Layer0 documentation: https://docs.layer0.co
-
-AWS Retail Store on Layer0 demo: https://moovweb-demos-aws-rds-default.moovweb-edge.io
+AWS Retail Store on Layer0 demo: https://layer0-docs-layer0-aws-store-example-default.layer0-limelight.link
 
 ## Prerequisites
 
