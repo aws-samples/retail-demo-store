@@ -25,8 +25,9 @@ Once the container is up and running, you can access it in your browser at [http
 
 # Site Optimization with Layer0
 
-Layer0 documentation: https://docs.layer0.co
-AWS Retail Store on Layer0 demo: https://layer0-docs-layer0-aws-store-example-default.layer0-limelight.link
+- Layer0 documentation: https://docs.layer0.co
+- AWS Retail Store on Layer0 demo: https://layer0-docs-layer0-aws-store-example-default.layer0-limelight.link
+- Layer0 example app: https://github.com/layer0-docs/layer0-aws-store-example
 
 ## Prerequisites
 

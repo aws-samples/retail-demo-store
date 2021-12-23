@@ -22,6 +22,15 @@ export const AnalyticsHandler = {
             Amplitude.getInstance().setUserId(null)
             Amplitude.getInstance().regenerateDeviceId()
         }
+        if (this.mParticleEnabled()) {
+            var identityCallback = function() { 
+             window.mParticle.logEvent(
+                        'Logout',
+                        window.mParticle.EventType.Transaction, {}
+                    );
+            };
+            window.mParticle.Identity.logout({}, identityCallback);
+           }
     },
 
     async identify(user) {
@@ -68,6 +77,44 @@ export const AnalyticsHandler = {
                     PostalCode: address.zipcode,
                     Region: address.state
                 }
+            }
+
+            if (this.mParticleEnabled()) {
+                
+                let identityRequest = {
+                    userIdentities: {
+                        email: user.email,
+                        customerid: user.username
+                    }
+                };
+                
+                let identityCallback = function(result) {
+                    if (result.getUser()) {
+                        //proceed with login 
+                        let currentUser = result.getUser();
+                        currentUser.setUserAttribute("$FirstName", user.first_name);
+                        currentUser.setUserAttribute("$LastName", user.last_name);
+                        currentUser.setUserAttribute("$Gender", user.gender);
+                        currentUser.setUserAttribute("$Age", user.age);
+                        currentUser.setUserAttribute("amazonPersonalizeId", user.id);
+                        currentUser.setUserAttribute("Persona", user.persona);
+                        currentUser.setUserAttribute("SignUpDate", user.sign_up_date);
+                        currentUser.setUserAttribute("LastSignInDate", user.last_sign_in_date);
+                        if (user.addresses && user.addresses.length > 0) {
+                            let address = user.addresses[0]
+                            currentUser.setUserAttribute("$City", address.city);
+                            currentUser.setUserAttribute("$Country", address.country);
+                            currentUser.setUserAttribute("$Zip", address.zipcode);
+                            currentUser.setUserAttribute("$State", address.state);
+                        }
+                        window.mParticle.logEvent(
+                            'Set User',
+                            window.mParticle.EventType.Transaction, {}
+                        );
+    
+                    }
+                };
+                window.mParticle.Identity.login(identityRequest, identityCallback);
             }
 
             if (cognitoUser.attributes.email) {
@@ -163,6 +210,10 @@ export const AnalyticsHandler = {
                     "method": "Web"
                 });
             }
+
+            if (this.mParticleEnabled()) {
+                window.mParticle.logEvent('UserSignedUp', window.mParticle.EventType.Transaction, { "method": "Web" });  
+               }
         }
     },
 
@@ -181,6 +232,10 @@ export const AnalyticsHandler = {
                     "method": "Web"
                 });
             }
+
+            if (this.mParticleEnabled()) {
+                window.mParticle.logEvent('UserSignedIn', window.mParticle.EventType.Transaction, { "method": "Web" });  
+               }
         }
     },
 
@@ -272,6 +327,37 @@ export const AnalyticsHandler = {
             window.analytics.track('ProductAdded', eventProperties);
         }
 
+        if (this.mParticleEnabled()) {
+            let productName = product.name;
+            let productId = product.id;
+            let productPrice = product.price;
+    
+            let productDetails = window.mParticle.eCommerce.createProduct(
+                productName,
+                productId,
+                parseFloat(productPrice),
+                quantity
+            );
+            let totalAmount = productPrice * quantity;
+            let transactionAttributes = {
+                Id: cart.id,
+                Revenue: totalAmount,
+                Tax: totalAmount * .10
+            };
+    
+            let customAttributes = {
+                mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
+                cartId: cart.id,
+                category: product.category,
+                image: product.image,
+                feature: feature,
+                experimentCorrelationId: experimentCorrelationId
+            };
+    
+            // Send details of viewed product to mParticle
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, productDetails, customAttributes, {}, transactionAttributes);
+        }
+
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductAdded', eventProperties);
         }
@@ -336,7 +422,30 @@ export const AnalyticsHandler = {
     },
     async recordAbanonedCartEvent(user, cart) {
         const hasItem = await this.recordShoppingCart(user, cart)
+        var productImages, productTitles, productURLs
         if (hasItem) {
+            
+            if (this.mParticleEnabled()) {
+
+                const product = await ProductsRepository.getProduct(cart.items[0].product_id);
+                const cartItem = product.data
+                productImages = [cartItem.image]
+                productTitles = [cartItem.name]
+                productURLs = [cartItem.url]
+
+                let customAttributes = {
+                   mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
+                   HasShoppingCart: cart.items.length > 0 ? true : false,
+                   WebsiteCartURL: process.env.VUE_APP_WEB_ROOT_URL + '#/cart',
+                   WebsiteLogoImageURL: process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg',
+                   WebsitePinpointImageURL: process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg',
+                   ShoppingCartItemImageURL: productImages,
+                   ShoppingCartItemTitle: productTitles,
+                   ShoppingCartItemURL: productURLs,
+               };
+               window.mParticle.logEvent('AbandonedCartEvent',window.mParticle.EventType.Transaction, customAttributes);
+            }
+
             AmplifyAnalytics.record({
                 name: '_session.stop',
             })
@@ -375,6 +484,17 @@ export const AnalyticsHandler = {
             quantity: origQuantity,
             price: +cartItem.price.toFixed(2)
         };
+
+        if (this.mParticleEnabled()) {
+            let product1 = window.mParticle.eCommerce.createProduct(
+            cartItem.product_name, // Name
+            cartItem.product_id, // SKU
+            cartItem.price, // Price
+            origQuantity // Quantity
+        );
+
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.RemoveFromCart, product1, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
+        }
 
         if (this.segmentEnabled()) {
             window.analytics.track('ProductRemoved', eventProperties);
@@ -439,6 +559,17 @@ export const AnalyticsHandler = {
             price: +cartItem.price.toFixed(2)
         };
 
+        if (this.mParticleEnabled()) {
+            let product1 = window.mParticle.eCommerce.createProduct(
+            cartItem.product_name, // Name
+            cartItem.product_id, // SKU
+            cartItem.price, // Price
+            cartItem.quantity // Quantity
+        );
+
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, product1, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
+        }
+
         if (this.segmentEnabled()) {
             window.analytics.track('ProductQuantityUpdated', eventProperties);
         }
@@ -494,6 +625,16 @@ export const AnalyticsHandler = {
 
         if (this.segmentEnabled()) {
             window.analytics.track('ProductViewed', eventProperties);
+        }
+
+        if (this.mParticleEnabled()) {
+            let productDetails = window.mParticle.eCommerce.createProduct(
+               product.name,
+               product.id,
+               parseFloat(product.price.toFixed(2)),
+               1
+           );
+           window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails,{mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
         }
 
         if (this.amplitudeEnabled()) {
@@ -566,6 +707,30 @@ export const AnalyticsHandler = {
             window.analytics.track('CartViewed', eventProperties);
         }
 
+        if (this.mParticleEnabled()) {
+             var cartViewList = [];
+             let totalAmount = 0;
+     
+             for (var cartCounter = 0; cartCounter < cart.items.length; cartCounter++) {
+                 var cartViewItem = cart.items[cartCounter];
+                 var cartViewDetails = window.mParticle.eCommerce.createProduct(
+                     cartViewItem.product_name,
+                     cartViewItem.product_id,
+                     parseFloat(cartViewItem.price),
+                     parseInt(cartViewItem.quantity)
+                 );
+                 totalAmount = totalAmount + parseFloat(cartViewItem.price);
+                 cartViewList.push(cartViewDetails);
+             }
+     
+             let transactionAttributes = {
+                 Id: cart.id,
+                 Revenue: totalAmount,
+                 Tax: totalAmount * .10
+             };
+             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Click, cartViewList, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}, {}, transactionAttributes);
+         }
+
         if (this.amplitudeEnabled()) {
             // Amplitude event
             Amplitude.getInstance().logEvent('CartViewed', eventProperties);
@@ -629,6 +794,29 @@ export const AnalyticsHandler = {
 
         if (this.segmentEnabled()) {
             window.analytics.track('CheckoutStarted', eventProperties);
+        }
+
+        if (this.mParticleEnabled()) {
+            let totalAmount = 0;
+            var checkoutList = [];
+            for (var z = 0; z < cart.items.length; z++) {
+                var checkoutItem = cart.items[z];
+                var checkoutDetails = window.mParticle.eCommerce.createProduct(
+                    checkoutItem.product_name,
+                    checkoutItem.product_id,
+                    parseFloat(checkoutItem.price),
+                    parseInt(checkoutItem.quantity)
+                );
+                totalAmount = totalAmount + parseFloat(checkoutItem.price);
+                checkoutList.push(checkoutDetails);
+            }
+    
+            let transactionAttributes = {
+                Id: cart.id,
+                Revenue: totalAmount,
+                Tax: totalAmount * .10
+            };
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Checkout, checkoutList, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}, {}, transactionAttributes);
         }
 
         if (this.amplitudeEnabled()) {
@@ -726,6 +914,36 @@ export const AnalyticsHandler = {
             })
         }
 
+        if (this.mParticleEnabled()) {
+            var orderList = [];
+            let totalAmount = 0;
+            for (var x = 0; x < cart.items.length; x++) {
+                var orderItem = cart.items[x];
+                var orderDetails = window.mParticle.eCommerce.createProduct(
+                    orderItem.product_name,
+                    orderItem.product_id,
+                    parseFloat(orderItem.price),
+                    parseInt(orderItem.quantity)
+                );
+                totalAmount = totalAmount + parseFloat(orderItem.price);
+                orderList.push(orderDetails);
+            }
+    
+            let transactionAttributes = {
+                Id: cart.id,
+                Revenue: totalAmount,
+                Tax: totalAmount * .10
+            };
+    
+            let customAttributes = {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}
+    
+            if (order.promo_code != null && order.promo_code != "")
+                customAttributes = { promo_code: order.promo_code };
+    
+    
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.Purchase, orderList, customAttributes, {}, transactionAttributes);
+        }
+
         let eventProperties = {
             cartId: cart.id,
             orderId: order.id,
@@ -794,6 +1012,17 @@ export const AnalyticsHandler = {
             window.analytics.track('ProductSearched', eventProperties);
         }
 
+        if (this.mParticleEnabled()) {
+            let customAttributes = {
+                resultCount: numResults,
+                mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
+                query: query,
+                reranked: (user ? 'true' : 'false')
+            };
+            window.mParticle.logEvent('ProductSearched',window.mParticle.EventType.Transaction, customAttributes);
+                
+        }
+
         if (this.amplitudeEnabled()) {
             Amplitude.getInstance().logEvent('ProductSearched', eventProperties);
         }
@@ -819,6 +1048,10 @@ export const AnalyticsHandler = {
 
     optimizelyEnabled() {
         return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY != 'NONE';
+    },
+
+    mParticleEnabled() {
+        return process.env.VUE_APP_MPARTICLE_API_KEY && process.env.VUE_APP_MPARTICLE_API_KEY != 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {

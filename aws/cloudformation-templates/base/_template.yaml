@@ -57,6 +57,31 @@ Parameters:
     Description: Segment source write key (optional).
     NoEcho: true
 
+  mParticleOrgId:
+    Type: String
+    Description: mParticle Org Id
+    NoEcho: true
+
+  mParticleApiKey:
+    Type: String
+    Description: mParticle API Key.
+    NoEcho: true
+
+  mParticleSecretKey:
+    Type: String
+    Description: mParticle Secret Key.
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: mParticle server to server API Key.
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: mParticle server to server Secret Key.
+    NoEcho: true
+
   Layer0DeployToken:
     Type: String
     Description: Layer0 token for deploying (optional).
@@ -78,6 +103,10 @@ Parameters:
     Type: String
     Description: Your GitHub username.
 
+  GitHubBranch:
+    Type: String
+    Description: The GitHub branch used for deployment.
+    
 Resources:
   # Authentication
   Authentication:
@@ -113,6 +142,7 @@ Resources:
         UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         GitHubUser: !Ref GitHubUser
+        GitHubBranch: !Ref GitHubBranch
 
   # Tables
   Tables:
@@ -196,6 +226,11 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        mParticleOrgId: !Ref mParticleOrgId
+        mParticleApiKey: !Ref mParticleApiKey
+        mParticleSecretKey: !Ref mParticleSecretKey
+        mParticleS2SApiKey: !Ref mParticleS2SApiKey
+        mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         Layer0DeployToken: !Ref Layer0DeployToken
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId

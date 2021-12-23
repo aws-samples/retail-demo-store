@@ -9,6 +9,10 @@ Parameters:
     Type: String
     Description: Your GitHub username.
 
+  GitHubBranch:
+    Type: String
+    Description: The GitHub branch to use for deployments.
+
   Subnets:
     Type: String
 
@@ -45,18 +49,25 @@ Conditions:
       - ''
 
 Resources:
+  RetailDemoStoreGitHubRepo:
+    Type: AWS::SageMaker::CodeRepository
+    Properties: 
+      CodeRepositoryName: !Sub '${Uid}-demo-store'
+      GitConfig: 
+        Branch: !Ref GitHubBranch
+        RepositoryUrl:  !Sub
+        - 'https://github.com/${User}/retail-demo-store.git'
+        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
       NotebookInstanceName: !Sub ${Uid}
-      InstanceType: "ml.t3.medium"
+      InstanceType: "ml.t2.medium"  # Ensure instance type is supported by all target regions in README before changing
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
-      DefaultCodeRepository: !Sub
-        - 'https://github.com/${User}/retail-demo-store.git'
-        - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
+      DefaultCodeRepository: !Sub '${Uid}-demo-store'
       Tags:
         -
           Key: "Uid"
@@ -166,6 +177,27 @@ Resources:
                   - iam:DetachRolePolicy
                   - iam:DeleteRole
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
+              -
+                Effect: "Allow"
+                Action:
+                  - iam:UpdateAssumeRolePolicy
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${AWS::Region}-mParticleKinesisCrossAccountRole'
+              - 
+                Effect: "Allow"
+                Action:
+                  - iam:CreatePolicy
+                  - iam:DeletePolicy
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:policy/KinesismParticlePolicy'
+              -
+                Effect: "Allow"
+                Action:
+                  - iam:CreateUser
+                  - iam:DeleteUser
+                  - iam:AttachUserPolicy
+                  - iam:DetachUserPolicy
+                  - iam:CreateAccessKey
+                  - iam:DeleteAccessKey
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:user/mParticleRetailDemoStoreKinesis'
               -
                 Effect: Allow
                 Action:

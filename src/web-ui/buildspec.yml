@@ -1,4 +1,10 @@
 version: 0.2
+
+env:
+  parameter-store:
+    MPARTICLE_API_KEY: '/retaildemostore/webui/mparticle_api_key'
+    MPARTICLE_SECRET_KEY: '/retaildemostore/webui/mparticle_secret_key'
+    
 phases:
   install:
     runtime-versions:
