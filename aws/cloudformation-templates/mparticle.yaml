@@ -1,0 +1,132 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys a Kinesis stream and two Lambda functions for use with the Amazon Personalize destination 
+    in the Personalize and CDP workshops, along with the execution roles required to run the Lambda and for mParticle
+    to be able to access the Lambda from the Personalize destination.
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  Uid:
+    Type: String
+    Description: >
+      Uid generated from the root template to provide unique resource names
+
+  mParticleOrgId:
+    Type: String
+    Description: >
+      The OrgID for your mParticle instance.  This will be used to enable assume role for mParticle to write to Kinesis.
+
+Resources:
+  mParticlePersonalizeEventsKinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties: 
+      Name: !Sub '${Uid}-mParticlePersonalizeEventsKinesisStream'
+      ShardCount: 1
+      StreamEncryption:
+        EncryptionType: KMS
+        KeyId: alias/aws/kinesis
+        
+  mParticlePersonalizeLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles sending events passed from mParticle to the Personalize tracker for user-item interactions.'
+      Handler: mparticle-personalize.handler
+      Role: !GetAtt 
+        - mParticlePersonalizeLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/mparticle-personalize.zip'
+      Runtime: nodejs12.x
+      Timeout: 900
+      FunctionName: !Sub '${Uid}-mParticlePersonalizeLambda'
+
+  mParticleKinesisCrossAccountRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub '${Uid}-mParticleKinesisCrossAccountRole'
+      Description: 'Allows mParticle to write messages to your Kinesis stream.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::338661164609:role/role-lambda-verifyrequest"
+                - "arn:aws:iam::338661164609:role/role-ecs-mp-notification-httpservertoserverprocessor"
+            Action:
+              - 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                "sts:ExternalId": !Sub 'orgid:${mParticleOrgId}'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'kinesis:PutRecord'
+                Resource:
+                  - !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${Uid}-mParticlePersonalizeEventsKinesisStream'
+
+  mParticlePersonalizeLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: 'Execution role for the Lambda provided with the mParticle workshop.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-mParticlePersonalizeLambda*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-mParticlePersonalizeLambda*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters                
+                Resource: 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*' 
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:GetRecommendations
+                  - personalize:PutEvents
+                Resource: '*'
+
+Outputs:
+  mParticlePersonalizeLambdaFunctionArn:
+    Description: Lambda function ARN for the mParticle Personalize Lambda function.
+    Value: !GetAtt mParticlePersonalizeLambda.Arn

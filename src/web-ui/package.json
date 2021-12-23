@@ -20,6 +20,7 @@
     "@layer0/core": "^4.6.0",
     "@layer0/devtools": "^4.6.0",
     "@layer0/prefetch": "^4.6.0",
+    "@mparticle/web-sdk": "^2.9.14-rc.1",
     "@optimizely/optimizely-sdk": "4.0.0",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
