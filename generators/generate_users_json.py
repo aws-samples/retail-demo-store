@@ -28,9 +28,9 @@ num_cstore_users = num_users - num_web_users
 
 print('Generating {} random web users...'.format(num_web_users))
 
-pool = UserPool.new_file('users.json.gz',
-                         num_web_users,
+pool = UserPool.new_pool(num_web_users,
                          category_preference_personas=users.category_preference_personas_web)
+pool.save('users.json.gz')
 pool_check = UserPool.from_file('users.json.gz')
 
 if pool.users.__repr__() != pool_check.users.__repr__():
@@ -38,11 +38,11 @@ if pool.users.__repr__() != pool_check.users.__repr__():
 
 print('Generating {} random c-store users...'.format(num_cstore_users))
 
-cstore_pool = UserPool.new_file('cstore_users.json.gz',
-                                num_cstore_users,
+cstore_pool = UserPool.new_pool(num_cstore_users,
                                 category_preference_personas=users.category_preference_personas_cstore,
                                 selectable_user=False,
                                 start_user=num_web_users)
+cstore_pool.save('cstore_users.json.gz')
 cstore_pool_check = UserPool.from_file('cstore_users.json.gz')
 
 if cstore_pool.users.__repr__() != cstore_pool_check.users.__repr__():

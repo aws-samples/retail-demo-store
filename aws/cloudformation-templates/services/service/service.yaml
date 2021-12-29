@@ -126,6 +126,14 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
+  LoadUsersFromFile:
+    Type: String
+    Default: true
+
   Uid:
     Type: String
   
@@ -177,10 +185,12 @@ Resources:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}/index/*'
         - PolicyName: PinpointSMS
           PolicyDocument:
             Version: '2012-10-17'
@@ -330,7 +340,7 @@ Resources:
           Image: public.ecr.aws/xray/aws-xray-daemon:alpha
           PortMappings:
             - ContainerPort: 2000
-              Protocol: udp        
+              Protocol: udp
         - Name: !Ref ServiceName
           Image: !Ref ContainerImage
           Essential: true
@@ -342,13 +352,13 @@ Resources:
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
-              Value: !Ref EnvPersonalizeCampaignArn          
+              Value: !Ref EnvPersonalizeCampaignArn
             - Name: SEARCH_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeSearchCampaignArn
             - Name: PRODUCTS_SERVICE_HOST
               Value: !Ref EnvProductsServiceInternalUrl
             - Name: PRODUCTS_SERVICE_PORT
-              Value: '80'      
+              Value: '80'
             - Name: USERS_SERVICE_HOST
               Value: !Ref EnvUsersServiceInternalUrl
             - Name: USERS_SERVICE_PORT
@@ -379,6 +389,10 @@ Resources:
               Value: !Ref OrdersTable
             - Name: DDB_TABLE_CATEGORIES
               Value: !Ref CategoriesTable
+            - Name: DDB_TABLE_USERS
+              Value: !Ref UsersTable
+            - Name: LOAD_USERS_FROM_FILE
+            - Value: !Ref LoadUsersFromFile
             - Name: WEB_ROOT_URL
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL

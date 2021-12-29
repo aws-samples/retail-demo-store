@@ -100,6 +100,14 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
+  LoadUsersFromFile:
+    Type: String
+    Default: true
+
   ParameterPersonalizeEventTrackerId:
     Type: String
     Description: SSM parameter name for the Personalize event tracking ID
@@ -187,6 +195,8 @@ Resources:
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
+        UsersTable: !Ref UsersTable
+        LoadUsersFromFile: !Ref LoadUsersFromFile
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         PinpointAppId: !Ref PinpointAppId

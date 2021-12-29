@@ -119,13 +119,13 @@ class UserPool:
     return user_pool
 
   @classmethod
-  def new_file(cls, filename, num_users,
+  def new_pool(cls, filename, num_users,
                category_preference_personas, selectable_user=True, start_user=0):
     user_pool = cls(category_preference_personas=category_preference_personas,
                     start_user=start_user)
     user_pool.file = filename
     user_pool.grow_pool(num_users, selectable_user)
-    user_pool.save(filename)
+    #user_pool.save(filename)
     return user_pool
 
 class User:

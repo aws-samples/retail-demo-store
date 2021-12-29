@@ -302,6 +302,8 @@ export default {
   .consent-checkbox {
     /* fine-tuning for alignment */
     margin-top: 4px;
+    min-width: 20px;
+   /* transform: scale(1.3); */
   }
 
   @media (min-width: 768px) {

@@ -179,6 +179,14 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
+  LoadUsersFromFile:
+    Type: String
+    Default: yes
+
   ParameterPersonalizeEventTrackerId:
     Type: String
     Description: SSM parameter name for the Personalize event tracking ID
@@ -295,6 +303,8 @@ Resources:
         OrdersTable: !Ref OrdersTable
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
+        UsersTable: !Ref UsersTable
+        LoadUsersFromFile: !Ref LoadUsersFromFile
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl

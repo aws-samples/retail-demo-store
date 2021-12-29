@@ -17,6 +17,7 @@ from experimentation.resolvers import DefaultProductResolver, PersonalizeRecomme
     PersonalizeRankingResolver, RankingProductsNoOpResolver, PersonalizeContextComparePickResolver, RandomPickResolver
 from experimentation.utils import CompatEncoder
 from expiring_dict import ExpiringDict
+import favoriting
 
 import json
 import os
@@ -53,6 +54,7 @@ filter_cstore_param_name = 'retaildemostore-personalize-filter-cstore-arn'
 offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
 training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
 dataset_group_name_root = 'retaildemostore-'
+
 
 # -- Shared Functions
 
@@ -971,6 +973,65 @@ def reset_realtime():
 
     return ('Rebuild of Amazon Personalize initiated. Check the Amazon Personalize console '
             'or PersonalizePreCreateLambdaFunction lambda function logs for details'), 200
+
+
+@app.route('/favorite', methods=['POST'])
+def favorite_post():
+    """
+    """
+    if request.content_type.startswith('application/json'):
+        content = request.json
+        app.logger.info(content)
+        try:
+            username = content.get('username')
+        except KeyError:
+            raise BadRequest('Please supply username in request json')
+        try:
+            product_id = content.get('product_id')
+        except KeyError:
+            raise BadRequest('Please supply product_id in request json')
+        try:
+            favourited = content.get('favourited')
+        except KeyError:
+            raise BadRequest('Please supply favourite bool in request json')
+        nres = favoriting.set_favorited(username, product_id, favourited)
+        result = {'change_in_num_favourited': nres}
+        return Response(json.dumps(result, cls=CompatEncoder), status=200)
+    else:
+        raise BadRequest('Expected application/json')
+
+
+@app.route('/favorite/by_user', methods=['GET'])
+def favorite_get_by_user():
+    """
+    """
+
+    try:
+        username = request.args.get('username')
+    except KeyError:
+        raise BadRequest('Please supply username in get request')
+    products = favoriting.favorited_products(username)
+    result = {'products': [{'id': product} for product in products]}
+    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
+    return resp
+
+
+@app.route('/favorite/by_user_and_product', methods=['GET'])
+def favorite_get_by_user_and_products():
+    """
+    """
+    try:
+        username = request.args.get('username')
+    except KeyError:
+        raise BadRequest('Please supply username in get request')
+    try:
+        product_id = request.args.get('product_id')
+    except KeyError:
+        raise BadRequest('Please supply product_id in get request')
+    is_favorited = favoriting.is_favorited(username, product_id)
+    result = {'is_favorited': is_favorited}
+    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
+    return resp
 
 
 if __name__ == '__main__':

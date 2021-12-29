@@ -13,7 +13,16 @@ import (
 	"strings"
 	"math/rand"
 	"time"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
+
+
+var doLoadFromFile, _ = getenvBool("LOAD_USERS_FROM_FILE")
+//var doLoadFromFile = os.Getenv("LOAD_USERS_FROM_FILE")
 
 var users Users
 var usersById map[string]int
@@ -26,18 +35,7 @@ var usersClaimedByIdentityId map[int]bool
 
 // Init
 func init() {
-	loadedUsers, err := loadUsers("/bin/data/users.json.gz")
-	if err != nil {
-		log.Panic("Unable to load users file: ", err)
-	}
-	users = loadedUsers
-}
 
-func loadUsers(filename string) (Users, error) {
-
-	log.Println("Attempting to load users file: ", filename)
-
-	var r Users
 	usersById = make(map[string]int)
 	usersByUsername = make(map[string]int)
 	usersByIdentityId = make(map[string]int)
@@ -45,38 +43,116 @@ func loadUsers(filename string) (Users, error) {
 	usersByAgeRange = make(map[string][]int)
 	usersClaimedByIdentityId = make(map[int]bool)
 
+    err := loadUsersDB()
+    if err != nil {
+        log.Panic("Unable to load users dynamo: ", err)
+        return
+    }
+    if len(users) == 0 {
+  //  if doLoadFromFile {
+        err := loadUsersFile("/bin/data/users.json.gz")
+        //loadedUsers, err := loadUsersFile("/bin/data/users.json.gz")
+        if err != nil {
+            log.Panic("Unable to load users file: ", err)
+        }
+    }
+	//}
+	// users = loadedUsers
+}
+
+func loadUsersFile(filename string) (error) {
+
+	log.Println("Attempting to load users file: ", filename)
+
+	var r Users
+
 	file, err := os.Open(filename)
-	if err != nil {
-		return r, err
-	}
+    if err != nil {
+        log.Println("Got error opening gzip file:")
+        log.Println(err.Error())
+        return err
+    }
 
 	defer file.Close()
 
 	gz, err := gzip.NewReader(file)
-	if err != nil {
-		return r, err
-	}
+    if err != nil {
+        log.Println("Got error reading gzip file:")
+        log.Println(err.Error())
+        return err
+    }
 
 	defer gz.Close()
 
 	dec := json.NewDecoder(gz)
 
 	err = dec.Decode(&r)
-	if err != nil {
-		return r, err
-	}
+    if err != nil {
+        log.Println("Got error decoding gzip file:")
+        log.Println(err.Error())
+        return err
+    }
 
 	// Load maps with user array index
-	for i, u := range r {
-		usersById[u.ID] = i
-		usersByUsername[u.Username] = i
-		usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]] = append(usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]],i)
-		usersByAgeRange[getAgeRange(u.Age)] = append(usersByAgeRange[getAgeRange(u.Age)], i)	
+	for _, u := range r {
+	    _, err := RepoCreateUser(u, true)
+	    if err != nil {
+			log.Println("Got error creating user:")
+			log.Println(err.Error())
+		    return err
+	    }
+		//usersById[u.ID] = i
+		//usersByUsername[u.Username] = i
+		//usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]] = append(usersByPrimaryPersona[strings.Split(u.Persona, "_")[0]],i)
+		//usersByAgeRange[getAgeRange(u.Age)] = append(usersByAgeRange[getAgeRange(u.Age)], i)
 	}
 
-	log.Println("Users successfully loaded into memory structures")
+	log.Println("Users successfully loaded into memory structures from file")
 
-	return r, nil
+	return nil
+	//return r, nil
+}
+
+
+func loadUsersDB() (error) {
+
+	log.Println("loadUsersDB: ")
+
+	// Build the query input parameters
+	params := &dynamodb.ScanInput{
+		TableName: aws.String(ddbTableUsers),
+	}
+	// Make the DynamoDB Query API call
+	result, err := dynamoClient.Scan(params)
+
+	if err != nil {
+		log.Println("Got error scan expression:")
+		log.Println(err.Error())
+	}
+
+	log.Println("loadUsersDB / items found =  ", len(result.Items))
+
+	for _, i := range result.Items {
+		user := User{}
+
+		err = dynamodbattribute.UnmarshalMap(i, &user)
+
+		if err != nil {
+			log.Println("Got error unmarshalling:")
+			log.Println(err.Error())
+		}
+
+	    _, err := RepoCreateUser(user, false)
+	    if err != nil {
+			log.Println("Got error creating user:")
+			log.Println(err.Error())
+		    return err
+	    }
+	}
+
+    log.Println("Users successfully loaded into memory structures from DB")
+
+	return nil
 }
 
 func getAgeRange(age int) string{
@@ -197,28 +273,53 @@ func RepoFindUserByIdentityID(identityID string) User {
 }
 
 // RepoUpdateUser Function
-func RepoUpdateUser(t User) User {
-	if idx, ok := usersById[t.ID]; ok {
-		u := &users[idx]
-		u.FirstName = t.FirstName
-		u.LastName = t.LastName
-		u.Email = t.Email
-		u.Addresses = t.Addresses
-		u.SignUpDate = t.SignUpDate
-		u.LastSignInDate = t.LastSignInDate
-		u.PhoneNumber = t.PhoneNumber
+func RepoUpdateUser(user User) User {
+	if idx, ok := usersById[user.ID]; ok {
 
-		if len(u.IdentityId) > 0 && u.IdentityId != t.IdentityId {
-			delete(usersByIdentityId, u.IdentityId)
+		existingUser := &users[idx]
+
+		log.Printf("RepoUpdateUser from %#v to %#v", existingUser, user)
+
+		existingUser.FirstName = user.FirstName
+		existingUser.LastName = user.LastName
+		existingUser.Email = user.Email
+		existingUser.Addresses = user.Addresses
+		existingUser.SignUpDate = user.SignUpDate
+		existingUser.LastSignInDate = user.LastSignInDate
+		existingUser.PhoneNumber = user.PhoneNumber
+
+		if len(existingUser.IdentityId) > 0 && existingUser.IdentityId != user.IdentityId {
+			delete(usersByIdentityId, existingUser.IdentityId)
 		}
 
-		u.IdentityId = t.IdentityId
+		existingUser.IdentityId = user.IdentityId
 
-		if len(t.IdentityId) > 0 {
-			usersByIdentityId[t.IdentityId] = idx
+		if len(user.IdentityId) > 0 {
+			usersByIdentityId[user.IdentityId] = idx
 		}
 
-		return RepoFindUserByID(t.ID)
+		log.Printf("Updating user in dynamodb")
+
+        av, err := dynamodbattribute.MarshalMap(existingUser)
+
+        if err != nil {
+            fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+            fmt.Println(err.Error())
+            return user
+        }
+
+        input := &dynamodb.PutItemInput{
+            Item:      av,
+            TableName: aws.String(ddbTableUsers),
+        }
+
+        _, err = dynamoClient.PutItem(input)
+        if err != nil {
+            fmt.Println("Got error calling PutItem:")
+            fmt.Println(err.Error())
+        }
+
+		return RepoFindUserByID(user.ID)
 	}
 
 	// return empty User if not found
@@ -226,29 +327,69 @@ func RepoUpdateUser(t User) User {
 }
 
 // RepoCreateUser Function
-func RepoCreateUser(t User) (User, error) {
-	if _, ok := usersByUsername[t.Username]; ok {
+func RepoCreateUser(user User, addToDynamo bool) (User, error) {
+    log.Printf("RepoCreateUser --> %#v", user)
+
+	if _, ok := usersByUsername[user.Username]; ok {
 		return User{}, errors.New("User with this username already exists")
 	}
 
 	idx := len(users)
 
-	if len(t.ID) > 0 {
+	if len(user.ID) > 0 {
 		// ID provided by caller (provisionally created on storefront) so make
 		// sure it's not already taken.
-		if _, ok := usersById[t.ID]; ok {
+		if _, ok := usersById[user.ID]; ok {
 			return User{}, errors.New("User with this ID already exists")
 		}
 	} else {
-		t.ID = strconv.Itoa(idx)
+		user.ID = strconv.Itoa(idx)
 	}
 
-	users = append(users, t)
-	usersById[t.ID] = idx
-	usersByUsername[t.Username] = idx
-	if len(t.IdentityId) > 0 {
-		usersByIdentityId[t.IdentityId] = idx
+	users = append(users, user)
+	usersById[user.ID] = idx
+	usersByUsername[user.Username] = idx
+	if len(user.IdentityId) > 0 {
+		usersByIdentityId[user.IdentityId] = idx
+	}
+	if len(user.Persona) > 0 {
+		usersByPrimaryPersona[strings.Split(user.Persona, "_")[0]] = append(usersByPrimaryPersona[strings.Split(user.Persona, "_")[0]], idx)
+		usersByAgeRange[getAgeRange(user.Age)] = append(usersByAgeRange[getAgeRange(user.Age)], idx)
 	}
 
-	return t, nil
+    if addToDynamo {
+        log.Printf("Adding to dynamo")
+        av, err := dynamodbattribute.MarshalMap(user)
+
+        if err != nil {
+            fmt.Println("Got error calling dynamodbattribute MarshalMap:")
+            fmt.Println(err.Error())
+            return user, err
+        }
+
+        input := &dynamodb.PutItemInput{
+            Item:      av,
+            TableName: aws.String(ddbTableUsers),
+        }
+
+        _, err = dynamoClient.PutItem(input)
+        if err != nil {
+            fmt.Println("Got error calling PutItem:")
+            fmt.Println(err.Error())
+            return user, err
+        }
+    }
+	return user, nil
+}
+
+func getenvBool(key string) (bool, error) {
+    s := os.Getenv(key)
+    if err != nil {
+        return false, err
+    }
+    v, err := strconv.ParseBool(s)
+    if err != nil {
+        return false, err
+    }
+    return v, nil
 }

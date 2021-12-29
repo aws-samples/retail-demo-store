@@ -251,10 +251,11 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(422) // unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
+			return
 		}
 	}
 
-	t, err := RepoCreateUser(user)
+	t, err := RepoCreateUser(user, true)
 	if err != nil {
 		panic(err)
 	}

@@ -341,6 +341,10 @@ Outputs:
     Description: DynamoDB Table for Experiments
     Value: !GetAtt Tables.Outputs.ExperimentStrategyTable
 
+  UsersTable:
+    Description: DynamoDB Table for Users
+    Value: !GetAtt Tables.Outputs.UsersTable
+
   ParameterPersonalizeEventTrackerId:
     Description: Personalize Event Tracker ID Parameter
     Value: !GetAtt SSMParameters.Outputs.ParameterPersonalizeEventTrackerId

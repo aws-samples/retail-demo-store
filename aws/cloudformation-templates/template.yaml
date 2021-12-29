@@ -69,6 +69,8 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+          - TealiumDataSourceId
+          - LoadUsersFromFile
       - Label:
           default: "Amazon Customer 360 Data Hub integrations"
         Parameters:
@@ -147,6 +149,10 @@ Metadata:
         default: "Kinesis Stream ARN for products DynamoDB table"
       OrdersDynamoKinesisStreamArn:
         default: "Kinesis Stream ARN for orders DynamoDB table"
+      LoadUsersFromFile:
+        default: "Load users from users.json.gz in repository"
+      TealiumDataSourceId:
+        default: "Tealium data source ID"
 
 Parameters:
   ResourceBucket:
@@ -412,6 +418,21 @@ Parameters:
       the Amazon Customer 360 Data Hub. 
     Default: ''
 
+  TealiumDataSourceId:
+    Type: String
+    Description: >
+      The ID of the data source created in Tealium (optional).
+    Default: ''
+
+  LoadUsersFromFile:
+    Type: String
+    Description: >
+      Whether to load users from the users.json.gz file in the repository.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -491,6 +512,8 @@ Resources:
         OrdersTable: !GetAtt Base.Outputs.OrdersTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
+        UsersTable: !GetAtt Base.Outputs.UsersTable
+        LoadUsersFromFile: !Ref LoadUsersFromFile
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
