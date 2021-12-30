@@ -5,6 +5,7 @@
       @autoSelectShopper="onAutoSelectShopper"
       @chooseAShopper="onChooseAShopper"
       @useDefaultProfile="onUseDefaultProfile"
+      @useLanaProfile="onUseLanaProfile"
       @shopperSelected="onShopperSelected"
       @tryAgain="onTryAgain"
       @confirm="onConfirm"
@@ -48,6 +49,9 @@ export default {
       this.pageData = { currentPage: ShopperSelectPages.SelectShopper };
     },
     onUseDefaultProfile() {
+      this.$emit('profileSwitched');
+    },
+    onUseLanaProfile() {
       this.$emit('profileSwitched');
     },
     onShopperSelected(meta) {

@@ -44,6 +44,10 @@
         <a href="#" @click="useDefaultProfile" class="default-profile">default profile</a> to go through the cold user
         path to see how recommendations are personalized throughout based on browsing behavior.
       </p>
+      <p>
+       Or, for a more curated experience designed for the Customer 360 Data Hub, select
+        <a href="#" @click="useLanaProfile" class="lana-profile">Lana Williams</a>.
+      </p>
     </div>
   </div>
 </template>
@@ -94,6 +98,18 @@ export default {
       AmplifyEventBus.$emit('authState', 'profileChanged');
 
       this.$emit('useDefaultProfile');
+    },
+    async useLanaProfile() {
+
+      const { data: user } = await UsersRepository.getUserByUsername('lanawilliams625');
+
+      this.setUser(user);
+
+      AnalyticsHandler.identify(user);
+
+      AmplifyEventBus.$emit('authState', 'profileChanged');
+
+      this.$emit('useLanaProfile');
     },
   },
 };
@@ -161,4 +177,8 @@ export default {
 .default-profile {
   color: var(--blue-600);
 }
+.lana-profile {
+  color: var(--blue-600);
+}
+
 </style>
