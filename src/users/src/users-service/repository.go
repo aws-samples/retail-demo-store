@@ -20,10 +20,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-
-var doLoadFromFile, _ = getenvBool("LOAD_USERS_FROM_FILE")
-//var doLoadFromFile = os.Getenv("LOAD_USERS_FROM_FILE")
-
 var users Users
 var usersById map[string]int
 var usersByUsername map[string]int
@@ -42,6 +38,8 @@ func init() {
 	usersByPrimaryPersona = make(map[string][]int)
 	usersByAgeRange = make(map[string][]int)
 	usersClaimedByIdentityId = make(map[int]bool)
+	doLoadFromFile, _ := getenvBool("LOAD_USERS_FROM_FILE")
+	log.Println("LOAD_USERS_FROM_FILE: ", doLoadFromFile)
 
     err := loadUsersDB()
     if err != nil {
@@ -49,14 +47,15 @@ func init() {
         return
     }
     if len(users) == 0 {
-  //  if doLoadFromFile {
+      if doLoadFromFile {
+
         err := loadUsersFile("/bin/data/users.json.gz")
         //loadedUsers, err := loadUsersFile("/bin/data/users.json.gz")
         if err != nil {
             log.Panic("Unable to load users file: ", err)
         }
-    }
-	//}
+      }
+	}
 	// users = loadedUsers
 }
 
@@ -337,7 +336,7 @@ func RepoCreateUser(user User, addToDynamo bool) (User, error) {
 	idx := len(users)
 
 	if len(user.ID) > 0 {
-		// ID provided by caller (provisionally created on storefront) so make
+		// ID provided by caller (provisionally created on storefront or external simulation) so make
 		// sure it's not already taken.
 		if _, ok := usersById[user.ID]; ok {
 			return User{}, errors.New("User with this ID already exists")

@@ -392,7 +392,7 @@ Resources:
             - Name: DDB_TABLE_USERS
               Value: !Ref UsersTable
             - Name: LOAD_USERS_FROM_FILE
-            - Value: !Ref LoadUsersFromFile
+              Value: !Ref LoadUsersFromFile
             - Name: WEB_ROOT_URL
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL

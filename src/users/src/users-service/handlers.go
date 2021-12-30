@@ -217,9 +217,11 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) // unprocessable entity
+		fmt.Println("422 error in update", err)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 
 	t := RepoUpdateUser(user)
@@ -249,10 +251,11 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) // unprocessable entity
+		fmt.Println("422 error in create", err)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
-			return
 		}
+		return
 	}
 
 	t, err := RepoCreateUser(user, true)
