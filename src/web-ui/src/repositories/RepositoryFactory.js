@@ -9,6 +9,7 @@ import RecommendationsRepository from "./recommendationsRepository.js"
 import SearchRepository from "./searchRepository.js"
 import VideosRepository from "./videosRepository.js"
 import LocationRepository from "./locationRepository.js"
+import FavoritingRepository from "./favoritingRepository.js"
 
 const repositories = {
     products: ProductsRepository,
@@ -18,7 +19,8 @@ const repositories = {
     recommendations: RecommendationsRepository,
     search: SearchRepository,
     videos: VideosRepository,
-    location: LocationRepository
+    location: LocationRepository,
+    favoriting: FavoritingRepository
 }
 
 export const RepositoryFactory = {

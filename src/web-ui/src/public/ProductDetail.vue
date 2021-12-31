@@ -42,10 +42,12 @@
               </div>
               <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
                 Add to Cart
-              </button>
+              </button><div><Favoriting :productId="product.id" :username="user.username"/></div>
             </div>
 
             <p>{{ product.description }}</p>
+
+            <ProductDeepDive/>
           </div>
 
           <div class="product-img">
@@ -79,7 +81,8 @@ import { product } from '@/mixins/product';
 
 import Layout from '@/components/Layout/Layout';
 import ProductPrice from '@/components/ProductPrice/ProductPrice';
-import FiveStars from '@/components/FiveStars/FiveStars';
+import FiveStars from '@/components/FiveStars/FiveStars'
+import Favoriting from '@/components/Favoriting/Favoriting';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
 import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
@@ -93,6 +96,8 @@ const EXPERIMENT_FEATURE = 'product_detail_related';
 export default {
   name: 'ProductDetail',
   components: {
+    ProductDeepDive,
+    Favoriting,
     Layout,
     ProductPrice,
     FiveStars,
