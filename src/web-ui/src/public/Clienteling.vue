@@ -59,6 +59,7 @@ import {mapActions, mapGetters} from "vuex";
 import Layout from "@/components/Layout/Layout";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
+import {storeview} from "@/mixins/storeview";
 
 const CartsRepository = RepositoryFactory.get('carts');
 const OrdersRepository = RepositoryFactory.get('orders');
@@ -72,6 +73,7 @@ export default {
     RecommendedProductsSection,
     Layout
   },
+  mixins: [storeview],
   data() {
     return {
       abandonedCartProductDetail: null,
