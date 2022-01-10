@@ -976,10 +976,13 @@ def reset_realtime():
 @app.route('/favorite', methods=['POST'])
 def favorite_post():
     """
+    Deal with request to post whether or not a particular product is favorited by a user.
     """
     if request.content_type.startswith('application/json'):
         content = request.json
-        app.logger.info(content)
+
+        app.logger.info("Received POST /favorite with request.json %s", content)
+
         try:
             username = content.get('username')
         except KeyError:
@@ -1001,8 +1004,13 @@ def favorite_post():
         if favorited is None:
             raise BadRequest('Please supply favorited in get request')
 
+        app.logger.info("Processing POST /favorite %s, %s, %s", username, product_id, favorited)
+
         nres = favoriting.set_favorited(username, product_id, favorited)
         result = {'change_in_num_favorited': nres}
+
+        app.logger.info("Returning POST /favorite %s", result)
+
         return Response(json.dumps(result, cls=CompatEncoder), status=200)
     else:
         raise BadRequest('Expected application/json')
@@ -1011,7 +1019,10 @@ def favorite_post():
 @app.route('/favorite/by_user', methods=['GET'])
 def favorite_get_by_user():
     """
+    Deal with request for list of product IDs favorited by user.
     """
+
+    app.logger.info("Received GET /favorite/by_user with request.args %s", request.args)
 
     try:
         username = request.args.get('username')
@@ -1019,8 +1030,14 @@ def favorite_get_by_user():
         username = None
     if username is None:
         raise BadRequest('Please supply username in get request')
+
+    app.logger.info("Processing GET /favorite/by_user %s", username)
+
     products = favoriting.favorited_products(username)
     result = {'products': [{'id': product} for product in products]}
+
+    app.logger.info("Returning GET /favorite/by_user %s", result)
+
     resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
     return resp
 
@@ -1028,7 +1045,11 @@ def favorite_get_by_user():
 @app.route('/favorite/by_user_and_product', methods=['GET'])
 def favorite_get_by_user_and_products():
     """
+    Deal with request for whether or not a product is favorited by a user.
     """
+
+    app.logger.info("Received GET /favorite/by_user_and_product with request.args %s", request.args)
+
     try:
         username = request.args.get('username')
     except KeyError:
@@ -1043,8 +1064,13 @@ def favorite_get_by_user_and_products():
     if product_id is None:
         raise BadRequest('Please supply product_id in get request')
 
+    app.logger.info("Processing GET /favorite/by_user_and_product %s, %s", username, product_id)
+
     is_favorited = favoriting.is_favorited(username, product_id)
     result = {'isFavorited': is_favorited}
+
+    app.logger.info("Returning GET /favorite/by_user_and_product %s", result)
+
     resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
     return resp
 
@@ -1052,16 +1078,26 @@ def favorite_get_by_user_and_products():
 @app.route('/c360/alerts', methods=['GET'])
 def c360_alerts():
     """
+    Deal with request for list of alerts from c-360 system.
     """
+
+    app.logger.info("Received GET /c360/alerts with request.args %s", request.args)
+
     try:
         username = request.args.get('username')
     except KeyError:
         username = None
     if username is None:
         raise BadRequest('Please supply username in get request')
+
+    app.logger.info("Processing GET /c360/alerts %s", username)
+
     messages = favoriting.get_c360_alerts(username)
     result = {'alerts':messages,
               'username': username}
+
+    app.logger.info("Returning GET /c360/alerts %s", result)
+
     resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
     return resp
 

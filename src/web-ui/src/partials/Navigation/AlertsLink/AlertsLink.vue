@@ -23,8 +23,6 @@ export default {
 
 .alert-icon {
     display: inline-block;
-    /*padding-left: 0.5em;*/
-    /*padding: 0.1em;*/
     vertical-align: middle;
     line-height: 1;
     font-size: 4em;
@@ -41,7 +39,6 @@ export default {
 .alert-icon:hover,
 .alert-icon:focus {
   color: var(--blue-600);
-/*  fill: var(--blue-600);*/
   cursor: pointer;
 }
 </style>

@@ -1,24 +1,21 @@
 <template>
   <div class="favoriting">
       <label class="favorite_heart"
-             :class="{'favorite_heart_selected': value, 'is-disabled': disabled}"
+             :class="{'favorite_heart_selected': favorited, 'is-disabled': disabled}"
              >
         <input class="favorite_checkbox"
                type="checkbox"
                name="favorite"
-               :value="value"
+               :value="favorited"
                :disabled="disabled"
-               @click="toggleFavorite"
-               ><!-- v-model="value" -->
+               @click="$emit('click')"
+               >
             ❤
         </label>
   </div>
 </template>
 
 <script>
-
-import {RepositoryFactory} from "@/repositories/RepositoryFactory";
-const FavoritingRepository = RepositoryFactory.get('favoriting');
 
 export default {
   name: 'Favoriting',
@@ -35,35 +32,12 @@ export default {
     'disabled': {
         type: Boolean,
         default: false
+    },
+    'favorited': {
+        type: Boolean,
+        default: false
     }
   },
-  data: function () { return {
-      'value': {
-          type: Boolean,
-          default: false
-      },
-    }
-  },
-  created: async function () {
-    const { data } = await FavoritingRepository.getIsFavorited(this.username, this.productId)
-    this.value = data["isFavorited"]
-    if (this.value) {
-      console.log(`${this.username} has favourited ${this.productId}`)
-    } else {
-      console.log(`${this.username} has not favourited ${this.productId}`)
-    }
-  },
-  methods: {
-      toggleFavorite: function() {
-          if (this.disabled===true) {
-              return;
-          }
-          this.value = !this.value
-          FavoritingRepository.setIsFavorited(this.username, this.productId, this.value)
-          console.log(`Favourite for user ${this.username} and product ${this.productId} is now ${this.value}!`)
-      }
-  },
-  computed: { },
 };
 </script>
 
@@ -74,11 +48,9 @@ export default {
 }
 .favorite_heart {
     display: inline-block;
-    /*padding: 10px;*/
     padding-left: 0.5em;
     vertical-align: middle;
     line-height: 1;
-    /*font-size: 16px;*/
     font-size: 2em;
     color: #ABABAB;
     cursor: pointer;
@@ -97,8 +69,6 @@ export default {
     position: absolute;
     overflow: hidden;
     clip: rect(0 0 0 0);
-   /* height: 1px;
-    width: 1px; */
     margin: -1px;
     padding: 0;
     border: 0;

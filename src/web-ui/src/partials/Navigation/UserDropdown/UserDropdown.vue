@@ -39,6 +39,13 @@
 
       <div class="dropdown-divider"></div>
 
+      <router-link to="/favorites" class="dropdown-item">
+        <div class="dropdown-item-title">Favorites</div>
+        <div>Your favorited items</div>
+      </router-link>
+
+      <div class="dropdown-divider"></div>
+
       <button class="dropdown-item dropdown-item-title" @click="signOut">Sign Out</button>
     </div>
   </div>

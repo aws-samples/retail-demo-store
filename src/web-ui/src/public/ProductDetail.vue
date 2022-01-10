@@ -42,7 +42,9 @@
               </div>
               <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
                 Add to Cart
-              </button><Favoriting v-if="user" :productId="product.id" :username="user.username"/>
+              </button>
+              <Favoriting v-if="favoritesLoaded" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited"/>
+              <LoadingFallback v-else></LoadingFallback>
             </div>
 
             <p>{{ product.description }}</p>
@@ -88,14 +90,18 @@ import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+import ProductDeepDive from "@/components/ProductDeepDive/ProductDeepDive";
+import LoadingFallback from "@/components/LoadingFallback/LoadingFallback";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
+const FavoritingRepository = RepositoryFactory.get('favoriting');
 const MAX_RECOMMENDATIONS = 6;
 const EXPERIMENT_FEATURE = 'product_detail_related';
 
 export default {
   name: 'ProductDetail',
   components: {
+    LoadingFallback,
     ProductDeepDive,
     Favoriting,
     Layout,
@@ -119,6 +125,7 @@ export default {
       relatedProducts: null,
       demoGuideBadgeArticle: null,
       experiment: null,
+      favorited: null,
     };
   },
   computed: {
@@ -127,6 +134,9 @@ export default {
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
+    },
+    favoritesLoaded() {
+      return this.user && this.favorited !== null
     },
     previousPageLinkProps() {
       if (!this.product) return null;
@@ -183,11 +193,34 @@ export default {
       AnalyticsHandler.recordShoppingCart(this.user, this.cart)
     },
     async fetchData() {
+
+      this.favorited = null;
+
       await this.getProductByID(this.$route.params.id);
 
       this.getRelatedProducts();
 
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
+
+      this.getFavorites()
+    },
+    async getFavorites () {
+
+      const { data } = await FavoritingRepository.getIsFavorited(this.user.username, this.product.id)
+      this.favorited = data["isFavorited"]
+      if (this.favorited) {
+        console.log(`${this.user.username} has favourited ${this.product.id}`)
+      } else {
+        console.log(`${this.user.username} has not favourited ${this.product.id}`)
+      }
+    },
+    toggleFavorite: function() {
+        if (this.disabled===true) {
+            return;
+        }
+        this.favorited = !this.favorited
+        FavoritingRepository.setIsFavorited(this.user.username, this.product.id, this.favorited)
+        console.log(`Favourite for user ${this.user.username} and product ${this.product.id} is now ${this.favorited}!`)
     },
     async getRelatedProducts() {
       // reset in order to trigger recalculation in carousel - carousel UI breaks without this
