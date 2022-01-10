@@ -8,6 +8,8 @@
       <NavSeparator class="d-none d-lg-block mx-2"></NavSeparator>
       <SupportLink class="support"></SupportLink>
       <NavSeparator class="sep-2 mx-2"></NavSeparator>
+      <AlertLink></AlertLink>
+      <NavSeparator class="sep-2 mx-2"></NavSeparator>
       <CartLink class="cart"></CartLink>
     </div>
   </nav>
@@ -21,10 +23,14 @@ import SupportLink from './SupportLink/SupportLink';
 import NavSeparator from './NavSeparator/NavSeparator';
 import CartLink from './CartLink/CartLink';
 import UserDropdown from './UserDropdown/UserDropdown';
+import ScanLink from "./ScanLink/ScanLink";
+import AlertLink from "./AlertsLink/AlertsLink";
 
 export default {
   name: 'Navigation',
   components: {
+    AlertLink,
+    ScanLink,
     HomeLink,
     ShopDropdown,
     Search,

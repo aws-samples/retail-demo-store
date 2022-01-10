@@ -983,15 +983,24 @@ def favorite_post():
         try:
             username = content.get('username')
         except KeyError:
-            raise BadRequest('Please supply username in request json')
+            username = None
+        if username is None:
+            raise BadRequest('Please supply username in get request')
+
         try:
             product_id = content.get('productId')
         except KeyError:
-            raise BadRequest('Please supply product_id in request json')
+            product_id = None
+        if product_id is None:
+            raise BadRequest('Please supply productId in get request')
+
         try:
             favorited = content.get('favorited')
         except KeyError:
-            raise BadRequest('Please supply favorite bool in request json')
+            favorited = None
+        if favorited is None:
+            raise BadRequest('Please supply favorited in get request')
+
         nres = favoriting.set_favorited(username, product_id, favorited)
         result = {'change_in_num_favorited': nres}
         return Response(json.dumps(result, cls=CompatEncoder), status=200)
@@ -1007,6 +1016,8 @@ def favorite_get_by_user():
     try:
         username = request.args.get('username')
     except KeyError:
+        username = None
+    if username is None:
         raise BadRequest('Please supply username in get request')
     products = favoriting.favorited_products(username)
     result = {'products': [{'id': product} for product in products]}
@@ -1021,13 +1032,36 @@ def favorite_get_by_user_and_products():
     try:
         username = request.args.get('username')
     except KeyError:
+        username = None
+    if username is None:
         raise BadRequest('Please supply username in get request')
+
     try:
         product_id = request.args.get('productId')
     except KeyError:
+        product_id = None
+    if product_id is None:
         raise BadRequest('Please supply product_id in get request')
+
     is_favorited = favoriting.is_favorited(username, product_id)
     result = {'isFavorited': is_favorited}
+    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
+    return resp
+
+
+@app.route('/c360/alerts', methods=['GET'])
+def c360_alerts():
+    """
+    """
+    try:
+        username = request.args.get('username')
+    except KeyError:
+        username = None
+    if username is None:
+        raise BadRequest('Please supply username in get request')
+    messages = favoriting.get_c360_alerts(username)
+    result = {'alerts':messages,
+              'username': username}
     resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
     return resp
 

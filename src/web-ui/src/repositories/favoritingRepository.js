@@ -11,11 +11,15 @@ const connection = axios.create({
     baseURL
 })
 
-const favorite = "/favorite"
+const resource = "/favorite"
 
 export default {
     getIsFavorited(username, productId) {
-        const result = connection.get(`${favorite}/by_user_and_product?username=${username}&productId=${productId}`)
+        const result = connection.get(`${resource}/by_user_and_product?username=${username}&productId=${productId}`)
+        return result
+    },
+    getUserFavorites(username) {
+        const result = connection.get(`${resource}/by_user?username=${username}`)
         return result
     },
     setIsFavorited(username, productId, favorited) {
@@ -24,6 +28,6 @@ export default {
             productId: productId,
             favorited: favorited
         }
-        return connection.post(`${favorite}`, payload)
+        return connection.post(`${resource}`, payload)
     },
 }

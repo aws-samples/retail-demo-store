@@ -9,9 +9,11 @@ import {Auth} from "aws-amplify";
 import swal from "sweetalert";
 import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
+import {mapActions, mapMutations} from "vuex";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const ProductsRepository = RepositoryFactory.get('products')
+const C360Repository = RepositoryFactory.get('c360')
 
 export default {
   name: "Notifications",
@@ -22,9 +24,22 @@ export default {
     }
   },
   created () {
-    this.getCognitoUser().then(() => this.openWebsocketConnection());
+    this.clearAlerts();
+    this.getCognitoUser().then(() => {
+      this.openWebsocketConnection(); // websocket open (push alerts)
+      this.retrieveAlerts(); // pull alerts
+    });
   },
   methods: {
+    ...mapActions(['openClientelingModal']),
+    ...mapMutations(['setAlerts', 'clearAlerts']),
+    retrieveAlerts() {
+      if (this.user) {
+        C360Repository.getAlerts(this.user.username).then(
+            (result) => {this.setAlerts({alerts: result.data.alerts})}
+        )
+      }
+    },
     async getCognitoUser() {
       this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
@@ -151,4 +166,3 @@ export default {
 
 <style scoped>
 
-</style>

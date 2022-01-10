@@ -15,6 +15,8 @@ import Welcome from '@/public/Welcome.vue'
 import Orders from '@/authenticated/Orders.vue'
 import Admin from '@/authenticated/Admin.vue'
 import ShopperSelectPage from '@/authenticated/ShopperSelectPage'
+import Alerts from "@/public/Alerts";
+import Favorites from "@/public/Favorites"
 
 import Location from "@/public/Location";
 import Collections from "@/public/Collections";
@@ -271,8 +273,38 @@ const router = new Router({
       path: '/collections',
       name: 'Collections',
       component: Collections,
-      meta: { requiresAuth: true}
-    }
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/clienteling/:username',
+      name: 'Clienteling',
+      component: Clienteling,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/outfitbuilder/:productId',
+      name: 'OutfitBuilder',
+      component: OutfitBuilder,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/scan',
+      name: 'ScanProduct',
+      component: ProductScan,
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/alerts',
+      name: 'Alerts',
+      component: Alerts,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/favorites',
+      name: 'Favorites',
+      component: Favorites,
+      meta: { requiresAuth: true }
+    },
   ],
   scrollBehavior (_to, _from, savedPosition) {
     if (savedPosition) {
@@ -312,4 +344,3 @@ router.beforeResolve(async (to, from, next) => {
   return next()
 })
 
-export default router
