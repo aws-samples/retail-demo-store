@@ -42,7 +42,7 @@
               </div>
               <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
                 Add to Cart
-              </button><div><Favoriting :productId="product.id" :username="user.username"/></div>
+              </button><Favoriting v-if="user" :productId="product.id" :username="user.username"/>
             </div>
 
             <p>{{ product.description }}</p>
