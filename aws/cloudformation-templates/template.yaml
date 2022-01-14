@@ -70,6 +70,13 @@ Metadata:
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
           - TealiumDataSourceId
+          - LoadUsersFromFile
+      - Label:
+          default: "Amazon Customer 360 Data Hub integrations"
+        Parameters:
+          - ProductsDynamoKinesisStreamArn
+          - OrdersDynamoKinesisStreamArn
+          - C360ApiUrl
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -141,6 +148,8 @@ Metadata:
         default: "Google Analytics Measurement Id"
       TealiumDataSourceId:
         default: "Tealium data source ID"
+      C360ApiUrl:
+        default: "C360 API URL"
 
 Parameters:
   ResourceBucket:
@@ -396,6 +405,16 @@ Parameters:
     Type: String
     Description: >
       The ID of the data source created in Tealium (optional).
+      Whether to load users from the users.json.gz file in the repository.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
+  
+  C360ApiUrl:
+    Type: String
+    Description: >
+      URL of the C360 API 
     Default: ''
 
 Conditions:
@@ -486,6 +505,7 @@ Resources:
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
+        C360ApiUrl: !Ref C360ApiUrl
 
   # Web UI Pipeline
   WebUIPipeline:

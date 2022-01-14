@@ -127,6 +127,10 @@ Parameters:
   
   PinpointAppId:
     Type: String
+  
+  C360ApiUrl:
+    Type: String
+    Default: none
     
 Resources:
   TaskExecutionRole:
@@ -379,6 +383,8 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
+            - Name: C360_API_URL
+              Value: !Ref C360ApiUrl
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

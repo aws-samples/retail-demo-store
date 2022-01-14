@@ -124,6 +124,10 @@ Parameters:
     Type: String
     Description: Parent stack name
 
+  C360ApiUrl:
+    Type: String
+    Description: C360 API URL
+
 Resources:
 
   ProductsService:
@@ -383,6 +387,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        C360ApiUrl: !Ref C360ApiUrl
 
   VideosService:
     Type: AWS::CloudFormation::Stack

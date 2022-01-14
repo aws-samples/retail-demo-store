@@ -209,6 +209,10 @@ Parameters:
 
   Uid:
     Type: String
+  
+  C360ApiUrl:
+    Type: String
+    Default: none
 
 Resources:
 
@@ -294,6 +298,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
+        C360ApiUrl: !Ref C360ApiUrl
+
         
 Outputs:
   ServiceDNSName:
