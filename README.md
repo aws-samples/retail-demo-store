@@ -68,7 +68,7 @@ Note: If you are logged in as an IAM user, ensure your account has permissions t
 
 ## Step 3 - Deploy to your AWS Account
 
-The following CloudFormation launch options will set the deployment approach to "CodeCommit". You can ignore the GitHub related template parameters. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template.
+The following CloudFormation launch options will set the deployment approach to "CodeCommit". You can ignore the GitHub related template parameters. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template. **Be sure to enter a CloudFront stack name in lowercase letters (numbers and hyphens are okay too).**
 
 With this deployment option, the CloudFormation template will import the Retail Demo Store source code into a CodeCommit repository in your account and setup CodePipeline to build and deploy into ECS from that respository.
 
@@ -81,7 +81,6 @@ Asia Pacific (Tokyo) | ap-northeast-1 | [![Launch Stack](https://cdn.rawgit.com/
 Asia Pacific (Sydney) | ap-southeast-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-southeast-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-southeast-2&param_SourceDeploymentType=CodeCommit)
 
 The CloudFormation deployment will take 20-30 minutes to complete.
-
 
 ### Notes:
 
@@ -115,6 +114,8 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your mai
 
 Look for the "WebURL" output parameter.
 
+**IMPORTANT NOTE: You must load the WebURL over HTTP and _not_ HTTPS.** The reason for this is that the microservice load balancers do not have SSL certificates configured by default and are therefore accessed by the web application over HTTP. Although the web application is served from CloudFront and CloudFront provides a default SSL certificate for the distribution, you will receive mixed content errors in the browser if you attempt to load and run the web application over HTTPS. 
+
 You can read more [detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document](#delivering-a-demo-of-the-retail-demo-store).
 
 # Accessing Workshops
@@ -143,6 +144,7 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 # Known Issues/Limitations
 
 * The application was written for demonstration and education purposes and not for production use.
+* You must access the web application over HTTP. If you load the web application over HTTPS, you will receive mixed content errors in the browser when it attempts to access any of the microservices over HTTP. If you see spinning load icons on the homepage when loading the app that never go away, this may be the reason.
 * You currently cannot deploy this project multiple times in the same AWS account and the same AWS region. However, you can deploy the project into separate supported regions within the same AWS account.
 * Make sure your CloudFormation stack name uses all lowercase letters.
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
