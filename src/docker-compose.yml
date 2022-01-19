@@ -68,6 +68,7 @@ services:
       - PRODUCT_SERVICE_PORT
       - OFFERS_SERVICE_HOST
       - OFFERS_SERVICE_PORT
+      - C360_API_URL
       - AWS_XRAY_DAEMON_ADDRESS=xray:2000
     volumes:
       - ~/.aws/:/root/.aws:ro

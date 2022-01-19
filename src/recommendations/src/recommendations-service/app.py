@@ -1,12 +1,19 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+import json
+import os
+import pprint
+import boto3
+import uuid
+import requests
+import random
+import logging
+
 # AWS X-ray support
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
-
-patch_all()
 
 from flask import Flask, jsonify, Response
 from flask import request
@@ -18,14 +25,9 @@ from experimentation.resolvers import DefaultProductResolver, PersonalizeRecomme
 from experimentation.utils import CompatEncoder
 from expiring_dict import ExpiringDict
 
-import json
-import os
-import pprint
-import boto3
-import uuid
-import requests
-import random
-import logging
+patch_all()
+
+C360_API_URL = os.environ['C360_API_URL']
 
 NUM_DISCOUNTS = 2
 
@@ -976,130 +978,152 @@ def reset_realtime():
 @app.route('/favorite', methods=['POST'])
 def favorite_post():
     """
-    Deal with request to post whether or not a particular product is favorited by a user.
+    Set a product as favorited or not favorited.
+    Params needed:
+        - username: str
+        - productId: str
+        - favorite: bool   (True to favorite it, or False to un-favorite it)
     """
     if request.content_type.startswith('application/json'):
-        content = request.json
+        request.json
 
-        app.logger.info("Received POST /favorite with request.json %s", content)
+        app.logger.info("Received POST /favorite with request.json %s", request.json)
 
         try:
-            username = content.get('username')
+            username = request.json.get('username')
         except KeyError:
             username = None
         if username is None:
-            raise BadRequest('Please supply username in get request')
+            raise BadRequest('Please supply username in the POST request')
 
         try:
-            product_id = content.get('productId')
+            product_id = request.json.get('productId')
         except KeyError:
             product_id = None
         if product_id is None:
-            raise BadRequest('Please supply productId in get request')
+            raise BadRequest('Please supply productId in the POST request')
 
         try:
-            favorited = content.get('favorited')
+            favorite = request.json.get('favorite')
         except KeyError:
-            favorited = None
-        if favorited is None:
-            raise BadRequest('Please supply favorited in get request')
+            favorite = None
+        if favorite is None:
+            raise BadRequest('Please supply favorite in the POST request')
 
-        app.logger.info("Processing POST /favorite %s, %s, %s", username, product_id, favorited)
+        app.logger.info("Processing POST /favorite %s, %s, %s", username, product_id, str(favorite))
 
-        nres = favoriting.set_favorited(username, product_id, favorited)
-        result = {'change_in_num_favorited': nres}
+        params = {
+            'username': username,
+            'product_id': product_id,
+            'favorite': favorite
+        }
 
-        app.logger.info("Returning POST /favorite %s", result)
+        response = requests.post(C360_API_URL+'/favorite', json=params)
 
-        return Response(json.dumps(result, cls=CompatEncoder), status=200)
+        app.logger.info("Returning POST /favorite: ", response.json())
+
+        return Response(response, content_type='application/json')
     else:
         raise BadRequest('Expected application/json')
 
 
-@app.route('/favorite/by_user', methods=['GET'])
+@app.route('/favorites', methods=['GET'])
 def favorite_get_by_user():
     """
-    Deal with request for list of product IDs favorited by user.
+    Get all products favorited by a specific user
+    Params needed:
+        - username: str
     """
 
-    app.logger.info("Received GET /favorite/by_user with request.args %s", request.args)
+    app.logger.info("Received GET /favorites with request.args %s", request.args)
 
     try:
         username = request.args.get('username')
     except KeyError:
         username = None
     if username is None:
-        raise BadRequest('Please supply username in get request')
+        raise BadRequest('Please supply username in the GET request')
 
-    app.logger.info("Processing GET /favorite/by_user %s", username)
+    app.logger.info("Processing GET /favorites %s", username)
 
-    products = favoriting.favorited_products(username)
-    result = {'products': [{'id': product} for product in products]}
+    params = {
+        'username': username
+    }
 
-    app.logger.info("Returning GET /favorite/by_user %s", result)
+    response = requests.get(C360_API_URL+'/favorites', params=params)
 
-    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
-    return resp
+    app.logger.info("Returning GET /favorites: ", response.json())
+
+    return Response(response, content_type='application/json')
 
 
-@app.route('/favorite/by_user_and_product', methods=['GET'])
+@app.route('/is_favorited', methods=['GET'])
 def favorite_get_by_user_and_products():
     """
-    Deal with request for whether or not a product is favorited by a user.
+    Check whether a specific product is favorited by a user.
+    Params needed:
+        - username: str
+        - productId: str
     """
 
-    app.logger.info("Received GET /favorite/by_user_and_product with request.args %s", request.args)
+    app.logger.info("Received GET /is_favorited with request.args %s", request.args)
 
     try:
         username = request.args.get('username')
     except KeyError:
         username = None
     if username is None:
-        raise BadRequest('Please supply username in get request')
+        raise BadRequest('Please supply username in the GET request')
 
     try:
         product_id = request.args.get('productId')
     except KeyError:
         product_id = None
     if product_id is None:
-        raise BadRequest('Please supply product_id in get request')
+        raise BadRequest('Please supply productId in the GET request')
 
-    app.logger.info("Processing GET /favorite/by_user_and_product %s, %s", username, product_id)
+    app.logger.info("Processing GET /is_favorited: %s, %s", username, product_id)
 
-    is_favorited = favoriting.is_favorited(username, product_id)
-    result = {'isFavorited': is_favorited}
+    params = {
+        'username': username,
+        'product_id': product_id
+    }
 
-    app.logger.info("Returning GET /favorite/by_user_and_product %s", result)
+    response = requests.get(C360_API_URL+'/isFavorited', params=params)
 
-    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
-    return resp
+    app.logger.info("Returning GET /is_favorited: ", response.json())
+
+    return Response(response, content_type='application/json')
 
 
-@app.route('/c360/alerts', methods=['GET'])
+@app.route('/customer_alerts', methods=['GET'])
 def c360_alerts():
     """
-    Deal with request for list of alerts from c-360 system.
+    Respond with all the relevant alerts for the customer from the c360 system.
+    Params needed:
+        - username: str
     """
 
-    app.logger.info("Received GET /c360/alerts with request.args %s", request.args)
+    app.logger.info("Received GET /customer_alerts with request.args %s", request.args)
 
     try:
         username = request.args.get('username')
     except KeyError:
         username = None
     if username is None:
-        raise BadRequest('Please supply username in get request')
+        raise BadRequest('Please supply username in the GET request')
 
-    app.logger.info("Processing GET /c360/alerts %s", username)
+    app.logger.info("Processing GET /customer_alerts %s", username)
 
-    messages = favoriting.get_c360_alerts(username)
-    result = {'alerts':messages,
-              'username': username}
+    params = {
+        'username': username
+    }
 
-    app.logger.info("Returning GET /c360/alerts %s", result)
+    response = requests.get(C360_API_URL+'/customerAlerts', params=params)
 
-    resp = Response(json.dumps(result, cls=CompatEncoder), content_type='application/json')
-    return resp
+    app.logger.info("Returning GET /customer_alerts %s", response.json())
+
+    return Response(response, content_type='application/json')
 
 
 if __name__ == '__main__':

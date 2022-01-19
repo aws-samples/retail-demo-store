@@ -44,7 +44,7 @@
                 Add to Cart
               </button>
               <Favoriting v-if="favoritesLoaded" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited"/>
-              <LoadingFallback v-else></LoadingFallback>
+              <LoadingFallback v-else-if="user"></LoadingFallback>
             </div>
 
             <p>{{ product.description }}</p>
@@ -206,12 +206,14 @@ export default {
     },
     async getFavorites () {
 
-      const { data } = await FavoritingRepository.getIsFavorited(this.user.username, this.product.id)
-      this.favorited = data["isFavorited"]
-      if (this.favorited) {
-        console.log(`${this.user.username} has favourited ${this.product.id}`)
-      } else {
-        console.log(`${this.user.username} has not favourited ${this.product.id}`)
+      if (this.user) {
+        const {data} = await FavoritingRepository.getIsFavorited(this.user.username, this.product.id)
+        this.favorited = data["isFavorited"]["favorited"]
+        if (this.favorited) {
+          console.log(`${this.user.username} has favourited ${this.product.id}`)
+        } else {
+          console.log(`${this.user.username} has not favourited ${this.product.id}`)
+        }
       }
     },
     toggleFavorite: function() {

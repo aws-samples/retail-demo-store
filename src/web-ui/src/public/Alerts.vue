@@ -21,6 +21,7 @@
                       class="alert-text">
                     {{text}}
                 </p>
+                <button>{{alert.action.Text}}</button>
               </div>
 
             </div>
@@ -47,8 +48,9 @@ export default {
       return !this.numAlerts
     },
     formattedAlerts() {
-      return this.alerts.map(alert => {return {subject: alert.subject,
-                                               text: alert.text.split("\n")}})
+      return this.alerts.map(alert => {return {subject: alert.Subject,
+                                               text: alert.Body.split("\n"),
+                                               action: alert.Action}})
     },
     previousPageLinkProps() {
       if (!this.lastVisitedPage) return null;

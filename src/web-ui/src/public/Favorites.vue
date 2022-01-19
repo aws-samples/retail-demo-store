@@ -45,7 +45,8 @@ export default {
   created () {
     if (this.user) {
       FavoritingRepository.getUserFavorites(this.user.username).then(
-          (result) => {this.favoriteIds = result.data.products.map(item=>item.id);
+          (result) => {this.favoriteIds = result.data.favorites.favorites;
+                       //this.favoriteIds = result.data.products.map(item=>item.id);
                        if (this.favoriteIds.length > 0) {
                          ProductsRepository.getProduct(this.favoriteIds).then(
                               (result) => {this.favorites = result.data.length?result.data:[result.data]}

@@ -11,12 +11,9 @@ const connection = axios.create({
     baseURL
 })
 
-const resource = "/c360"
-
 export default {
     getAlerts(username) {
-        const result = connection.get(`${resource}/alerts?username=${username}`)
+        const result = connection.get(`/customer_alerts?username=${username}`)
         return result
     },
-
 }

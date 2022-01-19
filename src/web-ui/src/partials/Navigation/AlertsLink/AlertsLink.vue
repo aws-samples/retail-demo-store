@@ -1,21 +1,14 @@
 <template>
   <router-link to="/alerts">
-    <span v-if="alertsExist" class="alert-icon" title="You have new alerts!">✉</span>
+    <span class="alert-icon" title="You have new alerts!">✉</span>
   </router-link>
 </template>
 
 <script>
 
-import {mapGetters} from "vuex";
 
 export default {
-  name: "AlertLink",
-  computed: {
-    ...mapGetters(["numAlerts"]),
-    alertsExist () {
-      return this.numAlerts && this.numAlerts > 0
-    }
-  }
+  name: "AlertLink"
 }
 </script>
 

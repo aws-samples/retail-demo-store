@@ -154,11 +154,19 @@ export default {
     }
   },
   watch: {
+
+    $route: {
+      immediate: true,
+      handler() {
+        this.retrieveAlerts();
+      },
+    },
     user () {
       if (this.connection) {
         this.connection.close();
       }
       this.getCognitoUser().then(() => this.openWebsocketConnection());
+      this.retrieveAlerts();
     }
   }
 }
