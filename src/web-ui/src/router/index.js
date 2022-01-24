@@ -30,6 +30,11 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import { Credentials } from '@aws-amplify/core';
+import Clienteling from "@/public/Clienteling";
+import OutfitBuilder from "@/public/OutfitBuilder";
+import ProductScan from "@/public/ProductScan";
+import CampaignLanding from "@/public/CampaignLanding";
+import store from "@/store/store";
 
 const UsersRepository = RepositoryFactory.get('users')
 
@@ -304,6 +309,11 @@ const router = new Router({
       name: 'Favorites',
       component: Favorites,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/campaign-landing/:campaignName',
+      name: 'CampaignLanding',
+      component: CampaignLanding
     },
   ],
   scrollBehavior (_to, _from, savedPosition) {
