@@ -368,10 +368,10 @@ export const AnalyticsHandler = {
             let event_type = 'PRODUCT_ADD'
             let now = new Date()
             tealium.track(event_type, {
-                username: user.username,
-                product_id: eventProperties.productId,
-                product_name: eventProperties.name,
-                product_unit_price: eventProperties.price,
+                username: user ? user.username : "UNKNOWN",
+                product_id: product.id,
+                product_name: product.name,
+                product_unit_price: product.price.toFixed(2),
                 event_time: now.toISOString().replace(/.$/,"000+00:00"),
                 event_name: 'PRODUCT_ADD'
             });
@@ -600,6 +600,26 @@ export const AnalyticsHandler = {
         }
     },
 
+    productFavorited(user, product, favoritedFlag) {
+        if (this.tealiumEnabled()) {
+            let event_type = 'PRODUCT_FAVORITED'
+            let now = new Date()
+            const userString = user ? user.username : "UNKNOWN"
+            console.log(`Asking Tealium to record tracked event productFavorited(${userString}, ${product.name}, ${favoritedFlag})`)
+            tealium.track(event_type, {
+                username: userString,
+                product_id: product.id,
+                product_name: product.name,
+                favorited: favoritedFlag,
+                event_name: event_type,
+                event_type: event_type,
+                c360_source: 'LIVE',
+                event_time: now.toISOString().replace(/.$/,"000+00:00"),
+                product_unit_price: product.price
+            });
+        }
+    },
+
     productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
             AmplifyAnalytics.record({
@@ -661,12 +681,12 @@ export const AnalyticsHandler = {
             let event_type = 'PRODUCT_VIEW'
             let now = new Date()
             tealium.track(event_type, {
-                username: user.username,
-                product_id: eventProperties.productId,
-                product_name: eventProperties.name,
+                username: user ? user.username : "UNKNOWN",
+                product_id: product.id,
+                product_name: product.name,
                 event_name: event_type,
                 event_time: now.toISOString().replace(/.$/,"000+00:00"),
-                product_unit_price: eventProperties.price,
+                product_unit_price: product.price
             });
         }
 
@@ -991,8 +1011,8 @@ export const AnalyticsHandler = {
             let event_type = 'ORDER'
             let now = new Date()
             tealium.track(event_type, {
-                username: user.username,
-                order_id: eventProperties.orderId,
+                username: user ? user.username : "UNKNOWN",
+                order_id: order.id,
                 event_time: now.toISOString().replace(/.$/,"000+00:00"),
                 event_name: event_type,
             });

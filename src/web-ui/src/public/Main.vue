@@ -176,7 +176,7 @@ export default {
             this.userRecommendationsTitle = 'Recommended for you';
           }
 
-          this.userRecommendations = response.data;
+          this.userRecommendations = response.data.filter(item=>item.product);
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);

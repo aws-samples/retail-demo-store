@@ -222,6 +222,7 @@ export default {
         }
         this.favorited = !this.favorited
         FavoritingRepository.setIsFavorited(this.user.username, this.product.id, this.favorited)
+        AnalyticsHandler.productFavorited(this.user, this.product, this.favorited)
         console.log(`Favourite for user ${this.user.username} and product ${this.product.id} is now ${this.favorited}!`)
     },
     async getRelatedProducts() {
