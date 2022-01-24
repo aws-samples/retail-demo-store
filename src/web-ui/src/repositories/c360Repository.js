@@ -27,7 +27,7 @@ export default {
                     intermediate = intermediate.filter(
                         (product)=>/SADDLE|LEATHER|KHAKI/.test(product['name'].toUpperCase()))
                 }
-               const campaignDetails = {"title": "360 Day Furniture Sale!",
+               const campaignDetails = {"title": "360 Day Summer Furniture Sale!",
                                         "products": intermediate,
                                         "subtitle": ""}
                return campaignDetails
