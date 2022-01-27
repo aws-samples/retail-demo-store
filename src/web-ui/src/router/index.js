@@ -293,7 +293,6 @@ const router = new Router({
       path: '/scan',
       name: 'ScanProduct',
       component: ProductScan,
-      meta: { requiresAuth: false }
     },
   ],
   scrollBehavior (_to, _from, savedPosition) {
