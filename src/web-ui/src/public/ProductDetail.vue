@@ -43,8 +43,9 @@
               <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
                 Add to Cart
               </button>
-              <Favoriting v-if="favoritesLoaded" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited"/>
-              <LoadingFallback v-else-if="user"></LoadingFallback>
+              <LoadingFallback v-if="!favoritesLoaded" />
+              <Favoriting v-else-if="favoritesLoaded && favorited !== null" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited" />
+
             </div>
 
             <p>{{ product.description }}</p>
@@ -125,6 +126,7 @@ export default {
       relatedProducts: null,
       demoGuideBadgeArticle: null,
       experiment: null,
+      favoritesLoaded: false,
       favorited: null,
     };
   },
@@ -134,9 +136,6 @@ export default {
     ...mapGetters(['personalizeUserID']),
     isLoading() {
       return !this.product;
-    },
-    favoritesLoaded() {
-      return this.user && this.favorited !== null
     },
     previousPageLinkProps() {
       if (!this.product) return null;
@@ -208,11 +207,9 @@ export default {
 
       if (this.user) {
         const {data} = await FavoritingRepository.getIsFavorited(this.user.username, this.product.id)
-        this.favorited = data["isFavorited"]["favorited"]
-        if (this.favorited) {
-          console.log(`${this.user.username} has favourited ${this.product.id}`)
-        } else {
-          console.log(`${this.user.username} has not favourited ${this.product.id}`)
+        this.favoritesLoaded = true
+        if (data["neptune"]?.status !== "no data loaded yet" ) {
+          this.favorited = data["isFavorited"]["favorited"]
         }
       }
     },
