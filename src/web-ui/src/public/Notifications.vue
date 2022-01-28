@@ -34,7 +34,7 @@ export default {
     ...mapActions(['openClientelingModal']),
     ...mapMutations(['setAlerts', 'clearAlerts']),
     retrieveAlerts() {
-      if (this.user) {
+      if (this.user?.username?.length>0) {
         C360Repository.getAlerts(this.user.username).then(
             (result) => {this.setAlerts({alerts: result.data.alerts})}
         )
