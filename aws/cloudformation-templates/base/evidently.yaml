@@ -1,0 +1,74 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store Evidently project and features.
+
+Parameters:
+  Uid:
+    Type: String
+
+Resources:
+  EvidentlyProject:
+    Type: AWS::Evidently::Project
+    Properties:
+      Name: !Sub 'retaildemostore-${Uid}'
+      Description: Retail Demo Store features and experiments
+
+  FeatureHomeProductRecs:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-UserPersonalization
+      Description: Home page product recommendations
+      EvaluationStrategy: ALL_RULES
+      Name: home_product_recs
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: FeaturedProducts
+          StringValue: product
+        - VariationName: Personalize-UserPersonalization
+          StringValue: personalize-recommendations
+
+  FeatureHomeFeaturedRerank:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-PersonalizedRanking
+      Description: Home page featured products carousel
+      EvaluationStrategy: ALL_RULES
+      Name: home_featured_rerank
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: RankingNoOp
+          StringValue: ranking-no-op
+        - VariationName: Personalize-PersonalizedRanking
+          StringValue: personalize-ranking
+
+  FeatureProductDetailRelated:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-SIMS
+      Description: Product detail related products carousel
+      EvaluationStrategy: ALL_RULES
+      Name: product_detail_related
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: ProductsInSameCategory
+          StringValue: product
+        - VariationName: OpenSearchMoreLikeThis
+          StringValue: similar
+        - VariationName: Personalize-SIMS
+          StringValue: personalize-recommendations
+
+  FeatureSearchResults:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-PersonalizedRanking
+      Description: Search control auto-complete
+      EvaluationStrategy: ALL_RULES
+      Name: product_detail_related
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: RankingNoOp
+          StringValue: ranking-no-op
+        - VariationName: Personalize-PersonalizedRanking
+          StringValue: personalize-ranking
