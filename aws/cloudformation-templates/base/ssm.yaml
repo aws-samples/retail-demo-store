@@ -327,3 +327,4 @@ Outputs:
 
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id
+    Value: !Ref ParameterGoogleAnalyticsMeasurementId

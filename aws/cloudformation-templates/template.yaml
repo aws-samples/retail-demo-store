@@ -70,11 +70,6 @@ Metadata:
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
           - TealiumDataSourceId
-      - Label:
-          default: "Amazon Customer 360 Data Hub integrations"
-        Parameters:
-          - ProductsDynamoKinesisStreamArn
-          - OrdersDynamoKinesisStreamArn
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -144,10 +139,6 @@ Metadata:
         default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
-      ProductsDynamoKinesisStreamArn:
-        default: "Kinesis Stream ARN for products DynamoDB table"
-      OrdersDynamoKinesisStreamArn:
-        default: "Kinesis Stream ARN for orders DynamoDB table"
       TealiumDataSourceId:
         default: "Tealium data source ID"
 
