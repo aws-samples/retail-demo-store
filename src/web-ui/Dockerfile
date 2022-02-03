@@ -1,7 +1,7 @@
 FROM public.ecr.aws/s5z3t2n9/node:14.17-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci 
 COPY . .
 
 RUN npm run build

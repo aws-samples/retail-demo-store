@@ -62,6 +62,12 @@ Metadata:
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - IncludemParticleDependencies
+          - mParticleOrgId
+          - mParticleApiKey
+          - mParticleSecretKey
+          - mParticleS2SApiKey
+          - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
       - Label:
           default: "Amazon Customer 360 Data Hub integrations"
@@ -123,6 +129,18 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      IncludemParticleDependencies:
+        default: "Deploy mParticle Resources"  
+      mParticleOrgId:
+        default: "mParticle Org Id"
+      mParticleApiKey:
+        default: "mParticle event API Key"
+      mParticleSecretKey:
+        default: "mParticle event api Secret Key"
+      mParticleS2SApiKey:
+        default: "mParticle server to server API Key"
+      mParticleS2SSecretKey:
+        default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
       ProductsDynamoKinesisStreamArn:
@@ -335,6 +353,45 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
+  IncludemParticleDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the mParticle workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  mParticleOrgId:
+    Type: String
+    Description: >
+      mParticle organization ID from your workspace.
+    NoEcho: true
+
+  mParticleApiKey:
+    Type: String
+    Description: >
+      mParticle event API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleSecretKey:
+    Type: String
+    Description: >
+      mParticle event API secret key coupled with your API key.
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: >
+      mParticle server to server API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: >
+      mParticle server to server secret key coupled with your API key.
+    NoEcho: true
+
   GoogleAnalyticsMeasurementId:
     Type: String
     Description: >
@@ -358,6 +415,10 @@ Parameters:
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
+    - 'Yes'
+
+  DeploymParticleResources: !Equals
+    - !Ref IncludemParticleDependencies
     - 'Yes'
 
   DeployLocationStack: !Equals
@@ -390,12 +451,18 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        mParticleOrgId: !Ref mParticleOrgId
+        mParticleApiKey: !Ref mParticleApiKey
+        mParticleSecretKey: !Ref mParticleSecretKey
+        mParticleS2SApiKey: !Ref mParticleS2SApiKey
+        mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
         GitHubUser: !Ref GitHubUser
         ProductsKinesisStreamArn: !Ref ProductsDynamoKinesisStreamArn
         OrdersKinesisStreamArn: !Ref OrdersDynamoKinesisStreamArn
+        GitHubBranch: !Ref GitHubBranch
 
   # Services Resources
   Services:
@@ -561,7 +628,7 @@ Resources:
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
-        Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        Uid: !Sub ${AWS::StackName}-${AWS::Region} 
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
@@ -587,6 +654,18 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
+  # mParticle Lambda Functions Kinesis and Roles
+  mParticlePersonalize:
+    Condition: DeploymParticleResources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/mparticle.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        mParticleOrgId: !Ref mParticleOrgId
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
 Outputs:
   UserPoolId:
