@@ -80,7 +80,7 @@ paths:
                     enum: [FeatureCollection]
 
 
-  /cstore_location:
+  /cstore_route:
     get:
       tags:
         - Location
