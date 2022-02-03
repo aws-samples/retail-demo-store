@@ -20,9 +20,8 @@ servers:
   - url: http://localhost:{port}
     variables:
       port:
-        # Use the port from ../docker-compose.yml
         default: '8008' 
-        description: Check port value from the output of `run-local.sh` script
+        description: Use the port from ../docker-compose.yml
 paths:
   /offers:
     get:
