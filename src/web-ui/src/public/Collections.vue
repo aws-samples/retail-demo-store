@@ -41,6 +41,7 @@
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import LocationDemoNavigation from "@/public/LocationDemoNavigation";
 import Layout from "@/components/Layout/Layout";
+import {storeview} from "@/mixins/storeview";
 
 const OrdersRepository = RepositoryFactory.get('orders')
 
@@ -50,6 +51,7 @@ export default {
     Layout,
     LocationDemoNavigation
   },
+  mixins: [storeview],
   data() {
     return {
       ordersLoaded: false,

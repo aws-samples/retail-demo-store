@@ -9,7 +9,7 @@
             <button type="button" class="btn btn-primary m-2" v-on:click="this.triggerCollectionJourney" :disabled="this.journeyInProgress">Collection Journey</button>
           </div>
           <div class="col-10">
-            <div style="height: 500px; width: 100%">
+            <div id="location-simulation-map" style="height: 500px; width: 100%">
               <amplify-map
                   :device-positions="this.customerPosition ? [this.customerPosition] : [1, 1]"
                   :routes="[this.customerRoute]"
@@ -33,6 +33,9 @@ import swal from 'sweetalert';
 import LocationDemoNavigation from "@/public/LocationDemoNavigation";
 import Layout from "@/components/Layout/Layout";
 
+
+import { storeview } from '@/mixins/storeview';
+
 const locationApi = new Location();
 const LocationRepository = RepositoryFactory.get('location');
 const OrdersRepository = RepositoryFactory.get('orders');
@@ -44,6 +47,7 @@ export default {
     LocationDemoNavigation,
     Layout
   },
+  mixins: [storeview],
   data () {
     return {
       customerPosition: null,
@@ -55,6 +59,7 @@ export default {
     }
   },
   async created () {
+
     this.getIncompleteCollectionOrders();
     this.fetchStoreLocation();
     await this.getCognitoUser();
@@ -193,6 +198,19 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+
+/*body.location {*/
+/*    background-color: #CCCCCC;*/
+/*}*/
+/*.navigation {*/
+/*  background-color: #EEEEEE !important;*/
+/*}*/
+
+#location-simulation-map {
+  border: 1px;
+  border-color: black;
+  border-style: solid;
+}
 
 </style>

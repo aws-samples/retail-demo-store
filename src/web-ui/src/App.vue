@@ -21,6 +21,7 @@ export default {
 };
 </script>
 <style>
+
 @font-face {
   font-family: Ember;
   src: url('/fonts/ember-light.ttf');
@@ -61,4 +62,14 @@ export default {
 body {
   font-family: Ember, sans-serif;
 }
+
+/** Only for in-store views **/
+body.store-view {
+  background-color: #DDD !important;
+}
+
+.store-view .navigation {
+    background-color: #EEE !important;
+}
+
 </style>
