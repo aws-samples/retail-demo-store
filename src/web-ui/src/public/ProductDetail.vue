@@ -43,8 +43,7 @@
               <button class="add-to-cart-btn btn" @click="addProductToCart" :disabled="outOfStock || cartHasMaxAmount">
                 Add to Cart
               </button>
-              <LoadingFallback v-if="!favoritesLoaded" />
-              <Favoriting v-else-if="favoritesLoaded && favorited !== null" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited" />
+              <Favoriting v-if="favoritesLoaded && favorited !== null" @click="toggleFavorite" :productId="product.id" :username="user.username" :favorited="favorited" />
 
             </div>
 
@@ -92,7 +91,6 @@ import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 import ProductDeepDive from "@/components/ProductDeepDive/ProductDeepDive";
-import LoadingFallback from "@/components/LoadingFallback/LoadingFallback";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const FavoritingRepository = RepositoryFactory.get('favoriting');
@@ -102,7 +100,6 @@ const EXPERIMENT_FEATURE = 'product_detail_related';
 export default {
   name: 'ProductDetail',
   components: {
-    LoadingFallback,
     ProductDeepDive,
     Favoriting,
     Layout,
