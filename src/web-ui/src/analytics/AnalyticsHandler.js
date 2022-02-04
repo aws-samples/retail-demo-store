@@ -601,7 +601,7 @@ export const AnalyticsHandler = {
     },
 
     productFavorited(user, product, favoritedFlag) {
-        if (this.tealiumEnabled()) {
+        if (this.tealiumEnabled() && favoritedFlag) { // we will only send favorited
             let event_type = 'PRODUCT_FAVORITED'
             let now = new Date()
             const userString = user ? user.username : "UNKNOWN"
