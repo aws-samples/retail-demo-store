@@ -34,14 +34,11 @@ router.match({ path: "/products-service/:path*" }, ({ proxy, cache }) => {
 router.match("/recommendations-service/:path*", ({ proxy }) => {
   proxy("recommendations-service", { path: "/:path*" });
 });
-router.match("/carts-service/:path*", ({ proxy }) => {
-  proxy("carts-service", { path: "/:path*" });
+router.match("/carts", ({ proxy }) => {
+  proxy("carts-service", { path: "/carts" });
 });
 router.match("/carts/:path*", ({ proxy }) => {
   proxy("carts-service", { path: "/carts/:path*" });
-});
-router.match("/carts", ({ proxy }) => {
-  proxy("carts-service", { path: "/carts" });
 });
 router.match("/users-service/:path*", ({ proxy }) => {
   proxy("users-service", { path: "/:path*" });
