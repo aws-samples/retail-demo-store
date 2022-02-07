@@ -33,7 +33,7 @@ const recommendationsService = buildServiceDomain(
   process.env.VUE_APP_RECOMMENDATIONS_SERVICE_PORT
 );
 const cartsService = buildServiceDomain(
-  process.env.AWS_USERS_SERVICE_DOMAIN,
+  process.env.AWS_CARTS_SERVICE_DOMAIN,
   process.env.VUE_APP_CARTS_SERVICE_PORT
 );
 const usersService = buildServiceDomain(
