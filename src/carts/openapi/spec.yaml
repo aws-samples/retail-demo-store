@@ -50,7 +50,7 @@ paths:
                 username:
                   type: string
       responses:
-        '200':
+        '201':
           description: Successful
           content:
             appllication/json:
