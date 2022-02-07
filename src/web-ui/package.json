@@ -17,9 +17,6 @@
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@layer0/core": "^4.6.0",
-    "@layer0/devtools": "^4.6.0",
-    "@layer0/prefetch": "^4.6.0",
     "@mparticle/web-sdk": "^2.9.14-rc.1",
     "@optimizely/optimizely-sdk": "4.0.0",
     "amplitude-js": "^5.8.0",
@@ -40,7 +37,10 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "devDependencies": {
-    "@layer0/cli": "^4.6.0",
+    "@layer0/cli": "^4.10.0",
+    "@layer0/core": "^4.10.0",
+    "@layer0/devtools": "^4.10.0",
+    "@layer0/prefetch": "^4.10.0",
     "@vue/cli-plugin-babel": "^4.5.13",
     "@vue/cli-plugin-eslint": "^4.5.13",
     "@vue/cli-service": "^4.5.13",
