@@ -40,7 +40,6 @@ paths:
                       $ref: '#/components/schemas/Feature'
                   "type":
                     type: string
-
   /customer_route:
     get:
       tags:
@@ -59,7 +58,6 @@ paths:
                   "type":
                     type: string
                     enum: [FeatureCollection]
-
   /cstore_location:
     get:
       tags:
@@ -78,8 +76,6 @@ paths:
                   "type":
                     type: string
                     enum: [FeatureCollection]
-
-
   /cstore_route:
     get:
       tags:

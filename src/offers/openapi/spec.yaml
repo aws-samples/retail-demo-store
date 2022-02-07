@@ -80,7 +80,3 @@ components:
           minimum: 1
         preference:
           type: integer
-        
-                    
-                
-                  

@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY offers/openapi/spec.yaml /usr/share/nginx/html/specs/offers/spec.yaml
 COPY location/openapi/spec.yaml /usr/share/nginx/html/specs/location/spec.yaml
+COPY carts/openapi/spec.yaml /usr/share/nginx/html/specs/carts/spec.yaml
 
 COPY swagger-ui/index.html /usr/share/nginx/html
 
