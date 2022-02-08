@@ -118,7 +118,9 @@ paths:
           content:
             appllication/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
   
 components:
   schemas:
