@@ -375,3 +375,4 @@ Outputs:
 
   WebUICDNURL:
     Description: The URL for the web application
+    Value: !GetAtt CloudFront.Outputs.WebUICDNURL
