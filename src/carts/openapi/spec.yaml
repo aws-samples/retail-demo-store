@@ -11,7 +11,9 @@ info:
 
 tags:
   - name: Carts
-    description: Cart API
+    description: Create, list, and modify items in the carts
+  - name: Amazon pays
+    description: Sign payload for Amazon
 servers:
   - url: http://{host}:{port}
     variables:
@@ -87,7 +89,7 @@ paths:
         content:
           application/json:
             schema:
-             $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/Cart'
       responses:
         '201':
           description: Successful
@@ -95,10 +97,21 @@ paths:
             appllication/json:
               schema:
                 $ref: '#/components/schemas/Cart'
-              
-# /sign 
-#   post:
-
+  /sign: 
+    post:
+      tags:
+        - Amazon Pay
+      description: Sign a payload for Amazon Pay
+      requestBody:
+        description: Parameters for signing via Amazon Pay
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignBodyRequest'
+      responses:
+        '200':
+          description: Successful
 components:
   schemas:
     Cart:
@@ -135,4 +148,20 @@ components:
         price:
           type: number
           example: 3.99
+    SignBodyRequest:
+      type: object
+      properties:
+        webCheckoutDetails:
+          type: object
+          properties:
+            checkoutReviewReturnUrl:
+              type: string
+              enum: ['https://developer.amazon.com/docs/amazon-pay-checkout/introduction.html']
+        storeId:
+          type: string
+          description: Amazon Pay store ID
+        chargePermissionType:
+          type: string
+          enum: ['chargePermissionType']
+          example: 'chargePermissionType'
           
