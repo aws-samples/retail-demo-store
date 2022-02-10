@@ -47,7 +47,7 @@ When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFr
 
 ## Swagger UI
 
-We have a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request agains the service via Swagger UI.
+There is a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request agains the service via Swagger UI.
 
 The `Dockerfile` of `swagger-ui` copies OpenAPI spec from each service (located at `<serviceName>/openapi/spec.yaml`). If you add a new service, please ensure that you write the OpenAPI spec and update the `Dockerfile` to copy yours.
 
