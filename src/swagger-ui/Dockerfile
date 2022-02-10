@@ -7,6 +7,7 @@ COPY location/openapi/spec.yaml /usr/share/nginx/html/specs/location/spec.yaml
 COPY carts/openapi/spec.yaml /usr/share/nginx/html/specs/carts/spec.yaml
 COPY orders/openapi/spec.yaml /usr/share/nginx/html/specs/orders/spec.yaml
 COPY products/openapi/spec.yaml /usr/share/nginx/html/specs/products/spec.yaml
+COPY users/openapi/spec.yaml /usr/share/nginx/html/specs/users/spec.yaml
 
 COPY swagger-ui/index.html /usr/share/nginx/html
 
