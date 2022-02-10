@@ -17,8 +17,10 @@ tags:
   - name: Offers
     description: List and get the available offers
 servers:
-  - url: http://localhost:{port}
+  - url: http://{host}:{port}
     variables:
+      host:
+        default: 'localhost'
       port:
         default: '8008' 
         description: Use the port from ../docker-compose.yml

@@ -12,6 +12,8 @@ info:
 tags:
   - name: Products
     description: Products API
+  - name: Categories
+    description: Categories API
 servers:
   - url: http://{host}:{port}
     variables:
