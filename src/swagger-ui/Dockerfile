@@ -10,6 +10,7 @@ COPY products/openapi/spec.yaml /usr/share/nginx/html/specs/products/spec.yaml
 COPY users/openapi/spec.yaml /usr/share/nginx/html/specs/users/spec.yaml
 COPY videos/openapi/spec.yaml /usr/share/nginx/html/specs/videos/spec.yaml
 COPY search/openapi/spec.yaml /usr/share/nginx/html/specs/search/spec.yaml
+COPY recommendations/openapi/spec.yaml /usr/share/nginx/html/specs/recommendations/spec.yaml
 
 COPY swagger-ui/index.html /usr/share/nginx/html
 
