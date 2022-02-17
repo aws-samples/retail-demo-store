@@ -339,7 +339,7 @@ export const AnalyticsHandler = {
             let productName = product.name;
             let productId = product.id;
             let productPrice = product.price;
-    
+
             let productDetails = window.mParticle.eCommerce.createProduct(
                 productName,
                 productId,
@@ -352,7 +352,7 @@ export const AnalyticsHandler = {
                 Revenue: totalAmount,
                 Tax: totalAmount * .10
             };
-    
+
             let customAttributes = {
                 mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
                 cartId: cart.id,
@@ -361,9 +361,11 @@ export const AnalyticsHandler = {
                 feature: feature,
                 experimentCorrelationId: experimentCorrelationId
             };
-    
+
             // Send details of viewed product to mParticle
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.AddToCart, productDetails, customAttributes, {}, transactionAttributes);
+        }
+
         if (this.tealiumEnabled() && user) {
             let event_type = 'PRODUCT_ADD'
             let now = new Date()
@@ -651,12 +653,14 @@ export const AnalyticsHandler = {
 
         if (this.mParticleEnabled()) {
             let productDetails = window.mParticle.eCommerce.createProduct(
-               product.name,
-               product.id,
-               parseFloat(product.price.toFixed(2)),
-               1
-           );
-           window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails,{mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
+                product.name,
+                product.id,
+                parseFloat(product.price.toFixed(2)),
+                1
+            );
+            window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.ViewDetail, productDetails, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()}, {}, {});
+        }
+
         if (this.tealiumEnabled() && user) {
             let event_type = 'PRODUCT_VIEW'
             let now = new Date()
