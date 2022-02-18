@@ -64,16 +64,7 @@ If you plan to enable the automated Personalize campaign creation process at dep
 
 It is advisable to use a Python 3 virtual environment to do this and the scripts assume that the executable pip is the Python 3 version of pip so if necessary you may need to install pip into that virtual environment (if your system defaults to a Python 2 version of pip).
 
-There are also some Golang dependencies that need to be installed before staging:
-
-```bash
-go get github.com/aws/aws-lambda-go/lambda
-go get github.com/aws/aws-lambda-go/cfn
-go get github.com/aws/aws-sdk-go
-go get gopkg.in/yaml.v2
-```
-
-The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket.
+The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket. 
 
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 
