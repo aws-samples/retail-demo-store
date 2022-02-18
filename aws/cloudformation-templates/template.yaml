@@ -454,6 +454,33 @@ Resources:
           - '${RootURL}/images/'
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
 
+  # Swagger UI Pipeline
+  SwaggerUIPipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/swagger-ui-pipeline.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SwaggerUICDN: !GetAtt Base.Outputs.WebUICDN
+        SwaggerUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
+        WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
+        VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+
   # Lex personalization function
   ChatbotFunctions:
     Type: AWS::CloudFormation::Stack
