@@ -529,9 +529,9 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        SwaggerUICDN: !GetAtt Base.Outputs.WebUICDN
-        SwaggerUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
-        WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
+        SwaggerUICDN: !GetAtt Base.Outputs.SwaggerUICDN
+        SwaggerUIBucketName: !GetAtt Base.Outputs.SwaggerUIBucketName
+        SwaggerUIRootUrl: !GetAtt Base.Outputs.SwaggerUICDNURL
         SourceDeploymentType: !Ref SourceDeploymentType
         GitHubRepo: !Ref GitHubRepo
         GitHubBranch: !Ref GitHubBranch

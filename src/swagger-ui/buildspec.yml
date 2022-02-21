@@ -1,27 +1,24 @@
 version: 0.2
+env:
+  shell: bash
 phases:
-  install:
-    runtime-versions:
-      nodejs: 10
+  # install:
+  #   runtime-versions:
+  #     nodejs: 10
   build:
     commands:
       # TODO: how do we pass env to swagger-ui?
-      - mkdir -p src/swagger-ui/specs
-      - cd src/swagger-ui/specs
       # Create directory for each spec
-      - SERVICES=( offers location carts orders prdocuts users videos search recommendations )
-      - for SERVICE in $SERVICES;
-          do
-            mkdir -p "$SERVICE";
-            cp ../../$SERVICE/openapi/spec.yaml  "$SERVICE/"    
-          done
-      - ls -d */*
+      - ./src/swagger-ui/copy-spec-files.bash
+      - ls -d src/swagger-ui/specs
   post_build:
     commands:
-      - echo Uploading to ${SWAGGER_UI_BUCKET_NAME}
-      - aws s3 cp --recursive ./specs s3://${SWAGGER_UI_BUCKET_NAME}/
-      - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./index.html s3://${SWAGGER_UI_BUCKET_NAME}/
-      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html
+      - cd src/swagger-ui
+      - ls -la specs/
+      # - echo Uploading to ${SWAGGER_UI_BUCKET_NAME}
+      # - aws s3 cp --recursive ./specs s3://${SWAGGER_UI_BUCKET_NAME}/
+      # - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./index.html s3://${SWAGGER_UI_BUCKET_NAME}/
+      # - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html
 artifacts:
   files:
     - '**/*'

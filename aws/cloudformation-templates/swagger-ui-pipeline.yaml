@@ -20,7 +20,7 @@ Parameters:
     Type: String
     Description: S3 bucket where Swagger UI assets stored for serving via CloudFront
 
-  WebRootUrl:
+  SwaggerUIRootUrl:
     Type: String
     Description: Public facing root URL where the Retail Demo Store Swagger UI is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
@@ -93,6 +93,46 @@ Conditions:
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
 
 Resources:
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: "logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ssm:GetParameters
+                  - 'cloudfront:CreateInvalidation'
+                Resource: "*"
+        - PolicyName: "S3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                  - 's3:GetBucketVersioning'
+                Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::${SwaggerUIBucketName}/*
+
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -183,8 +223,8 @@ Resources:
             Value: !Sub ${OffersServiceExternalUrl}
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
-          - Name: WEB_ROOT_URL
-            Value: !Ref WebRootUrl
+          - Name: SWAGGER_UI_ROOT_URL
+            Value: !Ref SwaggerUIRootUrl
         Image: 'aws/codebuild/standard:2.0'
         Type: LINUX_CONTAINER
 
