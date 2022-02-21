@@ -405,11 +405,7 @@ Parameters:
     Type: String
     Description: >
       The ID of the data source created in Tealium (optional).
-      Whether to load users from the users.json.gz file in the repository.
-    AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+    Default: ''
   
   C360ApiUrl:
     Type: String
