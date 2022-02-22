@@ -2,7 +2,7 @@ Flask==1.0.2
 requests==2.20.0
 boto3==1.14.53
 flask-cors==3.0.9
-numpy==1.18.1
+numpy==1.21.0
 optimizely-sdk==3.5.2
 expiring-dict==1.1.0
 aws-xray-sdk==2.6.0
