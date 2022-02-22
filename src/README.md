@@ -43,3 +43,11 @@ For instructions specific to each Retail Demo Store web service, view the README
 ## Web UI Service
 
 When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the [Web UI's .env](web-ui/.env) file for which there is an example at [web-ui/.env.template](web-ui/.env.template) to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
+
+
+## Swagger UI
+
+There is a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request agains the service via Swagger UI.
+
+The `Dockerfile` of `swagger-ui` copies OpenAPI spec from each service (located at `<serviceName>/openapi/spec.yaml`). If you add a new service, please ensure that you write the OpenAPI spec and update the `Dockerfile` to copy yours.
+
