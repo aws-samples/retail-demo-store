@@ -23,7 +23,6 @@ import SupportLink from './SupportLink/SupportLink';
 import NavSeparator from './NavSeparator/NavSeparator';
 import CartLink from './CartLink/CartLink';
 import UserDropdown from './UserDropdown/UserDropdown';
-import ScanLink from "./ScanLink/ScanLink";
 import AlertLink from "./AlertsLink/AlertsLink";
 import {mapGetters} from "vuex";
 
@@ -31,7 +30,6 @@ export default {
   name: 'Navigation',
   components: {
     AlertLink,
-    ScanLink,
     HomeLink,
     ShopDropdown,
     Search,

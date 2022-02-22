@@ -276,24 +276,6 @@ const router = new Router({
       meta: { requiresAuth: true }
     },
     {
-      path: '/clienteling/:username',
-      name: 'Clienteling',
-      component: Clienteling,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/outfitbuilder/:productId',
-      name: 'OutfitBuilder',
-      component: OutfitBuilder,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/scan',
-      name: 'ScanProduct',
-      component: ProductScan,
-      meta: { requiresAuth: false }
-    },
-    {
       path: '/alerts',
       name: 'Alerts',
       component: Alerts,
@@ -344,3 +326,4 @@ router.beforeResolve(async (to, from, next) => {
   return next()
 })
 
+export default router
