@@ -49,7 +49,6 @@
 
             <p>{{ product.description }}</p>
 
-            <ProductDeepDive/>
           </div>
 
           <div class="product-img">
@@ -90,7 +89,6 @@ import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
-import ProductDeepDive from "@/components/ProductDeepDive/ProductDeepDive";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const FavoritingRepository = RepositoryFactory.get('favoriting');
@@ -100,7 +98,6 @@ const EXPERIMENT_FEATURE = 'product_detail_related';
 export default {
   name: 'ProductDetail',
   components: {
-    ProductDeepDive,
     Favoriting,
     Layout,
     ProductPrice,
