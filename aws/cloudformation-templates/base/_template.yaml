@@ -249,14 +249,6 @@ Resources:
       Parameters:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
 
-  # Swagger UI Infrastructure
-  SwaggerUIInfra:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/swagger-ui-infra.yaml
-      Parameters:
-        CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
-
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -372,12 +364,12 @@ Outputs:
 
   SwaggerUIBucketName:
     Description: S3 bucket for CloudFront distribution to store Swagger UI assets.
-    Value: !GetAtt SwaggerUIInfra.Outputs.SwaggerUIBucketName
+    Value: !GetAtt CloudFront.Outputs.SwaggerUIBucketName
 
   SwaggerUICDN:
     Description: CloudFront distribution ID for the Swagger UI CDN
-    Value: !GetAtt SwaggerUIInfra.Outputs.SwaggerUICDN
+    Value: !GetAtt CloudFront.Outputs.SwaggerUICDN
 
   SwaggerUICDNURL:
     Description: The URL for the web application
-    Value: !GetAtt SwaggerUIInfra.Outputs.SwaggerUICDNURL
+    Value: !GetAtt CloudFront.Outputs.SwaggerUICDNURL
