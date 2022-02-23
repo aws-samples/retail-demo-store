@@ -10,7 +10,7 @@
     "layer0:start:cache": "concurrently \"npx webpack --watch --config layer0/webpack.layer0.config.js\" \"npx layer0 run --cache\"",
     "layer0:start:prod": "npx layer0 run --production",
     "layer0:build": "npx webpack --progress --config layer0/webpack.layer0.config.js && npx layer0 build",
-    "layer0:deploy": "npx layer0 deploy --skip-build",
+    "layer0:deploy": "npx layer0 deploy --skip-build --site=layer0-aws-store-example --team=layer0-docs",
     "layer0:app:build": "npm run build && npm run layer0:build",
     "layer0:app:build:deploy": "npm run build && npm run layer0:build && npm run layer0:deploy",
     "layer0:build:deploy": "npm run layer0:build && npm run layer0:deploy",

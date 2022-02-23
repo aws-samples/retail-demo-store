@@ -54,11 +54,5 @@ printf 'VUE_APP_MPARTICLE_SECRET_KEY=%s\n' "$MPARTICLE_SECRET_KEY" >> .env
 printf 'VUE_APP_GOOGLE_ANALYTICS_ID=%s\n' "$GOOGLE_ANALYTICS_ID" >> .env
 
 # Layer0
-if [ $LAYER0_DEPLOY_TOKEN = "NONE" ]; then
-  printf 'VUE_APP_LAYER0_ENABLED=false\n' >> .env
-else
-  printf 'VUE_APP_LAYER0_ENABLED=true\n' >> .env
-fi
-# 'VUE_APP_' prefix part must not be used here to prevent token expose in client side JS
-printf 'LAYER0_DEPLOY_TOKEN=%s\n' "$LAYER0_DEPLOY_TOKEN" >> .env
+printf 'VUE_APP_LAYER0_ENABLED=false\n' >> .env
 

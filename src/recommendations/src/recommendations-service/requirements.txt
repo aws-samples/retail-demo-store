@@ -6,3 +6,5 @@ numpy==1.18.1
 optimizely-sdk==3.5.2
 expiring-dict==1.1.0
 aws-xray-sdk==2.6.0
+itsdangerous==1.1.0
+markupsafe==1.1.1

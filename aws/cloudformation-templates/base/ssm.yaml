@@ -51,11 +51,6 @@ Parameters:
     Description: mParticle server to server secret key
     NoEcho: true
 
-  Layer0DeployToken:
-    Type: String
-    Description: Layer0 deploy token for deploying (optional).
-    NoEcho: true
-
   PinpointSMSLongCode:
     Type: String
 
@@ -84,8 +79,6 @@ Conditions:
     !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
   HasGoogleAnalyticsMeasurementId:
     !Not [!Equals [!Ref GoogleAnalyticsMeasurementId, ""]]
-  HasLayer0DeployToken: 
-    !Not [!Equals [!Ref Layer0DeployToken, ""]]
 
 Resources:
   ParameterStackBucketName:
@@ -262,14 +255,6 @@ Resources:
         ]
       Description: "Retail Demo Store Google Analytics Measurement Id"
 
-  ParameterLayer0DeployToken:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-layer0-deploy-token"
-      Type: "String"
-      Value: !If [HasLayer0DeployToken, !Ref Layer0DeployToken, "NONE"]
-      Description: "Retail Demo Store Layer0 deploy token"
-
 Outputs:
   ParameterStackBucketName:
     Description: Stack Bucket Name Parameter
@@ -322,10 +307,6 @@ Outputs:
   ParameterSegmentWriteKey:
     Description: Segment write key
     Value: !Ref ParameterSegmentWriteKey
-
-  ParameterLayer0DeployToken:
-    Description: Layer0 deploy token
-    Value: !Ref ParameterLayer0DeployToken
 
   ParameterPinpointSMSLongCode:
     Description: Pinpoint SMS Long code

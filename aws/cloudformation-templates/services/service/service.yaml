@@ -334,8 +334,6 @@ Resources:
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
             - Name: SEGMENT_WRITE_KEY
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
-            - Name: LAYER0_DEPLOY_TOKEN
-              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-layer0-deploy-token'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeCampaignArn          

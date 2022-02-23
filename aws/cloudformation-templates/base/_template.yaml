@@ -82,11 +82,6 @@ Parameters:
     Description: mParticle server to server Secret Key.
     NoEcho: true
 
-  Layer0DeployToken:
-    Type: String
-    Description: Layer0 token for deploying (optional).
-    NoEcho: true
-
   PinpointSMSLongCode:
     Type: String
     Description: Pinpoint SMS Long code.
@@ -231,7 +226,6 @@ Resources:
         mParticleSecretKey: !Ref mParticleSecretKey
         mParticleS2SApiKey: !Ref mParticleS2SApiKey
         mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
-        Layer0DeployToken: !Ref Layer0DeployToken
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
@@ -358,11 +352,7 @@ Outputs:
 
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id Parameter
-    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
-
-  ParameterLayer0DeployToken:
-    Description: Layer0 deploy token Parameter
-    Value: !GetAtt SSMParameters.Outputs.ParameterLayer0DeployToken
+    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMe
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.

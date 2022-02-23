@@ -69,7 +69,6 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
-          - Layer0DeployToken
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -139,8 +138,6 @@ Metadata:
         default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
-      Layer0DeployToken:
-        default: "Layer0 Token"
 
 Parameters:
   ResourceBucket:
@@ -385,11 +382,6 @@ Parameters:
     Description: >
       mParticle server to server secret key coupled with your API key.
     NoEcho: true
-  
-  Layer0DeployToken:
-    Type: String
-    Description: Layer0 token for deploying (optional).
-    NoEcho: true
 
   GoogleAnalyticsMeasurementId:
     Type: String
@@ -435,7 +427,6 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
-        Layer0DeployToken: !Ref Layer0DeployToken
         SegmentWriteKey: !Ref SegmentWriteKey
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
@@ -532,7 +523,6 @@ Resources:
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
         ParameterGoogleAnalyticsMeasurementId: !GetAtt Base.Outputs.ParameterGoogleAnalyticsMeasurementId
-        ParameterLayer0DeployToken: !GetAtt Base.Outputs.ParameterLayer0DeployToken
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         WebUICDN: !GetAtt Base.Outputs.WebUICDN
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName

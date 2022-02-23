@@ -134,10 +134,6 @@ Parameters:
     Type: String
     Description: Google Analytics Measurement Id parameter name
 
-  ParameterLayer0DeployToken:
-    Type: String
-    Description: Layer0 token for deployment
-
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
@@ -415,9 +411,6 @@ Resources:
           - Name: GOOGLE_ANALYTICS_ID
             Type: PARAMETER_STORE
             Value: !Ref ParameterGoogleAnalyticsMeasurementId
-          - Name: LAYER0_DEPLOY_TOKEN
-            Type: PARAMETER_STORE
-            Value: !Ref ParameterLayer0DeployToken
           - Name: WEB_ROOT_URL
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
