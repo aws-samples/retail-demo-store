@@ -73,7 +73,6 @@ Resources:
         mParticleS2SApiKey: ""
         mParticleS2SSecretKey: ""
         GoogleAnalyticsMeasurementId: "NONE"
-        Layer0DeployToken: "NONE"
 
 Outputs:
   WebURL:
