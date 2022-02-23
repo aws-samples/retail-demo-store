@@ -2,14 +2,11 @@ version: 0.2
 env:
   shell: bash
 phases:
-  # install:
-  #   runtime-versions:
-  #     nodejs: 10
   build:
     commands:
-      # TODO: how do we pass env to swagger-ui?
-      # Create directory for each spec
       - ./src/swagger-ui/copy-spec-files.bash
+      - ./src/swagger-ui/generate-services-json-file.bash
+      - cat ./src/swagger-ui/services.json
       - ls -d src/swagger-ui/specs
   post_build:
     commands:

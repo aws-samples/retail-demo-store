@@ -3,7 +3,7 @@
 # This script is to be run from the root folder of this repository
 
 mkdir -p src/swagger-ui/specs
-declare -a SERVICES=(offers location carts orders prdocuts users videos search recommendations)
+declare -a SERVICES=(offers location carts orders products users videos search recommendations)
 for SERVICE in "${SERVICES[@]}";
   do
     mkdir -p "src/swagger-ui/specs/$SERVICE";
