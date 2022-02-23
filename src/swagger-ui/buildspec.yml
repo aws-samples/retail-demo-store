@@ -15,7 +15,8 @@ phases:
       - echo Uploading to ${SWAGGER_UI_BUCKET_NAME}
       - aws s3 cp --recursive ./specs s3://${SWAGGER_UI_BUCKET_NAME}/specs
       - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./index.html s3://${SWAGGER_UI_BUCKET_NAME}/
-      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html
+      - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./services.json s3://${SWAGGER_UI_BUCKET_NAME}/
+      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html /services.json
 artifacts:
   files:
     - '**/*'
