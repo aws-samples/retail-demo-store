@@ -24,6 +24,10 @@ Resources:
           IpProtocol: "TCP"
           FromPort: 80
           ToPort: 80
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+          FromPort: 443
+          ToPort: 443 
       VpcId: !Ref VpcId
 
   LoadBalancer:

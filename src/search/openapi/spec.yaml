@@ -1,0 +1,106 @@
+openapi: '3.0.2'
+info:
+  title: Search API
+  version: v1
+  description: |- 
+    The Search web service provides a RESTful API for retrieving product information based on a search term. The [Web UI](../../web-ui) makes calls to this service when a user performs a search. 
+    Internally, this service makes calls to an [Elasticsearch](https://www.elastic.co/) cluster for search results. When deployed on AWS, [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/) is used. When deployed locally, a local Elasticsearch node is used for searches.
+    
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: Amazon Software License (ASL)
+
+tags:
+  - name: Search
+    description: Search for products
+  - name: Similar
+    description: Get similar products
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8006' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /search/products:
+    get:
+      tags:
+        - Search
+      description: Search for products related to a given searchTerm. The API searchs the fields name, category, style, and description
+      parameters:
+        - name: searchTerm
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 'brush'
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 5
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+            example: 20
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '400':
+          description: Bad request
+  /similar/products:
+    get:
+      tags:
+        - Similar
+      description: Get similar products from a given productId.
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 5
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+            example: 20
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '400':
+          description: Bad request
+components:
+  schemas:
+    Result:
+      type: array
+      items: 
+        type: object
+        properties:
+          itemId:
+            type: string
+            example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
