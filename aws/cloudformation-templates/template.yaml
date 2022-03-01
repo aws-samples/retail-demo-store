@@ -29,7 +29,7 @@ Metadata:
           default: "Auto-Build Resources"
         Parameters:
           - PreIndexElasticsearch
-          - PreCreatePersonalizeCampaign
+          - PreCreatePersonalizeResources
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
           - PinpointEmailFromName
@@ -51,7 +51,7 @@ Metadata:
           - AmazonPayPublicKeyId
           - AmazonPayPrivateKey
       - Label:
-          default: "Alexa C-Store Demo"
+          default: "Alexa Convenience Store Demo"
         Parameters:
           - AlexaSkillId
           - AlexaAmazonPayDefaultSandboxEmail
@@ -88,8 +88,8 @@ Metadata:
         default: "GitHub Username"
       PreIndexElasticsearch:
         default: "Auto-Load Elasticsearch Index"
-      PreCreatePersonalizeCampaign:
-        default: "Auto-Build Personalize Campaigns"
+      PreCreatePersonalizeResources:
+        default: "Auto-Build Personalize Resources"
       PreCreatePinpointWorkshop:
         default: "Auto-Configure Pinpoint"
       PinpointEmailFromAddress:
@@ -103,7 +103,7 @@ Metadata:
       DeployLocationServices:
         default: "Deploy Location Services resources"
       DeployPersonalizedOffersCampaign:
-        default: "Deploy personalized offers and pickup notices using Location Services geofencing."
+        default: "Deploy personalized offers and pickup notices using Location Services geofencing"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -125,7 +125,7 @@ Metadata:
       SegmentWriteKey:
         default: "Segment Write Key"
       IncludemParticleDependencies:
-        default: "Deploy mParticle Resources"  
+        default: "Deploy mParticle Resources"
       mParticleOrgId:
         default: "mParticle Org Id"
       mParticleApiKey:
@@ -206,13 +206,12 @@ Parameters:
       - 'No'
     Default: 'No'
 
-  PreCreatePersonalizeCampaign:
+  PreCreatePersonalizeResources:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
-      and can take 2+ hours to complete.
+      Automatically trigger the background creation of Amazon Personalize resources such as solutions, campaigns, and recommenders at
+      deployment time. Otherwise, select 'No' if you would prefer to complete this process yourself by stepping through the Personalization
+      workshops included in this deployment. Note that the background create process runs after deployment finishes and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -594,7 +593,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         PreIndexElasticsearch: !Ref PreIndexElasticsearch
-        PreCreatePersonalizeCampaign: !Ref PreCreatePersonalizeCampaign
+        PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
         Subnet1: !GetAtt Base.Outputs.Subnet1
         Subnet2: !GetAtt Base.Outputs.Subnet2
         ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
@@ -602,7 +601,7 @@ Resources:
         ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
-        Uid: !Sub ${AWS::StackName}-${AWS::Region} 
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         PinpointPersonalizeRoleArn: !GetAtt Services.Outputs.PinpointPersonalizeRoleArn
         CustomizeRecommendationsFunctionArn: !GetAtt Services.Outputs.CustomizeRecommendationsFunctionArn
@@ -612,6 +611,7 @@ Resources:
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
+        PersonalizeRoleArn: !GetAtt Base.Outputs.PersonalizeRoleArn
 
   # Cleanup bucket function
   CleanupBucket:
@@ -637,7 +637,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/mparticle.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath 
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         mParticleOrgId: !Ref mParticleOrgId
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
@@ -694,19 +694,19 @@ Outputs:
     Description: Arn of AWS Lambda function that can be a back-end
     Value: !If [DeployAlexaEndpoint, !GetAtt Alexa.Outputs.AlexaSkillEndpointArn, "NotDeployed"]
 
-  ProductsServiceUrl: 
+  ProductsServiceUrl:
     Description: Products load balancer URL.
     Value: !GetAtt Services.Outputs.ProductsServiceUrl
 
-  UsersServiceUrl: 
+  UsersServiceUrl:
     Description: Users load balancer URL.
     Value: !GetAtt Services.Outputs.UsersServiceUrl
 
-  CartsServiceUrl: 
+  CartsServiceUrl:
     Description: Carts load balancer URL.
     Value: !GetAtt Services.Outputs.CartsServiceUrl
 
-  OrdersServiceUrl: 
+  OrdersServiceUrl:
     Description: Orders load balancer URL.
     Value: !GetAtt Services.Outputs.OrdersServiceUrl
 
@@ -722,7 +722,7 @@ Outputs:
     Description: Videos load balancer URL.
     Value: !GetAtt Services.Outputs.VideosServiceUrl
 
-  SearchServiceUrl: 
+  SearchServiceUrl:
     Description: Search load balancer URL.
     Value: !GetAtt Services.Outputs.SearchServiceUrl
 

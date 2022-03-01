@@ -20,7 +20,7 @@ IN_USERS_FILENAME = "src/users/src/users-service/data/users.json.gz"
 IN_OFFERS_FILENAME = "src/offers/src/offers-service/data/offers.json"
 
 # Where to put the generated data so that it is picked up by stage.sh
-GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-campaigns/data"
+GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-resources/data"
 
 
 def generate_data(interactions_filename, users_df, offers_df):

@@ -70,7 +70,7 @@ PINPOINT_APP_ID = os.environ.get('PinpointAppId')
 COGNITO_DOMAIN = os.environ.get('COGNITO_DOMAIN')
 LOCATION_PLACE_INDEX_NAME = os.environ.get('LocationResourceName')
 
-PRODUCT_CATEGORIES = ['food service', 'salty snacks', 'hot drinks', 'cold dispensed']
+PRODUCT_CATEGORIES = ['food service', 'salty snacks', 'hot dispensed', 'cold dispensed']
 
 AMAZON_PAY_MERCHANT_ID = os.environ.get('AmazonPayMerchantId', '').strip()
 SANDBOX_CUSTOMER_EMAIL = os.environ.get('AlexaAmazonPayDefaultSandboxEmail', '').strip()

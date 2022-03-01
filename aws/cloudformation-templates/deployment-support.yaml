@@ -28,13 +28,12 @@ Parameters:
       - 'No'
     Default: 'No'
 
-  PreCreatePersonalizeCampaign:
+  PreCreatePersonalizeResources:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
-      and can take 2+ hours to complete.
+      Automatically trigger the background creation of Amazon Personalize resources such as solutions, campaigns, and recommenders at
+      deployment time. Otherwise, select 'No' if you would prefer to complete this process yourself by stepping through the Personalization
+      workshops included in this deployment. Note that the background create process runs after deployment finishes and can take 2+ hours to complete.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -102,13 +101,16 @@ Parameters:
     Type: String
     Default: No
 
+  PersonalizeRoleArn:
+    Type: String
+
 Conditions:
   DeployPreIndexElasticsearch: !Equals
     - !Ref PreIndexElasticsearch
     - 'Yes'
 
-  DeployPreCreateCampaign: !Equals
-    - !Ref PreCreatePersonalizeCampaign
+  DeployPreCreateResourceFunction: !Equals
+    - !Ref PreCreatePersonalizeResources
     - 'Yes'
 
   DeployPreCreatePinpointWorkshop: !Equals
@@ -121,23 +123,23 @@ Conditions:
 
 Resources:
 
-  ####################### Pre-Create Personalize Campaign #######################
+  ####################### Pre-Create Personalize Resources #######################
 
   PersonalizePreCreateLambdaFunction:
-    Condition: DeployPreCreateCampaign
+    Condition: DeployPreCreateResourceFunction
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
-      Handler: personalize-pre-create-campaigns.lambda_handler
+      Handler: personalize_pre_create_resources.lambda_handler
       Role: !GetAtt
         - PersonalizePreCreateLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-campaigns.zip'
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-resources.zip'
       Runtime: python3.8
       Timeout: 900
-      FunctionName: RetailDemoStorePersonalizePreCreateCampaigns
+      FunctionName: RetailDemoStorePersonalizePreCreateResources
       Environment:
         Variables:
           csv_bucket: !Ref ResourceBucket
@@ -146,9 +148,11 @@ Resources:
           Uid: !Ref Uid
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
+          PersonalizeRoleArn: !Ref PersonalizeRoleArn
+          PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop # Controls whether additional Personalize campaign needs to be created for Pinpoint
 
   PersonalizePreCreateLambdaExecutionRole:
-    Condition: DeployPreCreateCampaign
+    Condition: DeployPreCreateResourceFunction
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -171,25 +175,20 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateResources:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStorePersonalizePreCreateResources'
               - Effect: Allow
                 Action:
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - iam:GetRole
                   - iam:PassRole
-                  - iam:CreateRole
-                  - iam:AttachRolePolicy
-                  - iam:DetachRolePolicy
-                  - iam:DeleteRole
                 Resource:
                   - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PersonalizeS3'
               - Effect: Allow
@@ -209,40 +208,16 @@ Resources:
                 Action:
                   - lambda:AddPermission
                   - lambda:RemovePermission
-                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePersonalizePreCreateCampaigns'
+                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:RetailDemoStorePersonalizePreCreateResources'
               - Effect: Allow
                 Action:
-                  - personalize:ListCampaigns
-                  - personalize:ListDatasetGroups
-                  - personalize:ListSolutions
-                  - personalize:ListSchemas
-                  - personalize:ListSolutionVersions
-                  - personalize:ListDatasetImportJobs
-                  - personalize:ListDatasets
-                  - personalize:ListEventTrackers
-                  - personalize:CreateSchema
-                  - personalize:CreateDatasetGroup
+                  - personalize:List*
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - personalize:DescribeSolutionVersion
-                  - personalize:CreateSolutionVersion
-                  - personalize:CreateDatasetImportJob
-                  - personalize:CreateSolution
-                  - personalize:DescribeDatasetGroup
-                  - personalize:DescribeDatasetImportJob
-                  - personalize:DescribeSolution
-                  - personalize:CreateCampaign
-                  - personalize:CreateDataset
-                  - personalize:CreateEventTracker
-                  - personalize:CreateFilter
-                  - personalize:DeleteCampaign
-                  - personalize:DeleteDataset
-                  - personalize:DeleteDatasetGroup
-                  - personalize:DeleteFilter
-                  - personalize:DeleteSchema
-                  - personalize:DeleteSolution
-                  - personalize:ListFilters
+                  - personalize:Create*
+                  - personalize:Delete*
+                  - personalize:Describe*
                 Resource:
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
@@ -267,7 +242,7 @@ Resources:
                     aws:ResourceTag/RetailDemoStoreServiceName: 'web-ui'
 
   PersonalizePreCreateScheduledRule:
-    Condition: DeployPreCreateCampaign
+    Condition: DeployPreCreateResourceFunction
     Type: 'AWS::Events::Rule'
     Properties:
       Name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
@@ -281,7 +256,7 @@ Resources:
           Id: TargetFunctionV1
 
   PersonalizePreCreatePermissionToInvokeLambda:
-    Condition: DeployPreCreateCampaign
+    Condition: DeployPreCreateResourceFunction
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName:
@@ -294,7 +269,7 @@ Resources:
           - "Arn"
 
   CustomLaunchPersonalizePreCreateLambdaFunction:
-    Condition: DeployPreCreateCampaign
+    Condition: DeployPreCreateResourceFunction
     Type: Custom::CustomLambdaPersonalize
     Properties:
       ServiceToken: !GetAtt PersonalizePreCreateLambdaFunction.Arn
@@ -353,7 +328,7 @@ Resources:
                 Action:
                   - ssm:PutParameter
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - ivs:CreateChannel
@@ -525,7 +500,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               -
                 Effect: "Allow"
                 Action:
@@ -552,7 +527,7 @@ Resources:
           - "Parameter Store Change"
         detail:
           name:
-            - "retaildemostore-product-recommendation-campaign-arn"
+            - "/retaildemostore/personalize/user-personalization-arn"
           operation:
             - "Update"
       State: ENABLED

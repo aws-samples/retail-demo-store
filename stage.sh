@@ -55,17 +55,12 @@ aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recur
 echo " + Upload IVS videos"
 aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
 
-# Stage AWS Lambda functions
-echo " + Staging AWS Lambda functions"
-
-for function in ./src/aws-lambda/*/
-do
-    echo "  + Staging $function"
-    cd $function
-    chmod +x ./stage.sh
-    ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
-    cd -
-done
+echo " + Creating CSVs for Personalize model pre-create training"
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r generators/requirements.txt
+PYTHONPATH=. python3 generators/generate_interactions_personalize.py
+PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
 
 # Sync product images
 echo " + Copying product images"
@@ -77,16 +72,21 @@ aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || ec
 echo " + Copying location location data"
 aws s3 sync ./location_services s3://${BUCKET}/${S3PATH}location_services --only-show-errors $S3PUBLIC
 
-echo " + Creating CSVs for Personalize model pre-create training"
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r generators/requirements.txt
-PYTHONPATH=. python3 generators/generate_interactions_personalize.py
-PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
+# Sync CSVs used for Personalize pre-create resources Lambda function
+echo " + Copying CSVs for Personalize model pre-create resources"
+aws s3 sync src/aws-lambda/personalize-pre-create-resources/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
 
-# Sync CSVs used for Personalize pre-create campaign Lambda function
-echo " + Copying CSVs for Personalize model pre-create training"
-aws s3 sync src/aws-lambda/personalize-pre-create-campaigns/data/  s3://${BUCKET}/${S3PATH}csvs/ $S3PUBLIC
+# Stage AWS Lambda functions
+echo " + Staging AWS Lambda functions"
+
+for function in ./src/aws-lambda/*/
+do
+    echo "  + Staging $function"
+    cd $function
+    chmod +x ./stage.sh
+    ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
+    cd -
+done
 
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"

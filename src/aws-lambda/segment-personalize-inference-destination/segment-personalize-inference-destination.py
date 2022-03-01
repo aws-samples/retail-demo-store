@@ -2,15 +2,13 @@
 # SPDX-License-Identifier: MIT-0
 #
 # segment-personalize-inference-destination.py
-#  
+#
 # This lambda contains sample code that allows you to use Segment real-time events to perform inference
 # against an Amazon Personalize Campaign.  This lambda is not suitable for training events.
 #
 
 import json
-import boto3
 import os
-import dateutil.parser as dp
 import logging
 import analytics  # Segment Python library
 import requests
@@ -36,7 +34,7 @@ def lambda_handler(event, context):
     # in the Personalize destination in Segment.
 
     try:
-        if ('userId' in event and event['name'] == 'OrderCompleted'):
+        if ('userId' in event and event['name'] == 'Purchase'):
             user_id = event['userId']
             logger.debug('Looking up product recommendations for user ' + user_id)
             url = f'{recommendations_service_url}/recommendations?userID={user_id}&fullyQualifyImageUrls=1&numResults=4'

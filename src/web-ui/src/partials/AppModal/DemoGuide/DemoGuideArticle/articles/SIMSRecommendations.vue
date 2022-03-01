@@ -1,11 +1,11 @@
 <template>
   <ArticleLayout>
-    <template #heading>Similar Item Recommendations</template>
+    <template #heading>Related Items Recommendations</template>
 
     <template #recipe>
       Amazon Personalize Recipe:
       <a
-        href="https://docs.aws.amazon.com/personalize/latest/dg/related-items-recipes.html"
+        href="https://docs.aws.amazon.com/personalize/latest/dg/native-recipe-sims.html"
         target="_blank"
         rel="noreferrer noopener"
         >SIMS</a
@@ -25,8 +25,7 @@
     </p>
 
     <p class="similar-item-recommendations">
-      The similar item recommendations use case is implemented in all the product detail pages under “What other items
-      do customers view related to this product?”.
+      The similar item recommendations use case is implemented in all the product detail pages under “Compare similar items” carousel UI widget.
     </p>
 
     <ArticleFeature>
@@ -76,7 +75,7 @@ import ArticleFeature from '../ArticleFeature/ArticleFeature';
 import Quote from '../Quote/Quote';
 
 export default {
-  name: 'SimilarItemRecommendations',
+  name: 'SIMSRecommendations',
   components: { ArticleLayout, ArticleFeature, Quote },
 };
 </script>

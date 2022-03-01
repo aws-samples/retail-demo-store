@@ -22,7 +22,6 @@ import json
 import os
 import pprint
 import boto3
-import uuid
 import requests
 import random
 import logging
@@ -47,37 +46,47 @@ codepipeline = boto3.client('codepipeline')
 sts = boto3.client('sts')
 cw_events = boto3.client('events')
 
-# SSM parameter name for the Personalize filter for purchased items
-filter_purchased_param_name = 'retaildemostore-personalize-filter-purchased-arn'
-filter_cstore_param_name = 'retaildemostore-personalize-filter-cstore-arn'
-offers_arn_param_name = 'retaildemostore-personalized-offers-campaign-arn'
-training_config_param_name = 'retaildemostore-training-config' # ParameterPersonalizeTrainConfig
-dataset_group_name_root = 'retaildemostore-'
+# SSM parameter name for the Personalize filter for purchased and c-store items
+filter_purchased_param_name = '/retaildemostore/personalize/filters/filter-purchased-arn'
+filter_cstore_param_name = '/retaildemostore/personalize/filters/filter-cstore-arn'
+filter_purchased_cstore_param_name = '/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn'
+offers_arn_param_name = '/retaildemostore/personalize/personalized-offers-arn'
 
 # -- Shared Functions
 
-def get_recipe(campaign_arn):
+def get_recipe(arn):
     """ Returns the Amazon Personalize recipe ARN for the specified campaign ARN """
     recipe = None
 
-    campaign = personalize_meta_cache.get(campaign_arn)
-    if not campaign:
-        response = personalize.describe_campaign(campaignArn = campaign_arn)
-        if response.get('campaign'):
-            campaign = response['campaign']
-            personalize_meta_cache[campaign_arn] = campaign
+    is_recommender = arn.split(':')[5].startswith('recommender/')
 
-    if campaign:
-        solution_version = personalize_meta_cache.get(campaign['solutionVersionArn'])
+    resource = personalize_meta_cache.get(arn)
+    if not resource:
+        if is_recommender:
+            response = personalize.describe_recommender(recommenderArn = arn)
+            if response.get('recommender'):
+                resource = response['recommender']
+                personalize_meta_cache[arn] = resource
+        else:
+            response = personalize.describe_campaign(campaignArn = arn)
+            if response.get('campaign'):
+                resource = response['campaign']
+                personalize_meta_cache[arn] = resource
 
-        if not solution_version:
-            response = personalize.describe_solution_version(solutionVersionArn = campaign['solutionVersionArn'])
-            if response.get('solutionVersion'):
-                solution_version = response['solutionVersion']
-                personalize_meta_cache[campaign['solutionVersionArn']] = solution_version
+    if resource:
+        if is_recommender:
+            recipe = resource['recipeArn']
+        else:
+            solution_version = personalize_meta_cache.get(resource['solutionVersionArn'])
 
-        if solution_version:
-            recipe = solution_version['recipeArn']
+            if not solution_version:
+                response = personalize.describe_solution_version(solutionVersionArn = resource['solutionVersionArn'])
+                if response.get('solutionVersion'):
+                    solution_version = response['solutionVersion']
+                    personalize_meta_cache[resource['solutionVersionArn']] = solution_version
+
+            if solution_version:
+                recipe = solution_version['recipeArn']
 
     return recipe
 
@@ -128,7 +137,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
         user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
         fully_qualify_image_urls: Fully qualify image URLs n here
     Returns:
-        A prepared HTTP response object.    
+        A prepared HTTP response object.
     """
 
     # Check environment for host and port first in case we're running in a local Docker container (dev mode)
@@ -203,6 +212,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
     response = requests.get(url)
     if response.ok:
         products = response.json()
+        if not isinstance(products, list):
+            products = [ products ]
 
         for item in items:
             item_id = item['itemId']
@@ -323,9 +334,9 @@ def related():
         return get_products(
             feature = feature,
             user_id = user_id,
-            current_item_id = current_item_id, 
+            current_item_id = current_item_id,
             num_results = num_results,
-            default_campaign_arn_param_name='retaildemostore-related-products-campaign-arn',
+            default_campaign_arn_param_name='/retaildemostore/personalize/related-items-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
@@ -374,9 +385,9 @@ def recommendations():
         response = get_products(
             feature = feature,
             user_id = user_id,
-            current_item_id = current_item_id, 
+            current_item_id = current_item_id,
             num_results = num_results,
-            default_campaign_arn_param_name='retaildemostore-product-recommendation-campaign-arn',
+            default_campaign_arn_param_name='/retaildemostore/personalize/recommended-for-you-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
@@ -387,6 +398,58 @@ def recommendations():
         app.logger.exception('Unexpected error generating recommendations', e)
         raise BadRequest(message = 'Unhandled error', status_code = 500)
 
+@app.route('/popular', methods=['GET'])
+def popular():
+    """ Returns item/product recommendations for a given user in the context
+    of a current item (e.g. the user is viewing a product and I want to provide
+    recommendations for other products they may be interested in).
+
+    If an experiment is currently active for this feature ('home_product_recs'),
+    recommendations will be provided by the experiment. Otherwise, the default
+    behavior will be used which will look to see if an Amazon Personalize
+    campaign is available. If not, the Product service will be called to get
+    products from the same category as the current product or featured products.
+    """
+    user_id = request.args.get('userID')
+    if not user_id:
+        raise BadRequest('userID is required')
+
+    current_item_id = request.args.get('currentItemID')
+
+    num_results = request.args.get('numResults', default = 25, type = int)
+    if num_results < 1:
+        raise BadRequest('numResults must be greater than zero')
+    if num_results > 100:
+        raise BadRequest('numResults must be less than 100')
+
+    # Determine name of feature where related items are being displayed
+    feature = request.args.get('feature')
+
+    # The default filter is the exclude already purchased and c-store products filter
+    filter_ssm = request.args.get('filter', filter_purchased_cstore_param_name)
+    # We have short names for these filters
+    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_cstore_param_name
+    app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
+
+    fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
+
+    try:
+        response = get_products(
+            feature = feature,
+            user_id = user_id,
+            current_item_id = current_item_id,
+            num_results = num_results,
+            default_campaign_arn_param_name='/retaildemostore/personalize/popular-items-arn',
+            default_filter_arn_param_name=filter_ssm,
+            fully_qualify_image_urls = fully_qualify_image_urls
+        )
+        app.logger.debug(f"Recommendations response to be returned: {response}")
+        return response
+
+    except Exception as e:
+        app.logger.exception('Unexpected error generating recommendations', e)
+        raise BadRequest(message = 'Unhandled error', status_code = 500)
 
 def ranking_request_params():
     """
@@ -417,7 +480,7 @@ def ranking_request_params():
 
 
 def get_ranking(user_id, items, feature,
-                default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn',
+                default_campaign_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn',
                 top_n=None, context=None):
     """
     Re-ranks a list of items using personalized reranking.
@@ -550,7 +613,7 @@ def rerank():
 
 
 def get_top_n(user_id, items, feature, top_n,
-            default_campaign_arn_param_name='retaildemostore-personalized-ranking-campaign-arn'):
+            default_campaign_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn'):
     """
     Gets Top N items using provided campaign.
     Or delegates to experiment manager if there is an active experiment.
@@ -906,72 +969,6 @@ def experiment_outcome():
     except Exception as e:
         app.logger.exception('Unexpected error logging outcome', e)
         raise BadRequest(message='Unhandled error', status_code=500)
-
-
-@app.route('/reset/realtime', methods=['POST'])
-def reset_realtime():
-    """
-    Sets the training configuration in SSM so that the polling lambda trains a new campaign and then deletes
-    the old one. Logic is in that lambda; here we configure the Lambda.
-    Also re-enables that Lambda's polling rule if it has been disabled.
-    Returns:
-        HTTP 200 if all is well.
-    """
-
-    logger.info("Will do a full tear-down by inserting a config step for a tear-down. The existing config will"
-                " be copied but all the names changed as the seconds step so that the campaigns will then be"
-                " rebuilt with new names")
-    train_configs = ssm.get_parameter(Name=training_config_param_name)
-    train_configs = json.loads(train_configs['Parameter']['Value'])
-
-    new_steps = []
-    for train_config_step in train_configs['steps']:
-
-        new_train_config_step = {'dataset_groups': {}}
-        # Let us change the dataset group suffix to avoid carrying over any resources keyed by dataset group
-        if train_config_step['dataset_groups'] is not None:
-            for dataset_group_name, dataset_group_config in train_config_step['dataset_groups'].items():
-
-                new_dataset_group_name = dataset_group_name_root + str(uuid.uuid4())[:8]
-                # Let us also bump the solution number in case some things are stored by name there
-                for campaign_type, campaign_config in dataset_group_config['campaigns'].items():
-                    campaign_config['desired_campaign_suffixes'] = [v + 1 for v in campaign_config['desired_campaign_suffixes']]
-                    campaign_config['desired_active_version_suffixes'] = campaign_config['desired_active_version_suffixes'] + 1
-
-                new_train_config_step['dataset_groups'][new_dataset_group_name] = dataset_group_config
-
-        new_steps.append(new_train_config_step)
-    train_configs['steps'] = new_steps
-
-    # Insert a step to delete dataset groups then retrain the original
-    train_configs['steps'] = [{"dataset_groups": None}] + train_configs['steps']
-    logger.info(f"Putting back to SSM: {train_configs} to key {training_config_param_name}")
-    ssm.put_parameter(
-        Name=training_config_param_name,
-        Description='Retail Demo Store Training Config',
-        Value=json.dumps(train_configs),
-        Type='String',
-        Overwrite=True
-    )
-
-    # Enabling polling
-    rule_name = os.environ['PERSONALIZE_PRECREATE_CAMPAIGNS_EVENTRULENAME']
-    try:
-        logger.info('Enabling event rule {}'.format(rule_name))
-        cw_events.enable_rule(Name=rule_name)
-
-    except cw_events.exceptions.ClientError as e:
-        error_code = e.response['Error']['Code']
-        if error_code == 'ResourceNotFoundException':
-            logger.error('CloudWatch event rule to enable not found')
-            raise
-        else:
-            logger.error(e)
-            raise
-
-    return ('Rebuild of Amazon Personalize initiated. Check the Amazon Personalize console '
-            'or PersonalizePreCreateLambdaFunction lambda function logs for details'), 200
-
 
 if __name__ == '__main__':
 

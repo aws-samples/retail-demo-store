@@ -1,12 +1,12 @@
 <template>
   <DemoWalkthroughPageLayout :drawArrows="drawArrows">
     <h1 class="heading mb-3">
-      <div class="heading-similar-item-recommendations">Similar item recommendations</div>
+      <div class="heading-similar-item-recommendations">Related items recommendations</div>
     </h1>
 
     <div :class="{ content: true, 'content--mobile': isMobile }">
       <p class="similar-item-recommendations pl-2" ref="similar-item-recommendations">
-        The Similar item recommendations use case is implemented in all product detail pages under the “Compare similar
+        The related items recommendations use case is implemented on all product detail pages under the “Compare similar
         items” section.
       </p>
 

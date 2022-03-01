@@ -48,7 +48,7 @@ Resources:
         GitHubToken: 'dummy' # N/A SO DO NOT CHANGE
         GitHubUser: 'aws-samples' # N/A SO DO NOT CHANGE
         PreIndexElasticsearch: 'No' # Change to 'Yes' if you don't want customers to have to do ES workshop
-        PreCreatePersonalizeCampaign: 'No' # Change to 'Yes' if you don't want customers to have to do Personalize workshop (requires 2.5 hours AFTER CFN deployment to complete)
+        PreCreatePersonalizeResources: 'No' # Change to 'Yes' if you don't want customers to have to do Personalize workshop (if 'Yes', requires 2.5 hours AFTER CFN deployment to complete)
         PreCreatePinpointWorkshop: 'No' # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
         PinpointEmailFromAddress: 'dummy@dummy.com' # Only change if you change PreCreatePinpointWorkshop to 'Yes'
         PinpointEmailFromName: 'AWS Retail Demo Store'
