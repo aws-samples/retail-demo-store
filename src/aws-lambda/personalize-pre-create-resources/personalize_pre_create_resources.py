@@ -62,6 +62,7 @@ dataset_group_name_products = 'retaildemostore-products'
 dataset_group_name_offers = 'retaildemostore-offers'
 
 role_arn = os.environ['PersonalizeRoleArn']
+create_personalize_resources = os.environ.get('PreCreatePersonalizeResources', 'no').strip().lower() in ['yes', 'true', '1']
 create_deploy_offers_campaign = os.environ['DeployPersonalizedOffersCampaign'].strip().lower() in ['yes', 'true', '1']
 create_campaign_for_pinpoint = os.environ.get('PreCreatePinpointWorkshop', 'no').strip().lower() in ['yes', 'true', '1']
 
@@ -786,10 +787,12 @@ def update() -> bool:
 
 @cloudformation_helper.poll_create
 def poll_create(event, context) -> bool:
-    # Enable the event rule so we start getting called repeatedly.
-    enable_event_rule(lambda_event_rule_name)
-    # Let's get some work started since we're here.
-    update()
+    if create_personalize_resources:
+        # Enable the event rule so we start getting called repeatedly.
+        enable_event_rule(lambda_event_rule_name)
+        # Let's get some work started since we're here.
+        update()
+
     return True
 
 @cloudformation_helper.poll_delete
