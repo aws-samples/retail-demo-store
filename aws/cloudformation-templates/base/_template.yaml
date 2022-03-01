@@ -2,12 +2,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store.
+  This template deploys the Retail Demo Store.
 
 Conditions:
   CreateElasticsearchServiceLinkedRole: !Equals
     - !Ref CreateElasticsearchServiceLinkedRole
-    - 'Yes'
+    - "Yes"
 
 Parameters:
   ResourceBucket:
@@ -22,17 +22,17 @@ Parameters:
     Type: String
     Description: Retail Demo Store source deployment type
     AllowedValues:
-      - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - "GitHub"
+      - "CodeCommit"
+    Default: "CodeCommit"
 
   CreateElasticsearchServiceLinkedRole:
     Type: String
     Description: Whether to create Elasticsearch Service Linked Role
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   CleanupBucketLambdaArn:
     Type: String
@@ -103,7 +103,6 @@ Parameters:
     Description: The GitHub branch used for deployment.
 
 Resources:
-
   # Authentication
   Authentication:
     Type: AWS::CloudFormation::Stack
@@ -176,10 +175,10 @@ Resources:
   # Create role here rather than in ES nested template so role has time to become consistent
   ElasticsearchServiceLinkedRole:
     Condition: CreateElasticsearchServiceLinkedRole
-    Type: 'AWS::IAM::ServiceLinkedRole'
+    Type: "AWS::IAM::ServiceLinkedRole"
     Properties:
       AWSServiceName: es.amazonaws.com
-      Description: 'Role for ES to access resources in VPC'
+      Description: "Role for ES to access resources in VPC"
 
   ElasticsearchRoleWaitHandle:
     Condition: CreateElasticsearchServiceLinkedRole
@@ -192,7 +191,12 @@ Resources:
   ElasticsearchRoleWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
     Properties:
-      Handle: !If [CreateElasticsearchServiceLinkedRole, !Ref ElasticsearchRoleWaitHandle, !Ref WaitHandle]
+      Handle:
+        !If [
+          CreateElasticsearchServiceLinkedRole,
+          !Ref ElasticsearchRoleWaitHandle,
+          !Ref WaitHandle,
+        ]
       Timeout: "1"
       Count: 0
 
@@ -358,7 +362,7 @@ Outputs:
 
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id Parameter
-    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
+    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMe
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.

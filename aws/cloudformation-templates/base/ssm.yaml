@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store SSM Parameters.
+  This template deploys the Retail Demo Store SSM Parameters.
 
 Parameters:
   StackBucketName:
@@ -81,7 +81,6 @@ Conditions:
     !Not [!Equals [!Ref GoogleAnalyticsMeasurementId, ""]]
 
 Resources:
-
   ParameterStackBucketName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -175,7 +174,7 @@ Resources:
     Properties:
       Name: "retaildemostore-amplitude-api-key"
       Type: "String"
-      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
+      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, "NONE"]
       Description: "Retail Demo Store Amplitude API key"
 
   ParameterOptimizelySdkKey:
@@ -183,7 +182,7 @@ Resources:
     Properties:
       Name: "retaildemostore-optimizely-sdk-key"
       Type: "String"
-      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
+      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, "NONE"]
       Description: "Retail Demo Store Optimizely SDK key"
 
   ParameterIVSVideoChannelMap:
@@ -199,7 +198,7 @@ Resources:
     Properties:
       Name: "retaildemostore-segment-write-key"
       Type: "String"
-      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
+      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, "NONE"]
       Description: "Retail Demo Store Segment source write key"
 
   ParametermParticleOrgId:
@@ -247,7 +246,7 @@ Resources:
     Properties:
       Name: "retaildemostore-pinpoint-sms-longcode"
       Type: "String"
-      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, "NONE"]
       Description: "Retail Demo Store Pinpoint SMS Long code"
 
   ParameterGoogleAnalyticsMeasurementId:
@@ -255,11 +254,15 @@ Resources:
     Properties:
       Name: "retaildemostore-google-analytics-measurement-id"
       Type: "String"
-      Value: !If [HasGoogleAnalyticsMeasurementId, !Ref GoogleAnalyticsMeasurementId, 'NONE']
+      Value:
+        !If [
+          HasGoogleAnalyticsMeasurementId,
+          !Ref GoogleAnalyticsMeasurementId,
+          "NONE",
+        ]
       Description: "Retail Demo Store Google Analytics Measurement Id"
 
 Outputs:
-
   ParameterStackBucketName:
     Description: Stack Bucket Name Parameter
     Value: !Ref ParameterStackBucketName

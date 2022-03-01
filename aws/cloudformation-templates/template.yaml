@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 # Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
-    RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
+  RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -157,9 +157,9 @@ Parameters:
     Description: >
       If your account already has an IAM Role named 'AWSServiceRoleForAmazonElasticsearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   SourceDeploymentType:
     Type: String
@@ -171,9 +171,9 @@ Parameters:
       a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
       source repositories provisioned.
     AllowedValues:
-      - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - "GitHub"
+      - "CodeCommit"
+    Default: "CodeCommit"
 
   GitHubRepo:
     Type: String
@@ -202,9 +202,9 @@ Parameters:
       prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   PreCreatePersonalizeResources:
     Type: String
@@ -213,9 +213,9 @@ Parameters:
       deployment time. Otherwise, select 'No' if you would prefer to complete this process yourself by stepping through the Personalization
       workshops included in this deployment. Note that the background create process runs after deployment finishes and can take 2+ hours to complete.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   PreCreatePinpointWorkshop:
     Type: String
@@ -224,9 +224,9 @@ Parameters:
       prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   PinpointEmailFromAddress:
     Type: String
@@ -248,9 +248,9 @@ Parameters:
       created based on any videos placed in the CloudFormation resource bucket. IMPORTANT: IVS is currently only supported in the N. Virginia (us-east-1),
       Oregon (us-west-2), and Ireland (eu-west-1) regions. If deploying to an unsupported region, be sure to select 'Yes' for this parameter.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   PinpointSMSLongCode:
     Type: String
@@ -272,17 +272,17 @@ Parameters:
     Type: String
     Description: Deploy any Location Resources
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   DeployPersonalizedOffersCampaign:
     Type: String
     Description: Deploy personalized offers and pickup notices using Location Services geofencing
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   AmazonPayPublicKeyId:
     Type: String
@@ -333,9 +333,9 @@ Parameters:
     Description: >
       Whether to deploy the resources required for the Segment workshops.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   SegmentWriteKey:
     Type: String
@@ -391,7 +391,7 @@ Parameters:
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
-    - 'Yes'
+    - "Yes"
 
   DeploymParticleResources: !Equals
     - !Ref IncludemParticleDependencies
@@ -399,17 +399,17 @@ Conditions:
 
   DeployLocationStack: !Equals
     - !Ref DeployLocationServices
-    - 'Yes'
+    - "Yes"
 
   CreateAmazonPayResources: !And
     - !And
-      - !Not [ !Equals [ !Ref AmazonPayPrivateKey, "" ] ]
-      - !Not [ !Equals [ !Ref AmazonPayStoreId, "" ] ]
+      - !Not [!Equals [!Ref AmazonPayPrivateKey, ""]]
+      - !Not [!Equals [!Ref AmazonPayStoreId, ""]]
     - !And
-      - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
-      - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
+      - !Not [!Equals [!Ref AmazonPayMerchantId, ""]]
+      - !Not [!Equals [!Ref AmazonPayPublicKeyId, ""]]
 
-  DeployAlexaEndpoint: !Not [ !Equals [ !Ref AlexaSkillId, "" ] ]
+  DeployAlexaEndpoint: !Not [!Equals [!Ref AlexaSkillId, ""]]
 
 Resources:
   # Base Resources
@@ -472,7 +472,7 @@ Resources:
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ImageRootUrl: !Sub
-          - '${RootURL}/images/'
+          - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
 
@@ -506,8 +506,18 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
-        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
+        LocationResourceName:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationResourceName,
+            "NotDeployed",
+          ]
+        LocationNotificationEndpoint:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationNotificationEndpoint,
+            "NotDeployed",
+          ]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -517,7 +527,7 @@ Resources:
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub
-          - '${RootURL}/images/'
+          - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
 
   # Lex personalization function
@@ -579,7 +589,12 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
+        LocationResourceName:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationResourceName,
+            "NotDeployed",
+          ]
         AmazonPayMerchantId: !Ref AmazonPayMerchantId
         AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
 
