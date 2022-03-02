@@ -735,6 +735,14 @@ def update() -> bool:
             else:
                 all_svs_active = False
 
+        # Create event tracker
+        event_tracker_active = True
+        event_tracker_conf  = dataset_group_conf.get('eventTracker')
+        if event_tracker_conf:
+            _,event_tracker_created = create_event_tracker(dataset_group_conf['arn'], event_tracker_conf)
+            if event_tracker_created:
+                event_tracker_active = False
+
         # Create filters
         all_filters_active = True
         for filter_conf in dataset_group_conf.get('filters', []):
@@ -742,10 +750,9 @@ def update() -> bool:
             if filter_created or filter_conf['status'] != 'ACTIVE':
                 all_filters_active = False
 
-        # Create event trackers
-
-        if all_recs_active and all_svs_active and all_campaigns_active and all_filters_active:
+        if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active:
             # All resources are active for the DSG. Set SSM params for filters, recommenders, and campaigns
+            # Note that the event tracker SSM param value is set in create_event_tracker function.
             for filter_conf in dataset_group_conf.get('filters', []):
                 if filter_conf.get('param'):
                     ssm.put_parameter(

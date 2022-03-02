@@ -57,9 +57,6 @@ def _get_dataset_group_arn(dataset_group_name: str) -> str:
         if dsg_arn:
             break
 
-    if not dsg_arn:
-        raise NameError(f'Dataset Group "{dataset_group_name}" does not exist; verify region is correct')
-
     return dsg_arn
 
 def _get_solutions(dataset_group_arn: str) -> List[str]:
@@ -352,7 +349,11 @@ def delete_dataset_groups(dataset_group_names: List[str], region: str = None, wa
 
     for dataset_group_name in dataset_group_names:
         dataset_group_arn = _get_dataset_group_arn(dataset_group_name)
-        logger.info('Dataset Group ARN: ' + dataset_group_arn)
+        if not dataset_group_arn:
+            logger.warning('Dataset Group "%s" does not exist; verify region is correct', dataset_group_name)
+            continue
+
+        logger.info('Dataset Group ARN: %s', dataset_group_arn)
 
         solution_arns = _get_solutions(dataset_group_arn)
 
