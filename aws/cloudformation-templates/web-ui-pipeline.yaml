@@ -243,7 +243,6 @@ Resources:
                   - s3:List*
                   - s3:GetObject
                   - s3:PutObject
-                Resource: '*'
                 Resource:
                   - !Sub arn:aws:s3:::${ResourceBucket}/*
                   - !Sub arn:aws:s3:::${ResourceBucket}
@@ -415,7 +414,7 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
-        Image: 'aws/codebuild/standard:2.0'
+        Image: 'aws/codebuild/standard:5.0'
         Type: LINUX_CONTAINER
 
   PipelineGitHub:
