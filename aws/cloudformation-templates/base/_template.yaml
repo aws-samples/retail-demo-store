@@ -352,7 +352,7 @@ Outputs:
 
   ParameterGoogleAnalyticsMeasurementId:
     Description: Google Analytics Measurement Id Parameter
-    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMe
+    Value: !GetAtt SSMParameters.Outputs.ParameterGoogleAnalyticsMeasurementId
 
   WebUIBucketName:
     Description: S3 bucket for CloudFront distribution.

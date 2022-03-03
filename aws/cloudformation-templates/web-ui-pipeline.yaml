@@ -243,7 +243,6 @@ Resources:
                   - s3:List*
                   - s3:GetObject
                   - s3:PutObject
-                Resource: '*'
                 Resource:
                   - !Sub arn:aws:s3:::${ResourceBucket}/*
                   - !Sub arn:aws:s3:::${ResourceBucket}
