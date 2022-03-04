@@ -101,7 +101,7 @@ Parameters:
   GitHubBranch:
     Type: String
     Description: The GitHub branch used for deployment.
-    
+
 Resources:
   # Authentication
   Authentication:
@@ -253,6 +253,16 @@ Resources:
       Parameters:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
 
+  # Personalize Resources
+  Personalize:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/personalize.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
+        StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -365,3 +375,7 @@ Outputs:
   WebUICDNURL:
     Description: The URL for the web application
     Value: !GetAtt CloudFront.Outputs.WebUICDNURL
+
+  PersonalizeRoleArn:
+    Description: IAM Role ARN that provides Amazon Personalize access to the stack bucket
+    Value: !GetAtt Personalize.Outputs.PersonalizeServiceRole

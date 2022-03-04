@@ -75,9 +75,9 @@
 
     <p>
       Events for multiple event types are generated to mimic shopping behavior. For example, most generated event types
-      are 'ProductViewed' to mimic users browsing the site. Occasional checkouts are simulated with 'ProductAdded'
-      followed by 'CartViewed', 'CheckoutStarted', and 'OrderCompleted' events. The Personalize solutions/models are
-      trained on the 'ProductViewed' event type.
+      are 'View' to mimic users browsing the site. Occasional checkouts are simulated with 'AddToCart'
+      followed by 'ViewCart', 'StartCheckout', and 'Purchase' events. The Personalize solutions/models are
+      trained on the 'View' event type.
     </p>
   </ArticleLayout>
 </template>

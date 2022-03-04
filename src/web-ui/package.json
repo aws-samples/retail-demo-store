@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mparticle/web-sdk": "^2.9.14-rc.1",
-    "@optimizely/optimizely-sdk": "4.0.0",
+    "@optimizely/optimizely-sdk": "^4.9.1",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
@@ -34,7 +34,7 @@
     "vue-the-mask": "^0.11.1",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^3.2.0",
-    "workbox-webpack-plugin": "^6.4.1"
+    "workbox-webpack-plugin": "^6.5.0"
   },
   "devDependencies": {
     "@layer0/cli": "^4.10.0",

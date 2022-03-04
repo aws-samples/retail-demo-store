@@ -8,10 +8,10 @@
       <li class="component">
         A fictitious online store that includes users (shoppers), products, carts and orders as well as services for
         search and recommendations. Interact with the store products and see how the product recommendations change
-        based on shopper’s preferences, real-time behavior and history.
+        based on shopper’s preferences, real-time behavior, and history.
       </li>
       <li class="component">
-        A demo guide that includes relevant information related to the AWS services integrated to the demo.
+        A demo guide that includes relevant information related to the AWS services integrated in the demo.
       </li>
     </ol>
 

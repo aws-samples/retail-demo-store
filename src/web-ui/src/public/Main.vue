@@ -35,6 +35,13 @@
             ></Product>
           </div>
         </div>
+
+        <div v-if="!isLoadingRecommendations && !userRecommendationsTitle" class="text-left">
+          <em>
+            Personalized recommendations do not appear to be enabled for this instance of the storefront yet. Please complete the Personalization workshop labs to add personalized capabilities.
+            In the meantime, the default user experience will provide product information directly from the catalog.
+          </em>
+        </div>
       </section>
 
       <RecommendedProductsSection
@@ -152,12 +159,23 @@ export default {
       this.recommendationsExperiment = null;
       this.userRecommendationsDemoGuideBadgeArticle = null;
 
-      const response = await RecommendationsRepository.getRecommendationsForUser(
-        this.personalizeUserID,
-        '',
-        MAX_RECOMMENDATIONS,
-        EXPERIMENT_USER_RECS_FEATURE,
-      );
+      var response;
+      if (this.personalizeRecommendationsForVisitor) {
+        response = await RecommendationsRepository.getRecommendationsForUser(
+          this.personalizeUserID,
+          '',
+          MAX_RECOMMENDATIONS,
+          EXPERIMENT_USER_RECS_FEATURE,
+        );
+      }
+      else {
+        response = await RecommendationsRepository.getPopularProducts(
+          this.personalizeUserID,
+          '',
+          MAX_RECOMMENDATIONS,
+          EXPERIMENT_USER_RECS_FEATURE,
+        );
+      }
 
       if (response.headers) {
         const experimentName = response.headers['x-experiment-name'];
@@ -169,7 +187,7 @@ export default {
           if (personalizeRecipe) {
             this.userRecommendationsTitle = this.personalizeRecommendationsForVisitor
               ? 'Inspired by your shopping trends'
-              : 'Trending products';
+              : 'Popular products';
 
             this.userRecommendationsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
           } else if (experimentName) {

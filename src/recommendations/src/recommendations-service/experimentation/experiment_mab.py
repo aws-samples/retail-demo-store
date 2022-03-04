@@ -3,7 +3,6 @@
 
 import numpy as np
 import logging
-import json
 import time
 
 from experimentation.experiment import Experiment
@@ -11,7 +10,7 @@ from experimentation.experiment import Experiment
 log = logging.getLogger(__name__)
 
 class MultiArmedBanditExperiment(Experiment):
-    """ Implementation of the multi-armed bandit problem using the Thompson Sampling approach 
+    """ Implementation of the multi-armed bandit problem using the Thompson Sampling approach
     to exploring variations to identify and exploit the best performing variation
     """
     def __init__(self, table, **data):
@@ -57,7 +56,7 @@ class MultiArmedBanditExperiment(Experiment):
                 'correlationId': correlation_id
             }
 
-            item.update({ 
+            item.update({
                 'experiment': item_experiment
             })
 

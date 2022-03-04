@@ -272,7 +272,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - ssm:GetParameters
-                  - 'cloudfront:CreateInvalidation'
+                  - cloudfront:CreateInvalidation
                 Resource: "*"
         - PolicyName: "S3"
           PolicyDocument:
@@ -284,7 +284,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-                  - 's3:GetBucketVersioning'
+                  - s3:GetBucketVersioning
                 Resource:
                   - !Sub arn:aws:s3:::${ArtifactBucket}/*
                   - !Sub arn:aws:s3:::${WebUIBucketName}/*
@@ -341,7 +341,6 @@ Resources:
       BucketName: !Ref ArtifactBucket
 
   CodeBuildProject:
-    Description: Retail Demo Store CodeBuild project for Web UI
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Name: !Ref AWS::StackName
@@ -414,7 +413,7 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
-        Image: 'aws/codebuild/standard:2.0'
+        Image: 'aws/codebuild/standard:5.0'
         Type: LINUX_CONTAINER
 
   PipelineGitHub:

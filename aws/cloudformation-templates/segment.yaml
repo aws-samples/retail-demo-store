@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys two Lambda functions that can be used with the Segment Amazon Personalize destination 
+    This template deploys two Lambda functions that can be used with the Segment Amazon Personalize destination
     in the Personalize and CDP workshops, along with the execution roles required to run the Lambda and for Segment
     to be able to access the Lambda from the Personalize destination.
 
@@ -10,13 +10,13 @@ Parameters:
   ResourceBucket:
     Type: String
     Description: >
-      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
 
   ResourceBucketRelativePath:
     Type: String
     Description: >
-      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
 Resources:
@@ -25,7 +25,7 @@ Resources:
     Properties:
       Description: 'Handles sending events passed from Segment to the Personalize tracker for user-item interactions.'
       Handler: segment-personalize-events-destination.lambda_handler
-      Role: !GetAtt 
+      Role: !GetAtt
         - SegmentPersonalizeDestinationLambdaExecutionRole
         - Arn
       Code:
@@ -43,7 +43,7 @@ Resources:
     Properties:
       Description: 'Handles events passed from Segment to Personalize for inference.'
       Handler: segment-personalize-inference-destination.lambda_handler
-      Role: !GetAtt 
+      Role: !GetAtt
         - SegmentPersonalizeDestinationLambdaExecutionRole
         - Arn
       Code:
@@ -56,7 +56,7 @@ Resources:
         Variables:
           personalize_campaign_id:  ''
           segment_personas_write_key: ''
-         
+
   SegmentCrossAccountLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -113,8 +113,8 @@ Resources:
                   - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SegmentPersonalize*'
               - Effect: Allow
                 Action:
-                  - ssm:GetParameter                
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

@@ -16,12 +16,12 @@ exports.handler = async function (event, context) {
             Names: ['/retaildemostore/services_load_balancers/products',
                     '/retaildemostore/webui/mparticle_s2s_api_key',
                     '/retaildemostore/webui/mparticle_s2s_secret_key',
-                    'retaildemostore-personalize-event-tracker-id',
-                    'retaildemostore-product-recommendation-campaign-arn'],
+                    '/retaildemostore/personalize/event-tracker-id',
+                    '/retaildemostore/personalize/recommended-for-you-arn'],
             WithDecryption: false
         };
         let responseFromSSM = await SSM.getParameters(params).promise();
-        
+
         for(const param of responseFromSSM.Parameters) {
             if( param.Name === '/retaildemostore/services_load_balancers/products') {
                 var productsServiceURL = param.Value;
@@ -29,19 +29,19 @@ exports.handler = async function (event, context) {
                 var mpApiKey = param.Value;
             } else if (param.Name === '/retaildemostore/webui/mparticle_s2s_secret_key') {
                 var mpApiSecret = param.Value;
-            } else if (param.Name === 'retaildemostore-personalize-event-tracker-id') {
-                var personalizeTrackerID = param.Value; 
-            } else if (param.Name === 'retaildemostore-product-recommendation-campaign-arn') {
-                var personalizeCampaignARN = param.Value;
+            } else if (param.Name === '/retaildemostore/personalize/event-tracker-id') {
+                var personalizeTrackerID = param.Value;
+            } else if (param.Name === '/retaildemostore/personalize/recommended-for-you-arn') {
+                var personalizeARN = param.Value;
             }
         }
-        
+
         // Init mParticle libraries for the function invocation
         var mpApiInstance = new mParticle.EventsApi(new mParticle.Configuration(mpApiKey, mpApiSecret));
     } catch (e) {
         console.log("Error getting SSM parameter for loadbalancer.");
-        console.log(e); 
-        throw e;   
+        console.log(e);
+        throw e;
     }
 
     for (const record of event.Records) {
@@ -49,16 +49,16 @@ exports.handler = async function (event, context) {
         const payload = JSON.parse(payloadString);
         const events = payload.events;
         var amazonPersonalizeUserId;
-        
+
         // First, get the mParticle user ID from the events payload.  In this example, mParticle will send all the events
         // for a particular user in a batch to this lambda.
         // retreive the mParticle user id which is available for anonymous and known customer profiles
         var anonymousID = events[0].data.custom_attributes.mpid.toString();
-        
+
         // if the customer profile is known then replace the Amazon Personalize User id with the actual
         // personalize Id captured from the user's profile
         if(payload.user_attributes && payload.user_attributes.amazonPersonalizeId)
-            amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId; 
+            amazonPersonalizeUserId = payload.user_attributes.amazonPersonalizeId;
         else
             amazonPersonalizeUserId = anonymousID;
         // Verify in mParticle's payload if there is a customer id set within the customer profile
@@ -68,7 +68,7 @@ exports.handler = async function (event, context) {
                 for (const identityRecord of payload.user_identities)
                 {
                     if(identityRecord.identity_type==="customer_id")
-                        customerId = identityRecord.identity; 
+                        customerId = identityRecord.identity;
                 }
             }
 
@@ -97,28 +97,34 @@ exports.handler = async function (event, context) {
                 }
             }
         }
-        
+
         // Send the events to Amazon Personalize for training purposes
         try {
             await personalizeEvents.putEvents(params).promise();
         } catch (e) {
             console.log(`ERROR - Could not put events - ${e}`);
         }
-        
+
         // Get Recommendations from Personalize for the user ID we got up top
         let recommendationsParams = {
-            // Select campaign based on variant
-            campaignArn: personalizeCampaignARN,
             numResults: '5',
             userId: amazonPersonalizeUserId
         };
-              
+
+        // Determine whether ARN represents a recommender or campaign.
+        if (personalizeARN.split(":")[5].startsWith("recommender/")) {
+            recommendationsParams.recommenderArn = personalizeARN;
+        }
+        else {
+            recommendationsParams.campaignArn = personalizeARN;
+        }
+
         try {
             var recommendations = await personalizeRuntime.getRecommendations(recommendationsParams).promise();
         } catch (e) {
             console.log(`ERROR - Could not get recommendations - ${e}`);
         }
-            
+
         // Reverse Lookup the product ids to actual product name using the product service url
         let itemList = [];
         var productNameList = [];
@@ -129,7 +135,7 @@ exports.handler = async function (event, context) {
             productNameList.push(productInfo.data.name);
         }
 
-            
+
         //build the mParticle object and send it to mParticle
         let batch = new mParticle.Batch(mParticle.Batch.Environment.development);
 
@@ -139,13 +145,13 @@ exports.handler = async function (event, context) {
             batch.mpid = anonymousID;
         } else {
             batch.user_identities = new mParticle.UserIdentities();
-            batch.user_identities.customerid = customerId; // identify the user via the customer id 
-        }    
+            batch.user_identities.customerid = customerId; // identify the user via the customer id
+        }
         batch.user_attributes = {};
         batch.user_attributes.product_recs = itemList;
         batch.user_attributes.product_recs_name=productNameList;
-        
-        
+
+
         // Create an Event Object using an event type of Other
         let event = new mParticle.AppEvent(mParticle.AppEvent.CustomEventType.other, 'AWS Product Personalization Recs Update');
         event.custom_attributes = {product_recs: itemList.join()};
@@ -160,15 +166,15 @@ exports.handler = async function (event, context) {
                 console.log('API called successfully.');
             }
         };
-    
+
         // Send to Event to mParticle
         try{
              await mpApiInstance.uploadEvents(body, mp_callback);
         }catch(e)
         {
               console.log("Error Uploading Recommendations back to mParticle.");
-             console.log(e); 
-                throw e;   
+             console.log(e);
+                throw e;
         }
     }
 };
