@@ -226,9 +226,6 @@ export default {
    margin-top: 10px;
    margin-bottom: 10px;
 }
-
-
-
  .fenix-product-delivery-estimates.onethird {
    grid-column: 0.3333333333;
 }
