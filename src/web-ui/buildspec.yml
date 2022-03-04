@@ -17,7 +17,6 @@ phases:
   build:
     commands:
       - chmod a+x *.sh
-      - rm .env
       - ./gen_env.sh
       - cat .env
       - npm run build
