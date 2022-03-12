@@ -33,7 +33,7 @@ Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
     Properties:
-      Name: !Sub '${Uid}-mParticlePersonalizeEventsKinesisStream'
+      Name: !Sub '${Uid}-mPEventsStream'
       ShardCount: 1
       StreamEncryption:
         EncryptionType: KMS
@@ -52,12 +52,12 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/mparticle-personalize.zip'
       Runtime: nodejs12.x
       Timeout: 900
-      FunctionName: !Sub '${Uid}-mParticlePersonalizeLambda'
+      FunctionName: !Sub '${Uid}-mPEventsLambda'
 
   mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: !Sub '${Uid}-mParticleKinesisCrossAccountRole'
+      RoleName: !Sub '${Uid}-mPKinesisRole'
       Description: 'Allows mParticle to write messages to your Kinesis stream.'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
