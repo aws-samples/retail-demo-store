@@ -506,6 +506,15 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
+        FenixZipDetectUrl: !Ref FenixZipDetectUrl
+        FenixTenantId: !Ref FenixTenantId
+        FenixEddEndpoint: !Ref FenixEddEndpoint
+        FenixMonetaryValue: !Ref FenixMonetaryValue
+        FenixEnabledPdp: !Ref FenixEnabledPdp
+        FenixEnabledCart: !Ref FenixEnabledCart
+        FenixEnabledCheckout: !Ref FenixEnabledCheckout
+        
+
         LocationResourceName:
           !If [
             DeployLocationStack,
