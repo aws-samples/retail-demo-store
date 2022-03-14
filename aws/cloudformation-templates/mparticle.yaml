@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys a Kinesis stream and two Lambda functions for use with the Amazon Personalize destination 
+    This template deploys a Kinesis stream and two Lambda functions for use with the Amazon Personalize destination
     in the Personalize and CDP workshops, along with the execution roles required to run the Lambda and for mParticle
     to be able to access the Lambda from the Personalize destination.
 
@@ -10,13 +10,13 @@ Parameters:
   ResourceBucket:
     Type: String
     Description: >
-      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot, 
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
 
   ResourceBucketRelativePath:
     Type: String
     Description: >
-      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/). 
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
   Uid:
@@ -32,19 +32,19 @@ Parameters:
 Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
-    Properties: 
+    Properties:
       Name: !Sub '${Uid}-mParticlePersonalizeEventsKinesisStream'
       ShardCount: 1
       StreamEncryption:
         EncryptionType: KMS
         KeyId: alias/aws/kinesis
-        
+
   mParticlePersonalizeLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Handles sending events passed from mParticle to the Personalize tracker for user-item interactions.'
       Handler: mparticle-personalize.handler
-      Role: !GetAtt 
+      Role: !GetAtt
         - mParticlePersonalizeLambdaExecutionRole
         - Arn
       Code:
@@ -115,10 +115,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                  - ssm:GetParameters                
-                Resource: 
-                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*' 
+                  - ssm:GetParameters
+                Resource:
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

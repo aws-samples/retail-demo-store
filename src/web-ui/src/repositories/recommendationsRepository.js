@@ -2,15 +2,19 @@
 // SPDX-License-Identifier: MIT-0
 
 import axios from "axios";
+import resolveBaseURL from './resolveBaseURL'
 
-const serviceDomain = process.env.VUE_APP_RECOMMENDATIONS_SERVICE_DOMAIN;
-const servicePort = process.env.VUE_APP_RECOMMENDATIONS_SERVICE_PORT;
-const baseURL = `${serviceDomain}:${servicePort}`;
+const baseURL = resolveBaseURL(
+    process.env.VUE_APP_RECOMMENDATIONS_SERVICE_DOMAIN,
+    process.env.VUE_APP_RECOMMENDATIONS_SERVICE_PORT,
+    process.env.VUE_APP_RECOMMENDATIONS_SERVICE_PATH
+)
 
 const connection = axios.create({
     baseURL
 })
 
+const popular = "/popular"
 const related = "/related"
 const recommendations = "/recommendations"
 const rerank = "/rerank"
@@ -20,19 +24,22 @@ const experimentOutcome = "/experiment/outcome"
 const resetTracker = "/reset/realtime"
 
 export default {
+    getPopularProducts(userID, currentItemID, numResults, feature) {
+        return connection.get(`${popular}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
+    },
     getRelatedProducts(userID, currentItemID, numResults, feature) {
         return connection.get(`${related}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
-    }, 
+    },
     getRecommendationsForUser(userID, currentItemID, numResults, feature) {
         return connection.get(`${recommendations}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
-    }, 
+    },
     getRerankedItems(userID, items, feature) {
         let payload = {
             userID: userID,
             items: items,
             feature: feature
         }
-        
+
         return connection.post(`${rerank}`, payload)
     },
     chooseDiscounts(userID, items, feature) {

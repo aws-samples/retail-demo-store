@@ -4,7 +4,7 @@
 
 Personalized user experiences are implemented across several features within the Retail Demo Store web user interface that demonstrate three core use-cases of Amazon Personalize as well as real-time recommendations.
 
-> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](../workshop/1-Personalization/1.1-Personalize.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
+> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](../workshop/1-Personalization/Lab-1-Introduction-and-data-preparation.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
 
 ## Datasets
 
@@ -35,7 +35,7 @@ To provide a more compelling and intuitive demo experience, each fictitious user
 
 For example, a user assigned with a persona of "footwear_jewelry_furniture" indicates that the user, at least historically, has been primarily interested in products from the Footwear category and to decreasing degrees of interest in products from the Jewelry and Furniture categories. That initial weighted interest is codified in the generation of the historical interaction dataset which is used to train Solutions in Amazon Personalize. So, for our "footwear_jewelry_furniture" user, interaction events are generated across products in all three of those categories to create a synthetic history of engaging in products matching that persona. Additionally, some products are tagged with an gender affinity. This is used when generating historical events to filter products against the gender of each user to further add realism to the recommendations.
 
-Events for multiple event types are generated to mimic shopping behavior. For example, most generated event types are 'ProductViewed' to mimic users browsing the site. Occasional checkouts are simulated with 'ProductAdded' followed by 'CartViewed', 'CheckoutStarted', and 'OrderCompleted' events. The Personalize solutions/models are trained on the 'ProductViewed' event type.
+Events for multiple event types are generated to mimic shopping behavior. For example, most generated event types are 'View' to mimic users browsing the site. Occasional checkouts are simulated with 'AddToCart' followed by 'ViewCart', 'StartCheckout', and 'Purchase' events. The Personalize solutions/models are trained on the 'View' event type.
 
 ## Emulating Shopper Profiles
 
@@ -89,14 +89,14 @@ You can also see personalized ranking in product search results. That is, if you
 
 The following semantic interaction event types are instrumented in the Retail Demo Store web user interface. Each time a user (anonymous or known) performs one the following actions, an [event is sent](https://github.com/aws-samples/retail-demo-store/blob/master/src/web-ui/src/analytics/AnalyticsHandler.js) to both Amazon Pinpoint (signed in only) and an Amazon Personalize Event Tracker (if configured).
 
-* ProductSearched – the user performed a product search
-* ProductViewed – the user viewed details for a product
-* ProductAdded – the user added a product to their shopping cart
-* ProductRemoved – the user removed a product from their shopping cart
-* ProductQuantityUpdated – the user changed the quantity of a product in their shopping cart
-* CartViewed – the user viewed their shopping cart
-* CheckoutStarted – the user initiated the checkout process
-* OrderCompleted – the user completed an order by completing the checkout process
+* Search – the user performed a product search
+* View – the user viewed details for a product
+* AddToCart – the user added a product to their shopping cart
+* RemoveFromCart – the user removed a product from their shopping cart
+* UpdateQuantity – the user changed the quantity of a product in their shopping cart
+* ViewCart– the user viewed their shopping cart
+* StartCheckout – the user initiated the checkout process
+* Purchase – the user completed an order by completing the checkout process
 
 To assess the impact of real-time event tracking in recommendations made by the user recommendations on the home page, follow these steps.
 
@@ -117,10 +117,10 @@ Figure 11. Event instrumentation calls
 
 Amazon Personalize supports the ability to create [filters](https://docs.aws.amazon.com/personalize/latest/dg/filter.html) that can be used to filter (or exclude) items from being recommended that match a filter's criteria. The Retail Demo Store uses a filter to exclude products which have been recently purchased by the current user.
 
-As noted in the Event Tracking section above, the Retail Demo Store's web application sends an `OrderCompleted` event for each product purchased by the user. We can use this event type in the following filter expression.
+As noted in the Event Tracking section above, the Retail Demo Store's web application sends an `Purchase` event for each product purchased by the user. We can use this event type in the following filter expression.
 
 ```
-EXCLUDE itemId WHERE INTERACTIONS.event_type in ("OrderCompleted")
+EXCLUDE itemId WHERE INTERACTIONS.event_type in ("Purchase")
 ```
 
 The filter is created using the [CreateFilter](https://docs.aws.amazon.com/personalize/latest/dg/API_CreateFilter.html) API. When a filter is created, a Filter ARN is generated which can then be used when retrieving recommendations to apply the filter.

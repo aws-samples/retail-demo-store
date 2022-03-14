@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: MIT-0
 
 """
-Lambda function designed to be called when the Personalize campaign ARN is set as an 
-SSM parameter indicating that the campaign has been created (either by the automated 
+Lambda function designed to be called when the Personalize campaign ARN is set as an
+SSM parameter indicating that the campaign has been created (either by the automated
 deployment process or the Personalize workshop bundled with the Retail Demo Store project).
-A CloudWatch event is setup as part of the Retail Demo Store deployment that watches for 
+A CloudWatch event is setup as part of the Retail Demo Store deployment that watches for
 the SSM parameter to change and targets this function.
 
-This function will automate the steps in the Messaging workshop for Pinpoint. It is 
-only deployed when the user indicates that they want the Pinpoint workshop automated. 
+This function will automate the steps in the Messaging workshop for Pinpoint. It is
+only deployed when the user indicates that they want the Pinpoint workshop automated.
 Typically this is part of an automated Retail Demo Store deployment/refresh cycle.
 
-This function will delete the CloudWatch rule that triggers it when the function ends 
+This function will delete the CloudWatch rule that triggers it when the function ends
 successfully. Therefore, under normal conditions, this function will be executed once.
 """
 
@@ -22,7 +22,6 @@ import logging
 import os
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
-from collections import defaultdict
 import time
 
 GEOFENCE_PINPOINT_EVENTTYPE = 'LocationApproachLocalShop'
@@ -209,11 +208,11 @@ def create_recommendation_sms_template(recommender_id):
 
 def get_recommender_configuration(recommender_name):
     response = pinpoint.get_recommender_configurations()
-    
+
     for item in response['ListRecommenderConfigurationsResponse']['Item']:
         if item['Name'] == recommender_name:
             return item
-    
+
     return None
 
 
@@ -224,7 +223,7 @@ def create_recommender(pinpoint_personalize_role_arn, personalize_campaign_arn, 
     if recommender_config:
         recommender_id = recommender_config['Id']
         logger.warning(f"Deleting previous recommender config with id {recommender_id}")
-        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
+        pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
 
     logger.info('Creating Pinpoint/Personalize recommender')
 
@@ -259,7 +258,7 @@ def create_offers_recommender(pinpoint_personalize_role_arn, personalize_campaig
     if recommender_config:
         recommender_id = recommender_config['Id']
         logger.warning(f"Deleting previous recommender config for offers with id {recommender_id}")
-        delete_response = pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
+        pinpoint.delete_recommender_configuration(RecommenderId=recommender_id)
 
     logger.info('Creating Pinpoint/Personalize recommender for offers')
 
@@ -295,11 +294,11 @@ def create_offers_recommender(pinpoint_personalize_role_arn, personalize_campaig
 
 def get_segment(application_id, segment_name):
     response = pinpoint.get_segments(ApplicationId=application_id)
-    
+
     for item in response['SegmentsResponse']['Item']:
         if item['Name'] == segment_name:
             return item
-        
+
     return None
 
 
@@ -423,7 +422,7 @@ def create_users_with_verified_sms_segment(application_id):
     # attribute but has a meaning to Pinpoint and Pinpoint will enforce the opt out.
     segment_name = 'AllSMSUsers'
     segment_config = get_segment(application_id, segment_name)
-    
+
     if not segment_config:
         logger.info('AllSMSUsers segment does not; creating')
 
@@ -452,22 +451,22 @@ def create_users_with_verified_sms_segment(application_id):
                 }
             }
         )
-        
+
         segment_config = response['SegmentResponse']
     else:
         logger.info('AllSMSUsers segment already exists')
-        
+
     return segment_config
 
 
 def get_campaign(application_id, campaign_name):
     response = pinpoint.get_campaigns(ApplicationId=application_id)
-    
+
     for item in response['CampaignsResponse']['Item']:
         if item['Name'] == campaign_name:
             return item
-        
-    return None 
+
+    return None
 
 
 def create_campaign(application_id,
@@ -596,10 +595,10 @@ def lambda_handler(event, context):
     # Info on CloudWatch event rule used to repeatedely call this function.
     lambda_event_rule_name = os.environ['lambda_event_rule_name']
 
-    response = ssm.get_parameter(Name='retaildemostore-product-recommendation-campaign-arn')
+    response = ssm.get_parameter(Name='/retaildemostore/personalize/user-personalization-arn')
     personalize_campaign_arn = response['Parameter']['Value']
 
-    response = ssm.get_parameter(Name='retaildemostore-personalized-offers-campaign-arn')
+    response = ssm.get_parameter(Name='/retaildemostore/personalize/personalized-offers-arn')
     offers_campaign_arn = response['Parameter']['Value']
 
     assert personalize_campaign_arn != 'NONE', 'Personalize Campaign ARN not initialized'

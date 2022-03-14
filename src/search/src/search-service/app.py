@@ -7,19 +7,16 @@ from aws_xray_sdk.core import patch_all
 
 patch_all()
 
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from datetime import datetime
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 
 import json
-import uuid
-import os, sys
+import os
 import pprint
-import boto3
-import time
-import uuid
+
+INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
 
 es_search_domain_scheme = os.environ.get('ES_SEARCH_DOMAIN_SCHEME', 'https')
 es_search_domain_host = os.environ['ES_SEARCH_DOMAIN_HOST']
@@ -131,6 +128,12 @@ def searchProducts():
             })
         return json.dumps(found_items)
 
+    except NotFoundError as e:
+        if e.error == INDEX_DOES_NOT_EXIST:
+            app.logger.error('Search index does not exist')
+            raise BadRequest(message = 'Index does not exist yet; please complete search workshop', status_code = 404)
+        raise BadRequest(message = 'Not Found', status_code = 404)
+
     except Exception as e:
         app.logger.exception('Unexpected error performing product search', e)
         raise BadRequest(message = 'Unhandled error', status_code = 500)
@@ -169,6 +172,12 @@ def similarProducts():
                 'itemId': item['_id']
             })
         return json.dumps(found_items)
+
+    except NotFoundError as e:
+        if e.error == INDEX_DOES_NOT_EXIST:
+            app.logger.error('Search index does not exist')
+            raise BadRequest(message = 'Index does not exist yet; please complete search workshop', status_code = 404)
+        raise BadRequest(message = 'Not Found', status_code = 404)
 
     except Exception as e:
         app.logger.exception('Unexpected error performing similar product search', e)

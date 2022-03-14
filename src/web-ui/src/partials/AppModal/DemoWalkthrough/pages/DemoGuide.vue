@@ -158,7 +158,7 @@ export default {
 
 .images--mobile #demo-guide-services {
   margin-bottom: 16px;
-  font-size: 1.25rem;  
+  font-size: 1.25rem;
 }
 
 .images--mobile .service-list {

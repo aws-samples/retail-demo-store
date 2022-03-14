@@ -37,7 +37,13 @@ export default {
           return Services.Pinpoint;
         case Articles.USER_PERSONALIZATION:
         case Articles.PERSONALIZED_RANKING:
-        case Articles.SIMILAR_ITEM_RECOMMENDATIONS:
+        case Articles.SIMS_RECOMMENDATIONS:
+        case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
+        case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
+        case Articles.ECOMM_FBT:
+        case Articles.ECOMM_POPULAR_BY_PURCHASES:
+        case Articles.ECOMM_POPULAR_BY_VIEWS:
+        case Articles.ECOMM_RFY:
           return Services.Personalize;
       }
 
@@ -61,8 +67,20 @@ export default {
           return 'Learn more about user personalization';
         case Articles.PERSONALIZED_RANKING:
           return 'Learn more about personalized rankings';
-        case Articles.SIMILAR_ITEM_RECOMMENDATIONS:
-          return 'Learn more about similar item recommendations';
+        case Articles.SIMS_RECOMMENDATIONS:
+          return 'Learn more about similar item (SIMS) recommendations';
+        case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
+          return 'Learn more about similar items recommendations';
+        case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
+          return 'Learn more about customers who viewed X viewed';
+        case Articles.ECOMM_FBT:
+          return 'Learn more about frequently bought together';
+        case Articles.ECOMM_POPULAR_BY_PURCHASES:
+          return 'Learn more about most purchased';
+        case Articles.ECOMM_POPULAR_BY_VIEWS:
+          return 'Learn more about most viewed';
+        case Articles.ECOMM_RFY:
+          return 'Learn more about recommended for you';
         case Articles.PERSONALIZED_EMAILS:
           return 'Learn more about the abandoned shopping cart email notifications';
       }
