@@ -22,6 +22,10 @@
             </ul>
           </div>
           <div v-if="cart.items.length > 0" class="summary-container col-lg-auto">
+            <FenixCart
+              v-if="fenixenableCART == 'TRUE'"
+              :lineItems="cart">
+            </FenixCart>
             <div class="summary p-4">
               <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
               <div class="summary-total mb-2 font-weight-bold">Your Total: {{ formattedCartTotal }}</div>

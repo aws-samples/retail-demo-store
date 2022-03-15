@@ -19,6 +19,12 @@
             <i class="scale-icon fa fa-balance-scale mr-1"></i> {{ experimentDescription }}
           </div>
         </div>
+        <div v-if="fenixenablePDP == 'TRUE'" class="fenix-estimates">
+          <FenixList
+            :currentvariant="fenixcurrentvariant"
+          >
+          </FenixList>
+        </div>
       </div>
     </router-link>
   </div>
