@@ -13,12 +13,6 @@ Conditions:
   IADRegion: !Equals [!Ref "AWS::Region", "us-east-1"]
 
 Resources:
-  WebUIBucket:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      AccessControl: Private
-      WebsiteConfiguration:
-        IndexDocument: index.html
 
   # Empties bucket when stack is deleted
   EmptyStackBucket:
@@ -26,6 +20,14 @@ Resources:
     Properties:
       ServiceToken: !Ref CleanupBucketLambdaArn
       BucketName: !Ref WebUIBucket
+  
+  # Web UI infrastructure    
+  WebUIBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      WebsiteConfiguration:
+        IndexDocument: index.html
 
   WebUIBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -72,9 +74,63 @@ Resources:
           ForwardedValues:
             QueryString: 'true'
 
+  # Swagger UI infrastructure
+  SwaggerUIBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  SwaggerUIBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref SwaggerUIBucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub 'arn:aws:s3:::${SwaggerUIBucket}/*'
+            Principal:
+              AWS: !Sub >-
+                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
+                ${SwaggerUIBucketOriginAccessIdentity}
+
+  SwaggerUIBucketOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OriginAccessIdentity for ${SwaggerUIBucket}'
+
+  SwaggerUICDN:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'Swagger UI CDN for ${SwaggerUIBucket}'
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+        Origins:
+          - DomainName: !Join
+              - ''
+              - - !Sub '${SwaggerUIBucket}.s3'
+                - !If [IADRegion, '', !Sub '-${AWS::Region}']
+                - '.amazonaws.com'
+            Id: S3
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub >-
+                origin-access-identity/cloudfront/${SwaggerUIBucketOriginAccessIdentity}
+        DefaultCacheBehavior:
+          TargetOriginId: S3
+          ViewerProtocolPolicy: allow-all
+          ForwardedValues:
+            QueryString: 'true'
+
 Outputs:
+  # Web UI outputs
   WebUIBucketName:
-    Description: S3 bucket for CloudFront distribution.
+    Description: Web UI S3 bucket for CloudFront distribution.
     Value: !Ref WebUIBucket
 
   WebUICDN:
@@ -88,3 +144,20 @@ Outputs:
     Value: !Sub 
       - 'http://${Domain}'
       - Domain: !GetAtt WebUICDN.DomainName    
+
+  # Swagger UI outputs
+  SwaggerUIBucketName:
+    Description: Swagger UI S3 bucket for CloudFront distribution.
+    Value: !Ref SwaggerUIBucket
+
+  SwaggerUICDN:
+    Description: CloudFront distribution ID for the Swagger UI CDN
+    Value: !Ref SwaggerUICDN
+
+  # Since the Retail Demo Store web service load balancers are not deployed with SSL, 
+  # the Swagger UI URL must be http to avoid mixed content errors in the browser.
+  SwaggerUICDNURL:
+    Description: The URL for the Swagger UI application
+    Value: !Sub 
+      - 'http://${Domain}'
+      - Domain: !GetAtt SwaggerUICDN.DomainName

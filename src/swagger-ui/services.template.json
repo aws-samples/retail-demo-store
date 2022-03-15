@@ -1,0 +1,38 @@
+{
+  "products": {
+    "domain": "$PRODUCTS_SERVICE_URL",
+    "port": 80
+  },
+  "users": {
+    "domain": "$USERS_SERVICE_URL",
+    "port": 80
+  },
+  "carts": {
+    "domain": "$CARTS_SERVICE_URL",
+    "port": 80
+  },
+  "orders": {
+    "domain": "$ORDERS_SERVICE_URL",
+    "port": 80
+  },
+  "recommendations": {
+    "domain": "$RECOMMENDATIONS_SERVICE_URL",
+    "port": 80
+  },
+  "search": {
+    "domain": "$SEARCH_SERVICE_URL",
+    "port": 80
+  },
+  "videos": {
+    "domain": "$VIDEOS_SERVICE_URL",
+    "port": 80
+  },
+  "offers": {
+    "domain": "$OFFERS_SERVICE_URL",
+    "port": 80
+  },
+  "location": {
+    "domain": "$LOCATION_SERVICE_URL",
+    "port": 80
+  }
+}

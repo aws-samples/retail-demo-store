@@ -13,6 +13,9 @@ COPY search/openapi/spec.yaml /usr/share/nginx/html/specs/search/spec.yaml
 COPY recommendations/openapi/spec.yaml /usr/share/nginx/html/specs/recommendations/spec.yaml
 
 COPY swagger-ui/index.html /usr/share/nginx/html
+COPY swagger-ui/services.json /usr/share/nginx/html
+
+RUN chown -R nginx:nginx /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

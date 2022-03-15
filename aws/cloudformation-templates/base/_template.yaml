@@ -379,3 +379,15 @@ Outputs:
   PersonalizeRoleArn:
     Description: IAM Role ARN that provides Amazon Personalize access to the stack bucket
     Value: !GetAtt Personalize.Outputs.PersonalizeServiceRole
+
+  SwaggerUIBucketName:
+    Description: S3 bucket for CloudFront distribution to store Swagger UI assets.
+    Value: !GetAtt CloudFront.Outputs.SwaggerUIBucketName
+
+  SwaggerUICDN:
+    Description: CloudFront distribution ID for the Swagger UI CDN
+    Value: !GetAtt CloudFront.Outputs.SwaggerUICDN
+
+  SwaggerUICDNURL:
+    Description: The URL for the web application
+    Value: !GetAtt CloudFront.Outputs.SwaggerUICDNURL
