@@ -16,6 +16,13 @@
               <template v-else>Items currently in stock: {{ product.current_stock }}</template>
             </div>
 
+            <div v-if="fenixenablePDP == 'TRUE'" class="fenix-estimates">
+              <Fenixmaster
+                :currentvariant="fenixcurrentvariant"
+              >
+              </Fenixmaster>
+            </div>
+
             <div v-if="cartHasMaxAmount" class="mb-2">Sorry, you cannot add more of this item to your cart.</div>
 
             <div class="mb-5 mb-md-4 d-flex">
