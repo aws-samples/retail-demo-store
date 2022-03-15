@@ -221,6 +221,7 @@ services:
       dockerfile: swagger-ui/Dockerfile
     volumes:
       - ${PWD}/swagger-ui/index.html:/usr/share/nginx/html/index.html
+      - ${PWD}/swagger-ui/services.json:/usr/share/nginx/html/services.json
     networks:
       - dev-net
     ports:

@@ -1,0 +1,38 @@
+{
+  "products": {
+    "domain": "http://localhost",
+    "port": 8001
+  },
+  "users": {
+    "domain": "http://localhost",
+    "port": 8002
+  },
+  "carts": {
+    "domain": "http://localhost",
+    "port": 8003
+  },
+  "orders": {
+    "domain": "http://localhost",
+    "port": 8004
+  },
+  "recommendations": {
+    "domain": "http://localhost",
+    "port": 8005
+  },
+  "search": {
+    "domain": "http://localhost",
+    "port": 8006
+  },
+  "videos": {
+    "domain": "http://localhost",
+    "port": 8007
+  },
+  "offers": {
+    "domain": "http://localhost",
+    "port": 8008
+  },
+  "location": {
+    "domain": "http://localhost",
+    "port": 8009
+  }
+}

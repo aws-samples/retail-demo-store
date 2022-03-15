@@ -84,6 +84,7 @@ if [ "$private_s3" = false ]; then
     export S3PUBLIC=" --acl public-read"
 fi
 
+
 if [ ! -d "local" ]; then
     mkdir local
 fi
