@@ -94,7 +94,6 @@ Resources:
             Fn::GetAtt: 
               - "tealiumPersonalizeLambda"
               - "Arn"
-          Id: "atmConsumerTarget1"
 
   PermissionForEventsToInvokeLambda: 
     Type: AWS::Lambda::Permission
