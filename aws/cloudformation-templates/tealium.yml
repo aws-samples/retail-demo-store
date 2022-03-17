@@ -54,8 +54,6 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
-      ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole'
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -80,6 +78,35 @@ Resources:
                   - personalize:GetRecommendations
                   - personalize:PutEvents
                 Resource: '*'
+
+  tealiumEventRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "Example event rule to handle Tealium events"
+      EventBusName: "tealiumLiveEventBus"
+      EventPattern: 
+        detail-type:
+          - transaction   
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "tealiumPersonalizeLambda"
+              - "Arn"
+          Id: "atmConsumerTarget1"
+
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "tealiumPersonalizeLambda"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "tealiumEventRule"
+          - "Arn"
 
 Outputs:
   tealiumPersonalizeLambdaArn:
