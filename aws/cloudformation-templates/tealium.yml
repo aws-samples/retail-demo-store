@@ -1,0 +1,87 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys a Lambda that can process events from a Tealium Event Bridge event.  There is also a rule that 
+    specifies the event types that this will accept from Tealium
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).  You can substitute your own bucket here if needed.
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
+  Uid:
+    Type: String
+    Description: >
+      Uid generated from the root template to provide unique resource names
+
+Resources:
+
+  tealiumPersonalizeLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Handles events from Tealium over Event Bridge and passes them to the specified Personalize solution.'
+      Handler: tealium-personalize.tealiumPersonalizeEventHandler
+      Role: !GetAtt
+        - tealiumPersonalizeLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/tealium-personalize.zip'
+      Runtime: nodejs12.x
+      Timeout: 900
+      FunctionName: !Sub '${Uid}-tealiumPersonalizeLambda'
+
+  tealiumPersonalizeLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: 'Execution role for the Lambda provided with the tealium workshop.'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-tealiumPersonalizeLambda*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Uid}-tealiumPersonalizeLambda*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource:
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - personalize:GetRecommendations
+                  - personalize:PutEvents
+                Resource: '*'
+
+Outputs:
+  tealiumPersonalizeLambdaArn:
+    Description: Lambda function ARN for the tealium Personalize Lambda function.
+    Value: !GetAtt tealiumPersonalizeLambda.Arn
