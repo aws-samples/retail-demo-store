@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="http://unpkg.com/swagger-ui-dist@3/swagger-ui.css">
+
+  <title>Swagger UI for Retail Demo Store services</title>
+
+<body>
+
+  <div id="swaggerui-docs" />
+
+  <script src="http://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  <script>
+
+    window.onload = function() {
+
+      const queryString = window.location.search;
+      console.log(queryString)
+      if (queryString) {
+      
+        const urlParams = new URLSearchParams(queryString);
+        const serviceName = urlParams.get('service');
+
+        // services.json file store domain and port of the service for constructing default url for each service
+        // When this is run on AWS environment, CodeBuild will replace this file with actual domain and ports.
+        const services =  fetch('services.json')
+          .then(response => response.json())
+          .then(services => {
+            const service = services[serviceName];
+            const serviceUrl = `${service.domain}:${service.port}`;
+            console.log('serviceUrl', serviceUrl);
+            
+            const ui = SwaggerUIBundle({
+              url: `specs/${serviceName}/spec.yaml`,
+              dom_id: "#swaggerui-docs",
+              deepLinking: true,
+              plugins: [
+                // Use plugin to modify the hostname to given service URL
+                {
+                  statePlugins: {
+                    spec: {
+                      wrapActions: {
+                        updateJsonSpec: function(oriAction, system) {
+                            return (spec) => {
+                                if (serviceUrl) {
+                                  spec.servers = [{url: serviceUrl}].concat(spec.servers || [])
+                                }
+                                return oriAction(spec)
+                            }
+                        }
+                      }
+                    }
+                  }
+                }
+            ]
+
+            })
+          });
+      }
+
+    }
+
+  </script>
+
+  <h1>Swagger UI pages</h1>
+  <ul>
+    <li><a href="?service=location">Location API</a></li>
+    <li><a href="?service=offers">Offers API</a> </li>
+    <li><a href="?service=carts">Carts API</a> </li>
+    <li><a href="?service=orders">Orders API</a> </li>
+    <li><a href="?service=products">Products API</a> </li>
+    <li><a href="?service=users">Users API</a> </li>
+    <li><a href="?service=videos">Videos API</a> </li>
+    <li><a href="?service=search">Search API</a> </li>
+    <li><a href="?service=recommendations">Recommendations API</a> </li>
+  </ul>
+  
+</body>
+</html>

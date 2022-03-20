@@ -18,6 +18,8 @@
         <LoadingFallback small></LoadingFallback>
       </li>
 
+      <li class="pr-2 pl-2 small text-secondary" v-if="searchError"><em>{{ searchError }}</em></li>
+
       <li class="text-center text-secondary" v-if="results && results.length === 0">No Results</li>
 
       <li class="text-center text-secondary" v-if="isReranked">
@@ -67,6 +69,7 @@ export default {
       isSearching: false,
       isReranked: false,
       feature: EXPERIMENT_FEATURE,
+      searchError: null
     };
   },
   computed: {
@@ -85,8 +88,22 @@ export default {
       // intend to display so we have a larger set of products to rerank before
       // trimming for final display. Particularly import for short search phrases to
       // improve the relevancy of results.
+      var comp = this;
       const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
-      const { data } = await SearchRepository.searchProducts(val, size);
+      const { data } = await SearchRepository.searchProducts(val, size)
+        .catch(function (error) {
+          if (error.response) {
+            if (error.response.status == 404) {
+              comp.searchError = 'Search index not found. Please complete the search workshop.'
+            }
+            else {
+              comp.searchError = `Unexpected error (${error.response.status}) encountered when performing search.`;
+            }
+          }
+          else {
+            comp.searchError = 'Unexpected error encountered when performing search.';
+          }
+        });
 
       await this.rerank(data);
       if (this.results.length > 0) {

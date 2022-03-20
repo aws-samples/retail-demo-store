@@ -22,7 +22,7 @@ In order to use the workshops, you will need to deploy the Retail Demo Store int
 
 AWS Service | Workshops Overview | Workshop Links | Level | Duration
 --- | --- | --- | --- | ---
-![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) Amazon Personalize | The Retail Demo Store uses Amazon Personalize to provide similar item recommendations, search re-ranking based on user preferences, and product recommendations based on user item interactions.  The attached workshop is a throrough walk through of the major features of Amazon Personalize, and how it can be deployed in an ecommerce application like the Retail Demo Store. | [Personalize Setup](./workshop/1-Personalization/1.1-Personalize.ipynb) | 300 | 2-2.5 hours
+![Amazon Personalize](./workshop/images/Amazon-Personalize_64.png) Amazon Personalize | The Retail Demo Store uses Amazon Personalize to provide similar item recommendations, search re-ranking based on user preferences, and product recommendations based on user item interactions.  The attached workshop is a throrough walk through of the major features of Amazon Personalize, and how it can be deployed in an ecommerce application like the Retail Demo Store. | [Personalize Setup](./workshop/1-Personalization/Lab-1-Introduction-and-data-preparation.ipynb) | 300 | 2-2.5 hours
 ![Amazon Pinpoint](./workshop/images/Amazon-Pinpoint_64.png) Amazon Pinpoint | In this workshop we will use Amazon Pinpoint to add the ability to dynamically send welcome messages, abandoned cart messages, and messages with personalized product recommendations to the customers of the Retail Demo Store. | [Email Campaigns](./workshop/4-Messaging/4.1-Pinpoint.ipynb) | 200 | 1 hour
 ![Amazon Lex](./workshop/images/Amazon-Lex_64.png) Amazon Lex |  In this module we're going to implement a conversational chatbot using Amazon Lex and integrate it into the Retail Demo Store's web UI. We'll provide some basic functionality to our chatbot such as being able to provide a return policy to users as well as wiring up the chatbot to the Amazon Personalize ML models we created in the Personalization workshop to provide personalized product recommendations to our users. | [Lex Chatbot](./workshop/5-Conversational/5.1-LexChatbot.ipynb) | 200 | 30 minutes
 ![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch-Service_64.png) Amazon Elasticsearch | In this workshop, you will create a new Elasticsearch Index and index the Retail Demo Store product data so that users can search for products.| [Product Search](./workshop/0-StartHere/Search.ipynb) | 200 | 20 minutes
@@ -41,6 +41,7 @@ AWS Partner | Workshops Overview | Workshop Links | Level | Duration
 <img src="./workshop/images/mparticle.svg" height=64px/> | [mParticle](https://mparticle.com/) is a Customer Data Platform that allows any brand to ingest data from multiple sources in real-time, apply data quality and governance over the ingested data and orchestrate the data to any marketing and technology stack your organization is using.  In this workshop, you will configure real-time event flows to Amazon Personalize using the mParticle SDKs and then use that data to create customer profiles that can be used in marketing campaigns to customers via Braze. | [Real Time Personalization Events](./workshop/1-Personalization/1.2-Real-Time-Events-mParticle.ipynb) <br/><br/> [Personalized Customer Profiles and Messaging with any marketing tool (Braze) and mParticle](./workshop/6-CustomerDataPlatforms/6.2-mParticle.ipynb) | 300 | 1-1.5 hours
 <img src="./workshop/images/optimizely.svg" height=64px/> | In this exercise we will define, launch, and evaluate the results of an A/B experiment of a personalized user experience using [Optimizely](https://www.optimizely.com/). | [AB Experiments for Personalization](./workshop/3-Experimentation/3.6-Optimizely-AB-Experiment.ipynb) | 200 | 30 minutes
 <img src="./workshop/images/segment.svg"/> | [Segment](https://segment.com/) is a real-time events pipeline for customer data, as well as a customer data platform.  In the Retail Demo Store, Segment is used to deliver real-time events from the web user interface to Amazon Personalize.  These real-time events are also used to create customer profile with Amazon Personalize recommendations appended, which can then be used via the CDP to push data to marketing tools. | [Real Time Personalization Events](./workshop/1-Personalization/1.2-Real-Time-Events-Segment.ipynb) <br/><br/> [Customer Data Platforms and Personalize](./workshop/6-CustomerDataPlatforms/6.1-Segment.ipynb) | 300 | 1-1.5 hours
+<img src="./workshop/images/Layer0.svg"/> | [Layer0](https://layer0.co/) extends the capabilities of a traditional CDN by not only hosting your static content, but also providing server-side rendering for progressive web applications. Layer0 allows caching both your APIs and HTML at the network edge to provide your users with the fastest browsing experience. Teams can ship faster leveraging an enhanced developer experience to deploy code faster and with more frequency, view their code quickly in atomically deployed environments, and integrating their CDN configuration to the overall build process. Layer0 provides the tools needed to build the modern apps capable of providing the performance expected by modern consumers.  | [Edge Optimization](./workshop/8-PerformanceOptimization/8.1-Layer0.ipynb) | 200 | 1 hour
 
 ## Supported Regions
 
@@ -68,7 +69,7 @@ Note: If you are logged in as an IAM user, ensure your account has permissions t
 
 ## Step 3 - Deploy to your AWS Account
 
-The following CloudFormation launch options will set the deployment approach to "CodeCommit". You can ignore the GitHub related template parameters. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template.
+The following CloudFormation launch options will set the deployment approach to "CodeCommit". You can ignore the GitHub related template parameters. After clicking one of the Launch Stack buttons below, follow the procedures to launch the template. **Be sure to enter a CloudFront stack name in lowercase letters (numbers and hyphens are okay too).**
 
 With this deployment option, the CloudFormation template will import the Retail Demo Store source code into a CodeCommit repository in your account and setup CodePipeline to build and deploy into ECS from that respository.
 
@@ -81,7 +82,6 @@ Asia Pacific (Tokyo) | ap-northeast-1 | [![Launch Stack](https://cdn.rawgit.com/
 Asia Pacific (Sydney) | ap-southeast-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-southeast-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-southeast-2&param_SourceDeploymentType=CodeCommit)
 
 The CloudFormation deployment will take 20-30 minutes to complete.
-
 
 ### Notes:
 
@@ -115,6 +115,8 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your mai
 
 Look for the "WebURL" output parameter.
 
+**IMPORTANT NOTE: You must load the WebURL over HTTP and _not_ HTTPS.** The reason for this is that the microservice load balancers do not have SSL certificates configured by default and are therefore accessed by the web application over HTTP. Although the web application is served from CloudFront and CloudFront provides a default SSL certificate for the distribution, you will receive mixed content errors in the browser if you attempt to load and run the web application over HTTPS.
+
 You can read more [detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document](#delivering-a-demo-of-the-retail-demo-store).
 
 # Accessing Workshops
@@ -143,6 +145,7 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 # Known Issues/Limitations
 
 * The application was written for demonstration and education purposes and not for production use.
+* You must access the web application over HTTP. If you load the web application over HTTPS, you will receive mixed content errors in the browser when it attempts to access any of the microservices over HTTP. If you see spinning load icons on the homepage when loading the app that never go away, this may be the reason.
 * You currently cannot deploy this project multiple times in the same AWS account and the same AWS region. However, you can deploy the project into separate supported regions within the same AWS account.
 * Make sure your CloudFormation stack name uses all lowercase letters.
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).

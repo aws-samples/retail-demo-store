@@ -26,7 +26,7 @@ Parameters:
 
   Uid:
     Type: String
-    
+
 Resources:
 
   # Allows Pinpoint to access Personalize solution and campaign
@@ -35,7 +35,7 @@ Resources:
     Properties:
       RoleName: !Sub ${Uid}-PinptP9e # Referenced by name in messaging notebook
       Path: /
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
           - Action: sts:AssumeRole
@@ -61,7 +61,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
-      AssumeRolePolicyDocument: 
+      AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
           - Action: sts:AssumeRole
@@ -72,7 +72,7 @@ Resources:
         - PolicyName: CloudWatchAndPinpoint
           PolicyDocument:
             Version: '2012-10-17'
-            Statement:                    
+            Statement:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -124,14 +124,14 @@ Resources:
       FunctionName: !GetAtt CustomizeRecommendationsFunction.Arn
       Principal: pinpoint.amazonaws.com
       SourceArn: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:*'
-  
+
   ####################### Pinpoint SMS Alerts Lambda #######################
   PinpointSMSAlertsLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Retail Demo Store function that opts in customers to receive sms alerts from Amazon Pinpoint'
       Handler: pinpoint-sms-alerts.lambda_handler
-      Role: !GetAtt 
+      Role: !GetAtt
         - PinpointSMSAlertsLambdaExecutionRole
         - Arn
       Code:
@@ -143,7 +143,7 @@ Resources:
       Environment:
         Variables:
           pinpoint_app_id: !Ref PinpointAppId
-    
+
   PinpointSMSAlertsLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -177,10 +177,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-*'
-              - 
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
+              -
                 Effect: "Allow"
-                Action: 
+                Action:
                   - mobiletargeting:*
                 Resource: "*"
 
@@ -192,13 +192,13 @@ Resources:
             - PinpointSMSAlertsLambda
             - Arn
           Protocol: lambda
-  
+
   PinpointSMSAlertsLambdaInvokePermission:
     Type: 'AWS::Lambda::Permission'
-    Properties: 
+    Properties:
       Action: lambda:InvokeFunction
       Principal: sns.amazonaws.com
-      SourceArn:  !Ref PinpointIncomingTextAlertsSNSTopic 
+      SourceArn:  !Ref PinpointIncomingTextAlertsSNSTopic
       FunctionName: !Ref PinpointSMSAlertsLambda
 
   PinpointOffersPermission:
@@ -212,7 +212,7 @@ Resources:
 Outputs:
   PinpointPersonalizeRoleArn:
     Value: !GetAtt PinpointPersonalizeRole.Arn
-    
+
   CustomizeRecommendationsFunctionArn:
     Value: !GetAtt CustomizeRecommendationsFunction.Arn
 

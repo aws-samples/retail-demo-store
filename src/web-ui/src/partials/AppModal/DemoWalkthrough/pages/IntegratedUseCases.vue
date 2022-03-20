@@ -2,12 +2,12 @@
   <DemoWalkthroughPageLayout :drawArrows="drawArrows">
     <h1 class="heading">Use cases integrated in this demo</h1>
 
-    <p>There are three personalization use cases implemented across several places within the Retail Demo Store</p>
+    <p>There are multiple personalization use cases implemented across several places within the Retail Demo Store</p>
 
     <ul>
       <li>User personalization</li>
-      <li>Personalized rankings</li>
-      <li>Similar item recommendations</li>
+      <li>Personalized ranking</li>
+      <li>Related item recommendations</li>
     </ul>
 
     <section :class="{'d-flex align-items-center': true, 'user-personalization-section--mobile': isMobile}">

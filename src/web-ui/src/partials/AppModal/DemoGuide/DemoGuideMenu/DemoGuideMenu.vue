@@ -1,5 +1,5 @@
 <template>
-  <div :id="accordionId" class="menu accordion">
+  <div :id="accordionId" class="menu accordion overflow-auto">
     <DemoGuideMenuSection
       v-for="section in sections"
       :key="section.id"

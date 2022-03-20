@@ -21,7 +21,7 @@ import Shoppers from './pages/Shoppers';
 import DemoGuide from './pages/DemoGuide';
 import IntegratedUseCases from './pages/IntegratedUseCases';
 import PersonalizedRanking from './pages/PersonalizedRanking';
-import SimilarItemRecommendations from './pages/SimilarItemRecommendations';
+import RelatedItemsRecommendations from './pages/RelatedItemsRecommendations';
 import Pinpoint from './pages/Pinpoint';
 
 export default {
@@ -39,7 +39,7 @@ export default {
         DemoGuide,
         IntegratedUseCases,
         PersonalizedRanking,
-        SimilarItemRecommendations,
+        RelatedItemsRecommendations,
         Pinpoint,
       ],
     };

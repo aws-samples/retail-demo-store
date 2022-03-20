@@ -212,6 +212,21 @@ services:
     volumes:
       - ~/.aws/:/home/.aws:ro
 
+  swagger-ui:
+    container_name: swagger-ui
+    build:
+      # This has to be outside of folder swagger-ui because it must copy
+      # open api spec files from all services
+      context: ./
+      dockerfile: swagger-ui/Dockerfile
+    volumes:
+      - ${PWD}/swagger-ui/index.html:/usr/share/nginx/html/index.html
+      - ${PWD}/swagger-ui/services.json:/usr/share/nginx/html/services.json
+    networks:
+      - dev-net
+    ports:
+      - "8081:80"
+      
 networks:
   dev-net:
     driver: bridge

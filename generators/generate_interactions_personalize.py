@@ -32,7 +32,7 @@ from collections import defaultdict
 RANDOM_SEED = 0
 
 # Where to put the generated data so that it is picked up by stage.sh
-GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-campaigns/data"
+GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-resources/data"
 
 # Interactions will be generated between these dates
 FIRST_TIMESTAMP = 1591803782  # 2020-06-10, 18:43:02
@@ -62,6 +62,8 @@ IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz",
 
 PROGRESS_MONITOR_SECONDS_UPDATE = 30
 
+GENDER_ANY = 'Any'
+
 # This is where stage.sh will pick them up from
 out_items_filename = f"{GENERATED_DATA_ROOT}/items.csv"
 out_users_filename = f"{GENERATED_DATA_ROOT}/users.csv"
@@ -78,7 +80,6 @@ product_added_percent = .08
 cart_viewed_percent = .05
 checkout_started_percent = .02
 order_completed_percent = .01
-
 
 def generate_user_items(out_users_filename, out_items_filename, in_users_filenames, in_products_filename):
 
@@ -99,11 +100,15 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id', 'category', 'style', 'description']]
-    products_dataset_df = products_dataset_df.rename(columns={'id': 'ITEM_ID',
-                                                              'category': 'CATEGORY',
-                                                              'style': 'STYLE',
-                                                              'description': 'DESCRIPTION'})
+    products_dataset_df = products_df[['id','price','category','style','description','gender_affinity']]
+    products_dataset_df = products_dataset_df.rename(columns = {'id':'ITEM_ID',
+                                                            'price':'PRICE',
+                                                            'category':'CATEGORY_L1',
+                                                            'style':'CATEGORY_L2',
+                                                            'description':'PRODUCT_DESCRIPTION',
+                                                            'gender_affinity':'GENDER'})
+    # Since GENDER column requires a value for all rows, default all nulls to "Any"
+    products_dataset_df['GENDER'].fillna(GENDER_ANY, inplace = True)
     products_dataset_df.to_csv(out_items_filename, index=False)
 
     users_dataset_df = users_df[['id', 'age', 'gender']]
@@ -114,7 +119,6 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
     users_dataset_df.to_csv(out_users_filename, index=False)
 
     return users_df, products_df
-
 
 def generate_interactions(out_interactions_filename, users_df, products_df):
     """Generate items.csv, users.csv from users and product dataframes makes interactions.csv by simulating some
@@ -231,7 +235,6 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             category = preferred_highlevel_categories[chosen_category_ind]
             #category_and_subcat = np.random.choice(preferred_categories_and_subcats, 1, p=p)[0]
 
-
             discount_persona = user['discount_persona']
 
             gender = user['gender']
@@ -322,7 +325,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
                 f.writerow([product['id'],
                             user['id'],
-                            'ProductViewed',
+                            'View',
                             this_timestamp,
                             discount_context])
                 next_timestamp += seconds_increment
@@ -336,7 +339,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     this_timestamp += random.randint(0, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
-                                'ProductAdded',
+                                'AddToCart',
                                 this_timestamp,
                                 discount_context])
                     interactions += 1
@@ -349,7 +352,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     this_timestamp += random.randint(0, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
-                                'CartViewed',
+                                'ViewCart',
                                 this_timestamp,
                                 discount_context])
                     interactions += 1
@@ -361,7 +364,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     this_timestamp += random.randint(0, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
-                                'CheckoutStarted',
+                                'StartCheckout',
                                 this_timestamp,
                                 discount_context])
                     interactions += 1
@@ -373,7 +376,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     this_timestamp += random.randint(0, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
-                                'OrderCompleted',
+                                'Purchase',
                                 this_timestamp,
                                 discount_context])
                     interactions += 1
@@ -391,7 +394,6 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
     globals().update(locals())   # This can be used for inspecting in console after script ran or if run with ipython.
     print('Generation script finished')
-
 
 if __name__ == '__main__':
 

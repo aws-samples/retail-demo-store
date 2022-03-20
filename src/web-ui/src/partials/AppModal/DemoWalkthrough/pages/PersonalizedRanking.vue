@@ -14,10 +14,10 @@
 
         <p>
           This is great for promoting a pre-selected collection of items and knowing what is the right thing to promote
-          for a particular user.
+          for a particular user. It is also used to personalize the order of items returned from catalog search.
         </p>
 
-        <p>Personalized ranking is implemented in the “Featured" page.</p>
+        <p>Personalized ranking is implemented in the "Featured" category page, at the bottom of the homepage, and in the search dropdown in the top navigation.</p>
       </div>
 
       <div class="personalized-ranking-img-container">
