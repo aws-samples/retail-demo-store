@@ -305,13 +305,11 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
             else:
                 raise ValueError(f'Unable to handle discount persona: {discount_persona}')
 
-            this_timestamp = next_timestamp + random.randint(0, seconds_increment)
-
             num_interaction_sets_to_insert = 1
             prodcnts = list(interaction_product_counts.values())
-            prodcnts_max = max(prodcnts) if len(prodcnts)>0 else 0
+            prodcnts_max = max(prodcnts) if len(prodcnts) > 0 else 0
             prodcnts_min = min(prodcnts) if len(prodcnts) > 0 else 0
-            prodcnts_avg = sum(prodcnts)/len(prodcnts) if len(prodcnts)>0 else 0
+            prodcnts_avg = sum(prodcnts)/len(prodcnts) if len(prodcnts) > 0 else 0
             if interaction_product_counts[product.id] * 2 < prodcnts_max:
                 num_interaction_sets_to_insert += 1
             if interaction_product_counts[product.id] < prodcnts_avg:
@@ -323,11 +321,13 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
                 discount_context = 'Yes' if discounted else 'No'
 
+                this_timestamp = next_timestamp + random.randint(1, seconds_increment)
                 f.writerow([product['id'],
                             user['id'],
                             'View',
                             this_timestamp,
                             discount_context])
+
                 next_timestamp += seconds_increment
                 product_viewed_count += 1
                 interactions += 1
@@ -336,7 +336,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     discounted_product_viewed_count += 1
 
                 if product_added_count < int(product_viewed_count * product_added_percent):
-                    this_timestamp += random.randint(0, int(seconds_increment / 2))
+                    this_timestamp += random.randint(1, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
                                 'AddToCart',
@@ -349,7 +349,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                         discounted_product_added_count += 1
 
                 if cart_viewed_count < int(product_viewed_count * cart_viewed_percent):
-                    this_timestamp += random.randint(0, int(seconds_increment / 2))
+                    this_timestamp += random.randint(1, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
                                 'ViewCart',
@@ -361,7 +361,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                         discounted_cart_viewed_count += 1
 
                 if checkout_started_count < int(product_viewed_count * checkout_started_percent):
-                    this_timestamp += random.randint(0, int(seconds_increment / 2))
+                    this_timestamp += random.randint(1, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
                                 'StartCheckout',
@@ -373,7 +373,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                            discounted_checkout_started_count += 1
 
                 if order_completed_count < int(product_viewed_count * order_completed_percent):
-                    this_timestamp += random.randint(0, int(seconds_increment / 2))
+                    this_timestamp += random.randint(1, int(seconds_increment / 2))
                     f.writerow([product['id'],
                                 user['id'],
                                 'Purchase',
