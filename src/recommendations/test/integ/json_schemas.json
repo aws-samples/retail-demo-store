@@ -1,0 +1,22 @@
+{
+  "/recommendations": {
+    "type": "array",
+    "data": {
+      "type": "dict",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "aliases": {"type": "null"},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "current_stock": {"type": "number"}
+      }
+    }
+  }
+}
