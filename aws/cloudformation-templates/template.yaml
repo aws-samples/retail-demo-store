@@ -771,3 +771,35 @@ Outputs:
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt Services.Outputs.OffersServiceUrl
+
+  ExportEnvVarScript:
+    Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.
+    Value: !Sub |
+        # Products service
+        DDB_TABLE_PRODUCTS=${Base.Outputs.ProductsTable}
+        DDB_TABLE_CATEGORIES=${Base.Outputs.CategoriesTable}
+        IMAGE_ROOT_URL="${Base.Outputs.WebUICDNURL}/images/"
+        WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
+
+        # Recommendations service
+        PRODUCT_SERVICE_HOST="${Services.Outputs.ProductsServiceUrl}"
+        PRODUCT_SERVICE_PORT=80
+        OFFERS_SERVICE_HOST="${Services.Outputs.OffersServiceUrl}"
+        OFFERS_SERVICE_PORT=80
+        AWS_XRAY_DAEMON_ADDRESS=xray:2000
+
+        # Search service
+        ES_SEARCH_DOMAIN_SCHEME=https
+        ES_SEARCH_DOMAIN_HOST="${Base.Outputs.ElasticsearchDomainEndpoint}"
+        ES_SEARCH_DOMAIN_PORT=9200
+
+        # Users service
+        AWS_REGION=${AWS::Region}
+
+        # Locations service
+        RESOURCE_BUCKET=${ResourceBucket}
+        AWS_DEFAULT_REGION=${AWS::Region}
+
+        # Videos service
+        PARAMETER_IVS_VIDEO_CHANNEL_MAP=${Base.Outputs.ParameterIVSVideoChannelMap}
+        USE_DEFAULT_IVS_STREAMS=true
