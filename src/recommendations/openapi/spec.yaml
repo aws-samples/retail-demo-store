@@ -306,7 +306,7 @@ components:
           - 'cstore'
         example: 'not-already-purchased'
     fullyQualifyImageUrls:
-      name: fulfullyQualifyImageUrlslyQu
+      name: fullyQualifyImageUrls
       in: query
       schema:
         type: string
