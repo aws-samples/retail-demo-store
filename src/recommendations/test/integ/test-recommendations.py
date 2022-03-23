@@ -7,7 +7,8 @@ import os
 recommendations_api_url = os.getenv('RECOMMENDATIONS_API_URL')
 cwd = os.path.dirname(os.path.abspath(__file__))
 wildcards = {
-    # ":product_id": os.getenv('TEST_PRODUCT_ID'),
+    ":userID": 5097,
+    ":feature": "product_detail_related"
 }
 
 
@@ -34,6 +35,7 @@ def get_request_assert(endpoint):
     """
     r = requests.get(full_request_url(endpoint))
     assertions(r, endpoint)
+    return r
 
 
 def put_request_assert(endpoint):
@@ -70,8 +72,10 @@ def assertions(r, endpoint):
     Assert response is successful and validate response body when applicable.
     """
     assert r.status_code is 200
-    if r.headers["Content-Type"] == "application/json; charset=UTF-8":
+    if r.headers["Content-Type"].startswith("application/json"):
         assert validate_schema(r.text, endpoint) is True
+    else:
+        assert False
 
 
 def validate_schema(json_str, endpoint):
@@ -79,8 +83,12 @@ def validate_schema(json_str, endpoint):
     Validate a JSON response body against a schema.
     """
     with open(absolute_file_path('json_schemas.json')) as f:
-        schema = json.loads(f.read())[endpoint]
-
+        path = endpoint.split('?')[0]
+        schema = json.loads(f.read())[path]
+        print(schema)
+        print(json.loads(json_str)[0])
+        print(type(json.loads(json_str)))
+        print(json.loads(json_str)[0]['product'])
     try:
         jsonschema.validate(json.loads(json_str), schema)
     except jsonschema.exceptions.ValidationError as e:
@@ -89,6 +97,5 @@ def validate_schema(json_str, endpoint):
 
 
 def test_get_recommendations():
-
-    get_request_assert("/recommendations")
+    get_request_assert("/recommendations?userID=:userID&feature=:feature")
 
