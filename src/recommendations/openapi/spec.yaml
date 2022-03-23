@@ -41,7 +41,7 @@ paths:
     get:
       tags:
         - Health Check
-      description: Helath check
+      description: Health check
       responses:
         '200':
           description: Health check status
