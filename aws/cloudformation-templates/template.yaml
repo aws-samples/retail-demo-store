@@ -426,7 +426,7 @@ Parameters:
   FenixEddEndpoint:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
-    Default: 'https://delest-api.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
   
   FenixMonetaryValue:
     Type: String
