@@ -42,11 +42,11 @@ Returns details on all categories.
 Returns details on the category identified by `{categoryID}`.
 
 ## Testing
-To run integration tests for the Products service a Python virtual environment is required. You must have Python 3.8+ installed on your system to run the commands below. The commands are written to be ran from the project root.
+To run integration tests for the Products service a Python virtual environment is required. You must have Python 3.8+ installed on your system to run the commands below. The commands are written to be ran from the test directory of the products service (`src/products/test`).
 
-The following command will create a virtual environment in the test directory of the products service. 
+The following command will create a virtual environment. 
 ```console
-python3 -m venv src/products/test/.venv
+python3 -m venv .venv
 ```
 
 Some environment variables are required to run the tests and need to be added to the virtual environment. The example below will work for local development. Change as required depending on environment.
@@ -55,22 +55,22 @@ echo '
 export PRODUCTS_API_URL="http://localhost:8001"
 export TEST_PRODUCT_ID="8bffb5fb-624f-48a8-a99f-b8e9c64bbe29"
 export TEST_CATEGORY_NAME="tools"
-export TEST_CATEGORY_ID="16"' >> src/products/test/.venv/bin/activate
+export TEST_CATEGORY_ID="16"' >> .venv/bin/activate
 ```
 
 To activate and enter the virtual environment.
 ```console
-source src/products/test/.venv/bin/activate
+source .venv/bin/activate
 ```
 
 To install requirements for the integration tests.
 ```console
-pip install -r src/products/test/integ/requirements.txt
+pip install -r integ/requirements.txt
 ```
 
 To run the tests.
 ```console
-pytest src/products/test/integ/test-products.py
+pytest integ/test-products.py
 ```
 
 You can exit the virtual environment with `deactivate`.
