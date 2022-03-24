@@ -42,7 +42,7 @@ Returns details on all categories.
 Returns details on the category identified by `{categoryID}`.
 
 ## Testing
-To run integration tests for the Products service a Python virtual environment is required. You must have Python 3.3+ installed on your system to run the commands below. The commands are written to be ran from the project root.
+To run integration tests for the Products service a Python virtual environment is required. You must have Python 3.8+ installed on your system to run the commands below. The commands are written to be ran from the project root.
 
 The following command will create a virtual environment in the test directory of the products service. 
 ```console
