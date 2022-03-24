@@ -85,11 +85,8 @@ def validate_schema(json_str, endpoint):
     with open(absolute_file_path('json_schemas.json')) as f:
         schema = json.loads(f.read())[endpoint]
 
-    try:
-        jsonschema.validate(json.loads(json_str), schema)
-    except jsonschema.exceptions.ValidationError as e:
-        return False
-    return True
+jsonschema.validate(json.loads(json_str), schema)
+return True
 
 
 def test_get_products_all():
