@@ -1,8 +1,8 @@
 {
   "/products/all": {
     "type": "array",
-    "data": {
-      "type": "dict",
+    "items": {
+      "type": "object",
       "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
       "properties": {
           "id": {"type": "string"},
@@ -39,8 +39,9 @@
   },
     "/products/featured": {
     "type": "array",
-    "data": {
-      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "featured", "gender_affinity", "current_stock"],
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "featured", "current_stock"],
       "properties": {
           "id": {"type": "string"},
           "url": {"type": "string"},
@@ -60,7 +61,7 @@
   },
   "/products/category/:category_name": {
     "type": "array",
-    "data": {
+    "items": {
       "type": "object",
       "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
       "properties": {
@@ -80,7 +81,7 @@
   },
   "/categories/all": {
     "type": "array",
-    "data": {
+    "items": {
       "type": "object",
       "required": ["id", "url", "name", "image", "has_gender_affinity"],
       "properties": {
