@@ -146,7 +146,7 @@ Parameters:
     Type: String
     Description: URL of WebSocket API for Geofence notifications
 
- FenixZipDetectUrl:
+  FenixZipDetectUrl:
     Type: String
     Description: Fenix Commerce Zipcode Detect URL
     Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
