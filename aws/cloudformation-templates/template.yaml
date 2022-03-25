@@ -71,14 +71,14 @@ Metadata:
           - GoogleAnalyticsMeasurementId
       - Label:
           default: "Fenix Commerce EDD Integration"
-      Parameters:
-        - FenixZipDetectUrl
-        - FenixTenantId
-        - FenixEddEndpoint
-        - FenixMonetaryValue
-        - FenixEnabledPdp
-        - FenixEnabledCart
-        - FenixEnabledCheckout
+        Parameters:
+          - FenixZipDetectUrl
+          - FenixTenantId
+          - FenixEddEndpoint
+          - FenixMonetaryValue
+          - FenixEnabledPdp
+          - FenixEnabledCart
+          - FenixEnabledCheckout
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -589,7 +589,7 @@ Resources:
         FenixEnabledPdp: !Ref FenixEnabledPdp
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
-        
+
         LocationResourceName:
           !If [
             DeployLocationStack,
