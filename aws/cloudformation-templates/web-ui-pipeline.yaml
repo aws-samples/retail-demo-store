@@ -146,6 +146,41 @@ Parameters:
     Type: String
     Description: URL of WebSocket API for Geofence notifications
 
+ FenixZipDetectUrl:
+    Type: String
+    Description: Fenix Commerce Zipcode Detect URL
+    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
+
+  FenixTenantId:
+    Type: String
+    Description: Fenix Commerce Demo Env TenantID
+    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
+
+  FenixEddEndpoint:
+    Type: String
+    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
+    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+
+  FenixMonetaryValue:
+    Type: String
+    Description: Fenix Commerce Default monetary value
+    Default: '100'
+
+  FenixEnabledPdp:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on PDP
+    Default: 'TRUE'
+
+  FenixEnabledCart:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on CART
+    Default: 'TRUE'
+
+  FenixEnabledCheckout:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on checkout
+    Default: 'TRUE'
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -413,6 +448,20 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
+          - Name: FENIX_ZIP_DETECT_URL
+            Value: !Ref FenixZipDetectUrl
+          - Name: FENIX_TENANT_ID
+            Value: !Ref FenixTenantId
+          - Name: FENIX_EDD_ENDPOINT
+            Value: !Ref FenixEddEndpoint
+          - Name: FENIX_MONETARY_VALUE
+            Value: !Ref FenixMonetaryValue
+          - Name: FENIX_ENABLED_PDP
+            Value: !Ref FenixEnabledPdp
+          - Name: FENIX_ENABLED_CART
+            Value: !Ref FenixEnabledCart
+          - Name: FENIX_ENABLED_CHECKOUT
+            Value: !Ref FenixEnabledCheckout  
         Image: 'aws/codebuild/standard:5.0'
         Type: LINUX_CONTAINER
 

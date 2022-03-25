@@ -92,6 +92,14 @@
                   <p class="mb-1">{{order.shipping_address.city}}, {{order.shipping_address.state}} {{order.shipping_address.zipcode}}</p>
                 </div>
               </div>
+
+              <div class="fenix-estimates">
+                <FenixCheckout
+                v-if="fenixenableCHECKOUT == 'TRUE'"
+                :lineItems="cart">
+                </FenixCheckout>
+              </div>
+
               <hr class="mb-4">
 
               <div class="d-flex">
