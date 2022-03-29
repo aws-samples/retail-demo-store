@@ -141,7 +141,7 @@ import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
 import AmazonPayButton from "@/public/components/AmazonPayButton";
 import { TheMask } from 'vue-the-mask'
 
-import Fenixmaster from '@/components/Fenix/Fenixmaster';
+import FenixCheckout from '@/components/Fenix/FenixCheckout';
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -168,7 +168,7 @@ export default {
       },
       collection: false,
       hasConsentedPhone: false,
-      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
+      fenixenableCHECKOUT: process.env.VUE_APP_FENIX_ENABLED_CHECKOUT,
     }
   },
   async created () {
