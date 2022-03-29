@@ -51,12 +51,21 @@ import Layout from '@/components/Layout/Layout';
 
 import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton';
 
+import FenixCart from '@/components/Fenix/FenixCart';
+
+
 export default {
   name: 'Cart',
   components: {
     Layout,
     CartItem,
     AbandonCartButton,
+    FenixCart
+  },
+  data() {
+    return {
+      fenixenableCART : process.env.VUE_APP_FENIX_ENABLED_CART,
+    };
   },
   created() {
     AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);

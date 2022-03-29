@@ -93,6 +93,7 @@ import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+import Fenixmaster from '@/components/Fenix/Fenixmaster';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -106,6 +107,7 @@ export default {
     FiveStars,
     RecommendedProductsSection,
     DemoGuideBadge,
+    Fenixmaster,
   },
   mixins: [product],
   props: {
@@ -122,6 +124,7 @@ export default {
       relatedProducts: null,
       demoGuideBadgeArticle: null,
       experiment: null,
+      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
     };
   },
   computed: {
