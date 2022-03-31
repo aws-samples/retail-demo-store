@@ -59,5 +59,28 @@
         }
         }
     }
+  },
+  "/rerank": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "price", "image", "gender_affinity", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "gender_affinity": {
+            "type": "string", 
+            "enum": ["M", "F"]
+          },
+          "current_stock": {"type": "integer"}
+      }
+    }
   }
 }

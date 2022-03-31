@@ -58,6 +58,7 @@ def post_request_assert(endpoint):
         headers={"Content-Type": "application/json", "Accept": "appllication/json"},
     )
     assertions(r, endpoint)
+    return r
 
 
 def delete_request_assert(endpoint):
