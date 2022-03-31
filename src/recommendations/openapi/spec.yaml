@@ -24,8 +24,6 @@ tags:
     description: Suggest relevant discounts based on user and item list
   - name: Experiments
     description: Related to experiment
-  - name: Training
-    description: Related to training Personalize
 servers:
   - url: http://{host}:{port}
     variables:
@@ -99,12 +97,7 @@ paths:
         will be called to get products from the same category as the current product.
       parameters:
         - $ref: '#/components/parameters/userID'
-        - name: currentItemID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/currentItemID'
         - $ref: '#/components/parameters/numResults'
         - $ref: '#/components/parameters/feature'
         - $ref: '#/components/parameters/filter'
@@ -245,28 +238,6 @@ paths:
                     example: correlationId is invalid
         '404':
           description: Experiment not found
-  /reset/realtime:
-    post:
-      tags:
-        - "Training"
-      description: |-
-        Sets the training configuration in SSM so that the polling lambda trains a new campaign and then deletes
-        the old one. Logic is in that lambda; here we configure the Lambda.
-        Also re-enables that Lambda's polling rule if it has been disabled.
-      responses:
-        '200':
-          description: Successful
-          content:
-            application/json:
-              schema:
-                type: string
-                example: 'Rebuild of Amazon Personalize initiated. Check the Amazon Personalize console or PersonalizePreCreateLambdaFunction lambda function logs for details'
-        '500':
-          description: Internal error (e.g. Cannot find CloudWatch event rule to enable)
-          content:
-            text/html:
-              schema:
-                type: string
 
 components:
   parameters:
@@ -277,6 +248,13 @@ components:
       schema:
         type: string
         example: '5097'
+    currentItemID:
+      name: currentItemID 
+      in: query
+      required: true
+      schema:
+        type: string
+        example: '89728417-5269-403d-baa3-04b59cdffd0a'
     numResults:
       name: numResults
       in: query
