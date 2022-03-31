@@ -60,11 +60,11 @@
         }
     }
   },
-  "/rerank": {
+  "/choose_discounted": {
     "type": "array",
     "items": {
       "type": "object",
-      "required": ["id", "url", "sk", "name", "category", "style", "description", "price", "image", "gender_affinity", "current_stock"],
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "price", "image", "gender_affinity", "current_stock", "discounted"],
       "properties": {
           "id": {"type": "string"},
           "url": {"type": "string"},
@@ -79,8 +79,32 @@
             "type": "string", 
             "enum": ["M", "F"]
           },
-          "current_stock": {"type": "integer"}
+          "current_stock": {"type": "integer"},
+          "discounted": {"enum": [true, false]}
       }
+    }
+  },
+  "/coupon_offer": {
+    "type": "object",
+    "required": ["offer"],
+    "properties": {
+        "offer": {
+          "type": "object",
+          "required": ["codes", "description", "expiry", "id", "preference"],
+          "properties": {
+            "codes": {
+              "type": "array",
+              "items": {
+                "types": "string"
+              }
+            },
+            "description": {"type": "string"},
+            "expiry": {"type": ["string", "null"], "nullable": true},
+            "id": {"type": "integer"},
+            "preference": {"type": "integer"}
+          }
+
+        }
     }
   }
 }
