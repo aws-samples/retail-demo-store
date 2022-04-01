@@ -5,4 +5,4 @@ flask-cors==3.0.9
 elasticsearch>=7.0.0,<=7.13.4
 aws-xray-sdk==2.6.0
 itsdangerous==1.1.0
-markupsafe==1.1.1
+Jinja2==3.0.3

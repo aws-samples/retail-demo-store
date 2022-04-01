@@ -4,4 +4,4 @@ boto3==1.14.57
 srt
 aws-xray-sdk==2.6.0
 itsdangerous==1.1.0
-markupsafe==1.1.1
+Jinja2==3.0.3
