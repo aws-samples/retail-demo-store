@@ -64,13 +64,16 @@ If you plan to enable the automated Personalize campaign creation process at dep
 
 It is advisable to use a Python 3 virtual environment to do this and the scripts assume that the executable pip is the Python 3 version of pip so if necessary you may need to install pip into that virtual environment (if your system defaults to a Python 2 version of pip).
 
+If you deploy on a cloud9 environment, use the default Amazon Linux 2 OS. The latest version includes python3 as default (no need for virtualenv)
+
 The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket. 
 
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 
 ```bash
-./stage.sh MY_CUSTOM_BUCKET S3_PATH/
+./stage.sh MY_CUSTOM_BUCKET S3_PATH/ --private-s3
 ```
+NB: We recommend to include the flag  --private-s3 unless you need to deploy to a different AWS account
 
 The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console or use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
 
