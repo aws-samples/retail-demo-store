@@ -35,6 +35,8 @@ import { getProductImageUrl } from '@/util/getProductImageUrl';
 import { formatPrice } from '@/util/formatPrice';
 
 import FiveStars from '../../components/FiveStars/FiveStars.vue';
+import FenixList from '@/components/Fenix/FenixList';
+
 
 const getFullExperimentType = (type) => {
   switch (type) {
@@ -55,6 +57,7 @@ export default {
   name: 'Product',
   components: {
     FiveStars,
+    FenixList
   },
   props: {
     product: { type: Object, required: true },
@@ -62,7 +65,15 @@ export default {
     feature: { type: String, required: true },
   },
 
+  data() {
+    return {
+      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
+    };
+  },
   computed: {
+     fenixcurrentvariant(){
+      return this.product.id;
+    },
     productImageURL() {
       return getProductImageUrl(this.product);
     },

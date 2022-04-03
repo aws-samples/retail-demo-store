@@ -116,6 +116,7 @@ export default {
       required: false,
       default: false,
     },
+    currentvariant: [Object, Number, String],
   },
   data() {
     return {
@@ -124,6 +125,7 @@ export default {
       relatedProducts: null,
       demoGuideBadgeArticle: null,
       experiment: null,
+      fenixcurrentvariant: {},
       fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
     };
   },
@@ -190,6 +192,8 @@ export default {
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
+
+      this.fenixcurrentvariant = this.product.id;
 
       this.getRelatedProducts();
 
