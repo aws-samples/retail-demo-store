@@ -29,6 +29,7 @@ export default {
       fenixResponse: "Getting Delivery estimates...",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
+      ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
       fenixSSIDCookie: Cookies.get('fenixSSID'),
       endPointUrl: process.env.VUE_APP_FENIX_EDD_ENDPOINT,
       requestData: {
@@ -43,6 +44,17 @@ export default {
     };
   },
   methods: {
+    // Get IP address and zip code from IPAPI.
+    getlocation() {
+      axios.get(this.ipinfoUrl)
+        .then((data) => {
+          if (data.data.postal) {
+            Cookies.set('fenixlocation', data.data.postal, { expires: 14 });
+            this.requestData.buyerZipCode = data.data.postal;
+            this.getEstimates();
+          }
+        });
+    },
     // Fenix delivery estimates call.
     getEstimates() {
       const requiredobject = [];
@@ -78,12 +90,18 @@ export default {
           }
         })
         .catch(() => {
-          this.fenixDataReceived = false;
+          this.fenixDataReceived = true;
         });
     },
   },
-  mounted() {
-    this.getEstimates();
+  beforeMount() {
+    if (this.requestData.buyerZipCode === undefined
+        || this.requestData.buyerZipCode === null
+        || this.requestData.buyerZipCode === '') {
+      this.getlocation();
+    }else{
+      this.getEstimates()
+    }
   },
 };
 </script>
