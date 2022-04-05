@@ -5,8 +5,8 @@
       <span v-html="fenixResponse"></span>
     </span>
   </div>
-<div v-else class="fenix-product-delivery-estimates">
- <LoadingFallback/>
+<div v-else>
+ <LoadingFallback v-if="fenixLoader" />
 </div>
 </template>
 <script>
@@ -26,6 +26,7 @@ export default {
   data() {
     return {
       fenixDataReceived: false,
+      fenixLoader: true,
       fenixResponse: "Getting Delivery estimates...",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
@@ -90,7 +91,8 @@ export default {
           }
         })
         .catch(() => {
-          this.fenixDataReceived = true;
+          this.fenixDataReceived = false;
+          this.fenixLoader = false;
         });
     },
   },
