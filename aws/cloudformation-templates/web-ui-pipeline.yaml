@@ -163,7 +163,7 @@ Parameters:
 
   FenixMonetaryValue:
     Type: String
-    Description: Fenix Commerce Default monetary value
+    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
     Default: '100'
 
   FenixEnabledPdp:
