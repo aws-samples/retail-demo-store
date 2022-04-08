@@ -5,7 +5,6 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = integhelpers.absolute_file_path(cwd, "json_request_bodies.json")
 schemas_path = integhelpers.absolute_file_path(cwd, "json_schemas.json")
 products_api_url = os.getenv('PRODUCTS_API_URL')
-cwd = os.path.dirname(os.path.abspath(__file__))
 
 
 def test_get_products_all():
