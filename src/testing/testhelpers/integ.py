@@ -73,7 +73,7 @@ def assertions(r, endpoint, schemas_path):
     """
     Assert response is successful and validate response body when applicable.
     """
-    assert r.status_code is 200
+    assert str(r.status_code).startswith("2")
     if r.headers["Content-Type"].startswith("application/json"):
         assert validate_schema(r.text, endpoint, schemas_path) is True
     else:
