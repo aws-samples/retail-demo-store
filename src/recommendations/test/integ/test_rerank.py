@@ -1,25 +1,30 @@
 import os
-import json
 from assertpy import assert_that
-from test_recommendations import post_request_assert
+from testhelpers.integ import (
+    absolute_file_path,
+    post_request_assert,
+    read_file
+)
 
-API_PATH = "/rerank"
+
+
 cwd = os.path.dirname(os.path.abspath(__file__))
+request_bodies_path = absolute_file_path(cwd, "json_request_bodies.json")
+schemas_path = absolute_file_path(cwd, "json_schemas.json")
+recommendation_api_url = os.getenv("RECOMMENDATIONS_API_URL") or sys.exit(
+    "Please provide an environment variable RECOMMENDATIONS_API_URL"
+)
 
-def read_file(path, api_path):
-    filepath = os.path.join(cwd, path)
-    with open(filepath) as f:
-        body = json.loads(f.read())[api_path]
-    return body
-
-input_request_body = read_file("json_request_bodies.json", API_PATH)
+input_request_body = read_file(request_bodies_path, '/rerank')
 
 
 def test_post_rerank_should_return_with_correct_schema():
-    post_request_assert(API_PATH) 
+    endpoint = "/rerank"
+    post_request_assert(recommendation_api_url, endpoint,request_bodies_path, schemas_path )
 
 def test_post_rerank_should_return_shuffled_items():
-    response = post_request_assert(API_PATH) 
+    endpoint = "/rerank"
+    response = post_request_assert(recommendation_api_url, endpoint,request_bodies_path, schemas_path )
     items = response.json()
     
     assert_that(items).is_length(len(input_request_body['items']))

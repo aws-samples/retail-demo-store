@@ -1,25 +1,39 @@
-from assertpy import assert_that
 import os
-from test_recommendations import get_request_assert
+from assertpy import assert_that
+from testhelpers.integ import (
+    absolute_file_path,
+    get_request_assert
+)
 
-# TODO: this path seem to duplicate with /recommendations. 
-# Waiting for James' confirmation on this
 
-API_PATH = 'popular'
-DEFAULT_TEST_FEATURE = "product_detail_related"
-DEFAULT_TEST_USER_ID = 5097
-BASE_PATH = f"/{API_PATH}?userID={DEFAULT_TEST_USER_ID}&feature={DEFAULT_TEST_FEATURE}"
+cwd = os.path.dirname(os.path.abspath(__file__))
+request_bodies_path = absolute_file_path(cwd, "json_request_bodies.json")
+schemas_path = absolute_file_path(cwd, "json_schemas.json")
+recommendation_api_url = os.getenv("RECOMMENDATIONS_API_URL") or sys.exit(
+    "Please provide an environment variable RECOMMENDATIONS_API_URL"
+)
+
+BASE_PATH = "/popular?userID=:userID&feature=:feature"
+DEFAULT_PARAMS = {
+    ":userID": 5097,
+    ":feature": "product_detail_related"
+}
 
 def test_get_populars_should_return_products_with_correct_schema():
-    get_request_assert(BASE_PATH)
+    endpoint = "/popular?userID=:userID&feature=:feature"
+    params = DEFAULT_PARAMS
+    get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
 
 
 def test_get_popular_with_numResults_should_return_exact_number_of_result():
     num_results = 3
 
-    response = get_request_assert(
-        f"{BASE_PATH}&numResults={num_results}"
-    )
+    endpoint = "/popular?userID=:userID&feature=:feature&numResults=:numResults"
+    params = { 
+        **DEFAULT_PARAMS, 
+        ":numResults": num_results
+    }
+    response = get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
     recommendation_resp_obj = response.json()
 
     assert_that(recommendation_resp_obj).is_length(num_results)
@@ -27,17 +41,21 @@ def test_get_popular_with_numResults_should_return_exact_number_of_result():
 
 def test_get_popular_with_currentItemID_should_return_different_product():
     # Calling without "currentItemID" param should get this product id
+    endpoint = "/popular?userID=:userID&feature=:feature"
+    params = DEFAULT_PARAMS
+    response = get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
 
-    response = get_request_assert(BASE_PATH)
     recommendation_resp_obj = response.json()
     first_item_id_without_param = recommendation_resp_obj[0]["product"]["id"]
 
     # Calling with this "currentItemID" param should get another product id
-    currentItemID = "89728417-5269-403d-baa3-04b59cdffd0a"
 
-    response = get_request_assert(
-        f"{BASE_PATH}&currentItemID={currentItemID}"
-    )
+    endpoint = "/popular?userID=:userID&feature=:feature&currentItemID=:currentItemID"
+    params = { 
+        **DEFAULT_PARAMS, 
+        ":currentItemID": "89728417-5269-403d-baa3-04b59cdffd0a"
+    }
+    response = get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
     recommendation_resp_obj = response.json()
     first_item_id = recommendation_resp_obj[0]["product"]["id"]
 
@@ -45,14 +63,23 @@ def test_get_popular_with_currentItemID_should_return_different_product():
 
 
 def test_get_popular_should_return_image_filename_by_default():
-    response = get_request_assert(BASE_PATH)
+    endpoint = "/popular?userID=:userID&feature=:feature"
+    params = DEFAULT_PARAMS
+    response = get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
+
     recommendation_resp_obj = response.json()
     image_field = recommendation_resp_obj[0]["product"]["image"]
     assert_that(image_field.startswith("http://")).is_false()
     
     
 def test_get_popular_with_fullyQualifyImageUrls_should_return_image_url():
-    response = get_request_assert(f"{BASE_PATH}&fullyQualifyImageUrls=1")
+    endpoint = "/popular?userID=:userID&feature=:feature&fullyQualifyImageUrls=:fullyQualifyImageUrls"
+    params = { 
+        **DEFAULT_PARAMS, 
+        ":fullyQualifyImageUrls": "1"
+    }
+    response = get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
+
     recommendation_resp_obj = response.json()
     image_field = recommendation_resp_obj[0]["product"]["image"]
     assert_that(image_field).starts_with('http://')
