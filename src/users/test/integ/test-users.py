@@ -50,7 +50,7 @@ def test_put_users_id():
 def test_get_users_username():
 
     endpoint = "/users/username/:username"
-    params = {":user_id": os.getenv('TEST_USERNAME')}
+    params = {":username": os.getenv('TEST_USERNAME')}
     integhelpers.get_request_assert(users_api_url, endpoint, schemas_path, params)
 
 
