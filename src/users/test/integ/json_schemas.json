@@ -29,7 +29,8 @@
         "gender": {"type":  "string"},
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
-        "selectable_user": {"type":  "boolean"}
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
       }
     }
   },
@@ -61,7 +62,8 @@
       "gender": {"type":  "string"},
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
-      "selectable_user": {"type":  "boolean"}
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/username/:username": {
@@ -92,7 +94,8 @@
       "gender": {"type":  "string"},
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
-      "selectable_user": {"type":  "boolean"}
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/identityid/:identity_id": {
@@ -123,7 +126,8 @@
       "gender": {"type":  "string"},
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
-      "selectable_user": {"type":  "boolean"}
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/unclaimed": {
@@ -156,7 +160,8 @@
         "gender": {"type":  "string"},
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
-        "selectable_user": {"type":  "boolean"}
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
       }
     }
   },
@@ -190,7 +195,8 @@
         "gender": {"type":  "string"},
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
-        "selectable_user": {"type":  "boolean"}
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
       }
     }
   }
