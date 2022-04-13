@@ -26,7 +26,7 @@ Some environment variables are required to run the tests and need to be added to
 ```console
 echo '
 export ORDERS_API_URL="http://localhost:8004"
-export TEST_PRODUCT_ID="1"
+export TEST_ORDER_ID="1"
 export TEST_USERNAME="user1344"' >> .venv/bin/activate
 ```
 
