@@ -1,5 +1,6 @@
 import testhelpers.integ as integhelpers
 import time
+import requests
 import os
 
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -28,13 +29,17 @@ def test_put_users_id():
     integhelpers.put_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path, params)
 
 
-# def test_put_users_id_claim():
-#
-#     endpoint = "/users/id/:user_id/claim"
-#     params = {":user_id": os.getenv('TEST_USER_ID')}
-#     integhelpers.put_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path, params)
+def test_put_users_id_claim():
+
+    endpoint = "/users/id/:user_id/claim"
+    params = {":user_id": os.getenv('TEST_USER_ID')}
+    r = requests.put(integhelpers.full_request_url(users_api_url, endpoint, params))
+
+    assert str(r.status_code).startswith("2")
+    assert 'true' in r.text
 
 
+# Test disabled until known issue with this endpoint is resolved
 # def test_put_users_id_verify_phone():
 #
 #     endpoint = "/users/id/:user_id/verifyphone"
