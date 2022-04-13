@@ -40,8 +40,8 @@
     "user_id": "1"
   },
   "/users": {
-    "id": "1",
-    "username": "user1",
+    "id": ":user_id",
+    "username": ":username",
     "email": "mark.johnson@example.com",
     "first_name": "Mark",
     "last_name": "Johnson",

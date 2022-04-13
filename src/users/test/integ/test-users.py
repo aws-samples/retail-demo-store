@@ -1,4 +1,5 @@
 import testhelpers.integ as integhelpers
+import time
 import os
 
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -41,10 +42,12 @@ def test_put_users_id():
 #     integhelpers.put_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path, params)
 
 
-# def test_post_users():
-#
-#     endpoint = "/users"
-#     integhelpers.post_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path)
+def test_post_users():
+
+    endpoint = "/users"
+    id = str(time.time())
+    params = {":user_id": id, ":username": "user" + id}
+    integhelpers.post_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path, params)
 
 
 def test_get_users_username():
