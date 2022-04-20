@@ -40,6 +40,7 @@
           <button type="button" id="check-zip" v-on:click="updatezip" >Check Delivery</button>
       </div>
     <div v-if="invalidZip" class="zip-input-error" v-html="invalidZipMSG"></div>
+    <FenixBranding />
   </div>
 </div>
 <div v-else>
@@ -52,11 +53,12 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-
+import FenixBranding from '@/components/Fenix/FenixBranding';
 export default {
   name: 'Fenix',
   components: {
     LoadingFallback,
+    FenixBranding
   },
   props: {
     currentvariant: [Object, Number, String],
@@ -200,7 +202,7 @@ export default {
     errorhandlers(error) {
       if (error.data.error_code !== undefined && error.data.error_code === '400') {
         this.invalidZip = true;
-        this.invalidZipMSG = 'Please enter a valid ZIP code';
+        this.invalidZipMSG = 'Please enter a valid US zipcode';
         this.fenixDataReceived = true;
       } else if (error.data.error_code !== undefined && error.data.error_code === '600') {
         this.fenixDataReceived = false;

@@ -8,6 +8,7 @@
           <span class="delivery-name"><b v-html="item.shippingMethodDesc"></b></span> <span class="text-right">$<b v-html="item.shippingCost.amount"></b></span> <br> 
         <small>(Est Delivery by <span v-html="item.guaranteedDeliveryDate"></span>)</small></label>
       </p>
+      <FenixBranding />
     </div>
   </div>
 <div v-else class="d-flex">
@@ -19,7 +20,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-
+import FenixBranding from '@/components/Fenix/FenixBranding';
 export default {
   name: 'FenixCheckout',
   props: {
@@ -27,10 +28,12 @@ export default {
   },
   components: {
     LoadingFallback,
+    FenixBranding
   },
   data() {
     return {
       fenixDataReceived: false,
+      currentURL: 'https://fenixcommerce.com?track='+window.location.href,
       fenixResponse: "",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
@@ -110,5 +113,4 @@ export default {
 .text-right{
   text-align: right;
 }
-
 </style>

@@ -182,7 +182,7 @@ export default {
     errorhandlers(error) {
       if (error.data.error_code !== undefined && error.data.error_code === '400') {
         this.invalidZip = true;
-        this.invalidZipMSG = 'Please enter a valid ZIP code';
+        this.invalidZipMSG = 'Please enter a valid US zipcode';
         this.fenixDataReceived = true;
       } else if (error.data.error_code !== undefined && error.data.error_code === '600') {
         this.fenixDataReceived = false;
