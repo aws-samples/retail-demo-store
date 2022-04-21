@@ -263,6 +263,14 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
 
+  # Evidently
+  Evidently:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/evidently.yaml
+      Parameters:
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -391,3 +399,7 @@ Outputs:
   SwaggerUICDNURL:
     Description: The URL for the web application
     Value: !GetAtt CloudFront.Outputs.SwaggerUICDNURL
+
+  EvidentlyProjectArn:
+    Description: Evidently project ARN
+    Value: !GetAtt Evidently.Outputs.EvidentlyProjectArn

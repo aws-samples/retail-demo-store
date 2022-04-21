@@ -163,7 +163,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
     # Get active experiment if one is setup for feature and we have a user.
     if feature and user_id:
         exp_manager = ExperimentManager()
-        experiment = exp_manager.get_active(feature)
+        experiment = exp_manager.get_active(feature, user_id)
 
     if experiment:
         # Get items from experiment.
@@ -520,7 +520,7 @@ def get_ranking(user_id, items, feature,
     # Get active experiment if one is setup for feature.
     if feature:
         exp_manager = ExperimentManager()
-        experiment = exp_manager.get_active(feature)
+        experiment = exp_manager.get_active(feature, user_id)
 
     if experiment:
         app.logger.info('Using experiment: ' + experiment.name)
@@ -651,7 +651,7 @@ def get_top_n(user_id, items, feature, top_n,
     # Get active experiment if one is setup for feature.
     if feature:
         exp_manager = ExperimentManager()
-        experiment = exp_manager.get_active(feature)
+        experiment = exp_manager.get_active(feature, user_id)
 
     if experiment:
         app.logger.info('Using experiment: ' + experiment.name)

@@ -475,6 +475,7 @@ Resources:
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
+        EvidentlyProjectArn: !GetAtt Base.Outputs.EvidentlyProjectArn
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -771,3 +772,7 @@ Outputs:
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt Services.Outputs.OffersServiceUrl
+
+  EvidentlyProjectArn:
+    Description: ARN for the CloudWatch Evidently project
+    Value: !GetAtt Base.Outputs.EvidentlyProjectArn

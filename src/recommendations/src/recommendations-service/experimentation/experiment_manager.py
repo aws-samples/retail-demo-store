@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
+from experimentation.evidently_feature_resolver import EvidentlyFeatureResolver
 from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk, optimizely_configured
 from experimentation.tracking import KinesisTracker
 
@@ -21,6 +22,7 @@ class ExperimentManager:
     TYPE_AB = 'ab'
     TYPE_INTERLEAVING = 'interleaving'
     TYPE_MAB = 'mab'
+    TYPE_EVIDENTLY = 'evidently'
     TYPE_OPTIMIZELY = 'optimizely'
 
     __table_name = None
@@ -33,15 +35,14 @@ class ExperimentManager:
 
     def is_configured(self):
         """ Returns True if this environment is setup for running experiments """
-        return self.__get_table()
+        return self.is_optimizely_configured() or self.__get_table()
 
     def is_optimizely_configured(self):
         return optimizely_configured
 
-    def get_active(self, feature):
+    def get_active(self, feature, user_id):
         """ Returns the active experiment for the given feature """
-        experiment = None
-
+        # 1. If Optimizely is configured for this deployment, check for active Optimizely experiment.
         if self.is_optimizely_configured():
             config = optimizely_sdk.get_optimizely_config()
             if config:
@@ -59,12 +60,20 @@ class ExperimentManager:
                                 'variations': []}
                         return OptimizelyFeatureTest(None, **data)
 
+        # 2. Check for active Evidently experiment.
+        evidently_experiment = EvidentlyFeatureResolver().evaluate_feature(user_id, feature)
+        if evidently_experiment:
+            return evidently_experiment
+
+        # 3. Lastly, check for an active built-in experiment.
+        experiment = None
+
         table = self.__get_table()
-        
+
         if table:
             log.debug(f'ExperimentManager - querying {table.table_name} for active experiments for {feature}')
 
-            # Get active experiments for the feature. 
+            # Get active experiments for the feature.
             response = table.query(
                 IndexName='feature-name-index',
                 KeyConditionExpression=Key('feature').eq(feature),
@@ -106,7 +115,7 @@ class ExperimentManager:
         return experiment
 
     def default_tracker(self):
-        """ Creates a Kinesis stream tracker for an experiment if environment is 
+        """ Creates a Kinesis stream tracker for an experiment if environment is
         configured with a Kinesis stream
         """
         tracker = None
@@ -116,7 +125,7 @@ class ExperimentManager:
             if response['Parameter']['Value'] != 'NONE':
                 stream_name = response['Parameter']['Value']
                 tracker = KinesisTracker(
-                    exposure_stream_name = stream_name, 
+                    exposure_stream_name = stream_name,
                     outcome_stream_name = stream_name
                 )
         except ssm.exceptions.ParameterNotFound:
@@ -139,7 +148,7 @@ class ExperimentManager:
 
         return dynamodb.Table(ExperimentManager.__table_name) if ExperimentManager.__table_name != 'NONE' else None
 
+# Register built-in experiment types here only.
 ExperimentManager.register_experiment(ExperimentManager.TYPE_AB, ABExperiment)
 ExperimentManager.register_experiment(ExperimentManager.TYPE_INTERLEAVING, InterleavingExperiment)
 ExperimentManager.register_experiment(ExperimentManager.TYPE_MAB, MultiArmedBanditExperiment)
-ExperimentManager.register_experiment(ExperimentManager.TYPE_OPTIMIZELY, OptimizelyFeatureTest)

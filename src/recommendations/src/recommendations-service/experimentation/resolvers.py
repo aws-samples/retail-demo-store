@@ -52,9 +52,9 @@ class DefaultProductResolver(Resolver):
             )
 
             self.products_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
-            log.debug('DefaultProductResolver - fetched product service instance ' + self.products_service_host)
+            log.debug('DefaultProductResolver - fetched product service instance %s', self.products_service_host)
         else:
-            log.debug('DefaultProductResolver - using product service instance ' + self.products_service_host)
+            log.debug('DefaultProductResolver - using product service instance %s', self.products_service_host)
 
         self.fully_qualify_image_urls = params.get('fully_qualify_image_urls', False)
 
@@ -78,23 +78,23 @@ class DefaultProductResolver(Resolver):
         if product_id:
             # Lookup product to determine if it belongs to a category
             url = f'http://{self.products_service_host}:{self.products_service_port}/products/id/{product_id}'
-            log.debug('DefaultProductResolver - getting product details ' + url)
+            log.debug('DefaultProductResolver - getting product details %s', url)
             try:
                 response = requests.get(url)
                 if response.ok:
                     category = response.json()['category']
             except requests.ConnectionError as e:
-                log.error(f"Could not pull product information from URL {url} - error: {e}")
+                log.error("Could not pull product information from URL %s - error: %s", url, e)
 
         if category:
             # Product belongs to a category so get list of products in same category
             url = f'http://{self.products_service_host}:{self.products_service_port}/products/category/{category}?fullyQualifyImageUrls={self.fully_qualify_image_urls}'
-            log.debug('DefaultProductResolver - getting products for category ' + url)
+            log.debug('DefaultProductResolver - getting products for category %s', url)
             response = requests.get(url)
         else:
             # Product not specified or does not belong to a category so fallback to featured products
             url = f'http://{self.products_service_host}:{self.products_service_port}/products/featured?fullyQualifyImageUrls={self.fully_qualify_image_urls}'
-            log.debug('DefaultProductResolver - getting featured products ' + url)
+            log.debug('DefaultProductResolver - getting featured products %s', url)
             response = requests.get(url)
 
         if response.ok:
@@ -133,9 +133,9 @@ class SearchSimilarProductsResolver(Resolver):
             )
 
             self.search_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
-            log.debug('SearchSimilarProductsResolver - fetched search service instance ' + self.search_service_host)
+            log.debug('SearchSimilarProductsResolver - fetched search service instance %s', self.search_service_host)
         else:
-            log.debug('SearchSimilarProductsResolver - using search service instance ' + self.search_service_host)
+            log.debug('SearchSimilarProductsResolver - using search service instance %s', self.search_service_host)
 
     def get_items(self, **kwargs):
         """ Returns recommended items given a product_id from using similar item search
@@ -153,7 +153,7 @@ class SearchSimilarProductsResolver(Resolver):
             num_results = int(kwargs['num_results'])
 
         url = f'http://{self.search_service_host}:{self.search_service_port}/similar/products?productId={product_id}'
-        log.debug('SearchSimilarProductsResolver - getting similar products ' + url)
+        log.debug('SearchSimilarProductsResolver - getting similar products %s', url)
         response = requests.get(url)
 
         items = []
@@ -173,20 +173,20 @@ class PersonalizeRecommendationsResolver(Resolver):
     __personalize_runtime = boto3.client('personalize-runtime')
 
     def __init__(self, **params):
-        # All we need to initialize this resolver is the ARN for the Personalize campaign
-        self.campaign_arn = params.get('campaign_arn')
-        if not self.campaign_arn:
-            raise Exception('campaign_arn required for PersonalizeRecommendationsResolver')
+        # All we need to initialize this resolver is the ARN for the Personalize campaign/recommender
+        self.inference_arn = params.get('inference_arn')
+        if not self.inference_arn:
+            raise Exception('inference_arn required for PersonalizeRecommendationsResolver')
 
         # Optionally support filter specified at resolver creation.
         self.filter_arn = params.get('filter_arn')
 
     def get_items(self, **kwargs):
-        """ Returns recommendations from an Amazon Personalize campaign trained with a user recommendation recipe such as HRNN
+        """ Returns recommendations from an Amazon Personalize campaign/recommender for a user-personalization or related-items use case
 
         Arguments:
-            user_id - ID for the user for which to make recommendations (required for user personalization recipes such as HRNN)
-            product_id - ID for the item to return similar products (required for related products recipes such as SIMS)
+            user_id - ID for the user for which to make recommendations (required for user personalization recipes such as User-Personalization)
+            product_id - ID for the item to return similar products (required for related products recipes such as Similar-Items)
             num_results - maximum number of recommendations to return (optional)
             filter_arn - ARN for filter to exclude recommended items (overrides ctor filter_arn) (optional)
         """
@@ -197,13 +197,13 @@ class PersonalizeRecommendationsResolver(Resolver):
         num_results = kwargs.get('num_results')
         filter_arn = kwargs.get('filter_arn')
 
-        is_recommender = self.campaign_arn.split(':')[5].startswith('recommender/')
+        is_recommender = self.inference_arn.split(':')[5].startswith('recommender/')
         if is_recommender:
-            log.info('Calling recommender %s', self.campaign_arn)
-            params['recommenderArn'] = self.campaign_arn
+            log.info('Calling recommender %s', self.inference_arn)
+            params['recommenderArn'] = self.inference_arn
         else:
-            log.info('Calling campaign %s', self.campaign_arn)
-            params['campaignArn'] = self.campaign_arn
+            log.info('Calling campaign %s', self.inference_arn)
+            params['campaignArn'] = self.inference_arn
 
         if not user_id and not item_id:
             raise Exception('user_id or product_id is required')
@@ -225,7 +225,7 @@ class PersonalizeRecommendationsResolver(Resolver):
         if num_results:
             params['numResults'] = num_results
 
-        log.debug('PersonalizeRecommendationsResolver - getting recommendations ' + str(params))
+        log.debug('PersonalizeRecommendationsResolver - getting recommendations %s', params)
 
         response = PersonalizeRecommendationsResolver.__personalize_runtime.get_recommendations(**params)
 
@@ -291,7 +291,7 @@ class HttpResolver(Resolver):
 
 
 class PersonalizeRankingResolver(Resolver):
-    """ Provides personalized ranking of products from an Amazon Personalize campaign
+    """ Provides personalized ranking of products from an Amazon Personalize campaign created with the Personalized-Ranking recipe
 
     The campaign must be trained using the Personalized-Ranking recipe
     """
@@ -299,9 +299,9 @@ class PersonalizeRankingResolver(Resolver):
 
     def __init__(self, **params):
         # All we need to initialize this resolver is the ARN for the Personalize campaign
-        self.campaign_arn = params.get('campaign_arn')
-        if not self.campaign_arn:
-            raise Exception('campaign_arn required for PersonalizeRankingResolver')
+        self.inference_arn = params.get('inference_arn')
+        if not self.inference_arn:
+            raise Exception('inference_arn required for PersonalizeRankingResolver')
 
         # Optionally support filter specified at resolver creation.
         self.filter_arn = params.get('filter_arn')
@@ -325,7 +325,7 @@ class PersonalizeRankingResolver(Resolver):
             raise Exception('product_list is required')
 
         params = {
-            'campaignArn': self.campaign_arn,
+            'campaignArn': self.inference_arn,
             'userId': str(user_id),
             'inputList': input_list
         }
@@ -341,7 +341,7 @@ class PersonalizeRankingResolver(Resolver):
         elif self.filter_arn:
             params['filterArn'] = self.filter_arn
 
-        log.debug('PersonalizeRankingResolver - getting personalized ranking ' + str(params))
+        log.debug('PersonalizeRankingResolver - getting personalized ranking %s', params)
 
         response = PersonalizeRankingResolver.__personalize_runtime.get_personalized_ranking(**params)
 
@@ -471,7 +471,7 @@ class ResolverFactory:
     @staticmethod
     def get(type, **params):
         """ Returns an instance of a resolver given its type and initialization arguments """
-        log.debug('ResolverFactory - resolving type/params ' + str(type) + '/' + str(params))
+        log.debug('ResolverFactory - resolving type/params %s/%s', type, params)
         resolver = ResolverFactory.__resolvers.get(type)
         if not resolver:
             raise ValueError(type)

@@ -20,7 +20,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -58,7 +58,7 @@ Parameters:
 
   UserPoolClientId:
     Type: String
-  
+
   IdentityPoolId:
     Type: String
 
@@ -119,10 +119,14 @@ Parameters:
   UseDefaultIVSStreams:
     Type: String
     Description: Whether to use created IVS streams or those hosted by AWS.
-  
+
   ParentStackName:
     Type: String
     Description: Parent stack name
+
+  EvidentlyProjectArn:
+    Type: String
+    Description: Evidently project ARN
 
 Resources:
 
@@ -159,6 +163,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -191,6 +196,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   CartsService:
     Type: AWS::CloudFormation::Stack
@@ -222,6 +228,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
@@ -253,6 +260,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   SearchService:
     Type: AWS::CloudFormation::Stack
@@ -285,6 +293,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   LocationService:
     Type: AWS::CloudFormation::Stack
@@ -317,6 +326,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   OffersService:
     Type: AWS::CloudFormation::Stack
@@ -349,6 +359,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -383,6 +394,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
 
   VideosService:
     Type: AWS::CloudFormation::Stack
@@ -416,7 +428,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
- 
+        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
     Type: AWS::CloudFormation::Stack
@@ -519,19 +532,19 @@ Resources:
                 Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/retaildemostore*'
 
 Outputs:
-  ProductsServiceUrl: 
+  ProductsServiceUrl:
     Description: Products load balancer URL.
     Value: !GetAtt ProductsService.Outputs.ServiceUrl
 
-  UsersServiceUrl: 
+  UsersServiceUrl:
     Description: Users load balancer URL.
     Value: !GetAtt UsersService.Outputs.ServiceUrl
 
-  CartsServiceUrl: 
+  CartsServiceUrl:
     Description: Carts load balancer URL.
     Value: !GetAtt CartsService.Outputs.ServiceUrl
 
-  OrdersServiceUrl: 
+  OrdersServiceUrl:
     Description: Orders load balancer URL.
     Value: !GetAtt OrdersService.Outputs.ServiceUrl
 
@@ -547,7 +560,7 @@ Outputs:
     Description: Videos load balancer URL.
     Value: !GetAtt VideosService.Outputs.ServiceUrl
 
-  SearchServiceUrl: 
+  SearchServiceUrl:
     Description: Search load balancer URL.
     Value: !GetAtt SearchService.Outputs.ServiceUrl
 

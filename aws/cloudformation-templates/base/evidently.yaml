@@ -25,9 +25,9 @@ Resources:
       Project: !Ref EvidentlyProject
       Variations:
         - VariationName: FeaturedProducts
-          StringValue: product
+          StringValue: '{"type":"product"}'
         - VariationName: Personalize-UserPersonalization
-          StringValue: personalize-recommendations
+          StringValue: !Sub '{"type":"personalize-recommendations","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:recommender/retaildemostore-recommended-for-you"}'
 
   FeatureHomeFeaturedRerank:
     Type: AWS::Evidently::Feature
@@ -39,25 +39,25 @@ Resources:
       Project: !Ref EvidentlyProject
       Variations:
         - VariationName: RankingNoOp
-          StringValue: ranking-no-op
+          StringValue: '{"type":"ranking-no-op"}'
         - VariationName: Personalize-PersonalizedRanking
-          StringValue: personalize-ranking
+          StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
 
   FeatureProductDetailRelated:
     Type: AWS::Evidently::Feature
     Properties:
-      DefaultVariation: Personalize-SIMS
+      DefaultVariation: Personalize-Similar-Items
       Description: Product detail related products carousel
       EvaluationStrategy: ALL_RULES
       Name: product_detail_related
       Project: !Ref EvidentlyProject
       Variations:
         - VariationName: ProductsInSameCategory
-          StringValue: product
+          StringValue: '{"type":"product"}'
         - VariationName: OpenSearchMoreLikeThis
-          StringValue: similar
-        - VariationName: Personalize-SIMS
-          StringValue: personalize-recommendations
+          StringValue: '{"type":"similar"}'
+        - VariationName: Personalize-Similar-Items
+          StringValue: !Sub '{"type":"personalize-recommendations","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-related-items"}'
 
   FeatureSearchResults:
     Type: AWS::Evidently::Feature
@@ -65,10 +65,43 @@ Resources:
       DefaultVariation: Personalize-PersonalizedRanking
       Description: Search control auto-complete
       EvaluationStrategy: ALL_RULES
-      Name: product_detail_related
+      Name: search_results
       Project: !Ref EvidentlyProject
       Variations:
         - VariationName: RankingNoOp
-          StringValue: ranking-no-op
+          StringValue: '{"type":"ranking-no-op"}'
         - VariationName: Personalize-PersonalizedRanking
-          StringValue: personalize-ranking
+          StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
+
+  FeatureLiveStreamProductRecs:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-PersonalizedRanking
+      Description: Live stream product recommendations
+      EvaluationStrategy: ALL_RULES
+      Name: live_stream_prod_recommendation
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: RankingNoOp
+          StringValue: '{"type":"ranking-no-op"}'
+        - VariationName: Personalize-PersonalizedRanking
+          StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
+
+  FeatureLiveStreamProductDiscounts:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-PersonalizedRanking
+      Description: Live stream product discounts
+      EvaluationStrategy: ALL_RULES
+      Name: live_stream_prod_discounts
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: RankingNoOp
+          StringValue: '{"type":"ranking-no-op"}'
+        - VariationName: Personalize-PersonalizedRanking
+          StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
+
+Outputs:
+  EvidentlyProjectArn:
+    Description: Evidently project ARN
+    Value: !Ref EvidentlyProject

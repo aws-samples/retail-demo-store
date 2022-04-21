@@ -131,7 +131,7 @@ const VideosRepository = RepositoryFactory.get('videos');
 
 const MAX_RECOMMENDATIONS = 6;
 const PRODUCT_EXPERIMENT_FEATURE = 'live_stream_prod_recommendation';
-const ProductDiscountFeature = 'live_stream_prod_discounts';
+const PRODUCT_DISCOUNT_FEATURE = 'live_stream_prod_discounts';
 
 let player = null
 
@@ -175,7 +175,7 @@ export default {
       return products;
     },
     async getDiscounts (products) {
-      let { data } = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, ProductDiscountFeature);
+      let { data } = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, PRODUCT_DISCOUNT_FEATURE);
       return data;
     },
     async getRelatedProducts() {

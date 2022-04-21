@@ -40,6 +40,8 @@ const getFullExperimentType = (type) => {
       return 'Experiment: Multi-Armed Bandit';
     case 'optimizely':
       return 'Experiment: Optimizely';
+    case 'evidently':
+      return 'Experiment: Evidently';
     default:
       return 'Experiment: Unknown';
   }
