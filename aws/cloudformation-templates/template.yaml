@@ -69,6 +69,16 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+      - Label:
+          default: "Fenix Commerce EDD Integration"
+        Parameters:
+          - FenixZipDetectUrl
+          - FenixTenantId
+          - FenixEddEndpoint
+          - FenixMonetaryValue
+          - FenixEnabledPdp
+          - FenixEnabledCart
+          - FenixEnabledCheckout
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -138,6 +148,20 @@ Metadata:
         default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
+      FenixZipDetectUrl:
+        default: "Fenix Zipcode Detect URL"
+      FenixTenantId:
+        default: "Fenix Commerce Tenant Id"
+      FenixEddEndpoint:
+        default: "Fenix Commerce API End Point"
+      FenixMonetaryValue:
+        default: "Fenix Commerce default monetary value"
+      FenixEnabledPdp:
+        default: "Fenix Commerce enable EDD on PDP"
+      FenixEnabledCart:
+        default: "Fenix Commerce enable EDD on CART"
+      FenixEnabledCheckout:
+        default: "Fenix Commerce enable EDD on Checkoutpage"
 
 Parameters:
   ResourceBucket:
@@ -388,6 +412,51 @@ Parameters:
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
 
+  FenixZipDetectUrl:
+    Type: String
+    Description: Fenix Commerce Zipcode Detect URL
+    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
+
+  FenixTenantId:
+    Type: String
+    Description: Fenix Commerce Demo Env TenantID
+    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
+    NoEcho: true
+
+  FenixEddEndpoint:
+    Type: String
+    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
+    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+
+  FenixMonetaryValue:
+    Type: String
+    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
+    Default: 100
+
+  FenixEnabledPdp:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on PDP
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
+  FenixEnabledCart:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on CART
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
+  FenixEnabledCheckout:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on checkout
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -437,6 +506,13 @@ Resources:
         LocationResourcePrefix: !Ref AWS::StackName
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
+        FenixZipDetectUrl: !Ref FenixZipDetectUrl
+        FenixTenantId: !Ref FenixTenantId
+        FenixEddEndpoint: !Ref FenixEddEndpoint
+        FenixMonetaryValue: !Ref FenixMonetaryValue
+        FenixEnabledPdp: !Ref FenixEnabledPdp
+        FenixEnabledCart: !Ref FenixEnabledCart
+        FenixEnabledCheckout: !Ref FenixEnabledCheckout
 
   # Services Resources
   Services:
@@ -507,6 +583,14 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
+        FenixZipDetectUrl: !Ref FenixZipDetectUrl
+        FenixTenantId: !Ref FenixTenantId
+        FenixEddEndpoint: !Ref FenixEddEndpoint
+        FenixMonetaryValue: !Ref FenixMonetaryValue
+        FenixEnabledPdp: !Ref FenixEnabledPdp
+        FenixEnabledCart: !Ref FenixEnabledCart
+        FenixEnabledCheckout: !Ref FenixEnabledCheckout
+
         LocationResourceName:
           !If [
             DeployLocationStack,
@@ -776,3 +860,35 @@ Outputs:
   EvidentlyProjectArn:
     Description: ARN for the CloudWatch Evidently project
     Value: !GetAtt Base.Outputs.EvidentlyProjectArn
+
+  ExportEnvVarScript:
+    Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.
+    Value: !Sub |
+        # Products service
+        DDB_TABLE_PRODUCTS=${Base.Outputs.ProductsTable}
+        DDB_TABLE_CATEGORIES=${Base.Outputs.CategoriesTable}
+        IMAGE_ROOT_URL="${Base.Outputs.WebUICDNURL}/images/"
+        WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
+
+        # Recommendations service
+        PRODUCT_SERVICE_HOST="${Services.Outputs.ProductsServiceUrl}"
+        PRODUCT_SERVICE_PORT=80
+        OFFERS_SERVICE_HOST="${Services.Outputs.OffersServiceUrl}"
+        OFFERS_SERVICE_PORT=80
+        AWS_XRAY_DAEMON_ADDRESS=xray:2000
+
+        # Search service
+        ES_SEARCH_DOMAIN_SCHEME=https
+        ES_SEARCH_DOMAIN_HOST="${Base.Outputs.ElasticsearchDomainEndpoint}"
+        ES_SEARCH_DOMAIN_PORT=9200
+
+        # Users service
+        AWS_REGION=${AWS::Region}
+
+        # Locations service
+        RESOURCE_BUCKET=${ResourceBucket}
+        AWS_DEFAULT_REGION=${AWS::Region}
+
+        # Videos service
+        PARAMETER_IVS_VIDEO_CHANNEL_MAP=${Base.Outputs.ParameterIVSVideoChannelMap}
+        USE_DEFAULT_IVS_STREAMS=true

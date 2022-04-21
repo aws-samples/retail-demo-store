@@ -1,0 +1,126 @@
+{
+  "/products/all": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "aliases": {"type": ["array", "null"]},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "current_stock": {"type": "number"}
+      }
+    }
+  },
+  "/products/id/:product_id": {
+    "type": "object",
+    "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "featured", "current_stock"],
+    "properties": {
+        "id": {"type": "string"},
+        "url": {"type": "string"},
+        "sk": {"type": "string"},
+        "name": {"type": "string"},
+        "category": {"type": "string"},
+        "style": {"type": "string"},
+        "description": {"type": "string"},
+        "aliases": {"type": ["array", "null"]},
+        "price": {"type": "number"},
+        "image": {"type": "string"},
+        "featured": {"type": "string"},
+        "current_stock": {"type": "number"}
+    }
+  },
+    "/products/featured": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "featured", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "aliases": {"type": ["array", "null"]},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "featured": {"type": "string"},
+          "gender_affinity": {"type": "string"},
+          "current_stock": {"type": "number"}
+      }
+    }
+  },
+  "/products/category/:category_name": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "aliases": {"type": ["array", "null"]},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "current_stock": {"type": "number"}
+      }
+    }
+  },
+  "/categories/all": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "name", "image", "has_gender_affinity"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "name": {"type": "string"},
+          "image": {"type": "string"},
+          "has_gender_affinity": {"type": "boolean"}
+      }
+    }
+  },
+  "/categories/id/:category_id": {
+    "type": "object",
+    "required": ["id", "url", "name", "image", "has_gender_affinity"],
+    "properties": {
+        "id": {"type": "string"},
+        "url": {"type": "string"},
+        "name": {"type": "string"},
+        "image": {"type": "string"},
+        "has_gender_affinity": {"type": "boolean"}
+    }
+  },
+    "/products": {
+    "type": "object",
+    "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "featured", "gender_affinity", "current_stock"],
+    "properties": {
+        "id": {"type": "string"},
+        "url": {"type": "string"},
+        "sk": {"type": "string"},
+        "name": {"type": "string"},
+        "category": {"type": "string"},
+        "style": {"type": "string"},
+        "description": {"type": "string"},
+        "aliases": {"type": ["array", "null"]},
+        "price": {"type": "number"},
+        "image": {"type": "string"},
+        "featured": {"type": "string"},
+        "gender_affinity": {"type":  "string"},
+        "current_stock": {"type": "number"}
+    }
+  }
+}

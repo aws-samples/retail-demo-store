@@ -9,4 +9,4 @@ expiring-dict==1.1.0
 aws-xray-sdk==2.6.0
 urllib3==1.26.8
 itsdangerous==1.1.0
-markupsafe==1.1.1
+Jinja2==3.0.3

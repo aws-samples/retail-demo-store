@@ -54,3 +54,12 @@ printf 'VUE_APP_MPARTICLE_SECRET_KEY=%s\n' "$MPARTICLE_SECRET_KEY" >> .env
 
 # Layer0
 printf 'VUE_APP_LAYER0_ENABLED=false\n' >> .env
+
+# Fenix Settings variables
+printf 'VUE_APP_FENIX_TENANT_ID=%s\n' "$FENIX_TENANT_ID" >> .env
+printf 'VUE_APP_FENIX_ZIP_DETECT_URL=%s\n' "$FENIX_ZIP_DETECT_URL" >> .env
+printf 'VUE_APP_FENIX_EDD_ENDPOINT=%s\n' "$FENIX_EDD_ENDPOINT" >> .env
+printf 'VUE_APP_FENIX_MONETARY_VALUE=%s\n' "$FENIX_MONETARY_VALUE" >> .env
+printf 'VUE_APP_FENIX_ENABLED_PDP=%s\n' "$FENIX_ENABLED_PDP" >> .env
+printf 'VUE_APP_FENIX_ENABLED_CART=%s\n' "$FENIX_ENABLED_CART" >> .env
+printf 'VUE_APP_FENIX_ENABLED_CHECKOUT=%s\n' "$FENIX_ENABLED_CHECKOUT" >> .env

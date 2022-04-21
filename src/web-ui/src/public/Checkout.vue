@@ -92,6 +92,14 @@
                   <p class="mb-1">{{order.shipping_address.city}}, {{order.shipping_address.state}} {{order.shipping_address.zipcode}}</p>
                 </div>
               </div>
+
+              <div class="fenix-estimates">
+                <FenixCheckout
+                v-if="fenixenableCHECKOUT == 'TRUE'"
+                :lineItems="cart">
+                </FenixCheckout>
+              </div>
+
               <hr class="mb-4">
 
               <div class="d-flex">
@@ -132,6 +140,7 @@ import Layout from '@/components/Layout/Layout'
 import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
 import AmazonPayButton from "@/public/components/AmazonPayButton";
 import { TheMask } from 'vue-the-mask'
+import FenixCheckout from '@/components/Fenix/FenixCheckout';
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -142,7 +151,8 @@ export default {
     Layout,
     AbandonCartButton,
     AmazonPayButton,
-    TheMask
+    TheMask,
+    FenixCheckout
   },
   data () {
     return {
@@ -156,7 +166,8 @@ export default {
         text: 'Back to shopping cart'
       },
       collection: false,
-      hasConsentedPhone: false
+      hasConsentedPhone: false,
+      fenixenableCHECKOUT: process.env.VUE_APP_FENIX_ENABLED_CHECKOUT,
     }
   },
   async created () {

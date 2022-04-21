@@ -14,6 +14,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 RESOURCE_BUCKET = os.environ.get('RESOURCE_BUCKET')
+RESOURCE_BUCKET_PATH = os.environ.get('RESOURCE_BUCKET_PATH')
 
 helper = CfnResource()
 location = boto3.client('location')
@@ -22,7 +23,7 @@ s3 = boto3.resource('s3')
 
 def load_default_geofence_from_s3():
     """ Retrieves GeoJson file containing store Geofence from S3 """
-    return load_json_from_s3('location_services/store_geofence.json')
+    return load_json_from_s3(RESOURCE_BUCKET_PATH + 'location_services/store_geofence.json')
 
 
 def load_json_from_s3(object_key):

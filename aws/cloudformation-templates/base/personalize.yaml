@@ -24,6 +24,15 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
+          - Effect: Deny
+            Action: 's3:*'
+            Resource:
+              - !Sub "arn:aws:s3:::${StackBucketName}"
+              - !Sub "arn:aws:s3:::${StackBucketName}/*"
+            Principal: '*'
+            Condition:
+              Bool:
+                aws:SecureTransport: false
           - Effect: Allow
             Action:
               - s3:GetObject
