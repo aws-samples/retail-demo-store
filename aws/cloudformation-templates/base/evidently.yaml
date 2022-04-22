@@ -12,7 +12,7 @@ Resources:
   EvidentlyProject:
     Type: AWS::Evidently::Project
     Properties:
-      Name: !Sub 'retaildemostore-${Uid}'
+      Name: !Ref Uid
       Description: Retail Demo Store features and experiments
 
   FeatureHomeProductRecs:
@@ -102,6 +102,6 @@ Resources:
           StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
 
 Outputs:
-  EvidentlyProjectArn:
-    Description: Evidently project ARN
-    Value: !Ref EvidentlyProject
+  EvidentlyProjectName:
+    Description: Evidently project name
+    Value: !Ref Uid

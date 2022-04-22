@@ -124,9 +124,9 @@ Parameters:
     Type: String
     Description: Parent stack name
 
-  EvidentlyProjectArn:
+  EvidentlyProjectName:
     Type: String
-    Description: Evidently project ARN
+    Description: Evidently project name
 
 Resources:
 
@@ -163,7 +163,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -196,7 +196,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   CartsService:
     Type: AWS::CloudFormation::Stack
@@ -228,7 +228,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
@@ -260,7 +260,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   SearchService:
     Type: AWS::CloudFormation::Stack
@@ -293,7 +293,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   LocationService:
     Type: AWS::CloudFormation::Stack
@@ -326,7 +326,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   OffersService:
     Type: AWS::CloudFormation::Stack
@@ -359,7 +359,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -394,7 +394,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   VideosService:
     Type: AWS::CloudFormation::Stack
@@ -428,7 +428,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
   # Pinpoint personalized messaging customization
   PinpointPersonalize:

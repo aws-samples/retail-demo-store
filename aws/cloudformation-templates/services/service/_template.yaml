@@ -210,9 +210,9 @@ Parameters:
   Uid:
     Type: String
 
-  EvidentlyProjectArn:
+  EvidentlyProjectName:
     Type: String
-    Description: Evidently project ARN
+    Description: Evidently project name
 
 Resources:
 
@@ -298,7 +298,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
-        EvidentlyProjectArn: !Ref EvidentlyProjectArn
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
 Outputs:
   ServiceDNSName:

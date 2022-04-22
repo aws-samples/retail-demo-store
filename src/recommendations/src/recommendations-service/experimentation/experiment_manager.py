@@ -95,8 +95,18 @@ class ExperimentManager:
 
         return experiment
 
+    def get_by_correlation_id(self, correlation_id: str):
+        """ Returns an experiment based on a correlation ID """
+        id_bits = correlation_id.split('~')
+
+        experiment_id = id_bits[0]
+        if experiment_id == ExperimentManager.TYPE_EVIDENTLY:
+            return EvidentlyFeatureResolver().create_from_correlation_id(correlation_id)
+
+        return self.get_by_id(experiment_id)
+
     def get_by_id(self, id):
-        """ Looks up an experiment by its ID """
+        """ Looks up a built-in experiment by its ID """
         table = self.__get_table()
         if not table:
             raise Exception('Experiment strategy table has not been configured')

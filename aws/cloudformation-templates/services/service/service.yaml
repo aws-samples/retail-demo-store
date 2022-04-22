@@ -128,9 +128,9 @@ Parameters:
   PinpointAppId:
     Type: String
 
-  EvidentlyProjectArn:
+  EvidentlyProjectName:
     Type: String
-    Description: Evidently project ARN
+    Description: Evidently project name
 
 Resources:
   TaskExecutionRole:
@@ -281,6 +281,12 @@ Resources:
                   - lambda:InvokeFunction
                 Resource:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
+              - Effect: "Allow"
+                Action:
+                  - evidently:BatchEvaluateFeature
+                  - evidently:PutProjectEvents
+                Resource:
+                  - '*'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
@@ -384,8 +390,8 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
-            - Name: EVIDENTLY_PROJECT_ARN
-              Value: !Ref EvidentlyProjectArn
+            - Name: EVIDENTLY_PROJECT_NAME
+              Value: !Ref EvidentlyProjectName
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

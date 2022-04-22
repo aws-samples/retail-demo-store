@@ -446,6 +446,6 @@ Outputs:
     Description: The URL for the web application
     Value: !GetAtt CloudFront.Outputs.SwaggerUICDNURL
 
-  EvidentlyProjectArn:
-    Description: Evidently project ARN
-    Value: !GetAtt Evidently.Outputs.EvidentlyProjectArn
+  EvidentlyProjectName:
+    Description: Evidently project name
+    Value: !GetAtt Evidently.Outputs.EvidentlyProjectName

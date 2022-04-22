@@ -4,47 +4,85 @@
 import boto3
 import os
 import json
+import logging
 from typing import Dict,List
 from expiring_dict import ExpiringDict
-from features import FEATURE_NAMES
-
+from experimentation.features import FEATURE_NAMES
 from experimentation.experiment_evidently import EvidentlyExperiment
 
+log = logging.getLogger(__name__)
+
 evidently = boto3.client('evidently')
-eval_features_by_user_cache = ExpiringDict(60)   # 1 minute
+# Cache feature evals for 30 seconds to balance latency and timeliness of picking up experiments
+eval_features_by_user_cache = ExpiringDict(30)
 
-project_arn = os.environ['EVIDENTLY_PROJECT_ARN']
-
-RULE_MATCH = 'EXPERIMENT_RULE_MATCH'
+project_name = os.environ['EVIDENTLY_PROJECT_NAME']
 
 class EvidentlyFeatureResolver:
 
     def evaluate_feature(self, user_id: str, feature: str) -> EvidentlyExperiment:
-        evaluated = eval_features_by_user_cache.get(user_id)
+        cache_key = user_id
+        evaluated = eval_features_by_user_cache.get(cache_key)
         if evaluated is None:
             evaluated = self._call_evidently_evaluate_features(user_id)
-            eval_features_by_user_cache[user_id] = evaluated
+            eval_features_by_user_cache[cache_key] = evaluated
+
+            log.debug('Eval feature results for user/feature %s/%s: %s', user_id, feature, evaluated)
+        else:
+            log.debug('Found cached eval feature result for user/feature %s/%s: %s', user_id, feature, evaluated)
 
         experiment = None
+        feature_found = False
+
         for eval_feature in evaluated:
-            if eval_feature.get('feature') == feature:
-                if eval_feature.get('reason') == RULE_MATCH:
+            if eval_feature.get('feature').split('/')[-1] == feature:
+                feature_found = True
+                log.debug('Found matching feature in evaluated with reason %s', eval_feature.get('reason'))
+                if eval_feature.get('reason') == 'EXPERIMENT_RULE_MATCH':
+                    variation_config = json.loads(eval_feature['value']['stringValue'])
+                    # Config convenience check allowing ARN to be expressed as 'arn' in Evidently feature.
+                    if 'inference_arn' not in variation_config and 'arn' in variation_config:
+                        variation_config['inference_arn'] = variation_config.pop('arn')
+
+                    details = json.loads(eval_feature['details'])
+
                     experiment_config = {
-                        'id': eval_feature['details']['experiment'],
-                        'name': eval_feature['details']['experiment'],
+                        'id': details['experiment'],
+                        'name': details['experiment'],
                         'feature': feature,
-                        'project': eval_feature['project'],
+                        'project': eval_feature['project'].split('/')[-1],
                         'status': 'ACTIVE',
                         'type': 'evidently',
-                        'variations': [ json.loads(eval_feature['value']['stringValue']) ],
+                        'variations': [ variation_config ],
                         'variation_name': eval_feature['variation']
                     }
 
-                    experiment = EvidentlyExperiment(None, **experiment_config)
+                    experiment = EvidentlyExperiment(**experiment_config)
 
                 break
 
+        if not feature_found:
+            log.warning('Feature "%s" not found in Evidently for project "%s"', feature, project_name)
+
         return experiment
+
+    def create_from_correlation_id(self, correlation_id: str) -> EvidentlyExperiment:
+        id_bits = correlation_id.split('~')
+        if id_bits[0] != 'evidently':
+            raise Exception('Correlation ID does not appear to belong to an Evidently experiment')
+
+        feature = id_bits[2]
+
+        experiment_config = {
+            'id': 'evidently',
+            'name': 'Evidently Experiment',
+            'feature': feature,
+            'status': 'ACTIVE',
+            'type': 'evidently',
+            'variations': [ ],
+        }
+
+        return EvidentlyExperiment(**experiment_config)
 
     def _call_evidently_evaluate_features(self, user_id: str) -> List[Dict]:
         requests = []
@@ -55,7 +93,7 @@ class EvidentlyFeatureResolver:
             })
 
         response = evidently.batch_evaluate_feature(
-            project=project_arn,
+            project=project_name,
             requests=requests
         )
 

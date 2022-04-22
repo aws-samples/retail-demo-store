@@ -33,8 +33,8 @@ DEBUG_LOGGING = True
 
 random.seed(42)  # Keep our demonstration deterministic
 
-# Since the DescribeCampaign API easily throttles and we just need
-# the recipe from the campaign and it won't change often (if at all),
+# Since the DescribeRecommender/DescribeCampaign APIs easily throttles and we just
+# need the recipe from the recommender/campaign and it won't change often (if at all),
 # use a cache to help smooth out periods where we get throttled.
 personalize_meta_cache = ExpiringDict(2 * 60 * 60)
 
@@ -55,7 +55,7 @@ offers_arn_param_name = '/retaildemostore/personalize/personalized-offers-arn'
 # -- Shared Functions
 
 def get_recipe(arn):
-    """ Returns the Amazon Personalize recipe ARN for the specified campaign ARN """
+    """ Returns the Amazon Personalize recipe ARN for the specified campaign/recommender ARN """
     recipe = None
 
     is_recommender = arn.split(':')[5].startswith('recommender/')
@@ -117,24 +117,24 @@ def get_parameter_values(names):
 
     return values
 
-def get_products(feature, user_id, current_item_id, num_results, default_campaign_arn_param_name,
-                 default_filter_arn_param_name, user_reqd_for_campaign=False, fully_qualify_image_urls=False,
+def get_products(feature, user_id, current_item_id, num_results, default_inference_arn_param_name,
+                 default_filter_arn_param_name, user_reqd_for_inference=False, fully_qualify_image_urls=False,
                  ):
     """ Returns products given a UI feature, user, item/product.
 
     If a feature name is provided and there is an active experiment for the
     feature, the experiment will be used to retrieve products. Otherwise,
     the default behavior will be used which will look to see if an Amazon Personalize
-    campaign is available. If not, the Product service will be called to get products
+    campaign/recommender is available. If not, the Product service will be called to get products
     from the same category as the current product.
     Args:
         feature: Used to track different experiments - different experiments pertain to different features
         user_id: If supplied we are looking at user personalization
         current_item_id: Or maybe we are looking at related items
         num_results: Num to return
-        default_campaign_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
+        default_inference_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
         default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
-        user_reqd_for_campaign: Require a user ID to use Personalze - otherwise default
+        user_reqd_for_inference: Require a user ID to use Personalze - otherwise default
         fully_qualify_image_urls: Fully qualify image URLs n here
     Returns:
         A prepared HTTP response object.
@@ -180,18 +180,18 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
         resp_headers['X-Experiment-Type'] = experiment.type
         resp_headers['X-Experiment-Id'] = experiment.id
     else:
-        # Fallback to default behavior of checking for campaign ARN parameter and
+        # Fallback to default behavior of checking for campaign/recommender ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([default_campaign_arn_param_name, default_filter_arn_param_name])
+        values = get_parameter_values([default_inference_arn_param_name, default_filter_arn_param_name])
 
-        campaign_arn = values[0]
+        inference_arn = values[0]
         filter_arn = values[1]
 
-        if campaign_arn and (user_id or not user_reqd_for_campaign):
+        if inference_arn and (user_id or not user_reqd_for_inference):
 
-            logger.info(f"get_products: Supplied campaign: {campaign_arn} (from {default_campaign_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
+            logger.info(f"get_products: Supplied campaign/recommender: {inference_arn} (from {default_inference_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
 
-            resolver = PersonalizeRecommendationsResolver(campaign_arn = campaign_arn, filter_arn = filter_arn)
+            resolver = PersonalizeRecommendationsResolver(inference_arn = inference_arn, filter_arn = filter_arn)
 
             items = resolver.get_items(
                 user_id = user_id,
@@ -199,7 +199,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_campaig
                 num_results = num_results
             )
 
-            resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+            resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
         else:
             resolver = DefaultProductResolver(products_service_host = products_service_host, products_service_port = products_service_port)
 
@@ -303,7 +303,7 @@ def related():
     If a feature name is provided and there is an active experiment for the
     feature, the experiment will be used to retrieve related products. Otherwise,
     the default behavior will be used which will look to see if an Amazon Personalize
-    campaign for the related items campaign is available. If not, the Product service
+    campaign/recommender for related items is available. If not, the Product service
     will be called to get products from the same category as the current product.
     """
     user_id = request.args.get('userID')
@@ -336,7 +336,7 @@ def related():
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            default_campaign_arn_param_name='/retaildemostore/personalize/related-items-arn',
+            default_inference_arn_param_name='/retaildemostore/personalize/related-items-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
@@ -354,7 +354,7 @@ def recommendations():
     If an experiment is currently active for this feature ('home_product_recs'),
     recommendations will be provided by the experiment. Otherwise, the default
     behavior will be used which will look to see if an Amazon Personalize
-    campaign is available. If not, the Product service will be called to get
+    campaign/recommender is available. If not, the Product service will be called to get
     products from the same category as the current product or featured products.
     """
     user_id = request.args.get('userID')
@@ -387,7 +387,7 @@ def recommendations():
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            default_campaign_arn_param_name='/retaildemostore/personalize/recommended-for-you-arn',
+            default_inference_arn_param_name='/retaildemostore/personalize/recommended-for-you-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
@@ -407,7 +407,7 @@ def popular():
     If an experiment is currently active for this feature ('home_product_recs'),
     recommendations will be provided by the experiment. Otherwise, the default
     behavior will be used which will look to see if an Amazon Personalize
-    campaign is available. If not, the Product service will be called to get
+    campaign/recommender is available. If not, the Product service will be called to get
     products from the same category as the current product or featured products.
     """
     user_id = request.args.get('userID')
@@ -440,7 +440,7 @@ def popular():
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            default_campaign_arn_param_name='/retaildemostore/personalize/popular-items-arn',
+            default_inference_arn_param_name='/retaildemostore/personalize/popular-items-arn',
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
@@ -480,7 +480,7 @@ def ranking_request_params():
 
 
 def get_ranking(user_id, items, feature,
-                default_campaign_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn',
+                default_inference_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn',
                 top_n=None, context=None):
     """
     Re-ranks a list of items using personalized reranking.
@@ -491,7 +491,7 @@ def get_ranking(user_id, items, feature,
         items (list[dict]): e.g. [{"itemId":"33", "url":"path_to_product33"},
                                   {"itemId":"22", "url":"path_to_product22"}]
         feature: Used to lookup the currently active experiment.
-        default_campaign_arn_param_name: For discounts this would be different.
+        default_inference_arn_param_name: For discounts this would be different.
         top_n (Optional[int]): Only return the top N ranked if not None.
         context (Optional[dict]): If available, passed to the reranking Personalization recipe.
 
@@ -541,17 +541,17 @@ def get_ranking(user_id, items, feature,
         resp_headers['X-Experiment-Type'] = experiment.type
         resp_headers['X-Experiment-Id'] = experiment.id
     else:
-        # Fallback to default behavior of checking for campaign ARN parameter and
+        # Fallback to default behavior of checking for campaign/recommender ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([default_campaign_arn_param_name, filter_purchased_param_name])
+        values = get_parameter_values([default_inference_arn_param_name, filter_purchased_param_name])
         app.logger.info(f'Falling back to Personalize: {values}')
 
-        campaign_arn = values[0]
+        inference_arn = values[0]
         filter_arn = values[1]
 
-        if campaign_arn:
-            resolver = PersonalizeRankingResolver(campaign_arn=campaign_arn, filter_arn=filter_arn)
-            resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+        if inference_arn:
+            resolver = PersonalizeRankingResolver(inference_arn=inference_arn, filter_arn=filter_arn)
+            resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
         else:
             app.logger.info(f'Falling back to No-op: {values}')
             resolver = RankingProductsNoOpResolver()
@@ -613,9 +613,9 @@ def rerank():
 
 
 def get_top_n(user_id, items, feature, top_n,
-            default_campaign_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn'):
+            default_inference_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn'):
     """
-    Gets Top N items using provided campaign.
+    Gets Top N items using provided campaign/recommender.
     Or delegates to experiment manager if there is an active experiment.
 
     Args:
@@ -624,7 +624,7 @@ def get_top_n(user_id, items, feature, top_n,
                                   {"itemId":"22", "url":"path_to_product22"}]
         feature: Used to lookup the currently active experiment.
         top_n (int): Only return the top N ranked if not None.
-        default_campaign_arn_param_name: Change this to use a different campaign.
+        default_inference_arn_param_name: Change this to use a different campaign/recommender.
 
     Returns:
         Items as passed in, but truncated according to picker - also might have experimentation metadata added.
@@ -672,19 +672,19 @@ def get_top_n(user_id, items, feature, top_n,
         resp_headers['X-Experiment-Type'] = experiment.type
         resp_headers['X-Experiment-Id'] = experiment.id
     else:
-        # Fallback to default behavior of checking for campaign ARN parameter and
+        # Fallback to default behavior of checking for campaign/recommender ARN parameter and
         # then the default product resolver.
-        values = get_parameter_values([default_campaign_arn_param_name, filter_purchased_param_name])
+        values = get_parameter_values([default_inference_arn_param_name, filter_purchased_param_name])
         app.logger.info(f'Falling back to Personalize: {values}')
 
-        campaign_arn = values[0]
+        inference_arn = values[0]
         filter_arn = values[1]
 
-        if campaign_arn:
-            resolver = PersonalizeContextComparePickResolver(campaign_arn=campaign_arn, filter_arn=filter_arn,
+        if inference_arn:
+            resolver = PersonalizeContextComparePickResolver(inference_arn=inference_arn, filter_arn=filter_arn,
                                                              with_context={'Discount': 'Yes'},
                                                              without_context={})
-            resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+            resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
         else:
             app.logger.info(f'Falling back to No-op: {values}')
             resolver = RandomPickResolver()
@@ -845,7 +845,7 @@ def coupon_offer():
     resp_headers = {}
     try:
 
-        campaign_arn = get_parameter_values(offers_arn_param_name)[0]
+        inference_arn = get_parameter_values(offers_arn_param_name)[0]
         offers_service_host, offers_service_port = get_offers_service()
 
         url = f'http://{offers_service_host}:{offers_service_port}/offers'
@@ -862,18 +862,18 @@ def coupon_offer():
             offers_by_id = {str(offer['id']): offer for offer in offers}
             offer_ids = sorted(list(offers_by_id.keys()))
 
-            if not campaign_arn:
+            if not inference_arn:
                 app.logger.warning('No campaign Arn set for offers - returning arbitrary')
                 # We deterministically choose an offer
                 # - random approach would have been chosen_offer_id = random.choice(offer_ids)
                 chosen_offer_id = offer_ids[int(user_id) % len(offer_ids)]
                 chosen_score = None
             else:
-                resp_headers['X-Personalize-Recipe'] = get_recipe(campaign_arn)
+                resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
                 logger.info(f"Input to Personalized Ranking for offers: userId: {user_id}({type(user_id)}) "
                             f"inputList: {offer_ids}")
                 get_recommendations_response = personalize_runtime.get_recommendations(
-                    campaignArn=campaign_arn,
+                    campaignArn=inference_arn,
                     userId=user_id,
                     numResults=len(offer_ids)
                 )
@@ -946,23 +946,14 @@ def experiment_outcome():
     if not correlation_id:
         raise BadRequest('correlationId is required')
 
-    correlation_bits = correlation_id.split('_')
-    if len(correlation_bits) != 4:
-        raise BadRequest('correlationId is invalid')
-
     exp_manager = ExperimentManager()
-    if not exp_manager.is_configured():
-        raise BadRequest('Experiments have not been configured')
 
     try:
-        experiment = exp_manager.get_by_id(correlation_bits[0])
+        experiment = exp_manager.get_by_correlation_id(correlation_id)
         if not experiment:
             return jsonify({ 'status_code': 404, 'message': 'Experiment not found' }), 404
 
-        user_id = correlation_bits[1]
-        variation_index = int(correlation_bits[2])
-        result_rank = int(correlation_bits[3])
-        experiment.track_conversion(user_id=user_id, variation_index=variation_index, result_rank=result_rank)
+        experiment.track_conversion(correlation_id)
 
         return jsonify(success=True)
 

@@ -5,13 +5,12 @@ import random
 import time
 import logging
 
-from botocore.exceptions import ClientError
 from experimentation.experiment import Experiment
 
 log = logging.getLogger(__name__)
 
 class InterleavingExperiment(Experiment):
-    """ Implements interleaving technique described in research paper by 
+    """ Implements interleaving technique described in research paper by
     Chapelle et al http://olivier.chapelle.cc/pub/interleaving.pdf
     """
     METHOD_BALANCED = 'balanced'
@@ -85,10 +84,10 @@ class InterleavingExperiment(Experiment):
         return interleaved
 
     """
-    Implements the balanced interleaving method described in the Interleaving 
+    Implements the balanced interleaving method described in the Interleaving
     research paper by Chapelle et al http://olivier.chapelle.cc/pub/interleaving.pdf
 
-    The paper describes interleaving results from two rankings, A and B, but 
+    The paper describes interleaving results from two rankings, A and B, but
     this implementation supports interleaving from more than two rankings.
 
     Pseudo logic:
@@ -96,7 +95,7 @@ class InterleavingExperiment(Experiment):
     Input: two or more lists of rankings (2 rankings A & B is typical)
     Init: randomize order of rankings to set selection order
 
-    while (not at the end of any ranking) do 
+    while (not at the end of any ranking) do
         determine the first ranking that has contributed the fewest items to results
         if (next item from ranking is not in results) then
             add next item from ranking to results
@@ -120,7 +119,7 @@ class InterleavingExperiment(Experiment):
             # Find lowest offset to determine which variation list to pull next result
             next_idx = 0
             for i in range(len(offsets)):
-                if (offsets[i] < offsets[next_idx] and 
+                if (offsets[i] < offsets[next_idx] and
                         offsets[i] < len(list_of_item_lists[selection_order[i]])):
                     next_idx = i
 
@@ -145,21 +144,21 @@ class InterleavingExperiment(Experiment):
                     'correlationId': correlation_id
                 }
 
-                item.update({ 
+                item.update({
                     'experiment': item_experiment
                 })
 
                 result.append(item)
-            
-            offsets[next_idx] = offsets[next_idx] + 1 
-        
+
+            offsets[next_idx] = offsets[next_idx] + 1
+
         return result
 
     """
-    Implements the team-draft interleaving method described in the Interleaving 
+    Implements the team-draft interleaving method described in the Interleaving
     research paper by Chapelle et al http://olivier.chapelle.cc/pub/interleaving.pdf
 
-    The paper describes interleaving results from two rankings, A and B, but 
+    The paper describes interleaving results from two rankings, A and B, but
     this implementation supports interleaving from more than two rankings.
 
     Pseudo logic:
@@ -167,7 +166,7 @@ class InterleavingExperiment(Experiment):
     Input: two or more lists of rankings (2 rankings A & B is typical)
     Init: Roster (list) for each team/ranking as players/items are selected
 
-    while (not at the end of any team's ranking) do 
+    while (not at the end of any team's ranking) do
         determine list of teams with smallest size
         if (there are multiple teams with smallest size) then
             randomly select a team from this list to select next
@@ -226,7 +225,7 @@ class InterleavingExperiment(Experiment):
                         'correlationId': correlation_id
                     }
 
-                    item.update({ 
+                    item.update({
                         'experiment': item_experiment
                     })
 

@@ -35,8 +35,13 @@ class Experiment(ABC):
         """ For a given user, returns item recommendations for this experiment along with experiment tracking/correlation information """
         pass
 
-    def track_conversion(self, user_id, variation_index, result_rank):
+    def track_conversion(self, correlation_id: str):
         """ Call this method to track a conversion/outcome for an experiment """
+        correlation_bits = correlation_id.split('~')
+        user_id = correlation_bits[1]
+        variation_index = int(correlation_bits[2])
+        result_rank = int(correlation_bits[3])
+
         if variation_index < 0 or variation_index >= len(self.variations):
             raise Exception('variation_index is out of bounds')
 
@@ -79,7 +84,7 @@ class Experiment(ABC):
 
     def _create_correlation_id(self, user_id, variation_index, result_rank):
         """ Returns an identifier representing a recommended item for an experiment """
-        return f'{self.id}_{user_id}_{variation_index}_{result_rank}'
+        return f'{self.id}~{user_id}~{variation_index}~{result_rank}'
 
     def _getClassName(self):
         return self.__class__.__name__
