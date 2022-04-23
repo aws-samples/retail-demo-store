@@ -281,12 +281,11 @@ Resources:
                   - lambda:InvokeFunction
                 Resource:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - evidently:BatchEvaluateFeature
-                  - evidently:PutProjectEvents
+                  - evidently:* # TODO: scope down
                 Resource:
-                  - '*'
+                  - '*' # TODO: scope down
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
