@@ -25,6 +25,7 @@ import boto3
 import requests
 import random
 import logging
+from datetime import datetime
 
 NUM_DISCOUNTS = 2
 
@@ -940,11 +941,19 @@ def experiment_outcome():
         app.logger.info(content)
 
         correlation_id = content.get('correlationId')
+        timestamp_raw = content.get('timestamp')
     else:
         correlation_id = request.form.get('correlationId')
+        timestamp_raw = request.form.get('timestamp')
 
     if not correlation_id:
         raise BadRequest('correlationId is required')
+
+    timestamp: datetime = None
+    if timestamp_raw:
+        if isinstance(timestamp_raw, str) and not timestamp_raw.isnumeric():
+            raise BadRequest('timestamp is not numeric (must be unix time)')
+        timestamp = datetime.fromtimestamp(int(timestamp_raw))
 
     exp_manager = ExperimentManager()
 
@@ -953,7 +962,7 @@ def experiment_outcome():
         if not experiment:
             return jsonify({ 'status_code': 404, 'message': 'Experiment not found' }), 404
 
-        experiment.track_conversion(correlation_id)
+        experiment.track_conversion(correlation_id, timestamp)
 
         return jsonify(success=True)
 

@@ -3,6 +3,7 @@
 
 import logging
 
+from datetime import datetime
 from botocore.exceptions import ClientError
 from abc import ABC, abstractmethod
 from experimentation.resolvers import ResolverFactory
@@ -35,7 +36,7 @@ class Experiment(ABC):
         """ For a given user, returns item recommendations for this experiment along with experiment tracking/correlation information """
         pass
 
-    def track_conversion(self, correlation_id: str):
+    def track_conversion(self, correlation_id: str, timestamp: datetime) -> int:
         """ Call this method to track a conversion/outcome for an experiment """
         correlation_bits = correlation_id.split('~')
         user_id = correlation_bits[1]
@@ -49,15 +50,15 @@ class Experiment(ABC):
 
         return self._increment_convert_count(variation_index)
 
-    def _increment_exposure_count(self, variation, count = 1):
+    def _increment_exposure_count(self, variation: int, count: int = 1) -> int:
         """ Call this method when a user is exposed to a variation of an experiment """
         return self.__increment_variation_count('exposures', variation, count)
 
-    def _increment_convert_count(self, variation, count = 1):
+    def _increment_convert_count(self, variation: int, count: int = 1) -> int:
         """ Call this method when a user converts for a variation of an experiment """
         return self.__increment_variation_count('conversions', variation, count)
 
-    def __increment_variation_count(self, field_name, variation, count = 1):
+    def __increment_variation_count(self, field_name: str, variation: int, count: int = 1) -> int:
         try:
             response = self._table.update_item(
                 Key={'id': self.id},
@@ -82,7 +83,7 @@ class Experiment(ABC):
             else:
                 raise e
 
-    def _create_correlation_id(self, user_id, variation_index, result_rank):
+    def _create_correlation_id(self, user_id: str, variation_index: int, result_rank: int) -> str:
         """ Returns an identifier representing a recommended item for an experiment """
         return f'{self.id}~{user_id}~{variation_index}~{result_rank}'
 

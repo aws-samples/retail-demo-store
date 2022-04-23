@@ -6,7 +6,7 @@ import json
 import logging
 import os
 from datetime import datetime
-
+from typing import List
 from . import experiment
 
 log = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class EvidentlyExperiment(experiment.Experiment):
         self.variation_name = data.get('variation_name')
         self.project = data.get('project', os.environ.get('EVIDENTLY_PROJECT_NAME'))
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
+    def get_items(self, user_id: str, current_item_id: str = None, item_list: List = None, num_results: int = 10, tracker=None, context=None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) != 1:
@@ -66,20 +66,20 @@ class EvidentlyExperiment(experiment.Experiment):
 
         return items
 
-    def track_conversion(self, correlation_id: str):
+    def track_conversion(self, correlation_id: str, timestamp: datetime):
         """ Call this method to track a conversion/outcome for an experiment """
         correlation_bits = correlation_id.split('~')
         user_id = correlation_bits[1]
-        self._send_evidently_event(user_id, CONVERSION_METRIC_VALUE)
+        self._send_evidently_event(user_id, CONVERSION_METRIC_VALUE, timestamp)
 
-    def _send_evidently_event(self, user_id: str, metric_value: float):
+    def _send_evidently_event(self, user_id: str, metric_value: float, timestamp: datetime = datetime.now()):
         metric_name = f'{self._snake_to_camel_case(self.feature)}Clicked'
         response = evidently.put_project_events(
             project = self.project,
             events = [
                 {
                     'type': 'aws.evidently.custom',
-                    'timestamp': datetime.now(),
+                    'timestamp': timestamp,
                     'data': json.dumps({
                         'details': {
                             metric_name: metric_value
@@ -93,10 +93,11 @@ class EvidentlyExperiment(experiment.Experiment):
         )
         log.debug(response)
 
-    def _create_evidently_correlation_id(self, user_id):
+    def _create_evidently_correlation_id(self, user_id: str) -> str:
         """ Returns an identifier representing a recommended item for an experiment """
         return f'evidently~{user_id}~{self.feature}'
 
     def _snake_to_camel_case(self, snake: str) -> str:
+        """ Converts string in snake case to camel case """
         first, *others = snake.split('_')
         return ''.join([first.lower(), *map(str.title, others)])
