@@ -66,7 +66,7 @@ class EvidentlyExperiment(experiment.Experiment):
 
         return items
 
-    def track_conversion(self, correlation_id: str, timestamp: datetime):
+    def track_conversion(self, correlation_id: str, timestamp: datetime = datetime.now()):
         """ Call this method to track a conversion/outcome for an experiment """
         correlation_bits = correlation_id.split('~')
         user_id = correlation_bits[1]
