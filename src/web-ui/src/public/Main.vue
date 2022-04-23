@@ -81,6 +81,7 @@ const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 12;
 const EXPERIMENT_USER_RECS_FEATURE = 'home_product_recs';
+const EXPERIMENT_USER_RECS_COLD_FEATURE = 'home_product_recs_cold';
 const EXPERIMENT_RERANK_FEATURE = 'home_featured_rerank';
 
 export default {
@@ -161,19 +162,23 @@ export default {
 
       var response;
       if (this.personalizeRecommendationsForVisitor) {
+        this.featureUserRecs = EXPERIMENT_USER_RECS_FEATURE;
+
         response = await RecommendationsRepository.getRecommendationsForUser(
           this.personalizeUserID,
           '',
           MAX_RECOMMENDATIONS,
-          EXPERIMENT_USER_RECS_FEATURE,
+          this.featureUserRecs
         );
       }
       else {
+        this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
+
         response = await RecommendationsRepository.getPopularProducts(
           this.personalizeUserID,
           '',
           MAX_RECOMMENDATIONS,
-          EXPERIMENT_USER_RECS_FEATURE,
+          this.featureUserRecs
         );
       }
 

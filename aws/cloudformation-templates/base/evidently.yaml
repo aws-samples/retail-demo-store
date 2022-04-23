@@ -29,6 +29,20 @@ Resources:
         - VariationName: Personalize-UserPersonalization
           StringValue: !Sub '{"type":"personalize-recommendations","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:recommender/retaildemostore-recommended-for-you"}'
 
+  FeatureHomeProductRecsCold:
+    Type: AWS::Evidently::Feature
+    Properties:
+      DefaultVariation: Personalize-PopularItems
+      Description: Home page product recommendations for new/cold users
+      EvaluationStrategy: ALL_RULES
+      Name: home_product_recs_cold
+      Project: !Ref EvidentlyProject
+      Variations:
+        - VariationName: FeaturedProducts
+          StringValue: '{"type":"product"}'
+        - VariationName: Personalize-PopularItems
+          StringValue: !Sub '{"type":"personalize-recommendations","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:recommender/retaildemostore-popular-items"}'
+
   FeatureHomeFeaturedRerank:
     Type: AWS::Evidently::Feature
     Properties:
@@ -100,6 +114,99 @@ Resources:
           StringValue: '{"type":"ranking-no-op"}'
         - VariationName: Personalize-PersonalizedRanking
           StringValue: !Sub '{"type":"personalize-ranking","arn":"arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:campaign/retaildemostore-personalized-ranking"}'
+
+  EvidentlyCleanupLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that cancels and deletes experiments to allow project to be fully deleted'
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+            print(event)
+
+            response_data = {}
+            response_status = cfnresponse.SUCCESS
+
+            try:
+              project_name = event['ResourceProperties']['EvidentlyProjectName']
+
+              if event['RequestType'] == 'Delete':
+                evidently = boto3.client('evidently')
+
+                experiments_stopped = 0
+                experiments_deleted = 0
+                paginator = evidently.get_paginator('list_experiments')
+                for paginate_result in paginator.paginate(project = project_name):
+                  for experiment in paginate_result['experiments']:
+                    if experiment['status'] == 'RUNNING':
+                      evidently.stop_experiment(desiredState='CANCELLED',
+                        experiment=experiment['name'],
+                        project=project_name
+                      )
+                      experiments_stopped += 1
+
+                    evidently.delete_experiment(experiment=experiment['name'],
+                        project=project_name
+                    )
+                    experiments_deleted += 1
+
+                response_data['Message'] = f"Stopped {experiments_stopped} experiments and deleted {experiments_deleted} experiments"
+              else:
+                response_data['Message'] = "Nothing to do for this request type"
+
+            except Exception as e:
+              print("Error: " + str(e))
+              response_status = cfnresponse.FAILED
+              response_data['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
+
+            cfnresponse.send(event, context, response_status, response_data)
+
+      Handler: index.handler
+      Runtime: python3.9
+      Timeout: 120
+      Role: !GetAtt EvidentlyCleanupLambdaExecutionRole.Arn
+
+  CustomEvidentlyCleanup:
+    Type: Custom::EvidentlyCleanup
+    DependsOn: EvidentlyProject
+    Properties:
+      ServiceToken: !GetAtt EvidentlyCleanupLambdaFunction.Arn
+      EvidentlyProjectName: !Ref Uid
+
+  EvidentlyCleanupLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+        - PolicyName: Evidently
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - evidently:*
+                Resource:
+                  - '*'
 
 Outputs:
   EvidentlyProjectName:
