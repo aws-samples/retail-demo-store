@@ -73,6 +73,10 @@ class EvidentlyExperiment(experiment.Experiment):
         self._send_evidently_event(user_id, CONVERSION_METRIC_VALUE, timestamp)
 
     def _send_evidently_event(self, user_id: str, metric_value: float, timestamp: datetime = datetime.now()):
+        # In case None is passed for timestamp
+        if not timestamp:
+            timestamp = datetime.now()
+
         metric_name = f'{self._snake_to_camel_case(self.feature)}Clicked'
         response = evidently.put_project_events(
             project = self.project,
