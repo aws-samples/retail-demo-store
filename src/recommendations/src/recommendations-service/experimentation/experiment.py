@@ -18,8 +18,7 @@ class Variation:
 class Experiment(ABC):
     """ Base class for all experiment types """
 
-    def __init__(self, table, **data):
-        self._table = table
+    def __init__(self, **data):
         self.id = data['id']
         self.feature = data['feature']
         self.name = data['name']
@@ -32,9 +31,28 @@ class Experiment(ABC):
             self.variations.append(Variation(**v))
 
     @abstractmethod
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None, timestamp: datetime = None):
         """ For a given user, returns item recommendations for this experiment along with experiment tracking/correlation information """
         pass
+
+    @abstractmethod
+    def track_conversion(self, correlation_id: str, timestamp: datetime) -> int:
+        """ Call this method to track a conversion/outcome for an experiment """
+        pass
+
+    def _create_correlation_id(self, user_id: str, variation_index: int, result_rank: int) -> str:
+        """ Returns an identifier representing a recommended item for an experiment """
+        return f'{self.id}~{user_id}~{variation_index}~{result_rank}'
+
+    def _getClassName(self):
+        return self.__class__.__name__
+
+class BuiltInExperiment(Experiment):
+    """ Base class for all built-in experiment types """
+
+    def __init__(self, table, **data):
+        super().__init__(None, **data)
+        self._table = table
 
     def track_conversion(self, correlation_id: str, timestamp: datetime) -> int:
         """ Call this method to track a conversion/outcome for an experiment """
@@ -82,10 +100,3 @@ class Experiment(ABC):
                 return int(response['Attributes']['variations'][0][field_name])
             else:
                 raise e
-
-    def _create_correlation_id(self, user_id: str, variation_index: int, result_rank: int) -> str:
-        """ Returns an identifier representing a recommended item for an experiment """
-        return f'{self.id}~{user_id}~{variation_index}~{result_rank}'
-
-    def _getClassName(self):
-        return self.__class__.__name__

@@ -118,6 +118,22 @@ def get_parameter_values(names):
 
     return values
 
+def get_timestamp_from_request() -> datetime:
+    timestamp_raw = request.args.get('timestamp')
+    if not timestamp_raw and request.method == 'POST':
+        if request.is_json:
+            timestamp_raw = request.json.get('timestamp')
+        elif request.content_type.startswith('application/x-www-form-urlencoded'):
+            timestamp_raw = request.form.get('timestamp')
+
+    timestamp: datetime = None
+    if timestamp_raw:
+        if isinstance(timestamp_raw, str) and not timestamp_raw.isnumeric():
+            raise BadRequest('timestamp is not numeric (must be unix time)')
+        timestamp = datetime.fromtimestamp(int(timestamp_raw))
+
+    return timestamp
+
 def get_products(feature, user_id, current_item_id, num_results, default_inference_arn_param_name,
                  default_filter_arn_param_name, user_reqd_for_inference=False, fully_qualify_image_urls=False,
                  ):
@@ -174,7 +190,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = num_results,
-            tracker = tracker
+            tracker = tracker,
+            timestamp = get_timestamp_from_request()
         )
 
         resp_headers['X-Experiment-Name'] = experiment.name
@@ -479,7 +496,6 @@ def ranking_request_params():
 
     return user_id, items, feature
 
-
 def get_ranking(user_id, items, feature,
                 default_inference_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn',
                 top_n=None, context=None):
@@ -533,7 +549,8 @@ def get_ranking(user_id, items, feature,
             user_id=user_id,
             item_list=unranked_items,
             tracker=tracker,
-            context=context
+            context=context,
+            timestamp=get_timestamp_from_request()
         )
 
         app.logger.debug(f"Experiment ranking resolver gave us this ranking: {ranked_items}")
@@ -664,7 +681,8 @@ def get_top_n(user_id, items, feature, top_n,
             user_id=user_id,
             item_list=unranked_items,
             tracker=tracker,
-            num_results=top_n
+            num_results=top_n,
+            timestamp=get_timestamp_from_request()
         )
 
         app.logger.debug(f"Experiment ranking resolver gave us this ranking: {topn_items}")
@@ -941,19 +959,11 @@ def experiment_outcome():
         app.logger.info(content)
 
         correlation_id = content.get('correlationId')
-        timestamp_raw = content.get('timestamp')
     else:
         correlation_id = request.form.get('correlationId')
-        timestamp_raw = request.form.get('timestamp')
 
     if not correlation_id:
         raise BadRequest('correlationId is required')
-
-    timestamp: datetime = None
-    if timestamp_raw:
-        if isinstance(timestamp_raw, str) and not timestamp_raw.isnumeric():
-            raise BadRequest('timestamp is not numeric (must be unix time)')
-        timestamp = datetime.fromtimestamp(int(timestamp_raw))
 
     exp_manager = ExperimentManager()
 
@@ -962,7 +972,7 @@ def experiment_outcome():
         if not experiment:
             return jsonify({ 'status_code': 404, 'message': 'Experiment not found' }), 404
 
-        experiment.track_conversion(correlation_id, timestamp)
+        experiment.track_conversion(correlation_id, get_timestamp_from_request())
 
         return jsonify(success=True)
 

@@ -58,7 +58,7 @@ class ExperimentManager:
                                 'status': 'ACTIVE',
                                 'type': 'optimizely',
                                 'variations': []}
-                        return OptimizelyFeatureTest(None, **data)
+                        return OptimizelyFeatureTest(**data)
 
         # 2. Check for active Evidently experiment.
         evidently_experiment = EvidentlyFeatureResolver().evaluate_feature(user_id, feature)

@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: MIT-0
 
 import random
-import time
+from datetime import datetime
 import logging
 
-from experimentation.experiment import Experiment
+from experimentation.experiment import BuiltInExperiment
 
 log = logging.getLogger(__name__)
 
-class InterleavingExperiment(Experiment):
+class InterleavingExperiment(BuiltInExperiment):
     """ Implements interleaving technique described in research paper by
     Chapelle et al http://olivier.chapelle.cc/pub/interleaving.pdf
     """
@@ -20,7 +20,7 @@ class InterleavingExperiment(Experiment):
         super(InterleavingExperiment, self).__init__(table, **data)
         self.method = data.get('method', InterleavingExperiment.METHOD_BALANCED)
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None, timestamp: datetime = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -63,9 +63,10 @@ class InterleavingExperiment(Experiment):
                     'variation_index': item['experiment']['variationIndex']
                 })
 
+            timestamp = datetime.now() if not timestamp else timestamp
             event = {
                 'event_type': 'Experiment Exposure',
-                'event_timestamp': int(round(time.time() * 1000)),
+                'event_timestamp': int(round(timestamp.timestamp() * 1000)),
                 'attributes': {
                     'user_id': user_id,
                     'experiment': {

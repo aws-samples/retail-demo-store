@@ -17,12 +17,13 @@ EXPOSURE_METRIC_VALUE = 0.0000001
 CONVERSION_METRIC_VALUE = 1.0000001
 
 class EvidentlyExperiment(experiment.Experiment):
+    """ Experiment implementation for a Amazon CloudWatch Evidently experiment """
     def __init__(self, **data):
-        super().__init__(None, **data)
+        super().__init__(**data)
         self.variation_name = data.get('variation_name')
         self.project = data.get('project', os.environ.get('EVIDENTLY_PROJECT_NAME'))
 
-    def get_items(self, user_id: str, current_item_id: str = None, item_list: List = None, num_results: int = 10, tracker=None, context=None):
+    def get_items(self, user_id: str, current_item_id: str = None, item_list: List = None, num_results: int = 10, tracker=None, context=None, timestamp: datetime = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) != 1:
@@ -62,7 +63,7 @@ class EvidentlyExperiment(experiment.Experiment):
             rank += 1
 
         # Log exposure with Evidently
-        self._send_evidently_event(user_id, EXPOSURE_METRIC_VALUE)
+        self._send_evidently_event(user_id, EXPOSURE_METRIC_VALUE, timestamp)
 
         return items
 
@@ -74,10 +75,11 @@ class EvidentlyExperiment(experiment.Experiment):
 
     def _send_evidently_event(self, user_id: str, metric_value: float, timestamp: datetime = datetime.now()):
         # In case None is passed for timestamp
-        if not timestamp:
-            timestamp = datetime.now()
+        timestamp = datetime.now() if not timestamp else timestamp
 
+        # We convert the feature name from snake case to camel case for the metric value key.
         metric_name = f'{self._snake_to_camel_case(self.feature)}Clicked'
+
         response = evidently.put_project_events(
             project = self.project,
             events = [

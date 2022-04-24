@@ -19,8 +19,16 @@ eval_features_by_user_cache = ExpiringDict(30)
 project_name = os.environ['EVIDENTLY_PROJECT_NAME']
 
 class EvidentlyFeatureResolver:
+    """
+    This class is used by ExperimentManager to determine if an Evidently experiment is active
+    for a feature as well as for mapping a correlation ID to an EvidentlyExperiment instance for logging outcomes.
+    """
 
     def evaluate_feature(self, user_id: str, feature: str) -> EvidentlyExperiment:
+        """ Evaluates a storefront feature for a user
+        An EvidentlyExperiment will be returned if there is an active Evidently experiment for the feature or
+        None if an experiment is not active.
+        """
         cache_key = user_id
         evaluated = eval_features_by_user_cache.get(cache_key)
         if evaluated is None:
@@ -67,6 +75,11 @@ class EvidentlyFeatureResolver:
         return experiment
 
     def create_from_correlation_id(self, correlation_id: str) -> EvidentlyExperiment:
+        """ Creates an EvidentlyExperiment given a correlation ID
+
+        A correlation ID is created by EvidentlyExperiment for each recommended item that is part of an
+        active experiment. This ID is used when logging outcomes/conversions to map back to an experiment.
+        """
         id_bits = correlation_id.split('~')
         if id_bits[0] != 'evidently':
             raise Exception('Correlation ID does not appear to belong to an Evidently experiment')
