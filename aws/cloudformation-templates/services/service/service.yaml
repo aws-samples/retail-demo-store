@@ -210,7 +210,6 @@ Resources:
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
                   - personalize:CreateSchema
                   - personalize:CreateDatasetGroup
                   - personalize:CreateSolutionVersion
@@ -235,7 +234,6 @@ Resources:
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
                   - personalize:ListCampaigns
                   - personalize:ListDatasetGroups
                   - personalize:ListSolutions
@@ -283,9 +281,11 @@ Resources:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
               - Effect: Allow
                 Action:
-                  - evidently:* # TODO: scope down
+                  - evidently:BatchEvaluateFeature
+                  - evidently:PutProjectEvents
                 Resource:
-                  - '*' # TODO: scope down
+                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
+                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess

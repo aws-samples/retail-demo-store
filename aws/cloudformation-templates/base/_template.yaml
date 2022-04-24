@@ -184,6 +184,7 @@ Resources:
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
+        EvidentlyProjectName: !GetAtt Evidently.Outputs.EvidentlyProjectName
 
   # Tables
   Tables:
