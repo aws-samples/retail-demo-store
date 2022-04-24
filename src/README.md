@@ -15,11 +15,19 @@ You can find the common environment variables from your deployed stack in the Cl
 ```sh
 aws cloudformation describe-stacks --stack-name retaildemostore \
   --region REGION \
-  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue" 
+  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue"
   --output text
 ```
 
 Then you can copy and override variables for each service in your [.env](.env) file.
+
+### Amazon ECR authorization
+
+Since some of the Docker images are hosted in Amazon ECR, you must authenticate your shell session before running docker-compose. Otherwise, the images will not be able to be downloaded. Run the following command to authenticate before running docker-compose. You should only have to do this once per shell session.
+
+```sh
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+```
 
 ### AWS credentials
 
