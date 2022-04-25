@@ -80,6 +80,7 @@ export default {
   },
   data() {
     return {
+      fenixCallback: 0,
       fenixData: '',
       fenixResponse: '',
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
@@ -174,6 +175,7 @@ export default {
 
     // Fenix delivery estimates call.
     getEstimates() {
+      this.fenixCallback++;
       const headers = {
         tenantId: this.tenantId,
         'Content-Type': 'application/json',
@@ -185,6 +187,7 @@ export default {
         })
           .then((response) => {
             this.fenixDataReceived = true;
+            this.fenixDataReceived_other = true;
             this.fenixData = response.data;
             this.invalidZip = false;
             this.changeZipDiv = false;
@@ -193,6 +196,11 @@ export default {
             } 
           })
           .catch((error) => {
+            if(this.fenixCallback<2){
+              this.requestData.buyerZipCode = 10001;
+              Cookies.set('fenixlocation', 10001, { expires: 14 });
+              this.getEstimates();
+            }
             this.errorhandlers(error.response);
           });
       } catch (err) {

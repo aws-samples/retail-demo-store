@@ -32,6 +32,7 @@ export default {
   },
   data() {
     return {
+      fenixCallback: 0,
       fenixDataReceived: false,
       fenixDataReceived_other: true,
       currentURL: 'https://fenixcommerce.com?track='+window.location.href,
@@ -54,6 +55,7 @@ export default {
   methods: {
     // Fenix delivery estimates call.
     getEstimates() {
+      this.fenixCallback++;
       const requiredobject = [];
       this.fenixCartItems.forEach((items) => {
         const onemoreobject = {};
@@ -81,12 +83,18 @@ export default {
         .then((result) => {
           this.fenixdata = result.data;
           this.invalidZip = false;
+          this.fenixDataReceived_other = true;
           if (result.data[0].response !== undefined && result.data[0].response !== '') {
             this.fenixResponse = result.data;
             this.fenixDataReceived = true;
           }
         })
         .catch(() => {
+          if(this.fenixCallback<2){
+            this.requestData.buyerZipCode = 10001;
+            Cookies.set('fenixlocation', 10001, { expires: 14 });
+            this.getEstimates();
+          }
           this.fenixDataReceived_other = false;
           this.fenixDataReceived = false;
         });
