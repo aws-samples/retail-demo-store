@@ -79,6 +79,7 @@ Resources:
       Environment:
         Variables:
           RESOURCE_BUCKET: !Ref ResourceBucket
+          RESOURCE_BUCKET_PATH: !Ref ResourceBucketRelativePath
 
 
   LocationResourceStackLambdaExecutionRole:

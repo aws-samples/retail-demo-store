@@ -4,6 +4,7 @@ env:
 phases:
   build:
     commands:
+      - chmod +x ./src/swagger-ui/*.bash
       - ./src/swagger-ui/copy-spec-files.bash
       - ./src/swagger-ui/generate-services-json-file.bash
       - cat ./src/swagger-ui/services.json
@@ -16,7 +17,9 @@ phases:
       - aws s3 cp --recursive ./specs s3://${SWAGGER_UI_BUCKET_NAME}/specs
       - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./index.html s3://${SWAGGER_UI_BUCKET_NAME}/
       - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./services.json s3://${SWAGGER_UI_BUCKET_NAME}/
-      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html /services.json
+      - INVALIDATION_ID=`aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html /services.json --output text --query 'Invalidation.Id'`
+      - aws cloudfront wait invalidation-completed --distribution-id ${CLOUDFRONT_DIST_ID} --id ${INVALIDATION_ID}
+      - echo "CloudFront URL = ${SWAGGER_UI_ROOT_URL}"
 artifacts:
   files:
     - '**/*'

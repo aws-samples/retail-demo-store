@@ -22,6 +22,10 @@
             </ul>
           </div>
           <div v-if="cart.items.length > 0" class="summary-container col-lg-auto">
+             <FenixCart
+              v-if="fenixenableCART == 'TRUE'"
+              :lineItems="cart">
+            </FenixCart>
             <div class="summary p-4">
               <div class="summary-quantity">{{ summaryQuantityReadout }}</div>
               <div class="summary-total mb-2 font-weight-bold">Your Total: {{ formattedCartTotal }}</div>
@@ -47,12 +51,21 @@ import Layout from '@/components/Layout/Layout';
 
 import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton';
 
+import FenixCart from '@/components/Fenix/FenixCart';
+
+
 export default {
   name: 'Cart',
   components: {
     Layout,
     CartItem,
     AbandonCartButton,
+    FenixCart
+  },
+  data() {
+    return {
+      fenixenableCART : process.env.VUE_APP_FENIX_ENABLED_CART,
+    };
   },
   created() {
     AnalyticsHandler.cartViewed(this.user, this.cart, this.cartQuantity, this.cartTotal);
