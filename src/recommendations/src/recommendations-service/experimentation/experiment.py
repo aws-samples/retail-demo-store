@@ -51,7 +51,7 @@ class BuiltInExperiment(Experiment):
     """ Base class for all built-in experiment types """
 
     def __init__(self, table, **data):
-        super().__init__(None, **data)
+        super().__init__(**data)
         self._table = table
 
     def track_conversion(self, correlation_id: str, timestamp: datetime) -> int:
