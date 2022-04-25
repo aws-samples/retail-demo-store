@@ -116,8 +116,17 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - ssm:GetParameters
-                  - 'cloudfront:CreateInvalidation'
                 Resource: "*"
+        - PolicyName: "invalidation"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - 'cloudfront:CreateInvalidation'
+                  - 'cloudfront:GetInvalidation'
+                Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}
         - PolicyName: "S3"
           PolicyDocument:
             Version: "2012-10-17"
