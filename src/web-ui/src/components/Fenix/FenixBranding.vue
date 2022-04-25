@@ -6,7 +6,7 @@
       </a>
     </div>
     <div class="fenix-text">
-      Powered by <a v-bind:href="currentURL" target="_blank">Fenixcommerce</a>
+      Estimated delivery dates powered by <a v-bind:href="currentURL" target="_blank">Fenixcommerce</a>
     </div>
   </div>
 </template>

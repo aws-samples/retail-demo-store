@@ -12,7 +12,7 @@
     </div>
   </div>
 <div v-else class="d-flex">
- <LoadingFallback v-if="fenixDataReceived"/>
+ <LoadingFallback v-if="fenixDataReceived_other"/>
 </div>
 </template>
 
@@ -91,6 +91,7 @@ export default {
         })
         .catch(() => {
           if(this.fenixCallback<2){
+            this.fenixDataReceived_other = true;
             this.requestData.buyerZipCode = 10001;
             Cookies.set('fenixlocation', 10001, { expires: 14 });
             this.getEstimates();

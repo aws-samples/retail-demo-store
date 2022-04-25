@@ -9,7 +9,7 @@
     </div>
   </div>
 <div v-else>
-  <div class="fenix-product-delivery-estimates" v-if="fenixDataReceived">
+  <div class="fenix-product-delivery-estimates" v-if="fenixDataReceived_other">
     <LoadingFallback/>
   </div>
 </div>
