@@ -142,18 +142,21 @@ Resources:
                 for paginate_result in paginator.paginate(project = project_name):
                   for experiment in paginate_result['experiments']:
                     if experiment['status'] == 'RUNNING':
+                      print(f"Experiment {experiment['name']} is still running; cancelling")
                       evidently.stop_experiment(desiredState='CANCELLED',
                         experiment=experiment['name'],
                         project=project_name
                       )
                       experiments_stopped += 1
 
+                    print(f"Deleting experiment {experiment['name']}")
                     evidently.delete_experiment(experiment=experiment['name'],
                         project=project_name
                     )
                     experiments_deleted += 1
 
-                response_data['Message'] = f"Stopped {experiments_stopped} experiments and deleted {experiments_deleted} experiments"
+                message = f"Stopped {experiments_stopped} experiments and deleted {experiments_deleted} experiments"
+                response_data['Message'] = message
               else:
                 response_data['Message'] = "Nothing to do for this request type"
 
@@ -171,7 +174,7 @@ Resources:
 
   CustomEvidentlyCleanup:
     Type: Custom::EvidentlyCleanup
-    DependsOn: EvidentlyProject
+    DependsOn: [ FeatureHomeProductRecs, FeatureHomeProductRecsCold, FeatureHomeFeaturedRerank, FeatureProductDetailRelated, FeatureSearchResults, FeatureLiveStreamProductRecs, FeatureLiveStreamProductDiscounts ]
     Properties:
       ServiceToken: !GetAtt EvidentlyCleanupLambdaFunction.Arn
       EvidentlyProjectName: !Ref Uid
