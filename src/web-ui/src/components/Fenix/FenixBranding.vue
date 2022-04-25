@@ -13,9 +13,10 @@
 <script>
 export default {
   name: 'FenixBranding',
+  props: ['fenixutm'],
   data() {
     return {
-      currentURL: 'https://fenixcommerce.com?track='+window.location.href
+      currentURL: 'https://fenixcommerce.com'+this.fenixutm
     };
   }
 };
@@ -27,7 +28,7 @@ export default {
   margin-top: 4px;
   margin-bottom: 4px;
 }
-
+ 
 .fenix-branding a,
 .fenix-branding a:hover, 
 .fenix-branding a:focus{

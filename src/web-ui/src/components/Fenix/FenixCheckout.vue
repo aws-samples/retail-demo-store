@@ -8,7 +8,7 @@
           <span class="delivery-name"><b v-html="item.shippingMethodDesc"></b></span> <span class="text-right">$<b v-html="item.shippingCost.amount"></b></span> <br> 
         <small>(Est Delivery by <span v-html="item.guaranteedDeliveryDate"></span>)</small></label>
       </p>
-      <FenixBranding v-if="fenixDataReceived_other" />
+      <FenixBranding v-if="fenixDataReceived_other" :fenixutm="fenixutm" />
     </div>
   </div>
 <div v-else class="d-flex">
@@ -35,7 +35,7 @@ export default {
       fenixCallback: 0,
       fenixDataReceived: false,
       fenixDataReceived_other: true,
-      currentURL: 'https://fenixcommerce.com?track='+window.location.href,
+      fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=checkout_Page',
       fenixResponse: "",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,

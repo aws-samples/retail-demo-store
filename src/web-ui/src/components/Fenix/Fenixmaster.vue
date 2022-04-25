@@ -40,7 +40,7 @@
           <button type="button" id="check-zip" v-on:click="updatezip" >Check Delivery</button>
       </div>
     <div v-if="invalidZip" class="zip-input-error" v-html="invalidZipMSG"></div>
-    <FenixBranding />
+    <FenixBranding :fenixutm="fenixutm" />
   </div>
 </div>
 <div v-else>
@@ -83,6 +83,7 @@ export default {
       fenixCallback: 0,
       fenixData: '',
       fenixResponse: '',
+      fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=product_page',
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
       ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
       showAllOptions: false,
