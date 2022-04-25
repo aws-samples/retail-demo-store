@@ -254,6 +254,7 @@ Resources:
                   - evidently:EvaluateFeature
                   - evidently:CreateExperiment
                   - evidently:StartExperiment
+                  - evidently:StopExperiment
                 Resource:
                   - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}'
                   - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/experiment/*'
