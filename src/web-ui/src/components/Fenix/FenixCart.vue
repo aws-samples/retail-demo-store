@@ -90,6 +90,7 @@ export default {
         })
         .catch(() => {
           if(this.fenixCallback<2){
+            this.fenixDataReceived_other = true;
             this.requestData.buyerZipCode = 10001;
             Cookies.set('fenixlocation', 10001, { expires: 14 });
             this.getEstimates();
