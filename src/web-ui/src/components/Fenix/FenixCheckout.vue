@@ -8,11 +8,11 @@
           <span class="delivery-name"><b v-html="item.shippingMethodDesc"></b></span> <span class="text-right">$<b v-html="item.shippingCost.amount"></b></span> <br> 
         <small>(Est Delivery by <span v-html="item.guaranteedDeliveryDate"></span>)</small></label>
       </p>
-      <FenixBranding />
+      <FenixBranding v-if="fenixDataReceived_other" />
     </div>
   </div>
 <div v-else class="d-flex">
- <LoadingFallback/>
+ <LoadingFallback v-if="fenixDataReceived_other"/>
 </div>
 </template>
 
@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       fenixDataReceived: false,
+      fenixDataReceived_other: true,
       currentURL: 'https://fenixcommerce.com?track='+window.location.href,
       fenixResponse: "",
       fenixCartItems : this.lineItems.items,
@@ -82,11 +83,11 @@ export default {
           this.invalidZip = false;
           if (result.data[0].response !== undefined && result.data[0].response !== '') {
             this.fenixResponse = result.data;
-            console.log(this.fenixResponse);
             this.fenixDataReceived = true;
           }
         })
         .catch(() => {
+          this.fenixDataReceived_other = false;
           this.fenixDataReceived = false;
         });
     },
