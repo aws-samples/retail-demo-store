@@ -143,7 +143,11 @@ export default {
 
     // Validate zip code.
     checkZip(value) {
-      return (/(^\d{5}$)|(^\d{5}-\d{4}$)/).test(value);
+      if(value!==undefined && value !==null && value.length>4){
+        return true;
+      }else{
+        return false;
+      }
     },
 
     // View all shipping options div.
@@ -203,6 +207,7 @@ export default {
       this.fenixDataReceived_other = false;
       if (error.data.error_code !== undefined && error.data.error_code === '400') {
         this.invalidZip = true;
+        this.fenixDataReceived_other = true;
         this.invalidZipMSG = 'Please enter a valid US zipcode';
       }
     },

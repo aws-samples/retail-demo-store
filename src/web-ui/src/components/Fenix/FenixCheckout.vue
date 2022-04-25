@@ -12,7 +12,7 @@
     </div>
   </div>
 <div v-else class="d-flex">
- <LoadingFallback v-if="fenixDataReceived_other"/>
+ <LoadingFallback v-if="fenixDataReceived"/>
 </div>
 </template>
 

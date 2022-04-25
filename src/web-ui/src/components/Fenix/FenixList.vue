@@ -123,7 +123,11 @@ export default {
 
     // Validate zip code.
     checkZip(value) {
-      return (/(^\d{5}$)|(^\d{5}-\d{4}$)/).test(value);
+      if(value!==undefined && value !==null && value.length>4){
+        return true;
+      }else{
+        return false;
+      }
     },
 
     // View all shipping options div.
