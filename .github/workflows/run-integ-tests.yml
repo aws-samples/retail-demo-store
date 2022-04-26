@@ -1,6 +1,9 @@
 name: run-integ-tests
 
 on:
+  push: #TODO: remove this after finishing development
+    branches:
+      - ijemmy/integ-tests-on-aws
   workflow_dispatch: {}
 
 env:
@@ -31,4 +34,4 @@ jobs:
   # Stage asset (./stage.sh ...)
   # Deploy
   # Run test
-  # Destroy stack   
+  # Destroy stack
