@@ -76,7 +76,6 @@
 </template>
 
 <script>
-console.log("Fenix demo");
 import swal from 'sweetalert';
 import { mapState, mapActions, mapGetters } from 'vuex';
 

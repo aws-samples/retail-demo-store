@@ -11,7 +11,7 @@ info:
 
   license: 
     url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
-    name: Amazon Software License (ASL)
+    name: MIT No Attribution (MIT-0)
 
 tags:
   - name: Offers
