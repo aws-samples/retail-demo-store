@@ -66,6 +66,7 @@ export default {
       ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
       showAllOptions: false,
       fenixDataReceived: false,
+      fenixDataReceived_other: true,
       changeZipDiv: false,
       invalidZip: false,
       invalidZipMSG: '',
@@ -122,7 +123,11 @@ export default {
 
     // Validate zip code.
     checkZip(value) {
-      return (/(^\d{5}$)|(^\d{5}-\d{4}$)/).test(value);
+      if(value!==undefined && value !==null && value.length>4){
+        return true;
+      }else{
+        return false;
+      }
     },
 
     // View all shipping options div.
@@ -159,14 +164,12 @@ export default {
           headers,
         })
           .then((response) => {
+            this.fenixDataReceived = true;
             this.fenixData = response.data;
             this.invalidZip = false;
             this.changeZipDiv = false;
             if (response.data[0].response !== undefined && response.data[0].response !== '' && response.data[0].response !== null) {
               this.fenixResponse = response.data[0].response;
-              this.fenixDataReceived = true;
-            } else {
-              this.fenixDataReceived = false;
             }
           })
           .catch((error) => {
@@ -180,9 +183,11 @@ export default {
 
     // Error handlers for delivery estimates
     errorhandlers(error) {
+      this.fenixDataReceived = true;
+      this.fenixDataReceived_other = false;
       if (error.data.error_code !== undefined && error.data.error_code === '400') {
         this.invalidZip = true;
-        this.invalidZipMSG = 'Please enter a valid ZIP code';
+        this.invalidZipMSG = 'Please enter a valid US zipcode';
         this.fenixDataReceived = true;
       } else if (error.data.error_code !== undefined && error.data.error_code === '600') {
         this.fenixDataReceived = false;
