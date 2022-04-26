@@ -28,7 +28,7 @@ AWS Service | Workshops Overview | Workshop Links | Level | Duration
 ![Amazon Elasticsearch](./workshop/images/Amazon-Elasticsearch-Service_64.png) Amazon Elasticsearch | In this workshop, you will create a new Elasticsearch Index and index the Retail Demo Store product data so that users can search for products.| [Product Search](./workshop/0-StartHere/Search.ipynb) | 200 | 20 minutes
 ![Amazon Location Services](./workshop/images/Amazon-Location-Services_64.png) Amazon Location Services | Create a geofence for customers approaching your physical store and send them timely pickup notifications and offers. | [Geofencing](./workshop/7-LocationServices/7.1-LocationServices.ipynb) | 300 | 2 hours
 ![Amazon Alexa](./workshop/images/Amazon-Alexa_64.png) Amazon Alexa |  Incorporating Location Service, Personalize and Retail Demo Store into a hands-free ordering experience. | [Alexa skill deployment](./workshop/5-Conversational/5.2-AlexaHandsfree.md) | 300 | 60 minutes
-Experimentation | In this module we are going to add experimentation to the Retail Demo Store. This will allow us to experiment with different personalization approaches in the user interface. Through notebooks in this module we will demonstrate how to implement three experimentation techniques as well as how to use [Amazon CloudWatch Evidently](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Evidently.html) for A/B tests. | [Overview](./workshop/3-Experimentation/3.1-Overview.ipynb) <br/><br/> [A/B](./workshop/3-Experimentation/3.2-AB-Experiment.ipynb) <br/><br/> [Interleaving](./workshop/3-Experimentation/3.3-Interleaving-Experiment.ipynb) <br/><br/> [Multi-Armed Bandit](./workshop/3-Experimentation/3.4-Multi-Armed-Bandit-Experiment.ipynb)<br/><br/> [CloudWatch Evidently](./workshop/3-Experimentation/3.7-CloudWatch-Evidently-AB-Experiment.ipynb) | 200/400 | 1.5 hours
+Experimentation | In this module we are going to add experimentation to the Retail Demo Store. This will allow us to experiment with different personalization approaches in the user interface. Through notebooks in this module we will demonstrate how to implement three experimentation techniques as well as how to use [Amazon CloudWatch Evidently](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Evidently.html) for A/B tests. | [Overview](./workshop/3-Experimentation/3.1-Overview.ipynb) <br/><br/> [A/B](./workshop/3-Experimentation/3.2-AB-Experiment.ipynb) (400)<br/><br/> [Interleaving](./workshop/3-Experimentation/3.3-Interleaving-Experiment.ipynb) (400)<br/><br/> [Multi-Armed Bandit](./workshop/3-Experimentation/3.4-Multi-Armed-Bandit-Experiment.ipynb) (400)<br/><br/> [CloudWatch Evidently](./workshop/3-Experimentation/3.7-CloudWatch-Evidently-AB-Experiment.ipynb) (200)| 200/400 | 1.5 hours
 
 ## Partner Integrations
 
@@ -81,7 +81,7 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 Asia Pacific (Tokyo) | ap-northeast-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-northeast-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-northeast-1&param_SourceDeploymentType=CodeCommit)
 Asia Pacific (Sydney) | ap-southeast-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-southeast-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-southeast-2&param_SourceDeploymentType=CodeCommit)
 
-The CloudFormation deployment will take 20-30 minutes to complete.
+The CloudFormation deployment will take approximately 40 minutes to complete.
 
 ### Notes:
 
@@ -151,6 +151,19 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
     - Amazon IVS is currently only supported in the N. Virginia (us-east-1), Oregon (us-west-2), and Ireland (eu-west-1) regions. Therefore, to deploy the Retail Demo Store in a region that does not support IVS, be sure to select to use the Default IVS Streams CloudFormation template parameter.
 
+# Troubleshooting / FAQs
+
+***Q: When accessing the Retail Demo Store web application after deploying the project, a CloudFront error is displayed. What's wrong?***
+
+***A:*** Sign in to the AWS account/region where the project was deployed and browse to CodePipeline. Verify that the pipeline with "WebUIPipeline" in the name has successfully been built. If it failed, inspect the details of the Build stage to diagnose the root cause.
+
+***Q: When accessing the Retail Demo Store web application after deploying the project, the home page shows spinning icons and products are never loaded. What's wrong?***
+
+***A:*** The most likely cause is an error building or deploying one or more of the microservices. Sign in to the AWS account/region where the project was deployed and browse to CodePipeline. Verify that all of the Retail Demo Store pipelines have completed successfully. Inspect the details for any that have failed to determine the root cause. Sometimes just manually triggering a build/deploy will resolve the issue. If all pipelines were successful, make sure you're accessing the web application over HTTP and _not_ HTTPS.
+
+***Q: This project is expensive to run (or keep running). How can I reduce the running cost of a deployment?***
+
+***A:*** The most costly service in the project for an idle deployment is Amazon Personalize. You can eliminate Personalize idle costs by stopping all Amazon Personalize recommenders and deleting all campaigns in the Retail Demo Store dataset group for Personalize. This just shuts down the real-time inference endpoints; the datasets and ML models will remain. You should also change all of the recommender and campaign ARN parameter values in the AWS Systems Manager Parameter Store to `NONE`, leaving the parameter values for filters and the event tracker alone. These parameter names start with `/retaildemostore/personalize/` (e.g., `/retaildemostore/personalize/recommended-for-you-arn`). Once you complete these steps, the storefront will fall back to default behavior for recommending products from the catalog. To reactive Personalize, start the recommenders and create campaigns and then set the recommender and/or campaign ARNs back in the Systems Manager Parameter Store. The storefront will automatically start showing recommendations from Personalize again.
 # Reporting Bugs
 
 If you encounter a bug, please create a new issue with as much detail as possible and steps for reproducing the bug. See the [Contributing Guidelines](./CONTRIBUTING.md) for more details.
