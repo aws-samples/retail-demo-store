@@ -1,0 +1,34 @@
+name: run-integ-tests
+
+on:
+  workflow_dispatch: {}
+
+env:
+  STACK_NAME: retaildemostore
+
+jobs:
+  testconn:
+    name: Test connection
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Role
+          aws-region: us-west-2
+      - name: Test connection
+        run: |
+          aws sts get-caller-identity
+          echo Test using env var ${{ env.STACK_NAME }}
+
+  # TODO: Add following jobs in order
+  # Stage asset (./stage.sh ...)
+  # Deploy
+  # Run test
+  # Destroy stack   
