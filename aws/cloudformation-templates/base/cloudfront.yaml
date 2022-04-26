@@ -13,13 +13,6 @@ Conditions:
   IADRegion: !Equals [!Ref "AWS::Region", "us-east-1"]
 
 Resources:
-
-  # Empties bucket when stack is deleted
-  EmptyStackBucket:
-    Type: Custom::EmptyStackBucket
-    Properties:
-      ServiceToken: !Ref CleanupBucketLambdaArn
-      BucketName: !Ref WebUIBucket
   
   # Web UI infrastructure    
   WebUIBucket:
@@ -28,6 +21,13 @@ Resources:
       AccessControl: Private
       WebsiteConfiguration:
         IndexDocument: index.html
+
+  # Empties bucket when stack is deleted
+  EmptyWebUIBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref WebUIBucket
 
   WebUIBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -81,6 +81,13 @@ Resources:
       AccessControl: Private
       WebsiteConfiguration:
         IndexDocument: index.html
+
+  # Empties bucket when stack is deleted
+  EmptySwaggerUIBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref SwaggerUIBucket
 
   SwaggerUIBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'

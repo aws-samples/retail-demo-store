@@ -8,10 +8,11 @@
           <span class="delivery-name"><b v-html="item.shippingMethodDesc"></b></span> <span class="text-right">$<b v-html="item.shippingCost.amount"></b></span> <br> 
         <small>(Est Delivery by <span v-html="item.guaranteedDeliveryDate"></span>)</small></label>
       </p>
+      <FenixBranding v-if="fenixDataReceived_other" :fenixutm="fenixutm" />
     </div>
   </div>
 <div v-else class="d-flex">
- <LoadingFallback/>
+ <LoadingFallback v-if="fenixDataReceived_other"/>
 </div>
 </template>
 
@@ -19,7 +20,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-
+import FenixBranding from '@/components/Fenix/FenixBranding';
 export default {
   name: 'FenixCheckout',
   props: {
@@ -27,10 +28,14 @@ export default {
   },
   components: {
     LoadingFallback,
+    FenixBranding
   },
   data() {
     return {
+      fenixCallback: 0,
       fenixDataReceived: false,
+      fenixDataReceived_other: true,
+      fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=checkout_Page',
       fenixResponse: "",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
@@ -50,6 +55,7 @@ export default {
   methods: {
     // Fenix delivery estimates call.
     getEstimates() {
+      this.fenixCallback++;
       const requiredobject = [];
       this.fenixCartItems.forEach((items) => {
         const onemoreobject = {};
@@ -77,13 +83,20 @@ export default {
         .then((result) => {
           this.fenixdata = result.data;
           this.invalidZip = false;
+          this.fenixDataReceived_other = true;
           if (result.data[0].response !== undefined && result.data[0].response !== '') {
             this.fenixResponse = result.data;
-            console.log(this.fenixResponse);
             this.fenixDataReceived = true;
           }
         })
         .catch(() => {
+          if(this.fenixCallback<2){
+            this.fenixDataReceived_other = true;
+            this.requestData.buyerZipCode = 10001;
+            Cookies.set('fenixlocation', 10001, { expires: 14 });
+            this.getEstimates();
+          }
+          this.fenixDataReceived_other = false;
           this.fenixDataReceived = false;
         });
     },
@@ -110,5 +123,4 @@ export default {
 .text-right{
   text-align: right;
 }
-
 </style>
