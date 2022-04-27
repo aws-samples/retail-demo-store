@@ -3,20 +3,18 @@
 
 import numpy as np
 import logging
-import time
+from datetime import datetime
 
-from experimentation.experiment import Experiment
+from experimentation.experiment import BuiltInExperiment
 
 log = logging.getLogger(__name__)
 
-class MultiArmedBanditExperiment(Experiment):
+class MultiArmedBanditExperiment(BuiltInExperiment):
     """ Implementation of the multi-armed bandit problem using the Thompson Sampling approach
     to exploring variations to identify and exploit the best performing variation
     """
-    def __init__(self, table, **data):
-        super(MultiArmedBanditExperiment, self).__init__(table, **data)
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, context=None, timestamp: datetime = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -64,9 +62,10 @@ class MultiArmedBanditExperiment(Experiment):
 
         if tracker is not None:
             # Track exposure details for analysis
+            timestamp = datetime.now() if not timestamp else timestamp
             event = {
                 'event_type': 'Experiment Exposure',
-                'event_timestamp': int(round(time.time() * 1000)),
+                'event_timestamp': int(round(timestamp.timestamp() * 1000)),
                 'attributes': {
                     'user_id': user_id,
                     'experiment': {
