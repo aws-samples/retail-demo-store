@@ -30,9 +30,9 @@ jobs:
       - name: Build and upload assets to an S3 bucket
         run: |
           ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
-  deploy-stack:
-    name: Deploy Stack
-    needs: build
+  deploy-stacks:
+    name: Deploy Stacks
+    needs: stage-assets
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
@@ -49,9 +49,9 @@ jobs:
       - name: Deploy all stacks to AWS
         run: |
           ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
-  run-integ:
-    name: Deploy Stack
-    needs: build
+  run-integ-tests:
+    name: Run Integration Tests
+    needs: deploy-stack
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
@@ -64,8 +64,8 @@ jobs:
         run: |
           echo "TODO: To be implemented"
   destroy-stack:
-    name: Deploy Stack
-    needs: build
+    name: Destroy Stacks
+    needs: run-integ-tests
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
