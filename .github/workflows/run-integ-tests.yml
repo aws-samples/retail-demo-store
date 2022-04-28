@@ -51,7 +51,7 @@ jobs:
           ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
   run-integ-tests:
     name: Run Integration Tests
-    needs: deploy-stack
+    needs: deploy-stacks
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
@@ -63,7 +63,7 @@ jobs:
         # TODO: Add a script to find all endpoints from CloudFormation output and run the tests
         run: |
           echo "TODO: To be implemented"
-  destroy-stack:
+  destroy-stacks:
     name: Destroy Stacks
     needs: run-integ-tests
     runs-on: ubuntu-20.04
