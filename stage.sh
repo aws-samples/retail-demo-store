@@ -24,7 +24,7 @@ set -e
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this case, we take 2 arguments for BUCKET and S3PATH
 # 2. "private_s3" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true. 
-# 2. "only_cfn_template" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true. 
+# 2. "only_cfn_template" contains a boolean value whether "--only-cfn-template" is presented (e.g. "./stage.sh --only-cfn-template" will set this to true. 
 ########################################################################################################################################
 args=()
 private_s3=false
