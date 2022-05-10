@@ -1,0 +1,71 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the SSL/TLS selfsigned certificate for Retail Demo Store ELBs to ACM
+    Author: Ronak Shah <ronakbsh@amazon.com>
+
+Resources:
+  ACM-importCertLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store acm-import-certificate function that returns ARN for imported certificate'
+      Handler: acm-import-certificate.lambda_handler
+      Role: !GetAtt 
+        - ACM-importCertLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/acm-import-certificate.zip'
+      Runtime: python3.8
+      Timeout: 10
+      
+  ACM-importCertLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+           - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'    
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+
+  # Resource policy to allow Lex to call the function
+  ACM-importCertPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ACM-importCertLambdaFunction.Arn
+      Principal: lex.amazonaws.com
+      SourceArn: !Sub 'arn:aws:lex:${AWS::Region}:${AWS::AccountId}:intent:RecommendProduct:*'
+
+Outputs:
+  ACM-importCertLambdaFunctionArn:
+    Description: Lambda function ARN for Lex personalization function
+    Value: !GetAtt ACM-importCertLambdaFunction.Arn
