@@ -12,7 +12,6 @@ orders_api_url = os.getenv('ORDERS_API_URL')
 
 def test_get_orders_all():
 
-    print(os.environ.items())
     endpoint = "/orders/all"
     integhelpers.get_request_assert(orders_api_url, endpoint, schemas_path)
 
