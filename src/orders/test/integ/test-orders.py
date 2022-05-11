@@ -1,5 +1,8 @@
 import testhelpers.integ as integhelpers
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = integhelpers.absolute_file_path(cwd, "json_request_bodies.json")
@@ -9,6 +12,7 @@ orders_api_url = os.getenv('ORDERS_API_URL')
 
 def test_get_orders_all():
 
+    print(os.environ.items())
     endpoint = "/orders/all"
     integhelpers.get_request_assert(orders_api_url, endpoint, schemas_path)
 
