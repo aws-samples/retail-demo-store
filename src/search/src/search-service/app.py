@@ -92,7 +92,7 @@ def index():
     return 'Search Service'
 
 @app.route('/search/products', methods=['GET'])
-def searchProducts():
+def search_products():
     search_term = request.args.get('searchTerm')
     if not search_term:
         raise BadRequest('searchTerm is required')
@@ -108,10 +108,10 @@ def searchProducts():
             "query": {
                 "dis_max" : {
                     "queries" : [
-                        { "wildcard" : { "name" : { "value": '{}*'.format(search_term), "boost": 1.2 }}},
-                        { "term" : { "category" : search_term }},
-                        { "term" : { "style" : search_term }},
-                        { "wildcard" : { "description" : { "value": '{}*'.format(search_term), "boost": 0.6 }}}
+                        { "match_bool_prefix" : { "name" : { "query": search_term, "boost": 1.2 }}},
+                        { "match_bool_prefix" : { "category" : search_term }},
+                        { "match_bool_prefix" : { "style" : search_term }},
+                        { "match_bool_prefix" : { "description" : { "query": search_term, "boost": 0.6 }}}
                     ],
                     "tie_breaker" : 0.7
                 }
@@ -139,7 +139,7 @@ def searchProducts():
         raise BadRequest(message = 'Unhandled error', status_code = 500)
 
 @app.route('/similar/products', methods=['GET'])
-def similarProducts():
+def similar_products():
     product_id = request.args.get('productId')
     if not product_id:
         raise BadRequest('productId is required')
