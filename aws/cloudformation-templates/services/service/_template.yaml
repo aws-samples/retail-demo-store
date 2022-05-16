@@ -210,6 +210,10 @@ Parameters:
   Uid:
     Type: String
 
+  EvidentlyProjectName:
+    Type: String
+    Description: Evidently project name
+
 Resources:
 
   Loadbalancer:
@@ -254,6 +258,8 @@ Resources:
         DeleteRepositoryLambdaArn: !Ref DeleteRepositoryLambdaArn
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
+        TaskRoleArn: !GetAtt Service.Outputs.TaskRoleArn
+        TaskExecutionRoleArn: !GetAtt Service.Outputs.TaskExecutionRoleArn
 
   Service:
     Type: AWS::CloudFormation::Stack
@@ -292,6 +298,7 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
+        EvidentlyProjectName: !Ref EvidentlyProjectName
 
 Outputs:
   ServiceDNSName:

@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Retail Demo Store SSM Parameters.
+  This template deploys the Retail Demo Store SSM Parameters.
 
 Parameters:
   StackBucketName:
@@ -26,6 +26,31 @@ Parameters:
     Description: Write key for the Segment source used to gather real-time events (optional).
     NoEcho: true
 
+  mParticleOrgId:
+    Type: String
+    Description: mParticle Org ID from your mParticle workspace.
+    NoEcho: true
+
+  mParticleApiKey:
+    Type: String
+    Description: mParticle front end API Key
+    NoEcho: true
+
+  mParticleSecretKey:
+    Type: String
+    Description: mParticle front end secret key
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: mParticle server to server API Key
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: mParticle server to server secret key
+    NoEcho: true
+
   PinpointSMSLongCode:
     Type: String
 
@@ -40,13 +65,22 @@ Conditions:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
     !Not [!Equals [!Ref SegmentWriteKey, ""]]
+  HasmParticleOrgId:
+    !Not [!Equals [!Ref mParticleOrgId, ""]]
+  HasmParticleApiKey:
+    !Not [!Equals [!Ref mParticleApiKey, ""]]
+  HasmParticleSecretKey:
+    !Not [!Equals [!Ref mParticleSecretKey, ""]]
+  HasmParticleS2SApiKey:
+    !Not [!Equals [!Ref mParticleS2SApiKey, ""]]
+  HasmParticleS2SSecretKey:
+    !Not [!Equals [!Ref mParticleS2SSecretKey, ""]]
   HasPinpointSMSLongCode:
     !Not [!Equals [!Ref PinpointSMSLongCode, ""]]
   HasGoogleAnalyticsMeasurementId:
     !Not [!Equals [!Ref GoogleAnalyticsMeasurementId, ""]]
 
 Resources:
-
   ParameterStackBucketName:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -55,62 +89,77 @@ Resources:
       Value: !Ref StackBucketName
       Description: "Retail Demo Store Stack Bucket Parameter"
 
-  ParameterRelatedProductsCampaignArn:
+  ParameterPersonalizeRelatedItemsArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-related-products-campaign-arn"
+      Name: "/retaildemostore/personalize/related-items-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Related Products Campaign Arn Parameter"
+      Description: "Retail Demo Store Related Items Campaign/Recommender Arn Parameter"
 
-  ParameterProductRecommendationCampaignArn:
+  ParameterPersonalizePopularItemsArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-product-recommendation-campaign-arn"
+      Name: "/retaildemostore/personalize/popular-items-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Product Recommendation Campaign Arn Parameter"
+      Description: "Retail Demo Store Popular Items Campaign/Recommender Arn Parameter"
 
-  ParameterPersonalizedRankingCampaignArn:
+  ParameterPersonalizeRecommendedForYouArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalized-ranking-campaign-arn"
+      Name: "/retaildemostore/personalize/recommended-for-you-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Personalized Ranking Campaign Arn Parameter"
+      Description: "Retail Demo Store Recommended For You Campaign/Recommender Arn Parameter"
 
-  ParameterPersonalizedOffersCampaignArn:
+  ParameterPersonalizePersonalizedRankingArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalized-offers-campaign-arn"
+      Name: "/retaildemostore/personalize/personalized-ranking-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Personalized Coupon Offers Campaign Arn Parameter"
+      Description: "Retail Demo Store Personalized Ranking Campaign/Recommender Arn Parameter"
 
-  ParameterPersonalizeTrainConfig:
+  ParameterPersonalizePersonalizedOffersArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-training-config"
+      Name: "/retaildemostore/personalize/personalized-offers-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Personalize Train Config"
-      Tier: "Advanced"
-
-  ParameterPersonalizeTrainState:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-training-state"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Personalize Train State"
+      Description: "Retail Demo Store Personalized Coupon Offers Campaign/Recommender Arn Parameter"
 
   ParameterPersonalizeFilterPurchasedArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-personalize-filter-purchased-arn"
+      Name: "/retaildemostore/personalize/filters/filter-purchased-arn"
       Type: "String"
       Value: "NONE"
       Description: "Retail Demo Store Personalize Filter Purchased Products Arn Parameter"
+
+  ParameterPersonalizeFilterCStoreArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/filter-cstore-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Filter C-Store Products Arn Parameter"
+
+  ParameterPersonalizeFilterPurchasedAndCStoreArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Filter Purchased and C-Store Products Arn Parameter"
+
+  ParameterPersonalizeEventTrackerId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/event-tracker-id"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
 
   ParameterExperimentStrategyTableName:
     Type: "AWS::SSM::Parameter"
@@ -120,20 +169,12 @@ Resources:
       Value: !Ref ExperimentStrategyTableName
       Description: "Retail Demo Store Experiment Strategy DDB Table Name"
 
-  ParameterPersonalizeEventTrackerId:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "retaildemostore-personalize-event-tracker-id"
-      Type: "String"
-      Value: "NONE"
-      Description: "Retail Demo Store Personalize Event Tracker ID Parameter"
-
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-amplitude-api-key"
       Type: "String"
-      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, 'NONE']
+      Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, "NONE"]
       Description: "Retail Demo Store Amplitude API key"
 
   ParameterOptimizelySdkKey:
@@ -141,7 +182,7 @@ Resources:
     Properties:
       Name: "retaildemostore-optimizely-sdk-key"
       Type: "String"
-      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, 'NONE']
+      Value: !If [HasOptimizelySdkKey, !Ref OptimizelySdkKey, "NONE"]
       Description: "Retail Demo Store Optimizely SDK key"
 
   ParameterIVSVideoChannelMap:
@@ -157,15 +198,55 @@ Resources:
     Properties:
       Name: "retaildemostore-segment-write-key"
       Type: "String"
-      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, 'NONE']
+      Value: !If [HasSegmentWriteKey, !Ref SegmentWriteKey, "NONE"]
       Description: "Retail Demo Store Segment source write key"
+
+  ParametermParticleOrgId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "retaildemostore-mparticle-org-id"
+      Type: "String"
+      Value: !If [HasmParticleOrgId, !Ref mParticleOrgId, 'NONE']
+      Description: "Retail Demo Store mParticle org id"
+
+  ParametermParticleApiKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_api_key"
+      Type: "String"
+      Value: !If [HasmParticleApiKey, !Ref mParticleApiKey, 'NONE']
+      Description: "Retail Demo Store mParticle API key"
+
+  ParametermParticleSecretKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_secret_key"
+      Type: "String"
+      Value: !If [HasmParticleSecretKey, !Ref mParticleSecretKey, 'NONE']
+      Description: "Retail Demo Store mParticle secret key"
+
+  ParametermParticleS2SApiKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_s2s_api_key"
+      Type: "String"
+      Value: !If [HasmParticleS2SApiKey, !Ref mParticleS2SApiKey, 'NONE']
+      Description: "Retail Demo Store mParticle server to server API key - used for Kinesis processing"
+
+  ParametermParticleS2SSecretKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/mparticle_s2s_secret_key"
+      Type: "String"
+      Value: !If [HasmParticleS2SSecretKey, !Ref mParticleS2SSecretKey, 'NONE']
+      Description: "Retail Demo Store mParticle server to server secret key - used for Kinesis processing"
 
   ParameterPinpointSMSLongCode:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: "retaildemostore-pinpoint-sms-longcode"
       Type: "String"
-      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, 'NONE']
+      Value: !If [HasPinpointSMSLongCode, !Ref PinpointSMSLongCode, "NONE"]
       Description: "Retail Demo Store Pinpoint SMS Long code"
 
   ParameterGoogleAnalyticsMeasurementId:
@@ -173,34 +254,34 @@ Resources:
     Properties:
       Name: "retaildemostore-google-analytics-measurement-id"
       Type: "String"
-      Value: !If [HasGoogleAnalyticsMeasurementId, !Ref GoogleAnalyticsMeasurementId, 'NONE']
+      Value:
+        !If [
+          HasGoogleAnalyticsMeasurementId,
+          !Ref GoogleAnalyticsMeasurementId,
+          "NONE",
+        ]
       Description: "Retail Demo Store Google Analytics Measurement Id"
 
 Outputs:
-
   ParameterStackBucketName:
     Description: Stack Bucket Name Parameter
     Value: !Ref ParameterStackBucketName
 
-  ParameterRelatedProductsCampaignArn:
-    Description: Related Products Campaign Arn Parameter
-    Value: !Ref ParameterRelatedProductsCampaignArn
+  ParameterPersonalizeRelatedItemsArn:
+    Description: Also Viewed Recommender Arn Parameter
+    Value: !Ref ParameterPersonalizeRelatedItemsArn
 
-  ParameterProductRecommendationCampaignArn:
-    Description: Product Recommendation Campaign Arn Parameter
-    Value: !Ref ParameterProductRecommendationCampaignArn
+  ParameterPersonalizePopularItemsArn:
+    Description: Most Viewed Recommender Arn Parameter
+    Value: !Ref ParameterPersonalizePopularItemsArn
 
-  ParameterPersonalizedRankingCampaignArn:
+  ParameterPersonalizeRecommendedForYouArn:
+    Description: Recommended For You Recommender Arn Parameter
+    Value: !Ref ParameterPersonalizeRecommendedForYouArn
+
+  ParameterPersonalizePersonalizedRankingArn:
     Description: Personalized Ranking Campaign Arn
-    Value: !Ref ParameterPersonalizedRankingCampaignArn
-
-  ParameterPersonalizeTrainConfig:
-    Description: Train config
-    Value: !Ref ParameterPersonalizeTrainConfig
-
-  ParameterPersonalizeTrainState:
-    Description: Train state
-    Value: !Ref ParameterPersonalizeTrainState
+    Value: !Ref ParameterPersonalizePersonalizedRankingArn
 
   ParameterPersonalizeFilterPurchasedArn:
     Description: Personalize Filter Purchased Products Arn

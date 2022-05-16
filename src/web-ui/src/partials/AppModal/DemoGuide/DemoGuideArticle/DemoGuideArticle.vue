@@ -5,8 +5,15 @@
 <script>
 import { Articles } from '../config';
 import UserPersonalization from './articles/UserPersonalization';
-import SimilarItemRecommendations from './articles/SimilarItemRecommendations';
+import SIMSRecommendations from './articles/SIMSRecommendations';
+import SimilarItemsRecommendations from './articles/SimilarItemsRecommendations';
 import PersonalizedRanking from './articles/PersonalizedRanking';
+import CustomersWhoViewedXAlsoViewed from './articles/CustomersWhoViewedXAlsoViewed';
+import FrequentlyBoughtTogether from './articles/FrequentlyBoughtTogether';
+import PopularByPurchases from './articles/PopularByPurchases';
+import PopularByViews from './articles/PopularByViews';
+import RecommendedForYou from './articles/RecommendedForYou';
+import MachineLearningUserSegmentation from './articles/MachineLearningUserSegmentation';
 import PersonalizedEmails from './articles/PersonalizedEmails';
 import TextMessaging from './articles/TextMessaging';
 import OmniChannel from './articles/OmniChannel';
@@ -32,10 +39,24 @@ export default {
       switch (this.articleId) {
         case Articles.USER_PERSONALIZATION:
           return UserPersonalization;
-        case Articles.SIMILAR_ITEM_RECOMMENDATIONS:
-          return SimilarItemRecommendations;
+        case Articles.SIMS_RECOMMENDATIONS:
+          return SIMSRecommendations;
+        case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
+          return SimilarItemsRecommendations;
         case Articles.PERSONALIZED_RANKING:
           return PersonalizedRanking;
+        case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
+          return CustomersWhoViewedXAlsoViewed;
+        case Articles.ECOMM_FBT:
+          return FrequentlyBoughtTogether;
+        case Articles.ECOMM_POPULAR_BY_PURCHASES:
+          return PopularByPurchases;
+        case Articles.ECOMM_POPULAR_BY_VIEWS:
+          return PopularByViews;
+        case Articles.ECOMM_RFY:
+          return RecommendedForYou;
+        case Articles.ML_USER_SEGMENTATION:
+          return MachineLearningUserSegmentation;
         case Articles.USER_SEGMENTATION:
           return UserSegmentation;
         case Articles.PERSONALIZED_EMAILS:

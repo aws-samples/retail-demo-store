@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 # Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
-    RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
+  RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -29,7 +29,7 @@ Metadata:
           default: "Auto-Build Resources"
         Parameters:
           - PreIndexOpenSearch
-          - PreCreatePersonalizeCampaign
+          - PreCreatePersonalizeResources
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
           - PinpointEmailFromName
@@ -51,13 +51,34 @@ Metadata:
           - AmazonPayPublicKeyId
           - AmazonPayPrivateKey
       - Label:
+          default: "Alexa Convenience Store Demo"
+        Parameters:
+          - AlexaSkillId
+          - AlexaAmazonPayDefaultSandboxEmail
+      - Label:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - IncludemParticleDependencies
+          - mParticleOrgId
+          - mParticleApiKey
+          - mParticleSecretKey
+          - mParticleS2SApiKey
+          - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+      - Label:
+          default: "Fenix Commerce EDD Integration"
+        Parameters:
+          - FenixZipDetectUrl
+          - FenixTenantId
+          - FenixEddEndpoint
+          - FenixMonetaryValue
+          - FenixEnabledPdp
+          - FenixEnabledCart
+          - FenixEnabledCheckout
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -77,8 +98,8 @@ Metadata:
         default: "GitHub Username"
       PreIndexOpenSearch:
         default: "Auto-Load OpenSearch Index"
-      PreCreatePersonalizeCampaign:
-        default: "Auto-Build Personalize Campaigns"
+      PreCreatePersonalizeResources:
+        default: "Auto-Build Personalize Resources"
       PreCreatePinpointWorkshop:
         default: "Auto-Configure Pinpoint"
       PinpointEmailFromAddress:
@@ -92,7 +113,7 @@ Metadata:
       DeployLocationServices:
         default: "Deploy Location Services resources"
       DeployPersonalizedOffersCampaign:
-        default: "Deploy personalized offers and pickup notices using Location Services geofencing."
+        default: "Deploy personalized offers and pickup notices using Location Services geofencing"
       AmplitudeApiKey:
         default: "Amplitude API Key"
       OptimizelySdkKey:
@@ -105,12 +126,42 @@ Metadata:
         default: "Public key ID associated with Amazon Pay sandbox account"
       AmazonPayPrivateKey:
         default: "Private key associated with Amazon Pay sandbox account"
+      AlexaSkillId:
+        default: "ID of C-Store Demo Alexa skill to access Retail Demo Store"
+      AlexaAmazonPayDefaultSandboxEmail:
+        default: "An email to test Alexa integration in case you have not set up Cognito authorisation to link your Retail Demo Store account"
       IncludeSegmentDependencies:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      IncludemParticleDependencies:
+        default: "Deploy mParticle Resources"
+      mParticleOrgId:
+        default: "mParticle Org Id"
+      mParticleApiKey:
+        default: "mParticle event API Key"
+      mParticleSecretKey:
+        default: "mParticle event api Secret Key"
+      mParticleS2SApiKey:
+        default: "mParticle server to server API Key"
+      mParticleS2SSecretKey:
+        default: "mParticle server to server Secret Key"
       GoogleAnalyticsMeasurementId:
         default: "Google Analytics Measurement Id"
+      FenixZipDetectUrl:
+        default: "Fenix Zipcode Detect URL"
+      FenixTenantId:
+        default: "Fenix Commerce Tenant Id"
+      FenixEddEndpoint:
+        default: "Fenix Commerce API End Point"
+      FenixMonetaryValue:
+        default: "Fenix Commerce default monetary value"
+      FenixEnabledPdp:
+        default: "Fenix Commerce enable EDD on PDP"
+      FenixEnabledCart:
+        default: "Fenix Commerce enable EDD on CART"
+      FenixEnabledCheckout:
+        default: "Fenix Commerce enable EDD on Checkoutpage"
 
 Parameters:
   ResourceBucket:
@@ -130,9 +181,9 @@ Parameters:
     Description: >
       If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   SourceDeploymentType:
     Type: String
@@ -144,9 +195,9 @@ Parameters:
       a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
       source repositories provisioned.
     AllowedValues:
-      - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - "GitHub"
+      - "CodeCommit"
+    Default: "CodeCommit"
 
   GitHubRepo:
     Type: String
@@ -175,21 +226,20 @@ Parameters:
       prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
-  PreCreatePersonalizeCampaign:
+  PreCreatePersonalizeResources:
     Type: String
     Description: >
-      Automatically build solutions and launch Personalize campaigns. Otherwise, select 'No' if you would
-      prefer to complete this process yourself by stepping through the Personalization workshop included in this deployment
-      as a Jupyter notebook in SageMaker. Note that this process is done in the background after deployment finishes
-      and can take 2+ hours to complete.
+      Automatically trigger the background creation of Amazon Personalize resources such as solutions, campaigns, and recommenders at
+      deployment time. Otherwise, select 'No' if you would prefer to complete this process yourself by stepping through the Personalization
+      workshops included in this deployment. Note that the background create process runs after deployment finishes and can take 2+ hours to complete.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   PreCreatePinpointWorkshop:
     Type: String
@@ -198,9 +248,9 @@ Parameters:
       prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   PinpointEmailFromAddress:
     Type: String
@@ -222,9 +272,9 @@ Parameters:
       created based on any videos placed in the CloudFormation resource bucket. IMPORTANT: IVS is currently only supported in the N. Virginia (us-east-1),
       Oregon (us-west-2), and Ireland (eu-west-1) regions. If deploying to an unsupported region, be sure to select 'Yes' for this parameter.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   PinpointSMSLongCode:
     Type: String
@@ -246,17 +296,17 @@ Parameters:
     Type: String
     Description: Deploy any Location Resources
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   DeployPersonalizedOffersCampaign:
     Type: String
     Description: Deploy personalized offers and pickup notices using Location Services geofencing
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'Yes'
+      - "Yes"
+      - "No"
+    Default: "Yes"
 
   AmazonPayPublicKeyId:
     Type: String
@@ -285,19 +335,75 @@ Parameters:
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
     NoEcho: true
 
+  AlexaSkillId:
+    Type: String
+    Description: >
+      This Alexa skill with this SkillId will be allowed to invoke the back-end skill Lambda deployed as a part
+      of this CloudFormation stack. The back-end Lambda supports the C-Store demo allowing hands-free location
+      based searching with Location Service (if enabled), integration with the Retail Demo Store back-end, online recommendations,
+      and checkout with Amazon Pay (if enabled).
+
+  AlexaAmazonPayDefaultSandboxEmail:
+    Type: String
+    Description: >
+      If you follow the steps in the workshop to enable Alexa to authenticate with Cognito and pull back your
+      user details, you probably do not need to set this. However, the Alexa web testing
+      tool does not allow you to do this authentication either, so to test with the Alexa simulator on the web
+      and get emails and Amazon Pay integration, you need to set this value so that a default test user is set up -
+      for Amazon Pay integration, the email should be from one of the test accounts you created on SellerCentral.
+
   IncludeSegmentDependencies:
     Type: String
     Description: >
       Whether to deploy the resources required for the Segment workshops.
     AllowedValues:
-      - 'Yes'
-      - 'No'
-    Default: 'No'
+      - "Yes"
+      - "No"
+    Default: "No"
 
   SegmentWriteKey:
     Type: String
     Description: >
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
+    NoEcho: true
+
+  IncludemParticleDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the mParticle workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  mParticleOrgId:
+    Type: String
+    Description: >
+      mParticle organization ID from your workspace.
+    NoEcho: true
+
+  mParticleApiKey:
+    Type: String
+    Description: >
+      mParticle event API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleSecretKey:
+    Type: String
+    Description: >
+      mParticle event API secret key coupled with your API key.
+    NoEcho: true
+
+  mParticleS2SApiKey:
+    Type: String
+    Description: >
+      mParticle server to server API Key for your mParticle tenant.
+    NoEcho: true
+
+  mParticleS2SSecretKey:
+    Type: String
+    Description: >
+      mParticle server to server secret key coupled with your API key.
     NoEcho: true
 
   GoogleAnalyticsMeasurementId:
@@ -306,22 +412,73 @@ Parameters:
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
 
+  FenixZipDetectUrl:
+    Type: String
+    Description: Fenix Commerce Zipcode Detect URL
+    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
+
+  FenixTenantId:
+    Type: String
+    Description: Fenix Commerce Demo Env TenantID
+    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
+    NoEcho: true
+
+  FenixEddEndpoint:
+    Type: String
+    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
+    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+
+  FenixMonetaryValue:
+    Type: String
+    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
+    Default: 100
+
+  FenixEnabledPdp:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on PDP
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
+  FenixEnabledCart:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on CART
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
+  FenixEnabledCheckout:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on checkout
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'TRUE'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
+    - "Yes"
+
+  DeploymParticleResources: !Equals
+    - !Ref IncludemParticleDependencies
     - 'Yes'
 
   DeployLocationStack: !Equals
     - !Ref DeployLocationServices
-    - 'Yes'
+    - "Yes"
 
   CreateAmazonPayResources: !And
     - !And
-      - !Not [ !Equals [ !Ref AmazonPayPrivateKey, "" ] ]
-      - !Not [ !Equals [ !Ref AmazonPayStoreId, "" ] ]
+      - !Not [!Equals [!Ref AmazonPayPrivateKey, ""]]
+      - !Not [!Equals [!Ref AmazonPayStoreId, ""]]
     - !And
-      - !Not [ !Equals [ !Ref AmazonPayMerchantId, "" ] ]
-      - !Not [ !Equals [ !Ref AmazonPayPublicKeyId, "" ] ]
+      - !Not [!Equals [!Ref AmazonPayMerchantId, ""]]
+      - !Not [!Equals [!Ref AmazonPayPublicKeyId, ""]]
+
+  DeployAlexaEndpoint: !Not [!Equals [!Ref AlexaSkillId, ""]]
 
 Resources:
   # Base Resources
@@ -339,10 +496,23 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        mParticleOrgId: !Ref mParticleOrgId
+        mParticleApiKey: !Ref mParticleApiKey
+        mParticleSecretKey: !Ref mParticleSecretKey
+        mParticleS2SApiKey: !Ref mParticleS2SApiKey
+        mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
         LocationResourcePrefix: !Ref AWS::StackName
         GitHubUser: !Ref GitHubUser
+        GitHubBranch: !Ref GitHubBranch
+        FenixZipDetectUrl: !Ref FenixZipDetectUrl
+        FenixTenantId: !Ref FenixTenantId
+        FenixEddEndpoint: !Ref FenixEddEndpoint
+        FenixMonetaryValue: !Ref FenixMonetaryValue
+        FenixEnabledPdp: !Ref FenixEnabledPdp
+        FenixEnabledCart: !Ref FenixEnabledCart
+        FenixEnabledCheckout: !Ref FenixEnabledCheckout
 
   # Services Resources
   Services:
@@ -378,9 +548,10 @@ Resources:
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ImageRootUrl: !Sub
-          - '${RootURL}/images/'
+          - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
+        EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -412,8 +583,26 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        LocationResourceName: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationResourceName, "NotDeployed"]
-        LocationNotificationEndpoint: !If [DeployLocationStack, !GetAtt Location.Outputs.LocationNotificationEndpoint, "NotDeployed"]
+        FenixZipDetectUrl: !Ref FenixZipDetectUrl
+        FenixTenantId: !Ref FenixTenantId
+        FenixEddEndpoint: !Ref FenixEddEndpoint
+        FenixMonetaryValue: !Ref FenixMonetaryValue
+        FenixEnabledPdp: !Ref FenixEnabledPdp
+        FenixEnabledCart: !Ref FenixEnabledCart
+        FenixEnabledCheckout: !Ref FenixEnabledCheckout
+
+        LocationResourceName:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationResourceName,
+            "NotDeployed",
+          ]
+        LocationNotificationEndpoint:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationNotificationEndpoint,
+            "NotDeployed",
+          ]
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
@@ -423,8 +612,35 @@ Resources:
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
         ImageRootUrl: !Sub
-          - '${RootURL}/images/'
+          - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+
+  # Swagger UI Pipeline
+  SwaggerUIPipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/swagger-ui-pipeline.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        SwaggerUICDN: !GetAtt Base.Outputs.SwaggerUICDN
+        SwaggerUIBucketName: !GetAtt Base.Outputs.SwaggerUIBucketName
+        SwaggerUIRootUrl: !GetAtt Base.Outputs.SwaggerUICDNURL
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
+        VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
 
   # Lex personalization function
   ChatbotFunctions:
@@ -470,6 +686,30 @@ Resources:
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
 
+  Alexa:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployAlexaEndpoint
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/alexa.yaml
+      Parameters:
+        AlexaSkillId: !Ref AlexaSkillId
+        PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
+        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
+        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        LocationResourceName:
+          !If [
+            DeployLocationStack,
+            !GetAtt Location.Outputs.LocationResourceName,
+            "NotDeployed",
+          ]
+        AmazonPayMerchantId: !Ref AmazonPayMerchantId
+        AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
+
   # Deployment support
   DeploymentSupport:
     DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
@@ -480,7 +720,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         PreIndexOpenSearch: !Ref PreIndexOpenSearch
-        PreCreatePersonalizeCampaign: !Ref PreCreatePersonalizeCampaign
+        PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
         Subnet1: !GetAtt Base.Outputs.Subnet1
         Subnet2: !GetAtt Base.Outputs.Subnet2
         OpenSearchSecurityGroupId: !GetAtt Base.Outputs.OpenSearchSecurityGroupId
@@ -496,7 +736,9 @@ Resources:
         PinpointEmailFromAddress: !Ref PinpointEmailFromAddress
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
+        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
+        PersonalizeRoleArn: !GetAtt Base.Outputs.PersonalizeRoleArn
 
   # Cleanup bucket function
   CleanupBucket:
@@ -513,6 +755,18 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
+  # mParticle Lambda Functions Kinesis and Roles
+  mParticlePersonalize:
+    Condition: DeploymParticleResources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/mparticle.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        mParticleOrgId: !Ref mParticleOrgId
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
 Outputs:
   UserPoolId:
@@ -562,3 +816,79 @@ Outputs:
   PinpointAppId:
     Description: Pinpoint App Id.
     Value: !GetAtt Base.Outputs.PinpointAppId
+
+  AlexaSkillEndpointArn:
+    Description: Arn of AWS Lambda function that can be a back-end
+    Value: !If [DeployAlexaEndpoint, !GetAtt Alexa.Outputs.AlexaSkillEndpointArn, "NotDeployed"]
+
+  ProductsServiceUrl:
+    Description: Products load balancer URL.
+    Value: !GetAtt Services.Outputs.ProductsServiceUrl
+
+  UsersServiceUrl:
+    Description: Users load balancer URL.
+    Value: !GetAtt Services.Outputs.UsersServiceUrl
+
+  CartsServiceUrl:
+    Description: Carts load balancer URL.
+    Value: !GetAtt Services.Outputs.CartsServiceUrl
+
+  OrdersServiceUrl:
+    Description: Orders load balancer URL.
+    Value: !GetAtt Services.Outputs.OrdersServiceUrl
+
+  LocationServiceUrl:
+    Description: Location load balancer URL.
+    Value: !GetAtt Services.Outputs.LocationServiceUrl
+
+  RecommendationsServiceUrl:
+    Description: Recommendations load balancer URL.
+    Value: !GetAtt Services.Outputs.RecommendationsServiceUrl
+
+  VideosServiceUrl:
+    Description: Videos load balancer URL.
+    Value: !GetAtt Services.Outputs.VideosServiceUrl
+
+  SearchServiceUrl:
+    Description: Search load balancer URL.
+    Value: !GetAtt Services.Outputs.SearchServiceUrl
+
+  OffersServiceUrl:
+    Description: Offers service load balancer URL.
+    Value: !GetAtt Services.Outputs.OffersServiceUrl
+
+  EvidentlyProjectName:
+    Description: ARN for the CloudWatch Evidently project
+    Value: !GetAtt Base.Outputs.EvidentlyProjectName
+
+  ExportEnvVarScript:
+    Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.
+    Value: !Sub |
+        # Products service
+        DDB_TABLE_PRODUCTS=${Base.Outputs.ProductsTable}
+        DDB_TABLE_CATEGORIES=${Base.Outputs.CategoriesTable}
+        IMAGE_ROOT_URL="${Base.Outputs.WebUICDNURL}/images/"
+        WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
+
+        # Recommendations service
+        PRODUCT_SERVICE_HOST="${Services.Outputs.ProductsServiceUrl}"
+        PRODUCT_SERVICE_PORT=80
+        OFFERS_SERVICE_HOST="${Services.Outputs.OffersServiceUrl}"
+        OFFERS_SERVICE_PORT=80
+        AWS_XRAY_DAEMON_ADDRESS=xray:2000
+
+        # Search service
+        ES_SEARCH_DOMAIN_SCHEME=https
+        ES_SEARCH_DOMAIN_HOST="${Base.Outputs.ElasticsearchDomainEndpoint}"
+        ES_SEARCH_DOMAIN_PORT=9200
+
+        # Users service
+        AWS_REGION=${AWS::Region}
+
+        # Locations service
+        RESOURCE_BUCKET=${ResourceBucket}
+        AWS_DEFAULT_REGION=${AWS::Region}
+
+        # Videos service
+        PARAMETER_IVS_VIDEO_CHANNEL_MAP=${Base.Outputs.ParameterIVSVideoChannelMap}
+        USE_DEFAULT_IVS_STREAMS=true

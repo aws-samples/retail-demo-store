@@ -1,0 +1,73 @@
+openapi: '3.0.2'
+info:
+  title: Videos API
+  version: v1
+  description: |- 
+    The Videos service streams product videos and synchronised metadata to [Amazon Interactive Video Service](https://aws.amazon.com/ivs/) and provides stream metadata (stream endpoints and products contained within the stream) via a Flask API. The [Web UI](../../web-ui) makes calls to the service when a user views the 'Live' view. The endpoint provides a list of stream ingest endpoints, each with a list of their associated products, allowing the UI to present all products from the video before they appear in the stream.
+    
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Streams
+    description: List video stream metadata
+  - name: Health Check
+    description: Health check endpoint
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8007' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /stream_details:
+    get:
+      tags:
+        - Streams
+      description: Get all streams
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  streams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stream'
+  /health:
+    get:
+      tags:
+        - Health Check
+      description: Helath check
+      responses:
+        '200':
+          description: Health check status
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: ['OK']
+                example: 'OK'
+components:
+  schemas:
+    Stream:
+      type: object
+      properties:
+        playback_url:
+          type: string
+          example: 'https://2f185ac93237.us-west-2.playback.live-video.net/api/video/v1/us-west-2.266916629424.channel.0tBjE5G3Y648.m3u8'
+        products:
+          type: array
+          items:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        thumb_url:
+          type: string
+          example: '/static/default_stream0_thumb.png'

@@ -1,0 +1,167 @@
+openapi: '3.0.2'
+info:
+  title: Carts API
+  version: v1
+  description: |- 
+    The Carts web service provides a RESTful API for adding, changing, and deleting shopping carts. The [Web UI](../../web-ui) makes calls to this service as a user adds and removes products to their cart and during checkout.
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Carts
+    description: Create, list, and modify items in the carts
+  - name: Amazon pays
+    description: Sign payload for Amazon
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8003' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /carts:
+    get:
+      tags:
+        - Carts
+      description: Return an array of carts of all users
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+    post:
+      tags:
+        - Carts
+      description: Place an order
+      requestBody:
+        description: username whose places this order
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '201':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+
+  /carts/{cartId}:
+    parameters:
+      - name: cartId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+    get:
+      tags:
+        - Carts
+      description: Return information of the specified cart
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+    put:
+      tags:
+        - Carts
+      description: Update the specified cart
+      requestBody:
+        description: a cart to replace the existing one
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+      responses:
+        '201':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+  /sign: 
+    post:
+      tags:
+        - Amazon Pay
+      description: Sign a payload for Amazon Pay
+      requestBody:
+        description: Parameters for signing via Amazon Pay
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignBodyRequest'
+      responses:
+        '200':
+          description: Successful
+components:
+  schemas:
+    Cart:
+      type: object
+      required:
+        - id
+        - username
+        - items
+      properties:
+        id:
+          type: string
+          example: '1'
+        username:
+          type: string   
+          example: 'user1344'
+        "items":
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Product'
+    Product:
+      type: object
+      properties:
+        product_id:
+          type: string
+          example: 'a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec'
+        product_name:
+          type: string
+          example: 'Kiwi'
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+        price:
+          type: number
+          example: 3.99
+    SignBodyRequest:
+      type: object
+      properties:
+        webCheckoutDetails:
+          type: object
+          properties:
+            checkoutReviewReturnUrl:
+              type: string
+              enum: ['https://developer.amazon.com/docs/amazon-pay-checkout/introduction.html']
+        storeId:
+          type: string
+          description: Amazon Pay store ID
+        chargePermissionType:
+          type: string
+          enum: ['chargePermissionType']
+          example: 'chargePermissionType'
+          

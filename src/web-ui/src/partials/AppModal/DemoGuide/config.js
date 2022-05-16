@@ -14,9 +14,16 @@ export const sectionHeadings = {
 
 export const Articles = {
   USER_PERSONALIZATION: 'user-personalization',
-  SIMILAR_ITEM_RECOMMENDATIONS: 'similar-item-recommendations',
+  SIMS_RECOMMENDATIONS: 'sims-recommendations',
+  SIMILAR_ITEMS_RECOMMENDATIONS: 'similar-items-recommendations',
   PERSONALIZED_RANKING: 'personalized-ranking',
   USER_SEGMENTATION: 'user-segmentation',
+  ECOMM_CUSTOMERS_WHO_VIEWED_X: 'customers-who-viewed-x-also-viewed',
+  ECOMM_FBT: 'frequently-bought-together',
+  ECOMM_POPULAR_BY_PURCHASES: 'popular-items-by-purchases',
+  ECOMM_POPULAR_BY_VIEWS: 'popular-items-by-views',
+  ECOMM_RFY: 'recommended-for-you',
+  ML_USER_SEGMENTATION: 'ml-user-segmentation',
   PERSONALIZED_EMAILS: 'personalized-emails',
   SMS_MESSAGING: 'text-messaging',
   OMNI_CHANNEL: 'omni-channel',
@@ -34,8 +41,15 @@ export const Articles = {
 
 export const articleTitles = {
   [Articles.USER_PERSONALIZATION]: 'User Personalization',
-  [Articles.SIMILAR_ITEM_RECOMMENDATIONS]: 'Similar Item Recommendations',
+  [Articles.SIMS_RECOMMENDATIONS]: 'Similar Item (SIMS) Recommendations',
+  [Articles.SIMILAR_ITEMS_RECOMMENDATIONS]: 'Similar Items Recommendations',
   [Articles.PERSONALIZED_RANKING]: 'Personalized Ranking',
+  [Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X]: 'Customers Who Viewed X Also Viewed',
+  [Articles.ECOMM_FBT]: 'Frequently Bought Together',
+  [Articles.ECOMM_POPULAR_BY_PURCHASES]: 'Best Sellers',
+  [Articles.ECOMM_POPULAR_BY_VIEWS]: 'Most Viewed',
+  [Articles.ECOMM_RFY]: 'Recommended For You',
+  [Articles.ML_USER_SEGMENTATION]: 'Machine-Learning User Segmentation',
   [Articles.USER_SEGMENTATION]: 'Real-Time User Segmentation',
   [Articles.PERSONALIZED_EMAILS]: 'Personalize Emails: Welcome and Abandoned Cart',
   [Articles.SMS_MESSAGING]: 'Text Messaging (SMS): Personalized Alerts and Promotions',
@@ -56,9 +70,10 @@ export const sections = [
   {
     id: Sections.USE_CASES,
     articles: [
-      Articles.USER_PERSONALIZATION,
-      Articles.SIMILAR_ITEM_RECOMMENDATIONS,
+      Articles.ECOMM_RFY,
+      Articles.ECOMM_POPULAR_BY_VIEWS,
       Articles.PERSONALIZED_RANKING,
+      Articles.SIMILAR_ITEMS_RECOMMENDATIONS,
       Articles.USER_SEGMENTATION,
       Articles.PERSONALIZED_EMAILS,
       Articles.SMS_MESSAGING,
@@ -74,6 +89,12 @@ export const sections = [
       Articles.METRICS_AND_IMPACT,
       Articles.REAL_TIME_PERSONALIZATION,
       Articles.BATCH_RECOMMENDATIONS,
+      Articles.ECOMM_FBT,
+      Articles.ECOMM_POPULAR_BY_PURCHASES,
+      Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X,
+      Articles.USER_PERSONALIZATION,
+      Articles.SIMS_RECOMMENDATIONS,
+      Articles.ML_USER_SEGMENTATION,
     ],
   },
   {
@@ -95,9 +116,15 @@ sections.forEach((section) => {
 export const getSectionIdFromArticleId = (articleId) => articleIdToSectionIdMap[articleId];
 
 const personalizeARNToDemoGuideArticleMap = {
-  'arn:aws:personalize:::recipe/aws-sims': Articles.SIMILAR_ITEM_RECOMMENDATIONS,
+  'arn:aws:personalize:::recipe/aws-sims': Articles.SIMS_RECOMMENDATIONS,
+  'arn:aws:personalize:::recipe/aws-similar-items': Articles.SIMILAR_ITEMS_RECOMMENDATIONS,
   'arn:aws:personalize:::recipe/aws-personalized-ranking': Articles.PERSONALIZED_RANKING,
   'arn:aws:personalize:::recipe/aws-user-personalization': Articles.USER_PERSONALIZATION,
+  'arn:aws:personalize:::recipe/aws-ecomm-customers-who-viewed-x-also-viewed': Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X,
+  'arn:aws:personalize:::recipe/aws-ecomm-frequently-bought-together': Articles.ECOMM_FBT,
+  'arn:aws:personalize:::recipe/aws-ecomm-popular-items-by-purchases': Articles.ECOMM_POPULAR_BY_PURCHASES,
+  'arn:aws:personalize:::recipe/aws-ecomm-popular-items-by-views': Articles.ECOMM_POPULAR_BY_VIEWS,
+  'arn:aws:personalize:::recipe/aws-ecomm-recommended-for-you': Articles.ECOMM_RFY
 };
 
 export const getDemoGuideArticleFromPersonalizeARN = (arn) => personalizeARNToDemoGuideArticleMap[arn];

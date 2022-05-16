@@ -1,0 +1,104 @@
+{
+  "/orders/id/:order_id" : {
+    "billing_address": {
+      "first_name": "Nicholas",
+      "last_name": "White",
+      "address1": "690 Melissa Estate",
+      "address2": "",
+      "country": "US",
+      "city": "East Robertshire",
+      "state": "DC",
+      "zipcode": "20037",
+      "default": true
+    },
+    "channel": "WEB",
+    "channel_detail": {
+      "channel_id": 0,
+      "channel_geo": "voluptate ad"
+    },
+    "delivery_complete": false,
+    "delivery_type": "COLLECTION",
+    "email": "nicholas.white@example.com",
+    "id": "1",
+    "items": [
+      {
+        "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
+        "product_name": "Kiwi",
+        "quantity": 1,
+        "price": 3.99
+      },
+      {
+        "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
+        "product_name": "Kiwi",
+        "quantity": 1,
+        "price": 3.99
+      }
+    ],
+    "shipping_address": {
+      "first_name": "Nicholas",
+      "last_name": "White",
+      "address1": "690 Melissa Estate",
+      "address2": "",
+      "country": "US",
+      "city": "East Robertshire",
+      "state": "DC",
+      "zipcode": "20037",
+      "default": true
+    },
+    "total": 7.98,
+    "username": "user1344",
+    "collection_phone": "+123456780973",
+    "delivery_status": "labore mollit"
+  },
+  "/orders": {
+    "billing_address": {
+      "first_name": "Joe",
+      "last_name": "White",
+      "address1": "690 Melissa Estate",
+      "address2": "",
+      "country": "US",
+      "city": "East Robertshire",
+      "state": "DC",
+      "zipcode": "20037",
+      "default": true
+    },
+    "channel": "WEB",
+    "channel_detail": {
+      "channel_id": 0,
+      "channel_geo": "elit incididunt "
+    },
+    "delivery_complete": false,
+    "delivery_type": "DELIVERY",
+    "email": "nicholas.white@example.com",
+    "id": "1",
+    "items": [
+      {
+        "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
+        "product_name": "Kiwi",
+        "quantity": 1,
+        "price": 3.99
+      },
+      {
+        "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
+        "product_name": "Kiwi",
+        "quantity": 1,
+        "price": 3.99
+      }
+    ],
+    "shipping_address": {
+      "first_name": "Nicholas",
+      "last_name": "White",
+      "address1": "690 Melissa Estate",
+      "address2": "",
+      "country": "US",
+      "city": "East Robertshire",
+      "state": "DC",
+      "zipcode": "20037",
+      "default": true
+    },
+    "total": 7.98,
+    "username": "user1344",
+    "collection_phone": "+123456780973",
+    "delivery_status": "occaecat laboris"
+  }
+}

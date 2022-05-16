@@ -1,0 +1,476 @@
+openapi: '3.0.2'
+info:
+  title: Recommendations API
+  version: v1
+  description: |-
+    The Recommendations web service provides a RESTful API for retrieving personalized product recommendations, related products, product reranking, and suggested discounts (powered by Amazon Personalize).
+
+    The [Web UI](../../web-ui) makes calls to this service when a user is viewing the home view (recommended products), product detail view (related products), or the category view (personalized ranking of products). If Amazon Personalize campaigns have been created for these use-cases (either by the deployment Lambda option or by stepping through the [Personalization](../../../workshop/1-Personalization/1.1-Personalize.ipynb) workshop), then those campaigns will be called by the Recommendations service. Otherwise, the service will call the [Products](../../products) service to provide a suitable default behavior such as displaying featured products or products from the same category as the displayed product.
+
+    This service also provides support for running experiments for personalization approaches using techniques such as A/B testing, interleaving results testing, and multi-armed bandit testing. The [Experimentation](../../../workshop/3-Experimentation/3.1-Overview.ipynb) workshops are designed to walk you through how to setup, run, and evaluate experiments.
+
+  license:
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Recommendations
+    description: Find recommended products for a given user
+  - name: Related
+    description: Find related prodcuts
+  - name: Rerank
+    description: Get item ranking based on Personalize reranking campaign
+  - name: Discount
+    description: Suggest relevant discounts based on user and item list
+  - name: Experiments
+    description: Related to experiment
+  - name: Training
+    description: Related to training Personalize
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8005'
+        description: Use the port from ../docker-compose.yml
+
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health Check
+      description: Helath check
+      responses:
+        '200':
+          description: Health check status
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: ['OK']
+                example: 'OK'
+  /recommendations:
+    get:
+      tags:
+        - Recommendations
+      description: |-
+        Returns item/product recommendations for a given user in the context
+        of a current item (e.g. the user is viewing a product and I want to provide
+        recommendations for other products they may be interested in).
+
+        If an experiment is currently active for this feature ('home_product_recs'),
+        recommendations will be provided by the experiment. Otherwise, the default
+        behavior will be used which will look to see if an Amazon Personalize
+        campaign is available. If not, the Product service will be called to get
+        products from the same category as the current product or featured products.
+      parameters:
+        - $ref: '#/components/parameters/userID'
+        - name: currentItemID
+          in: query
+          schema:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/numResults'
+        - $ref: '#/components/parameters/feature'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/fullyQualifyImageUrls'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recommendation'
+  /related:
+    get:
+      tags:
+        - Related
+      description: |-
+        Returns related products given an item/product
+
+        If a feature name is provided and there is an active experiment for the
+        feature, the experiment will be used to retrieve related products. Otherwise,
+        the default behavior will be used which will look to see if an Amazon Personalize
+        campaign for the related items campaign is available. If not, the Product service
+        will be called to get products from the same category as the current product.
+      parameters:
+        - $ref: '#/components/parameters/userID'
+        - name: currentItemID
+          in: query
+          required: true
+          schema:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/numResults'
+        - $ref: '#/components/parameters/feature'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/fullyQualifyImageUrls'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    products:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Product'
+  /rerank:
+    post:
+      tags:
+        - Rerank
+      description: |-
+        Gets user ID, items list and feature and gets ranking of items according to reranking campaign.
+      requestBody:
+        description: UserID, items, and feature
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RerankBodyRequest'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /choose_discounted:
+    post:
+      tags:
+        - Discount
+      description: |-
+        Gets user ID, items list and feature and chooses which items to discount according to the
+        reranking campaign. Gets a ranking with discount applied and without (using contextual metadata)
+        and looks at the difference. The products are ordered according to how the response is expected
+        to improve after applying discount.
+
+        The items that are not chosen for discount will be returned as-is but with the "discounted" key set to False.
+        The items that are chosen for discount will have the "discounted" key set to True.
+
+        If there is an experiment active for this feature the request for ranking for choosing discounts will have been
+        routed through the experiment resolver and discounts chosen according to whichever approach is active. The
+        items will have experiment information recorded against them and if URLs were provided for products these will be
+        suffixed with an experiment tracking correlation ID. That way, different approaches to discounting can be compared,
+        as with different approaches to recommendations and reranking in other campaigns.
+
+        This API is used in the web UI's live stream page
+      requestBody:
+        description: UserID, items, and feature
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RerankBodyRequest'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductWithDiscountField'
+  /coupon_offer:
+    get:
+      tags:
+        - Discount
+      description: |-
+        Returns an offer recommendation for a given user.
+
+        Hits the offers endpoint to find what offers are available, get their preferences for adjusting scores.
+        Uses Amazon Personalize if available to score them.
+        Returns the highest scoring offer.
+
+        Experimentation is disabled because we are sending the offers through Pinpoint emails and for this
+        demonstration we would need to add some more complexity to track those within the current framework.
+        Pinpoint also has A/B experimentation built in which can be used.
+      parameters:
+        - $ref: '#/components/parameters/userID'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  offer:
+                    $ref: '#/components/schemas/Offer'
+        '500':
+          description: Internal error (e.g. cannot reach offers service)
+  /experiment/outcome:
+    post:
+      tags:
+        - Experiments
+      description: |-
+        Tracks an outcome/conversion for an experiment
+      requestBody:
+        description: UserID, items, and feature
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentOutcomeBodyRequest'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Invalid input
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: correlationId is invalid
+        '404':
+          description: Experiment not found
+
+components:
+  parameters:
+    userID:
+      name: userID
+      in: query
+      required: true
+      schema:
+        type: string
+        example: '5097'
+    numResults:
+      name: numResults
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+        example: 10
+    feature:
+      name: feature
+      description: Used to track different experiments
+      in: query
+      required: true
+      schema:
+        type: string
+        example: 'product_detail_related'
+    filter:
+      name: filter
+      in: query
+      schema:
+        type: string
+        default: 'not-already-purchased'
+        enum:
+          - 'not-already-purchased'
+          - 'purchased'
+          - 'cstore'
+        example: 'not-already-purchased'
+    fullyQualifyImageUrls:
+      name: fulfullyQualifyImageUrlslyQu
+      in: query
+      schema:
+        type: string
+        default: '0'
+        enum:
+          - '0'
+          - 'true'
+          - 't'
+          - '1'
+        example: '1'
+  schemas:
+    Recommendation:
+      type: object
+      properties:
+        score:
+          type: number
+          example: 0.1271395
+        product:
+          $ref: '#/components/schemas/Product'
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+        itemId:
+          type: string
+          description: This field is returned from some recommendations APIs, it's a duplicate of id field.
+          nullable: true
+          example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+        url:
+          type: string
+          example: 'http://xxx.cloudfront.net/#/product/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+        sk:
+          type: string
+          example: ''
+        name:
+          type: string
+          example: 'Screwdriver'
+        category:
+          type: string
+          example: 'tools'
+        style:
+          type: string
+          example: 'screwdriver'
+        description:
+          type: string
+          example: 'Essential screwdriver for every craftperson'
+        price:
+          type: number
+          example: 3.99
+        image:
+          type: string
+          example: 'http://xxx.cloudfront.net/images/tools/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg'
+        featured:
+          type: string
+          enum: ['true', 'false']
+          example: 'true'
+        gender_affinity:
+          type: string
+          enum: ['M', 'F']
+          example: 'F'
+        current_stock:
+          type: integer
+          example: 9
+    ProductWithDiscountField:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            discounted:
+              type: boolean
+              example: true
+    RerankBodyRequest:
+      type: object
+      properties:
+        userID:
+          type: string
+          example: '5097'
+        'items':
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+          example:
+            - id: "638012bd-b70e-4035-bf83-fbb777c7a6ea"
+              url: "http://xxx.cloudfront.net/#/product/638012bd-b70e-4035-bf83-fbb777c7a6ea"
+              sk: ""
+              name: "Grandma's Mascara"
+              category: "beauty"
+              style: "grooming"
+              description: "The 20s look that never went out of fashion, till after the 20s."
+              price: 18
+              image: "http://xxx.cloudfront.net/images/beauty/638012bd-b70e-4035-bf83-fbb777c7a6ea.jpg"
+              gender_affinity: "F"
+              current_stock: 13
+              itemId: "638012bd-b70e-4035-bf83-fbb777c7a6ea"
+            - id: "9d1be460-7c75-4627-990d-1f1a6731dc3e"
+              url: "http://xxx.cloudfront.net/#/product/9d1be460-7c75-4627-990d-1f1a6731dc3e"
+              sk: ""
+              name: "Camera Tripod"
+              category: "electronics"
+              style: "camera"
+              description: "Take video anywhere, anytime, like a spy."
+              price: 49
+              image: "http://xxx.cloudfront.net/images/electronics/9d1be460-7c75-4627-990d-1f1a6731dc3e.jpg"
+              gender_affinity: "F"
+              current_stock: 10
+              itemId: "9d1be460-7c75-4627-990d-1f1a6731dc3e"
+            - id: "79fc3af3-c071-4e26-9062-b869f2ec128d"
+              url: "http://xxx.cloudfront.net/#/product/79fc3af3-c071-4e26-9062-b869f2ec128d"
+              sk: ""
+              name: "Nice Stripy Blouse"
+              category: "apparel"
+              style: "shirt"
+              description: "Easy-wearing and comfy momfy!"
+              price: 39
+              image: "http://xxx.cloudfront.net/images/apparel/79fc3af3-c071-4e26-9062-b869f2ec128d.jpg"
+              gender_affinity: "F"
+              current_stock: 10
+              itemId: "79fc3af3-c071-4e26-9062-b869f2ec128d"
+            - id: "8759b4e2-51cc-456f-a224-01a34d04db2b"
+              url: "http://xxx.cloudfront.net/#/product/8759b4e2-51cc-456f-a224-01a34d04db2b"
+              sk: ""
+              name: "Pocket Powder Case"
+              category: "beauty"
+              style: "grooming"
+              description: "Touch up on the go! Wherever, whenever!"
+              price: 29
+              image: "http://xxx.cloudfront.net/images/beauty/8759b4e2-51cc-456f-a224-01a34d04db2b.jpg"
+              gender_affinity: "F"
+              current_stock: 12
+              itemId: "8759b4e2-51cc-456f-a224-01a34d04db2b"
+            - id: "89728417-5269-403d-baa3-04b59cdffd0a"
+              url: "http://xxx.cloudfront.net/#/product/89728417-5269-403d-baa3-04b59cdffd0a"
+              sk: ""
+              name: "4-Piece Makeup Brush Set"
+              category: "beauty"
+              style: "grooming"
+              description: "Get makeup done, the only way how, on your skin."
+              price: 26
+              image: "http://xxx.cloudfront.net/images/beauty/89728417-5269-403d-baa3-04b59cdffd0a.jpg"
+              gender_affinity: "F"
+              current_stock: 4
+              itemId: "89728417-5269-403d-baa3-04b59cdffd0a"
+            - id: "2f3f075b-66ff-475f-95e3-71b462f328c5"
+              url: "http://xxx.cloudfront.net/#/product/2f3f075b-66ff-475f-95e3-71b462f328c5"
+              sk: ""
+              name: "Eyeshadow Palette - Set of 3 Palettes"
+              category: "beauty"
+              style: "grooming"
+              description: "Perfect for trialling different shades, each palette contains 4 different shades."
+              price: 145
+              image: "http://xxx.cloudfront.net/images/beauty/2f3f075b-66ff-475f-95e3-71b462f328c5.jpg"
+              gender_affinity: "F"
+              current_stock: 19
+              itemId: "2f3f075b-66ff-475f-95e3-71b462f328c5"
+        feature:
+          type: string
+          example: home_featured_rerank
+    ChooseDiscountedBodyRequest:
+      allOf:
+        - $ref: '#/components/schemas/RerankBodyRequest'
+        - type: object
+          properties:
+            feature:
+              type: string
+              example: live_stream_prod_discounts
+    Offer:
+      type: object
+      properties:
+        code:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        expiry:
+          type: string
+          nullable: true
+        id:
+          type: integer
+          minimum: 1
+        preference:
+          type: integer
+    ExperimentOutcomeBodyRequest:
+      type: object
+      properties:
+        correlationId:
+          type: string

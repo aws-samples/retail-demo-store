@@ -1,0 +1,280 @@
+openapi: '3.0.2'
+info:
+  title: Products API
+  version: v1
+  description: |- 
+    The Products web service provides a RESTful API for creating and retrieving Products. The [Web UI](../../web-ui) makes calls to this service when a user goes through the checkout process or when viewing their Products.
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Products
+    description: Products API
+  - name: Categories
+    description: Categories API
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8001' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /products:
+    post:
+      tags:
+        - Products
+      description: Create a new product
+      requestBody:
+        description: Details for creating a new product
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestBody'
+      responses:
+        '201':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+  /products/all:
+    get:
+      tags:
+        - Products
+      description: Return an array of products
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/id/{productId}:
+    parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+    get:
+      tags:
+        - Products
+      description: Return a product of a given id
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    put:
+      tags:
+        - Products
+      description: Update a product of a given id
+      requestBody:
+        description: Details for product to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestBody'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    delete:
+      tags:
+        - Products
+      description: Delete a product of a given id
+      responses:
+        '200': 
+          description: Successful
+        '404':
+          description: Product not found
+        '500':
+          description: Internal error when deleting the product
+
+  /products/category/{categoryName}:
+    get:
+      tags:
+        - Products
+      description: Return an array of products from a given category. It does NOT check if the given category exists. If it doesn't, the API will return an empty array.
+      parameters:
+        - name: categoryName
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 'tools'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/featured:
+    get:
+      tags:
+        - Products
+      description: Return an array of featured products
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /products/id/{productId}/inventory:
+    parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+    put:
+      tags:
+        - Products
+      description: Update stock of a given product id. 
+      requestBody:
+        description: Stock delta. It can be negative (indicating deducting the stock). If the stock is deducted to less than 0, the API will set stock to 0 and throws no error.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockDelta'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+  /categories/all:
+    get:
+      tags:
+        - Categories
+      description: Return an array of categories
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+      
+  /categories/id/{categoryId}:
+    parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '16'
+    get:
+      tags:
+        - Categories
+      description: Return a category
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+components:
+  schemas:
+    ProductRequestBody:
+      type: object
+      properties:
+        sk:
+          type: string
+          example: ''
+        name:
+          type: string
+          example: 'Screwdriver'
+        category:
+          type: string
+          example: 'tools'
+        style:
+          type: string
+          example: 'screwdriver'
+        description:
+          type: string
+          example: 'Essential screwdriver for every craftperson'
+        price:
+          type: number
+          example: 3.99
+        image:
+          type: string
+          example: 'http://xxx.cloudfront.net/images/tools/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg'
+        featured:
+          type: string
+          enum: ['true', 'false']
+          example: 'true'
+        gender_affinity:
+          type: string
+          enum: ['M', 'F']
+          example: 'F'
+        current_stock:
+          type: integer
+          example: 9
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              example: '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+            url:
+              type: string
+              example: 'http://xxx.cloudfront.net/#/product/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29'
+    StockDelta:
+      type: object
+      properties:
+        stock_delta:
+          type: integer
+          example: 5
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '16'
+        url:
+          type: string
+          example: 'http://xxx.cloudfront.net/#/category/tools'
+        name:
+          type: string
+          example: 'tools'
+        image:
+          type: string
+          example: 'http://xxx.cloudfront.net/images/tools/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg'
+        has_gender_affinity:
+          type: boolean
+          example: false

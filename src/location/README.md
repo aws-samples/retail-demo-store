@@ -5,7 +5,7 @@ customer routes to support to Location Services demo in the Retail Demo Store.
 To use the demo, see "Retail Geofencing and Location-aware Personalization"
 in the in-app Demo Guide.  
 
-This service has two endpoints
+This service has two APIs. Check Swagger UI for the API details.
 
 ## Local Development
 

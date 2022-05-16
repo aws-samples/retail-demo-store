@@ -146,6 +146,41 @@ Parameters:
     Type: String
     Description: URL of WebSocket API for Geofence notifications
 
+  FenixZipDetectUrl:
+    Type: String
+    Description: Fenix Commerce Zipcode Detect URL
+    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
+
+  FenixTenantId:
+    Type: String
+    Description: Fenix Commerce Demo Env TenantID
+    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
+
+  FenixEddEndpoint:
+    Type: String
+    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
+    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+
+  FenixMonetaryValue:
+    Type: String
+    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
+    Default: '100'
+
+  FenixEnabledPdp:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on PDP
+    Default: 'TRUE'
+
+  FenixEnabledCart:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on CART
+    Default: 'TRUE'
+
+  FenixEnabledCheckout:
+    Type: String
+    Description: Fenix Commerce Flag to enable EDD on checkout
+    Default: 'TRUE'
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -243,7 +278,6 @@ Resources:
                   - s3:List*
                   - s3:GetObject
                   - s3:PutObject
-                Resource: '*'
                 Resource:
                   - !Sub arn:aws:s3:::${ResourceBucket}/*
                   - !Sub arn:aws:s3:::${ResourceBucket}
@@ -273,7 +307,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - ssm:GetParameters
-                  - 'cloudfront:CreateInvalidation'
+                  - cloudfront:CreateInvalidation
                 Resource: "*"
         - PolicyName: "S3"
           PolicyDocument:
@@ -285,7 +319,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-                  - 's3:GetBucketVersioning'
+                  - s3:GetBucketVersioning
                 Resource:
                   - !Sub arn:aws:s3:::${ArtifactBucket}/*
                   - !Sub arn:aws:s3:::${WebUIBucketName}/*
@@ -320,7 +354,6 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-                  - iam:PassRole
               - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
@@ -343,7 +376,6 @@ Resources:
       BucketName: !Ref ArtifactBucket
 
   CodeBuildProject:
-    Description: Retail Demo Store CodeBuild project for Web UI
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Name: !Ref AWS::StackName
@@ -416,7 +448,21 @@ Resources:
             Value: !Ref WebRootUrl
           - Name: IMAGE_ROOT_URL
             Value: !Ref ImageRootUrl
-        Image: 'aws/codebuild/standard:2.0'
+          - Name: FENIX_ZIP_DETECT_URL
+            Value: !Ref FenixZipDetectUrl
+          - Name: FENIX_TENANT_ID
+            Value: !Ref FenixTenantId
+          - Name: FENIX_EDD_ENDPOINT
+            Value: !Ref FenixEddEndpoint
+          - Name: FENIX_MONETARY_VALUE
+            Value: !Ref FenixMonetaryValue
+          - Name: FENIX_ENABLED_PDP
+            Value: !Ref FenixEnabledPdp
+          - Name: FENIX_ENABLED_CART
+            Value: !Ref FenixEnabledCart
+          - Name: FENIX_ENABLED_CHECKOUT
+            Value: !Ref FenixEnabledCheckout  
+        Image: 'aws/codebuild/standard:5.0'
         Type: LINUX_CONTAINER
 
   PipelineGitHub:

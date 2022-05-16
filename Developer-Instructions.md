@@ -18,7 +18,7 @@ Save your access token in a secure location.
 
 The Retail Demo Store provides several options for managing deployments.  Here are the most common ones:
 
-### Deploy via an S3 Staging Bucket
+### Option 3.1 Deploy via an S3 Staging Bucket
 
 If you want to modify deployment templates and manage the whole deployment process yourself, you will need to configure an S3 bucket for staging Retail Demo Store deployment templates and resources prior to deployment in your own AWS account.  This bucket must be in the region in which you plan to deploy.
 
@@ -64,26 +64,48 @@ If you plan to enable the automated Personalize campaign creation process at dep
 
 It is advisable to use a Python 3 virtual environment to do this and the scripts assume that the executable pip is the Python 3 version of pip so if necessary you may need to install pip into that virtual environment (if your system defaults to a Python 2 version of pip).
 
-There are also some Golang dependencies that need to be installed before staging:
-
-```bash
-go get github.com/aws/aws-lambda-go/lambda
-go get github.com/aws/aws-lambda-go/cfn
-go get github.com/aws/aws-sdk-go
-go get gopkg.in/yaml.v2
-```
-
-The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket.
+The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket. 
 
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 
 ```bash
-./stage.sh mycustombucket path/
+./stage.sh MY_CUSTOM_BUCKET S3_PATH/
 ```
 
-The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console.
+The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console or use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
 
-### Deploy Infrastructure from the Main Repo, Deploy Application and Services via GitHub
+```bash
+aws cloudformation deploy \
+  --template-file ./aws/cloudformation-templates/template.yaml \
+  --stack-name retaildemostore \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region REGION \
+  --parameter-overrides \
+  ResourceBucket=MY_CUSTOM_BUCKET \ 
+  ResourceBucketRelativePath=S3_PATH \ 
+  SourceDeploymentType="CodeCommit" \
+  AlexaSkillId="" \
+  AlexaAmazonPayDefaultSandboxEmail="" \
+  ResourceBucketRelativePath="" \
+  mParticleSecretKey="" \
+  AmazonPayPublicKeyId="" \
+  mParticleApiKey="" \
+  mParticleS2SSecretKey="" \
+  mParticleS2SApiKey="" \
+  mParticleOrgId="" \
+  GoogleAnalyticsMeasurementId="" \
+  PinpointSMSLongCode="" \
+  PinpointEmailFromAddress="" \
+  SegmentWriteKey="" \
+  AmazonPayPrivateKey="" \
+  AmazonPayStoreId="" \
+  AmazonPayMerchantId="" \
+  OptimizelySdkKey="" \
+  GitHubToken="" \
+  AmplitudeApiKey=""
+```
+
+### Option 3.2 Deploy Infrastructure from the Main Repo, Deploy Application and Services via GitHub
 
 If you only want to modify the web user interface, or the Retail Demo Store backend services, you can deploy Retail Demo Store using the options below, and issue commits in your own fork via GitHub to trigger a re-deploy.  This will allow you to push changes to the Retail Demo Store services and web user interface using a CodeDeploy pipeline.
 

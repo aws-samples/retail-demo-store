@@ -1,0 +1,84 @@
+openapi: '3.0.2'
+info:
+  title: Offers API
+  version: v1
+  description: |- 
+    The Offers web service provides a RESTful API for retrieving coupons.
+
+    To see this used, see "Retail Geofencing and Location-aware Personalization"
+    in the in-app Demo Guide. 
+    
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Offers
+    description: List and get the available offers
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8008' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /offers:
+    get:
+      tags:
+        - Offers
+      description: Get all available offers
+      responses:
+        '200':
+          description: Successfully return all offers
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Offer'
+                
+  /offers/{offerId}:
+    get:
+      tags:
+        - Offers
+      description: Get a single offer
+      parameters:
+      - name: offerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: A single offer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+components:
+  schemas:
+    Offer:
+      type: object
+      properties:
+        code:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        expiry:
+          type: string
+          nullable: true
+        id:
+          type: integer
+          minimum: 1
+        preference:
+          type: integer

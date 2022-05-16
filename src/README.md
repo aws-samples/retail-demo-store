@@ -10,6 +10,25 @@ Besides cloning this repository to your local system, you also need to have the 
 
 Docker Compose will load the [.env](.env) file to resolve environment variables referenced in the [docker-compose.yml](./docker-compose.yml) file. You can copy the [.env.template](.env.template) file to [.env](.env) as a starting point. This is where you can customize variables to match your desired configuration.
 
+You can find the common environment variables from your deployed stack in the CloudFormation output name `ExportEnvVarScript`. Use this CLI to get the output in a proper format.
+
+```sh
+aws cloudformation describe-stacks --stack-name retaildemostore \
+  --region REGION \
+  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue"
+  --output text
+```
+
+Then you can copy and override variables for each service in your [.env](.env) file.
+
+### Amazon ECR authorization
+
+Since some of the Docker images are hosted in Amazon ECR, you must authenticate your shell session before running docker-compose. Otherwise, the images will not be able to be downloaded. Run the following command to authenticate before running docker-compose. You should only have to do this once per shell session.
+
+```sh
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+```
+
 ### AWS credentials
 
 Some services, such as the [products](./products) and [recommendations](./recommendations) services, need to access AWS services running in your AWS account from your local machine. Given the differences between these container setups, different approaches are needed to pass in the AWS credentials needed to make these connections. For example, for the recommendations service we can map your local `~./.aws` configuration directory into the container's `/root` directory so the AWS SDK in the container can pick up the credentials it needs. Alternatively, since the products service is packaged from a [scratch image](https://hub.docker.com/_/scratch), credentials must be passed using the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables. In this case, rather than setting these variables in `.env` and risk exposing these values, consider setting these three variables in your shell environment. The following command can be used to obtain a session token which can be used to set your environment variables in your shell.
@@ -43,3 +62,11 @@ For instructions specific to each Retail Demo Store web service, view the README
 ## Web UI Service
 
 When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the [Web UI's .env](web-ui/.env) file for which there is an example at [web-ui/.env.template](web-ui/.env.template) to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
+
+
+## Swagger UI
+
+There is a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request agains the service via Swagger UI.
+
+The `Dockerfile` of `swagger-ui` copies OpenAPI spec from each service (located at `<serviceName>/openapi/spec.yaml`). If you add a new service, please ensure that you write the OpenAPI spec and update the `Dockerfile` to copy yours.
+

@@ -7,7 +7,7 @@ import botocore
 import logging
 
 from unittest.mock import patch
-from experimentation.resolvers import (ResolverFactory, HttpResolver, DefaultProductResolver, PersonalizeRecommendationsResolver, 
+from experimentation.resolvers import (ResolverFactory, HttpResolver, DefaultProductResolver, PersonalizeRecommendationsResolver,
     SearchSimilarProductsResolver, PersonalizeRankingResolver, RankingProductsNoOpResolver)
 
 """
@@ -23,13 +23,13 @@ class TestResolvers(unittest.TestCase):
         resolver = ResolverFactory.get(ResolverFactory.TYPE_PRODUCT, products_service_host = '10.10.10.10')
         self.assertTrue(type(resolver) is DefaultProductResolver)
 
-        resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RECOMMENDATIONS, campaign_arn = 'the_arn')
+        resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RECOMMENDATIONS, inference_arn = 'arn:aws:personalize:us-east-1:123456789:recommender/some_name')
         self.assertTrue(type(resolver) is PersonalizeRecommendationsResolver)
 
         resolver = ResolverFactory.get(ResolverFactory.TYPE_SIMILAR, search_service_host = '10.10.10.11')
         self.assertTrue(type(resolver) is SearchSimilarProductsResolver)
 
-        resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RANKING, campaign_arn = 'the_arn')
+        resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RANKING, inference_arn = 'arn:aws:personalize:us-east-1:123456789:campaign/some_name')
         self.assertTrue(type(resolver) is PersonalizeRankingResolver)
 
         resolver = ResolverFactory.get(ResolverFactory.TYPE_RANKING_NO_OP)
@@ -87,7 +87,7 @@ class TestResolvers(unittest.TestCase):
             return orig(self, operation_name, kwarg)
 
         with patch('botocore.client.BaseClient._make_api_call', new=mock_make_api_call):
-            resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RECOMMENDATIONS, campaign_arn = 'my_campaign_arn')
+            resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RECOMMENDATIONS, inference_arn = 'arn:aws:personalize:us-east-1:123456789:campaign/some_name')
             items = resolver.get_items(user_id = '12', product_id = '40', num_results = 20)
             self.assertEqual(len(items), 2)
             self.assertEqual(items[0]['itemId'], '1')
@@ -103,7 +103,7 @@ class TestResolvers(unittest.TestCase):
             return orig(self, operation_name, kwarg)
 
         with patch('botocore.client.BaseClient._make_api_call', new=mock_make_api_call):
-            resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RANKING, campaign_arn = 'my_campaign_arn')
+            resolver = ResolverFactory.get(ResolverFactory.TYPE_PERSONALIZE_RANKING, inference_arn = 'arn:aws:personalize:us-east-1:123456789:campaign/some_name')
             unranked_items = [ '1', '2', '3', '4' ]
             ranked_items = resolver.get_items(user_id = '12', product_list = unranked_items)
             self.assertEqual(len(ranked_items), 4)

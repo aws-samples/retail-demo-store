@@ -9,7 +9,7 @@ echo "Cleaning up intermediate files"
 [ -e "package" ] && rm -rf package
 
 echo "Installing Lambda dependencies"
-npm install
+npm ci 
 
 echo "Building Lambda deployment package"
 zip -r9 ${PACKAGE_FILE} . -x "*.sh"

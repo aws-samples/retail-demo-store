@@ -30,7 +30,7 @@ age_sd = 15
 age_dist = truncnorm((age_min - age_mean) / age_sd, (age_max - age_mean) / age_sd, loc=age_mean, scale=age_sd)
 
 # Persona combinations ordered from strongest affinity to latent interest.
-category_preference_personas = [
+category_preference_personas_web = (
     'furniture_homedecor_housewares', 'apparel_footwear_accessories',
     'instruments_books_electronics', 'floral_beauty_jewelry',
     'groceries_seasonal_tools', 'outdoors_instruments_groceries',
@@ -39,20 +39,33 @@ category_preference_personas = [
     'homedecor_electronics_outdoors', 'accessories_groceries_books',
     'footwear_jewelry_furniture', 'books_apparel_homedecor',
     'beauty_accessories_instruments', 'housewares_tools_beauty'
-]
+)
 
-discount_personas = [
+category_preference_personas_cstore = (
+    'food service:pizza_cold dispensed:fountain-carbonated_salty snacks:nuts/seeds',
+    'food service:nachos_hot dispensed:hot chocolate_salty snacks:potato chips',
+    'food service:pizza_cold dispensed:fountain-carbonated_salty snacks:potato chips',
+    'food service:nachos_cold dispensed:fountain-carbonated_salty snacks:nuts/seeds',
+    'food service:pizza_cold dispensed:fountain-carbonated_cold dispensed:fountain-carbonated',
+    'food service:seafood_cold dispensed:fountain-non-carbonated_salty snacks:nuts/seeds',
+    'food service:seafood_food service:soup and salad_cold dispensed:fountain-non-carbonated',
+    'food service:other cuisine_food service:soup and salad_cold dispensed:fountain-non-carbonated',
+    'food service:other cuisine_food service:sandwiches/wraps_cold dispensed:fountain-non-carbonated'
+)
+
+discount_personas = (
   'discount_indifferent',  # does not care about discounts
   'all_discounts',  # likes discounts all the time
   'lower_priced_products'  # likes discounts on cheaper products
-]
+)
 
 class UserPool:
-  def __init__(self):
+  def __init__(self, category_preference_personas=category_preference_personas_web, start_user=0):
     self.users = []
     self.active = []
-    self.last_id = 0
+    self.last_id = start_user
     self.file = ''
+    self.category_preference_personas = category_preference_personas
 
   def size(self):
     return len(self.users) + len(self.active)
@@ -60,15 +73,17 @@ class UserPool:
   def active_users(self):
     return len(self.active)
 
-  def grow_pool(self, num_users):
+  def grow_pool(self, num_users, selectable_user):
     for i in range(num_users):
       self.last_id += 1
-      user = User(str(self.last_id))
+      user = User(category_preference_personas=self.category_preference_personas,
+                  selectable_user=selectable_user,
+                  id_string=str(self.last_id))
       self.users.append(user)
   
-  def user(self, select_active=False):
+  def user(self, selectable_user=True, select_active=False):
     if len(self.users) == 0:
-      self.grow_pool(1000)
+      self.grow_pool(1000, selectable_user=selectable_user)
       self.save(self.file)  # Cache the whole pool back to the file
     if select_active and len(self.active) > 0:
       user = random.choice(self.active)
@@ -88,7 +103,7 @@ class UserPool:
 
   @classmethod
   def from_file(cls, filename):
-    user_pool = cls()
+    user_pool = cls(category_preference_personas=set())
     user_pool.file = filename
     with gzip.open(filename, 'rt', encoding='utf-8') as f:
       data = json.load(f)
@@ -99,22 +114,28 @@ class UserPool:
       bisect.insort(user_ids, int(user.id))
       user_pool.last_id = user_ids[len(user_ids) - 1]
       user_pool.users.append(user)
+      user_pool.category_preference_personas.add(user.persona)
+    user_pool.category_preference_personas = tuple(user_pool.category_preference_personas)
     return user_pool
 
   @classmethod
-  def new_file(cls, filename, num_users):
-    user_pool = cls()
+  def new_file(cls, filename, num_users,
+               category_preference_personas, selectable_user=True, start_user=0):
+    user_pool = cls(category_preference_personas=category_preference_personas,
+                    start_user=start_user)
     user_pool.file = filename
-    user_pool.grow_pool(num_users)
+    user_pool.grow_pool(num_users, selectable_user)
     user_pool.save(filename)
     return user_pool
 
 class User:
-  def __init__(self, id_string=None):
+  def __init__(self, category_preference_personas, selectable_user, id_string=None):
     if(id_string != None):
       self.id = id_string
     else:
       self.id = str(random.randint(1000000000, 99999999999))
+
+    self.selectable_user = selectable_user
     self.gender = random.choice(['M', 'F'])
     if self.gender == 'F':
         self.first_name = fake.first_name_female()
@@ -190,7 +211,7 @@ class User:
 
   @classmethod
   def from_file(cls, user_dict):
-    user = cls()
+    user = cls([user_dict['persona']], user_dict['selectable_user'])
     for (k,v) in user_dict.items():
       setattr(user,k, v)  # Danger, Will Robinson 
     return user

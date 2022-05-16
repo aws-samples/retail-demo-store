@@ -1,0 +1,83 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template creates and prepares Amazon Personalize support resources
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  Uid:
+    Type: String
+
+  StackBucketName:
+    Type: String
+    Description: S3 bucket name for the stack bucket used to stage Personalize input and output files
+
+Resources:
+  StackBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StackBucketName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Deny
+            Action: 's3:*'
+            Resource:
+              - !Sub "arn:aws:s3:::${StackBucketName}"
+              - !Sub "arn:aws:s3:::${StackBucketName}/*"
+            Principal: '*'
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub "arn:aws:s3:::${StackBucketName}"
+              - !Sub "arn:aws:s3:::${StackBucketName}/*"
+            Principal:
+              Service: personalize.amazonaws.com
+
+  PersonalizeServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Uid}-PersonalizeS3"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: personalize.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: BucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${ResourceBucket}" # So imports can be run directly from resource bucket
+                  - !Sub "arn:aws:s3:::${ResourceBucket}/*"  # So imports can be run directly from resource bucket
+                  - !Sub "arn:aws:s3:::${StackBucketName}"
+                  - !Sub "arn:aws:s3:::${StackBucketName}/*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${StackBucketName}"
+                  - !Sub "arn:aws:s3:::${StackBucketName}/*"
+
+Outputs:
+  PersonalizeServiceRole:
+    Description: Personalize service role ARN
+    Value: !GetAtt PersonalizeServiceRole.Arn

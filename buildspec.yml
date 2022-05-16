@@ -11,6 +11,7 @@ phases:
     commands:
       - echo Entered the install phase...
       - yum -y install git python3 golang
+      - yum -y update ca-certificates
       - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       - python3 get-pip.py
       - python3 -m venv retailstore/env
@@ -26,7 +27,7 @@ phases:
       - cd retail-demo-store/
       - pip install -r generators/requirements.txt
       - ./stage.sh retail-demo-store-us-east-1
-      - ./stage.sh retail-demo-store-us-west-2
-      - ./stage.sh retail-demo-store-ap-northeast-1
-      - ./stage.sh retail-demo-store-ap-southeast-2
-      - ./stage.sh retail-demo-store-eu-west-1
+      - ./stage.sh retail-demo-store-us-west-2 --skip-generators
+      - ./stage.sh retail-demo-store-ap-northeast-1 --skip-generators
+      - ./stage.sh retail-demo-store-ap-southeast-2 --skip-generators
+      - ./stage.sh retail-demo-store-eu-west-1 --skip-generators

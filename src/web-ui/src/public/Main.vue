@@ -35,6 +35,13 @@
             ></Product>
           </div>
         </div>
+
+        <div v-if="!isLoadingRecommendations && !userRecommendationsTitle" class="text-left">
+          <em>
+            Personalized recommendations do not appear to be enabled for this instance of the storefront yet. Please complete the Personalization workshop labs to add personalized capabilities.
+            In the meantime, the default user experience will provide product information directly from the catalog.
+          </em>
+        </div>
       </section>
 
       <RecommendedProductsSection
@@ -74,6 +81,7 @@ const ProductsRepository = RepositoryFactory.get('products');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 12;
 const EXPERIMENT_USER_RECS_FEATURE = 'home_product_recs';
+const EXPERIMENT_USER_RECS_COLD_FEATURE = 'home_product_recs_cold';
 const EXPERIMENT_RERANK_FEATURE = 'home_featured_rerank';
 
 export default {
@@ -152,12 +160,27 @@ export default {
       this.recommendationsExperiment = null;
       this.userRecommendationsDemoGuideBadgeArticle = null;
 
-      const response = await RecommendationsRepository.getRecommendationsForUser(
-        this.personalizeUserID,
-        '',
-        MAX_RECOMMENDATIONS,
-        EXPERIMENT_USER_RECS_FEATURE,
-      );
+      var response;
+      if (this.personalizeRecommendationsForVisitor) {
+        this.featureUserRecs = EXPERIMENT_USER_RECS_FEATURE;
+
+        response = await RecommendationsRepository.getRecommendationsForUser(
+          this.personalizeUserID,
+          '',
+          MAX_RECOMMENDATIONS,
+          this.featureUserRecs
+        );
+      }
+      else {
+        this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
+
+        response = await RecommendationsRepository.getPopularProducts(
+          this.personalizeUserID,
+          '',
+          MAX_RECOMMENDATIONS,
+          this.featureUserRecs
+        );
+      }
 
       if (response.headers) {
         const experimentName = response.headers['x-experiment-name'];
@@ -169,7 +192,7 @@ export default {
           if (personalizeRecipe) {
             this.userRecommendationsTitle = this.personalizeRecommendationsForVisitor
               ? 'Inspired by your shopping trends'
-              : 'Trending products';
+              : 'Popular products';
 
             this.userRecommendationsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
           } else if (experimentName) {

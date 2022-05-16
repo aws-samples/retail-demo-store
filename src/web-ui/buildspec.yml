@@ -1,26 +1,32 @@
 version: 0.2
+
+env:
+  parameter-store:
+    MPARTICLE_API_KEY: "/retaildemostore/webui/mparticle_api_key"
+    MPARTICLE_SECRET_KEY: "/retaildemostore/webui/mparticle_secret_key"
+
 phases:
   install:
     runtime-versions:
-      nodejs: 10
+      nodejs: 14
   pre_build:
     commands:
       - echo Installing NPM dependencies...
       - cd src/web-ui
-      - npm install
+      - npm ci
   build:
     commands:
-      - chmod a+x ./gen_env.sh
+      - chmod a+x *.sh
       - ./gen_env.sh
       - cat .env
       - npm run build
   post_build:
     commands:
       - echo Uploading to ${WEB_BUCKET_NAME}
-      - aws s3 cp --recursive ./dist s3://${WEB_BUCKET_NAME}/ 
+      - aws s3 cp --recursive ./dist s3://${WEB_BUCKET_NAME}/
       - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./dist/index.html s3://${WEB_BUCKET_NAME}/
       - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DIST_ID} --paths /index.html
 artifacts:
   files:
-    - '**/*'
+    - "**/*"
   base-directory: src/web-ui/dist

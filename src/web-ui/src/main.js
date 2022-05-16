@@ -8,7 +8,7 @@ import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPerso
 import { components } from 'aws-amplify-vue';
 import store from '@/store/store';
 import Amplitude from 'amplitude-js'
-
+import mParticle from '@mparticle/web-sdk';
 import AmplifyStore from '@/store/store';
 import VueGtag from "vue-gtag";
 
@@ -70,6 +70,15 @@ if (process.env.VUE_APP_PERSONALIZE_TRACKING_ID && process.env.VUE_APP_PERSONALI
 // Initialize Amplitude if a valid API key is specified.
 if (process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE') {
   Amplitude.getInstance().init(process.env.VUE_APP_AMPLITUDE_API_KEY)
+}
+
+// Initialize mParticle if a valid API key is specified.
+if (process.env.VUE_APP_MPARTICLE_API_KEY && process.env.VUE_APP_MPARTICLE_API_KEY != 'NONE') {
+  const mParticleConfig = {
+      isDevelopmentMode: true,
+      logLevel: "verbose"
+  };
+  mParticle.init(process.env.VUE_APP_MPARTICLE_API_KEY, mParticleConfig);
 }
 
 if (process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE') {

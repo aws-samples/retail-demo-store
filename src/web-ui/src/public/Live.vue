@@ -113,8 +113,8 @@
 </template>
 
 <script>
-import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
+import { mapState, mapGetters } from 'vuex';
 
 import Layout from "@/components/Layout/Layout";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
@@ -131,7 +131,7 @@ const VideosRepository = RepositoryFactory.get('videos');
 
 const MAX_RECOMMENDATIONS = 6;
 const PRODUCT_EXPERIMENT_FEATURE = 'live_stream_prod_recommendation';
-const ProductDiscountFeature = 'live_stream_prod_discounts';
+const PRODUCT_DISCOUNT_FEATURE = 'live_stream_prod_discounts';
 
 let player = null
 
@@ -175,7 +175,7 @@ export default {
       return products;
     },
     async getDiscounts (products) {
-      let { data } = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, ProductDiscountFeature);
+      let { data } = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, PRODUCT_DISCOUNT_FEATURE);
       return data;
     },
     async getRelatedProducts() {
@@ -285,9 +285,8 @@ export default {
     discountProductPrice
   },
   computed: {
-    user() {
-      return AmplifyStore.state.user;
-    },
+    ...mapState({ user: (state) => state.user }),
+    ...mapGetters(['personalizeUserID']),
   },
   watch: {
     activeStreamId: function (id) {

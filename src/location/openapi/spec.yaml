@@ -1,0 +1,136 @@
+openapi: '3.0.2'
+info:
+  title: Location API
+  version: v1
+  description: |- 
+    The location web service provides an API for retrieving store locations and customer routes to support to Location Services demo in the Retail Demo Store.
+
+    To use the demo, see "Retail Geofencing and Location-aware Personalization" in the in-app Demo Guide.  
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Location
+    description: List and get the location and customer routes
+servers:
+  - url: http://localhost:{port}
+    variables:
+      port:
+        default: '8009' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /store_location:
+    get:
+      tags:
+        - Location
+      description: Return store locations
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  features:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feature'
+                  "type":
+                    type: string
+  /customer_route:
+    get:
+      tags:
+        - Location
+      description: Return customer routes
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  features:
+                    $ref: '#/components/schemas/FeatureCollection'
+                  "type":
+                    type: string
+                    enum: [FeatureCollection]
+  /cstore_location:
+    get:
+      tags:
+        - Location
+      description: Return store coordinates
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  features:
+                    $ref: '#/components/schemas/FeatureCollection'
+                  "type":
+                    type: string
+                    enum: [FeatureCollection]
+  /cstore_route:
+    get:
+      tags:
+        - Location
+      description: Return store route
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: object
+                properties:
+                  features:
+                    $ref: '#/components/schemas/FeatureCollection'
+                  "type":
+                    type: string
+                    enum: [FeatureCollection]
+components:
+  schemas:
+    FeatureCollection:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+        properties:
+          type: object
+        "type":
+          type: string
+          enum: [FeatureCollection]
+    Feature:
+      type: object
+      properties:
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+        "type":
+          type: string
+          enum: [Feature]
+    Geometry:
+      type: object
+      properties:
+        coordinates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coordinate'
+        "type":
+          type: string
+          enum: [LineString, Point]
+    Coordinate:
+      type: array
+      items:
+        type: number
+        minItems: 2
+        maxItems: 2
