@@ -9,7 +9,6 @@
 # When deploying to AWS, products are either indexed by a Lambda function
 # (custom resource) or using the Search workshop notebook.
 
-import json
 import os
 import sys
 import requests
