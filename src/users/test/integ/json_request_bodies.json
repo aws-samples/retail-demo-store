@@ -1,0 +1,78 @@
+{
+  "/users/id/:user_id": {
+    "id": "1",
+    "username": "user1",
+    "email": "mark.johnson@example.com",
+    "first_name": "Mark",
+    "last_name": "Johnson",
+    "addresses": [
+      {
+        "first_name": "Mark",
+        "last_name": "Johnson",
+        "address1": "51161 Maurice Fort",
+        "address2": "",
+        "country": "US",
+        "city": "South Davidside",
+        "state": "HI",
+        "zipcode": "96721",
+        "default": true
+      },
+      {
+        "first_name": "Mark",
+        "last_name": "Johnson",
+        "address1": "51161 Maurice Fort",
+        "address2": "",
+        "country": "US",
+        "city": "South Davidside",
+        "state": "HI",
+        "zipcode": "96721",
+        "default": true
+      }
+    ],
+    "age": 31,
+    "gender": "M",
+    "persona": "furniture_homedecor_housewares",
+    "discount_persona": "lower_priced_products",
+    "identity_id": "eu-west-1:12345678-1234-1234-1234-c777c9720775"
+  },
+  "/users/id/:user_id/verifyphone": {
+    "phone_number": "+11234567891",
+    "user_id": "1"
+  },
+  "/users": {
+    "id": ":user_id",
+    "username": ":username",
+    "email": "mark.johnson@example.com",
+    "first_name": "Mark",
+    "last_name": "Johnson",
+    "addresses": [
+      {
+        "first_name": "Mark",
+        "last_name": "Johnson",
+        "address1": "51161 Maurice Fort",
+        "address2": "",
+        "country": "US",
+        "city": "South Davidside",
+        "state": "HI",
+        "zipcode": "96721",
+        "default": true
+      },
+      {
+        "first_name": "Mark",
+        "last_name": "Johnson",
+        "address1": "51161 Maurice Fort",
+        "address2": "",
+        "country": "US",
+        "city": "South Davidside",
+        "state": "HI",
+        "zipcode": "96721",
+        "default": true
+      }
+    ],
+    "age": 31,
+    "gender": "M",
+    "persona": "furniture_homedecor_housewares",
+    "discount_persona": "lower_priced_products",
+    "identity_id": "eu-west-1:12345678-1234-1234-1234-c777c9720775"
+  }
+}
