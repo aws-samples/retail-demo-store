@@ -2,6 +2,9 @@ import testhelpers.integ as integhelpers
 import time
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = integhelpers.absolute_file_path(cwd, "json_request_bodies.json")
