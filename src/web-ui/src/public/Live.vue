@@ -186,6 +186,7 @@ export default {
       const response = await RecommendationsRepository.getRelatedProducts(
           this.personalizeUserID ?? '',
           this.activeProductId,
+          '',
           MAX_RECOMMENDATIONS,
           PRODUCT_EXPERIMENT_FEATURE,
       );

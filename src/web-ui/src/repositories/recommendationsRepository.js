@@ -21,17 +21,38 @@ const rerank = "/rerank"
 const chooseDiscounted = "/choose_discounted"
 const couponOffer = "/coupon_offer"
 const experimentOutcome = "/experiment/outcome"
-const resetTracker = "/reset/realtime"
 
 export default {
     getPopularProducts(userID, currentItemID, numResults, feature) {
-        return connection.get(`${popular}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
+        let params = {
+            userID: userID,
+            currentItemID: currentItemID,
+            numResults: numResults,
+            feature: feature
+        }
+
+        return connection.get(popular, { params: params })
     },
-    getRelatedProducts(userID, currentItemID, numResults, feature) {
-        return connection.get(`${related}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
+    getRelatedProducts(userID, currentItemID, currentItemCategory, numResults, feature) {
+        let params = {
+            userID: userID,
+            currentItemID: currentItemID,
+            currentItemCategory: currentItemCategory,
+            numResults: numResults,
+            feature: feature
+        }
+
+        return connection.get(related, { params: params })
     },
     getRecommendationsForUser(userID, currentItemID, numResults, feature) {
-        return connection.get(`${recommendations}?userID=${userID}&currentItemID=${currentItemID}&numResults=${numResults}&feature=${feature}&fullyQualifyImageUrls=1`)
+        let params = {
+            userID: userID,
+            currentItemID: currentItemID,
+            numResults: numResults,
+            feature: feature
+        }
+
+        return connection.get(recommendations, { params: params })
     },
     getRerankedItems(userID, items, feature) {
         let payload = {
@@ -40,7 +61,7 @@ export default {
             feature: feature
         }
 
-        return connection.post(`${rerank}`, payload)
+        return connection.post(rerank, payload)
     },
     chooseDiscounts(userID, items, feature) {
         let payload = {
@@ -48,7 +69,7 @@ export default {
             items: items,
             feature: feature
         }
-        return connection.post(`${chooseDiscounted}`, payload) // inserts discount and discounted keys into items
+        return connection.post(chooseDiscounted, payload) // inserts discount and discounted keys into items
     },
     getCouponOffer(userID) {
         return connection.get(`${couponOffer}?userID=${userID}`)
@@ -57,9 +78,6 @@ export default {
         let payload = {
             correlationId: correlationId
         }
-        return connection.post(`${experimentOutcome}`, payload)
-    },
-    resetRealtimeRecommendations() {
-        return connection.post(`${resetTracker}`, {})
+        return connection.post(experimentOutcome, payload)
     }
 }
