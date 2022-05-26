@@ -7,6 +7,9 @@ from testhelpers.integ import (
     post_request_assert,
     read_file
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = absolute_file_path(cwd, "json_request_bodies.json")

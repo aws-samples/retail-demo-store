@@ -4,6 +4,9 @@ from testhelpers.integ import (
     absolute_file_path,
     get_request_assert
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 cwd = os.path.dirname(os.path.abspath(__file__))
