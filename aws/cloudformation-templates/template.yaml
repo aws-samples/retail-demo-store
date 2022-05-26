@@ -416,46 +416,46 @@ Parameters:
     Type: String
     Description: Fenix Commerce Zipcode Detect URL
     Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
-  
+
   FenixTenantId:
     Type: String
     Description: Fenix Commerce Demo Env TenantID
     Default: 'ec6ea3439489426ba09cf6c906ead8d5'
     NoEcho: true
-    
+
   FenixEddEndpoint:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
     Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
-  
+
   FenixMonetaryValue:
     Type: String
     Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
     Default: 100
-  
+
   FenixEnabledPdp:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on PDP
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
-    
+    Default: 'FALSE'
+
   FenixEnabledCart:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on CART
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
-  
+    Default: 'FALSE'
+
   FenixEnabledCheckout:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on checkout
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
+    Default: 'FALSE'
 
 Conditions:
   DeploySegmentResources: !Equals
@@ -551,6 +551,7 @@ Resources:
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
+        EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -855,6 +856,10 @@ Outputs:
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt Services.Outputs.OffersServiceUrl
+
+  EvidentlyProjectName:
+    Description: ARN for the CloudWatch Evidently project
+    Value: !GetAtt Base.Outputs.EvidentlyProjectName
 
   ExportEnvVarScript:
     Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.

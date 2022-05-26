@@ -22,7 +22,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -60,7 +60,7 @@ Parameters:
 
   UserPoolClientId:
     Type: String
-  
+
   IdentityPoolId:
     Type: String
 
@@ -210,6 +210,10 @@ Parameters:
   Uid:
     Type: String
 
+  EvidentlyProjectName:
+    Type: String
+    Description: Evidently project name
+
 Resources:
 
   Loadbalancer:
@@ -294,7 +298,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Ref Uid
-        
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+
 Outputs:
   ServiceDNSName:
     Description: DNS name of the load balancer for this service

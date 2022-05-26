@@ -128,6 +128,10 @@ Parameters:
   PinpointAppId:
     Type: String
 
+  EvidentlyProjectName:
+    Type: String
+    Description: Evidently project name
+
 Resources:
   TaskExecutionRole:
     Type: AWS::IAM::Role
@@ -206,7 +210,6 @@ Resources:
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
                   - personalize:CreateSchema
                   - personalize:CreateDatasetGroup
                   - personalize:CreateSolutionVersion
@@ -231,7 +234,6 @@ Resources:
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
                   - personalize:ListCampaigns
                   - personalize:ListDatasetGroups
                   - personalize:ListSolutions
@@ -277,6 +279,13 @@ Resources:
                   - lambda:InvokeFunction
                 Resource:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
+              - Effect: Allow
+                Action:
+                  - evidently:BatchEvaluateFeature
+                  - evidently:PutProjectEvents
+                Resource:
+                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
+                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
@@ -380,6 +389,8 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
+            - Name: EVIDENTLY_PROJECT_NAME
+              Value: !Ref EvidentlyProjectName
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

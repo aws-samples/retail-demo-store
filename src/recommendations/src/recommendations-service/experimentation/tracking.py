@@ -22,12 +22,12 @@ class Tracker(ABC):
 class KinesisTracker(Tracker):
     """ Tracker that writes exposure and outcome events to Kinesis streams
 
-    Using Kinesis for capturing exposure and outcome events has a minimal 
-    impact on experiment performance while providing flexibility in 
+    Using Kinesis for capturing exposure and outcome events has a minimal
+    impact on experiment performance while providing flexibility in
     analyzing experiment results. For example, Kinesis Firehose can be used
-    with the Kinesis stream to asynchronously write experiment events to 
-    S3 or Elasticsearch. Then experiment results can be analyzed directly 
-    in Elasticsearch or processed from S3 using tools such as AWS Glue, 
+    with the Kinesis stream to asynchronously write experiment events to
+    S3 or OpenSearch. Then experiment results can be analyzed directly
+    in OpenSearch or processed from S3 using tools such as AWS Glue,
     Athena, or EMR.
     """
     def __init__(self, exposure_stream_name, outcome_stream_name):
@@ -53,4 +53,3 @@ class KinesisTracker(Tracker):
             Data=json.dumps(event, cls=CompatEncoder),
             PartitionKey=f'{experiment_name}{user_id}'
         )
-    

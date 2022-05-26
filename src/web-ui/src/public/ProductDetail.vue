@@ -76,7 +76,6 @@
 </template>
 
 <script>
-console.log("Fenix demo");
 import swal from 'sweetalert';
 import { mapState, mapActions, mapGetters } from 'vuex';
 
@@ -209,6 +208,7 @@ export default {
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,
+        this.product.category,
         MAX_RECOMMENDATIONS,
         EXPERIMENT_FEATURE,
       );

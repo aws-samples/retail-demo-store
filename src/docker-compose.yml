@@ -69,6 +69,7 @@ services:
       - OFFERS_SERVICE_HOST
       - OFFERS_SERVICE_PORT
       - AWS_XRAY_DAEMON_ADDRESS=xray:2000
+      - EVIDENTLY_PROJECT_NAME
     volumes:
       - ~/.aws/:/root/.aws:ro
     build:
@@ -226,7 +227,7 @@ services:
       - dev-net
     ports:
       - "8081:80"
-      
+
 networks:
   dev-net:
     driver: bridge

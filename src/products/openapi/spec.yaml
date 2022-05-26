@@ -7,7 +7,7 @@ info:
 
   license: 
     url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
-    name: Amazon Software License (ASL)
+    name: MIT No Attribution (MIT-0)
 
 tags:
   - name: Products
@@ -243,7 +243,7 @@ components:
           example: 9
     Product:
       allOf:
-        - $ref: '#/components/schemas/Product'
+        - $ref: '#/components/schemas/ProductRequestBody'
         - type: object
           required:
             - id
