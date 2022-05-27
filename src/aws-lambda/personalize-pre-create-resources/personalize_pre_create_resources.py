@@ -232,6 +232,12 @@ dataset_group_confs = [
                 'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | EXCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ("cold dispensed", "hot dispensed", "salty snacks", "food service")',
                 'param': '/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn',
                 'paramDescription': 'Retail Demo Store Filter Purchased and C-Store Products Arn Parameter'
+            },
+            {
+                'name': 'retaildemostore-filter-include-categories',
+                'expression': 'INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ($CATEGORIES)',
+                'param': '/retaildemostore/personalize/filters/filter-include-categories-arn',
+                'paramDescription': 'Retail Demo Store Filter to Include by Categories Arn Parameter'
             }
         ],
         'recommenders': [

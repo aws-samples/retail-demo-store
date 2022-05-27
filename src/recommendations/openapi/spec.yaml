@@ -24,8 +24,6 @@ tags:
     description: Suggest relevant discounts based on user and item list
   - name: Experiments
     description: Related to experiment
-  - name: Training
-    description: Related to training Personalize
 servers:
   - url: http://{host}:{port}
     variables:
@@ -41,7 +39,7 @@ paths:
     get:
       tags:
         - Health Check
-      description: Helath check
+      description: Health check
       responses:
         '200':
           description: Health check status
@@ -85,6 +83,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Recommendation'
+  /popular:
+    get:
+      tags:
+        - Recommendations
+      description: |- 
+        Returns item/product recommendations for a given user in the context
+        of a current item (e.g. the user is viewing a product and I want to provide
+        recommendations for other products they may be interested in).
+
+        If an experiment is currently active for this feature ('home_product_recs'),
+        recommendations will be provided by the experiment. Otherwise, the default
+        behavior will be used which will look to see if an Amazon Personalize
+        campaign is available. If not, the Product service will be called to get
+        products from the same category as the current product or featured products.
+      parameters:
+        - $ref: '#/components/parameters/userID'
+        - name: currentItemID
+          in: query
+          schema:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/numResults'
+        - $ref: '#/components/parameters/feature'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/fullyQualifyImageUrls'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product:
+                      $ref: '#/components/schemas/Product'
   /related:
     get:
       tags:
@@ -99,12 +134,7 @@ paths:
         will be called to get products from the same category as the current product.
       parameters:
         - $ref: '#/components/parameters/userID'
-        - name: currentItemID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/currentItemID'
         - $ref: '#/components/parameters/numResults'
         - $ref: '#/components/parameters/feature'
         - $ref: '#/components/parameters/filter'
@@ -255,6 +285,13 @@ components:
       schema:
         type: string
         example: '5097'
+    currentItemID:
+      name: currentItemID 
+      in: query
+      required: true
+      schema:
+        type: string
+        example: '89728417-5269-403d-baa3-04b59cdffd0a'
     numResults:
       name: numResults
       in: query
@@ -284,7 +321,7 @@ components:
           - 'cstore'
         example: 'not-already-purchased'
     fullyQualifyImageUrls:
-      name: fulfullyQualifyImageUrlslyQu
+      name: fullyQualifyImageUrls
       in: query
       schema:
         type: string
@@ -364,7 +401,7 @@ components:
         userID:
           type: string
           example: '5097'
-        'items':
+        items:
           type: array
           items:
             $ref: '#/components/schemas/Product'

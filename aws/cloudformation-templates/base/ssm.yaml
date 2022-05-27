@@ -153,6 +153,14 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Filter Purchased and C-Store Products Arn Parameter"
 
+  ParameterPersonalizeFilterIncludeCategoriesArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/filter-include-categories-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Filter to Include by Categories Arn Parameter"
+
   ParameterPersonalizeEventTrackerId:
     Type: "AWS::SSM::Parameter"
     Properties:

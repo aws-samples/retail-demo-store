@@ -8,6 +8,7 @@ from aws_xray_sdk.core import patch_all
 
 patch_all()
 
+from typing import Dict, List, Tuple, Union
 from flask import Flask, jsonify, Response
 from flask import request
 
@@ -51,6 +52,7 @@ cw_events = boto3.client('events')
 filter_purchased_param_name = '/retaildemostore/personalize/filters/filter-purchased-arn'
 filter_cstore_param_name = '/retaildemostore/personalize/filters/filter-cstore-arn'
 filter_purchased_cstore_param_name = '/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn'
+filter_include_categories_param_name = '/retaildemostore/personalize/filters/filter-include-categories-arn'
 offers_arn_param_name = '/retaildemostore/personalize/personalized-offers-arn'
 
 # -- Shared Functions
@@ -134,8 +136,46 @@ def get_timestamp_from_request() -> datetime:
 
     return timestamp
 
+def get_products_service_host_and_port() -> Tuple[str, int]:
+    """ Returns a tuple of the products service host name and port """
+    # Check environment for host and port first in case we're running in a local Docker container (dev mode)
+    products_service_host = os.environ.get('PRODUCT_SERVICE_HOST')
+    products_service_port = os.environ.get('PRODUCT_SERVICE_PORT', 80)
+
+    if not products_service_host:
+        # Get product service instance. We'll need it rehydrate product info for recommendations.
+        response = servicediscovery.discover_instances(
+            NamespaceName='retaildemostore.local',
+            ServiceName='products',
+            MaxResults=1,
+            HealthStatus='HEALTHY'
+        )
+
+        products_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+
+    return products_service_host, products_service_port
+
+def fetch_product_details(item_ids: Union[str, List[str]], fully_qualify_image_urls=False) -> List[Dict]:
+    """ Fetches details for one or more products from the products service """
+    products_service_host, products_service_port = get_products_service_host_and_port()
+
+    item_ids_csv = item_ids if isinstance(item_ids, str) else ','.join(item_ids)
+
+    url = f'http://{products_service_host}:{products_service_port}/products/id/{item_ids_csv}?fullyQualifyImageUrls={fully_qualify_image_urls}'
+    app.logger.debug(f"Asking for product info from {url}")
+
+    products = []
+
+    response = requests.get(url)
+    if response.ok:
+        products = response.json()
+        if not isinstance(products, list):
+            products = [ products ]
+
+    return products
+
 def get_products(feature, user_id, current_item_id, num_results, default_inference_arn_param_name,
-                 default_filter_arn_param_name, user_reqd_for_inference=False, fully_qualify_image_urls=False,
+                 default_filter_arn_param_name, filter_values=None, user_reqd_for_inference=False, fully_qualify_image_urls=False,
                  ):
     """ Returns products given a UI feature, user, item/product.
 
@@ -151,26 +191,12 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
         num_results: Num to return
         default_inference_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
         default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
+        filter_values: Values to pass at inference for the filter
         user_reqd_for_inference: Require a user ID to use Personalze - otherwise default
         fully_qualify_image_urls: Fully qualify image URLs n here
     Returns:
         A prepared HTTP response object.
     """
-
-    # Check environment for host and port first in case we're running in a local Docker container (dev mode)
-    products_service_host = os.environ.get('PRODUCT_SERVICE_HOST')
-    products_service_port = os.environ.get('PRODUCT_SERVICE_PORT', 80)
-
-    if not products_service_host:
-        # Get product service instance. We'll need it rehydrate product info for recommendations.
-        response = servicediscovery.discover_instances(
-            NamespaceName='retaildemostore.local',
-            ServiceName='products',
-            MaxResults=1,
-            HealthStatus='HEALTHY'
-        )
-
-        products_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
 
     items = []
     resp_headers = {}
@@ -191,6 +217,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
             current_item_id = current_item_id,
             num_results = num_results,
             tracker = tracker,
+            filter_values = filter_values,
             timestamp = get_timestamp_from_request()
         )
 
@@ -214,46 +241,41 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
             items = resolver.get_items(
                 user_id = user_id,
                 product_id = current_item_id,
-                num_results = num_results
+                num_results = num_results,
+                filter_values = filter_values
             )
 
             resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
         else:
+            products_service_host, products_service_port = get_products_service_host_and_port()
             resolver = DefaultProductResolver(products_service_host = products_service_host, products_service_port = products_service_port)
 
             items = resolver.get_items(product_id = current_item_id, num_results = num_results)
 
-    item_ids_csv = ','.join([item['itemId'] for item in items])
+    item_ids = [item['itemId'] for item in items]
 
-    url = f'http://{products_service_host}:{products_service_port}/products/id/{item_ids_csv}?fullyQualifyImageUrls={fully_qualify_image_urls}'
-    app.logger.debug(f"Asking for product info from {url}")
-    response = requests.get(url)
-    if response.ok:
-        products = response.json()
-        if not isinstance(products, list):
-            products = [ products ]
+    products = fetch_product_details(item_ids, fully_qualify_image_urls)
+    for item in items:
+        item_id = item['itemId']
 
-        for item in items:
-            item_id = item['itemId']
+        product = next((p for p in products if p['id'] == item_id), None)
+        if product is not None and 'experiment' in item and 'url' in product:
+            # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
+            product_url = product.get('url')
+            if '?' in product_url:
+                product_url += '&'
+            else:
+                product_url += '?'
 
-            product = next((p for p in products if p['id'] == item_id), None)
-            if product is not None and 'experiment' in item and 'url' in product:
-                # Append the experiment correlation ID to the product URL so it gets tracked if used by client.
-                product_url = product.get('url')
-                if '?' in product_url:
-                    product_url += '&'
-                else:
-                    product_url += '?'
+            product_url += 'exp=' + item['experiment']['correlationId']
 
-                product_url += 'exp=' + item['experiment']['correlationId']
+            product['url'] = product_url
 
-                product['url'] = product_url
+        item.update({
+            'product': product
+        })
 
-            item.update({
-                'product': product
-            })
-
-            item.pop('itemId')
+        item.pop('itemId')
 
     resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
     return resp
@@ -336,12 +358,22 @@ def related():
     if num_results > 100:
         raise BadRequest('numResults must be less than 100')
 
-    # The default filter is the not-already-purchased filter
-    filter_ssm = request.args.get('filter', filter_purchased_param_name)
+    # The default filter includes products from the same category as the current item.
+    filter_ssm = request.args.get('filter', filter_include_categories_param_name)
     # We have short names for these filters
     if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
     elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
-    app.logger.info(f"Filter SSM for /related: {filter_ssm}")
+    app.logger.info("Filter SSM for /related: %s", filter_ssm)
+
+    filter_values = None
+    if filter_ssm == filter_include_categories_param_name:
+        category = request.args.get('currentItemCategory')
+        if not category:
+            products = fetch_product_details(current_item_id)
+            if products:
+                category = products[0]['category']
+
+        filter_values = { "CATEGORIES": f"\"{category}\"" }
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
@@ -356,6 +388,7 @@ def related():
             num_results = num_results,
             default_inference_arn_param_name='/retaildemostore/personalize/related-items-arn',
             default_filter_arn_param_name=filter_ssm,
+            filter_values=filter_values,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
