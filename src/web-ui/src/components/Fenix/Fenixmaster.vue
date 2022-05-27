@@ -85,6 +85,7 @@ export default {
       fenixResponse: '',
       fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=product_page',
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
+      xapikey: process.env.VUE_APP_FENIX_X_API_KEY,
       ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
       showAllOptions: false,
       fenixDataReceived: false,
@@ -179,6 +180,7 @@ export default {
       this.fenixCallback++;
       const headers = {
         tenantId: this.tenantId,
+        'x-api-key': this.xapikey,
         'Content-Type': 'application/json',
       };
 

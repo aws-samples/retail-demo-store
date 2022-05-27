@@ -79,6 +79,7 @@ Metadata:
           - FenixEnabledPdp
           - FenixEnabledCart
           - FenixEnabledCheckout
+          - FenixXapiKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -162,6 +163,8 @@ Metadata:
         default: "Fenix Commerce enable EDD on CART"
       FenixEnabledCheckout:
         default: "Fenix Commerce enable EDD on Checkoutpage"
+      FenixXapiKey:
+        default: "Fenix Commerce X-Api-Key"
 
 Parameters:
   ResourceBucket:
@@ -457,6 +460,12 @@ Parameters:
       - 'FALSE'
     Default: 'FALSE'
 
+  FenixXapiKey:
+    Type: String
+    Description: Fenix Commerce Demo Env x-api-key
+    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+    NoEcho: true
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -513,6 +522,7 @@ Resources:
         FenixEnabledPdp: !Ref FenixEnabledPdp
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
+        FenixXapiKey: !Ref FenixXapiKey
 
   # Services Resources
   Services:
@@ -590,6 +600,7 @@ Resources:
         FenixEnabledPdp: !Ref FenixEnabledPdp
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
+        FenixXapiKey: !Ref FenixXapiKey
 
         LocationResourceName:
           !If [
