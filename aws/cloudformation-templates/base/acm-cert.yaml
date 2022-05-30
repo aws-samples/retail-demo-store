@@ -153,8 +153,8 @@ Resources:
                       - logs:CreateLogStream
                       - logs:PutLogEvents
                     Resource:
-                      - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations:log-stream:*'
-                      - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/RetailDemoStore-Chat-Recommendations'
+                      - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ACMimportCertLambdaFunction:log-stream:*'
+                      - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ACMimportCertLambdaFunction'
                   - Effect: Allow
                     Action:
                       - logs:CreateLogGroup
@@ -176,7 +176,7 @@ Resources:
 
 Outputs:
   ACMimportCertLambdaFunctionArn:
-    Description: Lambda function ARN for Lex personalization function
+    Description: Lambda function ARN for ACM self-signed cert function
     Value: !GetAtt ACMimportCertLambdaFunction.Arn
   ACMimportCertArn:
     Description: ACM self signed cert Arn to use in ELB listener
