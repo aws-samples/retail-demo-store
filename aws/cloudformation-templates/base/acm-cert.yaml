@@ -13,11 +13,13 @@ Resources:
             ZipFile: |
               import boto3
               import cfnresponse
-
+              
+              from botocore.exceptions import ClientError
+              
               response_data = {}
-              response_status = cfnresponse.SUCCESS
 
-              client = boto3.client('acm')
+              acm_client = boto3.client('acm')
+              ssm_client = boto3.client('ssm')
 
               myCertificate="""-----BEGIN CERTIFICATE-----
               MIIDCDCCAfCgAwIBAgIJAOfVqeMFgjUeMA0GCSqGSIb3DQEBBQUAMCsxKTAnBgNV
@@ -71,19 +73,58 @@ Resources:
               pkey=bytes (myPrivateKey, 'utf-8')
 
               def handler(event, context):
-                  my_response = client.import_certificate(
-                      Certificate=cert,
-                      PrivateKey=pkey,
-                      Tags=[
-                          {
-                          'Key': 'ACM',
-                          'Value': 'retailDemoStore'
-                          },
-                      ]
-                  )
-                  
-                  response_data['certificate_arn'] = my_response['CertificateArn']
-                  cfnresponse.send(event, context, response_status, response_data)
+                response_status = cfnresponse.SUCCESS
+                acmarn_param_name = '/retaildemostore/acmarn';
+                
+                try:
+                    
+                    if event['RequestType'] == 'Create':
+                        my_response = acm_client.import_certificate(
+                          Certificate=cert,
+                          PrivateKey=pkey,
+                          Tags=[
+                              {
+                              'Key': 'ACM',
+                              'Value': 'retailDemoStore'
+                              },
+                          ]
+                        )
+                        
+                        # Create SSM Parameter to store ACM Arn value.
+                        acmarn_parameter = ssm_client.put_parameter(
+                            Name=acmarn_param_name,
+                            Description='Retail Demo Store ACM Arn',
+                            Value=my_response['CertificateArn'],
+                            Type='String',
+                            Overwrite=True,
+                            Tier='Standard',
+                            DataType='text')
+                        
+                        response_data['certificate_arn'] = my_response['CertificateArn']
+                        response_data['Message'] = "Resource creation succeeded"
+                    elif event['RequestType'] == 'Update':
+                        response_data['Message'] = "Resource update succeeded"
+                    elif event['RequestType'] == 'Delete':
+                        # Delete the cert from ACM, assumes all attachments are already removed.
+                        
+                        # Retrive ACM ARN from Parameter store
+                        acmarn_parameter = ssm_client.get_parameter(Name=acmarn_param_name)
+                        
+                        # Delete ACM
+                        my_response = acm_client.delete_certificate(
+                            CertificateArn=acmarn_parameter['Parameter']['Value']
+                        )
+                        
+                        # Delete SSM Parameter
+                        my_response = ssm_client.delete_parameter(Name=acmarn_param_name)
+                        
+                        response_data['Message'] = "Resource deletion succeeded"                      
+                except ClientError as e:
+                  print("Error: " + str(e))
+                  response_status = cfnresponse.FAILED
+                  response_data['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
+
+                cfnresponse.send(event, context, response_status, response_data)
           Handler: index.handler            
           Runtime: python3.9
           Timeout: 120
@@ -118,8 +159,15 @@ Resources:
                     Action:
                       - logs:CreateLogGroup
                     Resource: '*'
+                  - Effect: Allow
+                    Action:
+                      - ssm:PutParameter
+                      - ssm:GetParameter
+                      - ssm:DeleteParameter
+                    Resource: '*'
           ManagedPolicyArns:
             - 'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess'
+            
     ACMimportCertLambdaFunctionExecution:
       Type: Custom::CustomLambdaACMCert
       Version: "1.0"
@@ -132,4 +180,4 @@ Outputs:
     Value: !GetAtt ACMimportCertLambdaFunction.Arn
   ACMimportCertArn:
     Description: ACM self signed cert Arn to use in ELB listener
-    Value: !GetAtt ACMimportCertLambdaFunctionExecution.certificate_arn
+    Value: !GetAtt ACMimportCertLambdaFunctionExecution.certificate_arn			
