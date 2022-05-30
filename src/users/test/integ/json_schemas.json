@@ -1,0 +1,235 @@
+{
+  "/users/all": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+      "properties": {
+        "id": {"type":  "string"},
+        "username": {"type":  "string"},
+        "email": {"type":  "string"},
+        "first_name": {"type":  "string"},
+        "last_name": {"type":  "string"},
+        "addresses": {
+          "type": "array",
+          "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+          "properties": {
+            "first_name": {"type":  "string"},
+            "last_name": {"type":  "string"},
+            "address1": {"type":  "string"},
+            "address2": {"type":  "string"},
+            "country": {"type":  "string"},
+            "city": {"type":  "string"},
+            "state": {"type":  "string"},
+            "zipcode": {"type":  "string"},
+            "default": {"type":  "boolean"}
+          }
+        },
+        "age": {"type":  "number"},
+        "gender": {"type":  "string"},
+        "persona": {"type":  "string"},
+        "discount_persona": {"type":  "string"},
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
+      }
+    }
+  },
+  "/users/id/:user_id": {
+    "type": "object",
+    "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+    "properties": {
+      "id": {"type":  "string"},
+      "username": {"type":  "string"},
+      "email": {"type":  "string"},
+      "first_name": {"type":  "string"},
+      "last_name": {"type":  "string"},
+      "addresses": {
+        "type": "array",
+        "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+        "properties": {
+          "first_name": {"type":  "string"},
+          "last_name": {"type":  "string"},
+          "address1": {"type":  "string"},
+          "address2": {"type":  "string"},
+          "country": {"type":  "string"},
+          "city": {"type":  "string"},
+          "state": {"type":  "string"},
+          "zipcode": {"type":  "string"},
+          "default": {"type":  "boolean"}
+        }
+      },
+      "age": {"type":  "number"},
+      "gender": {"type":  "string"},
+      "persona": {"type":  "string"},
+      "discount_persona": {"type":  "string"},
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
+    }
+  },
+  "/users/username/:username": {
+    "type": "object",
+    "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+    "properties": {
+      "id": {"type":  "string"},
+      "username": {"type":  "string"},
+      "email": {"type":  "string"},
+      "first_name": {"type":  "string"},
+      "last_name": {"type":  "string"},
+      "addresses": {
+        "type": "array",
+        "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+        "properties": {
+          "first_name": {"type":  "string"},
+          "last_name": {"type":  "string"},
+          "address1": {"type":  "string"},
+          "address2": {"type":  "string"},
+          "country": {"type":  "string"},
+          "city": {"type":  "string"},
+          "state": {"type":  "string"},
+          "zipcode": {"type":  "string"},
+          "default": {"type":  "boolean"}
+        }
+      },
+      "age": {"type":  "number"},
+      "gender": {"type":  "string"},
+      "persona": {"type":  "string"},
+      "discount_persona": {"type":  "string"},
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
+    }
+  },
+  "/users/identityid/:identity_id": {
+    "type": "object",
+    "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+    "properties": {
+      "id": {"type":  "string"},
+      "username": {"type":  "string"},
+      "email": {"type":  "string"},
+      "first_name": {"type":  "string"},
+      "last_name": {"type":  "string"},
+      "addresses": {
+        "type": "array",
+        "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+        "properties": {
+          "first_name": {"type":  "string"},
+          "last_name": {"type":  "string"},
+          "address1": {"type":  "string"},
+          "address2": {"type":  "string"},
+          "country": {"type":  "string"},
+          "city": {"type":  "string"},
+          "state": {"type":  "string"},
+          "zipcode": {"type":  "string"},
+          "default": {"type":  "boolean"}
+        }
+      },
+      "age": {"type":  "number"},
+      "gender": {"type":  "string"},
+      "persona": {"type":  "string"},
+      "discount_persona": {"type":  "string"},
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
+    }
+  },
+  "/users/unclaimed": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+      "properties": {
+        "id": {"type":  "string"},
+        "username": {"type":  "string"},
+        "email": {"type":  "string"},
+        "first_name": {"type":  "string"},
+        "last_name": {"type":  "string"},
+        "addresses": {
+          "type": "array",
+          "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+          "properties": {
+            "first_name": {"type":  "string"},
+            "last_name": {"type":  "string"},
+            "address1": {"type":  "string"},
+            "address2": {"type":  "string"},
+            "country": {"type":  "string"},
+            "city": {"type":  "string"},
+            "state": {"type":  "string"},
+            "zipcode": {"type":  "string"},
+            "default": {"type":  "boolean"}
+          }
+        },
+        "age": {"type":  "number"},
+        "gender": {"type":  "string"},
+        "persona": {"type":  "string"},
+        "discount_persona": {"type":  "string"},
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
+      }
+    }
+  },
+  "/users/random": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+      "properties": {
+        "id": {"type":  "string"},
+        "username": {"type":  "string"},
+        "email": {"type":  "string"},
+        "first_name": {"type":  "string"},
+        "last_name": {"type":  "string"},
+        "addresses": {
+          "type": "array",
+          "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+          "properties": {
+            "first_name": {"type":  "string"},
+            "last_name": {"type":  "string"},
+            "address1": {"type":  "string"},
+            "address2": {"type":  "string"},
+            "country": {"type":  "string"},
+            "city": {"type":  "string"},
+            "state": {"type":  "string"},
+            "zipcode": {"type":  "string"},
+            "default": {"type":  "boolean"}
+          }
+        },
+        "age": {"type":  "number"},
+        "gender": {"type":  "string"},
+        "persona": {"type":  "string"},
+        "discount_persona": {"type":  "string"},
+        "selectable_user": {"type":  "boolean"},
+        "identity_id": {"type":  "string"}
+      }
+    }
+  },
+  "/users": {
+    "type": "object",
+    "required": ["id", "username", "email", "first_name", "last_name", "addresses", "age", "gender", "persona", "discount_persona", "selectable_user"],
+    "properties": {
+      "id": {"type":  "string"},
+      "username": {"type":  "string"},
+      "email": {"type":  "string"},
+      "first_name": {"type":  "string"},
+      "last_name": {"type":  "string"},
+      "addresses": {
+        "type": "array",
+        "required": ["first_name", "last_name", "address1", "address2", "country", "city", "state", "zipcode", "default"],
+        "properties": {
+          "first_name": {"type":  "string"},
+          "last_name": {"type":  "string"},
+          "address1": {"type":  "string"},
+          "address2": {"type":  "string"},
+          "country": {"type":  "string"},
+          "city": {"type":  "string"},
+          "state": {"type":  "string"},
+          "zipcode": {"type":  "string"},
+          "default": {"type":  "boolean"}
+        }
+      },
+      "age": {"type":  "number"},
+      "gender": {"type":  "string"},
+      "persona": {"type":  "string"},
+      "discount_persona": {"type":  "string"},
+      "selectable_user": {"type":  "boolean"},
+      "identity_id": {"type":  "string"}
+    }
+  }
+}
