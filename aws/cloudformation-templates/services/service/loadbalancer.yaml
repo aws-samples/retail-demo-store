@@ -14,7 +14,7 @@ Parameters:
   VpcId:
     Type: String
 
-  ACMCertArn:
+  ACMCertARN:
     Type: String
 
 Resources:
@@ -61,7 +61,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - CertificateArn: !Ref ACMCertArn
+        - CertificateArn: !Ref ACMCertARN
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
