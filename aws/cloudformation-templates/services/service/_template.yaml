@@ -214,6 +214,10 @@ Parameters:
     Type: String
     Description: Evidently project name
 
+  ACMCertARN:
+    Type: String
+    Description: Self signed cert ARN
+
 Resources:
 
   Loadbalancer:
@@ -224,6 +228,7 @@ Resources:
         ServiceName: !Ref ServiceName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        ACMCertARN: !Ref ACMCertARN
 
   Pipeline:
     Type: AWS::CloudFormation::Stack
