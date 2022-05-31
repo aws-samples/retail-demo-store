@@ -102,52 +102,6 @@ Parameters:
     Type: String
     Description: The GitHub branch used for deployment.
 
-  FenixZipDetectUrl:
-    Type: String
-    Description: Fenix Commerce Zipcode Detect URL
-    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
-
-  FenixTenantId:
-    Type: String
-    Description: Fenix Commerce Demo Env TenantID
-    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
-    NoEcho: true
-
-  FenixEddEndpoint:
-    Type: String
-    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
-    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
-
-  FenixMonetaryValue:
-    Type: String
-    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
-    Default: 100
-
-  FenixEnabledPdp:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on PDP
-    AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
-
-  FenixEnabledCart:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on CART
-    AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
-
-  FenixEnabledCheckout:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on checkout
-    AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
-
-
 Resources:
   # Authentication
   Authentication:
