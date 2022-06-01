@@ -8,7 +8,7 @@ on:
 
 env:
   STACK_NAME: retaildemostore
-  STAGE_S3_BUCKET: retail-demo-store-integ-test-assets-us-east-1
+  STAGE_S3_BUCKET: retail-demo-store-integ-test-assets
   REGION: us-west-2
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
           role-session-name: GitHub-Action-Stage-Assets
-          aws-region: us-east-1 # Must use bucket in this region or CloudFormation won't be able to find the template
+          aws-region: ${{ env.REGION }}
       - name: Build and upload assets to an S3 bucket
         run: |
           ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
