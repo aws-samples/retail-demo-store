@@ -78,16 +78,6 @@ if [ "$pre_index_elasticsearch" = true ]; then
     param_elasticsearch="Yes"
 fi
 
-# Delete stack if it still exists (may be deletion failed in the previous run)
-aws cloudformation delete-stack \
-  --region "${REGION}" \
-  --stack-name "${STACK_NAME}"
-
-aws cloudformation wait stack-delete-complete \
-  --region "${REGION}" \
-  --stack-name "${STACK_NAME}"
-
-# Deploy a new stack
 aws cloudformation deploy \
   --template-file ./aws/cloudformation-templates/template.yaml \
   --stack-name ${STACK_NAME} \
