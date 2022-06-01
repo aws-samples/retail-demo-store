@@ -8,31 +8,31 @@ on:
 
 env:
   STACK_NAME: retaildemostore
-  STAGE_S3_BUCKET: retail-demo-store-integ-test-assets
+  STAGE_S3_BUCKET: retail-demo-store-integ-test-assets-us-east-1
   REGION: us-west-2
 
 jobs:
-  # stage-assets:
-  #   name: Staging Asset
-  #   runs-on: ubuntu-20.04
-  #   permissions:
-  #     id-token: write # needed to interact with GitHub's OIDC Token endpoint.
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       name: Checkout Repository
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.6.1
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
-  #         role-session-name: GitHub-Action-Stage-Assets
-  #         aws-region: ${{ env.REGION }}
-  #     - name: Build and upload assets to an S3 bucket
-  #       run: |
-  #         ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
+  stage-assets:
+    name: Staging Asset
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Stage-Assets
+          aws-region: us-east-1 # Must use bucket in this region or CloudFormation won't be able to find the template
+      - name: Build and upload assets to an S3 bucket
+        run: |
+          ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
   deploy-stacks:
     name: Deploy Stacks
-    # needs: stage-assets
+    needs: stage-assets
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
