@@ -11,7 +11,7 @@ load_dotenv()
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = absolute_file_path(cwd, "json_request_bodies.json")
 schemas_path = absolute_file_path(cwd, "json_schemas.json")
-recommendation_api_url = os.getenv("RECOMMENDATIONS_API_URL") or sys.exit(
+recommendation_api_url = os.getenv("RECOMMENDATIONS_API_URL") or os.sys.exit(
     "Please provide an environment variable RECOMMENDATIONS_API_URL"
 )
 
