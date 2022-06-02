@@ -83,7 +83,7 @@ aws cloudformation deploy \
   --stack-name ${STACK_NAME} \
   --capabilities CAPABILITY_NAMED_IAM \
   --region "${REGION}" \
-  -–disable-rollback \
+  --disable-rollback \
   --parameter-overrides \
   ResourceBucket="${S3_BUCKET}" \
   SourceDeploymentType="CodeCommit" \
