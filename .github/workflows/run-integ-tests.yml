@@ -62,7 +62,8 @@ jobs:
       - name: Run integration tests from all endpoints
         # TODO: Add a script to find all endpoints from CloudFormation output and run the tests
         run: |
-          echo "TODO: To be implemented"
+          cd src/run-tests
+          make test
   destroy-stacks:
     name: Destroy Stacks
     needs: run-integ-tests
