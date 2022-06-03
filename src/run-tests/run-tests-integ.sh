@@ -14,11 +14,17 @@ if [ ! -z "$1" ]; then
   cd "$1" || { echo "Service does not exist."; exit 1; }
 fi
 
-echo "### List of URL to test against"
+echo "#######################################################"
+echo "### Starting integration tests..."
+echo "#######################################################"
+echo "### List of API URLs in the environment variable"
+echo "#######################################################"
 echo "# PRODUCT_API_URL = $PRODUCT_API_URL"
 echo "# USERS_API_URL = $USERS_API_URL"
 echo "# ORDERS_API_URL = $ORDERS_API_URL"
 echo "# RECOMMENDATIONS_API_URL = $RECOMMENDATIONS_API_URL"
+echo "# Empty values will be defaulted to local URL"
+echo "########################################"
 
 #########################
 ####### Functions #######
@@ -37,12 +43,12 @@ run_all_tests() {
     popd
   done
 
+  passed_tests = $(($total_tests - $failed_tests))
   echo "########################################"
-  echo "#### Summary: ($failed_tests/$total_tests) test suits fail ####"
+  echo "#### Summary: ($passed_tests/$total_tests) test suits fail ####"
   echo "########################################"
   return $failed_tests
 }
-
 
 run_all_tests
 result=$?
@@ -50,6 +56,3 @@ result=$?
 deactivate
 
 exit $result
-
-
-
