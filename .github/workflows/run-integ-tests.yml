@@ -59,18 +59,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: Checkout Repository
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'  
       - name: Run integration tests from all endpoints
         env:
           REGION: ${{ env.REGION }}
           STACK_NAME: ${{ env.STACK_NAME }}
         run: |
-          export PRODUCT_API_URL=$(./retrieve-url.sh REGION STACK_NAME ProductsServiceUrl)
-          echo "(From run-integ-test.yml) PRODUCT_API_URL = $PRODUCT_API_URL"
-          # USERS_API_URL
-          # ORDERS_API_URL
-          # RECOMMENDATIONS_API_URL
           cd src/run-tests
-          make test
+          # Retrieve all urls from CloudFormation output
+          products_api_url=$(./retrieve-url.sh REGION STACK_NAME ProductsServiceUrl)
+          users_api_url=$(./retrieve-url.sh REGION STACK_NAME UsersServiceUrl)
+          orders_api_url=$(./retrieve-url.sh REGION STACK_NAME OrdersServiceUrl)
+          recommendations_api_url=$(./retrieve-url.sh REGION STACK_NAME OrdersServiceUrl)
+          # Run the test against actual urls from the deployed stack
+          make test PRODUCT_API_URL="$products_api_url" \
+            USERS_API_URL="$users_api_url" \
+            ORDERS_API_URL="$orders_api_url" \
+            RECOMMENDATIONS_API_URL="$recommendations_api_url" 
   destroy-stacks:
     name: Destroy Stacks
     needs: run-integ-tests
