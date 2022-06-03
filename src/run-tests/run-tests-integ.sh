@@ -7,12 +7,18 @@ home_dir="$(dirname "$dir")"
 cd "$home_dir" || exit 1
 
 : '
-If we have accepted an argument (service name), attempt to change into that directory.
+If we have accepted the first argument argument (service name), attempt to change into that directory.
 This ensures we only run tests for that service as requested.
 '
 if [ ! -z "$1" ]; then
   cd "$1" || { echo "Service does not exist."; exit 1; }
 fi
+
+echo "### List of URL to test against"
+echo "# PRODUCT_API_URL = $PRODUCT_API_URL"
+echo "# USERS_API_URL = $USERS_API_URL"
+echo "# ORDERS_API_URL = $ORDERS_API_URL"
+echo "# RECOMMENDATIONS_API_URL = $RECOMMENDATIONS_API_URL"
 
 #########################
 ####### Functions #######

@@ -1,7 +1,9 @@
 .PHONY: test setup venv integ clean
 
+# TODO: add documentation
 test: integ
 
+# TODO: can this be optional? Doesn't make sense to pip install every run.
 setup: venv
 	bash ./install-requirements-integ.sh
 

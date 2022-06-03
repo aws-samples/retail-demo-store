@@ -30,28 +30,28 @@ jobs:
   #     - name: Build and upload assets to an S3 bucket
   #       run: |
   #         ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
-  deploy-stacks:
-    name: Deploy Stacks
-    # needs: stage-assets
-    runs-on: ubuntu-20.04
-    permissions:
-      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-        name: Checkout Repository
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1.6.1
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
-          role-session-name: GitHub-Action-Deploy-Stack
-          aws-region: ${{ env.REGION }}
-      - name: Deploy all stacks to AWS
-        run: |
-          ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
+  # deploy-stacks:
+  #   name: Deploy Stacks
+  #   needs: stage-assets
+  #   runs-on: ubuntu-20.04
+  #   permissions:
+  #     id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+  #     contents: read
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       name: Checkout Repository
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1.6.1
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+  #         role-session-name: GitHub-Action-Deploy-Stack
+  #         aws-region: ${{ env.REGION }}
+  #     - name: Deploy all stacks to AWS
+  #       run: |
+  #         ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
   run-integ-tests:
     name: Run Integration Tests
-    needs: deploy-stacks
+    # needs: deploy-stacks
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
@@ -60,8 +60,15 @@ jobs:
       - uses: actions/checkout@v3
         name: Checkout Repository
       - name: Run integration tests from all endpoints
-        # TODO: Add a script to find all endpoints from CloudFormation output and run the tests
+        env:
+          REGION: ${{ env.REGION }}
+          STACK_NAME: ${{ env.STACK_NAME }}
         run: |
+          export PRODUCT_API_URL=$(./retrieve-url.sh REGION STACK_NAME ProductsServiceUrl)
+          echo "(From run-integ-test.yml) PRODUCT_API_URL = $PRODUCT_API_URL"
+          # USERS_API_URL
+          # ORDERS_API_URL
+          # RECOMMENDATIONS_API_URL
           cd src/run-tests
           make test
   destroy-stacks:
