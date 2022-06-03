@@ -20,9 +20,9 @@ Depends on `venv` target. Installs test requirements inside a virtual environmen
 
 Create virtual environment.
 
-### `make integ service=`
+### `make integ SERVICE=`
 
-Depends on `setup` target. Run all integration tests. (Optional: Specify service parameter to run tests for that service only).
+Depends on `setup` target. Run all integration tests. (Optional: Specify SERVICE parameter to run tests for that service only).
 
 ### `make clean`
 
