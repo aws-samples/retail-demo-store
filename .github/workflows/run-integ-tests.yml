@@ -62,6 +62,12 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: '3.9'  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Delete-Stacks
+          aws-region: ${{ env.REGION }}
       - name: Run integration tests from all endpoints
         env:
           REGION: ${{ env.REGION }}
