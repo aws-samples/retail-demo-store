@@ -82,7 +82,7 @@ jobs:
 
           # Run the test against actual urls from the deployed stack
           cd ../src/run-tests
-          make test PRODUCT_API_URL="$products_api_url" \
+          make test PRODUCTS_API_URL="$products_api_url" \
             USERS_API_URL="$users_api_url" \
             ORDERS_API_URL="$orders_api_url" \
             RECOMMENDATIONS_API_URL="$recommendations_api_url" 

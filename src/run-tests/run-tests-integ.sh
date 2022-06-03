@@ -43,9 +43,9 @@ run_all_tests() {
     popd
   done
 
-  passed_tests = $(($total_tests - $failed_tests))
+  passed_tests=$(($total_tests - $failed_tests))
   echo "########################################"
-  echo "#### Summary: ($passed_tests/$total_tests) test suits fail ####"
+  echo "#### Summary: ($passed_tests/$total_tests) test suits pass ####"
   echo "########################################"
   return $failed_tests
 }
