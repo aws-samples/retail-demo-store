@@ -75,7 +75,7 @@ jobs:
         run: |
           # Retrieve all urls from CloudFormation output
           cd scripts
-          products_api_url=$(./retrieve-url.sh $REGION $$STACK_NAME ProductsServiceUrl)
+          products_api_url=$(./retrieve-url.sh $REGION $STACK_NAME ProductsServiceUrl)
           users_api_url=$(./retrieve-url.sh $REGION $STACK_NAME UsersServiceUrl)
           orders_api_url=$(./retrieve-url.sh $REGION $STACK_NAME OrdersServiceUrl)
           recommendations_api_url=$(./retrieve-url.sh $REGION $STACK_NAME OrdersServiceUrl)
