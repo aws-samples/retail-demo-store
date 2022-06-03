@@ -67,13 +67,15 @@ jobs:
           REGION: ${{ env.REGION }}
           STACK_NAME: ${{ env.STACK_NAME }}
         run: |
-          cd src/run-tests
           # Retrieve all urls from CloudFormation output
+          cd scripts
           products_api_url=$(./retrieve-url.sh REGION STACK_NAME ProductsServiceUrl)
           users_api_url=$(./retrieve-url.sh REGION STACK_NAME UsersServiceUrl)
           orders_api_url=$(./retrieve-url.sh REGION STACK_NAME OrdersServiceUrl)
           recommendations_api_url=$(./retrieve-url.sh REGION STACK_NAME OrdersServiceUrl)
+
           # Run the test against actual urls from the deployed stack
+          cd src/run-tests
           make test PRODUCT_API_URL="$products_api_url" \
             USERS_API_URL="$users_api_url" \
             ORDERS_API_URL="$orders_api_url" \
