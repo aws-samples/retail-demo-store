@@ -31,9 +31,9 @@ run_all_tests() {
     popd
   done
 
-  echo "####################"
-  echo "Summary: ($(failed_tests)/$(total_tests)) test suits fail "
-  echo "####################"
+  echo "########################################"
+  echo "#### Summary: ($failed_tests/$total_tests) test suits fail ####"
+  echo "########################################"
   return $failed_tests
 }
 
