@@ -56,6 +56,10 @@ jobs:
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
       contents: read
+    strategy:
+      matrix:
+        service: 
+          - {name: products, output_key: ProductsServiceUrl, env_var_name: PRODUCTS_API_URL}
     steps:
       - uses: actions/checkout@v3
         name: Checkout Repository
@@ -75,17 +79,11 @@ jobs:
         run: |
           # Retrieve all urls from CloudFormation output
           cd scripts
-          products_api_url=$(./retrieve-url.sh $REGION $STACK_NAME ProductsServiceUrl)
-          users_api_url=$(./retrieve-url.sh $REGION $STACK_NAME UsersServiceUrl)
-          orders_api_url=$(./retrieve-url.sh $REGION $STACK_NAME OrdersServiceUrl)
-          recommendations_api_url=$(./retrieve-url.sh $REGION $STACK_NAME OrdersServiceUrl)
+          api_url=$(./retrieve-url.sh $REGION $STACK_NAME ${{ matrix.service.output_key }})
 
           # Run the test against actual urls from the deployed stack
           cd ../src/run-tests
-          make test PRODUCTS_API_URL="$products_api_url" \
-            USERS_API_URL="$users_api_url" \
-            ORDERS_API_URL="$orders_api_url" \
-            RECOMMENDATIONS_API_URL="$recommendations_api_url" 
+          make test service="${{ matrix.service.name }}" "${{ matrix.service.env_var_name }}"="$api_url"
   destroy-stacks:
     name: Destroy Stacks
     needs: run-integ-tests
