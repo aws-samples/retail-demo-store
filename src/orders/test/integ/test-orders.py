@@ -8,6 +8,7 @@ DEFAULT_LOCAL_API_URL = 'http://localhost:8004'
 
 orders_api_url = os.getenv('ORDERS_API_URL', DEFAULT_LOCAL_API_URL)
 test_order_id = os.getenv('TEST_ORDER_ID', 1)
+test_username = os.getenv('TEST_USERNAME', 'user1344')
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = integhelpers.absolute_file_path(cwd, "json_request_bodies.json")
@@ -44,5 +45,5 @@ def test_post_orders():
 def test_get_orders_username():
 
     endpoint = "/orders/username/:username"
-    params = {":order_id": test_order_id}
+    params = {":username": test_username}
     integhelpers.get_request_assert(orders_api_url, endpoint, schemas_path, params)
