@@ -84,7 +84,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
           role-session-name: GitHub-Action-Delete-Stacks
           aws-region: ${{ env.REGION }}
-      - name: Run integration tests from all endpoints
+      - name: Run integration test of the service
         env:
           REGION: ${{ env.REGION }}
           STACK_NAME: ${{ env.STACK_NAME }}
