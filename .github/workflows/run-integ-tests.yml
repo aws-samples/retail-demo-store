@@ -57,6 +57,7 @@ jobs:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         service: 
           - name: products
@@ -92,7 +93,7 @@ jobs:
           api_url=$(./scripts/retrieve-url.sh $REGION $STACK_NAME ${{ matrix.service.output_key }})
 
           # Run the test against actual url from the deployed stack
-          cd ../src/run-tests
+          cd src/run-tests
           make setup
           make test SERVICE="${{ matrix.service.name }}" "${{ matrix.service.env_var_name }}"="$api_url"
   # destroy-stacks:
