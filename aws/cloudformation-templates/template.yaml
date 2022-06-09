@@ -439,7 +439,7 @@ Parameters:
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
+    Default: 'FALSE'
 
   FenixEnabledCart:
     Type: String
@@ -447,7 +447,7 @@ Parameters:
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
+    Default: 'FALSE'
 
   FenixEnabledCheckout:
     Type: String
@@ -455,7 +455,7 @@ Parameters:
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
-    Default: 'TRUE'
+    Default: 'FALSE'
 
 Conditions:
   DeploySegmentResources: !Equals

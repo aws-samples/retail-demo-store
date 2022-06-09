@@ -1,0 +1,182 @@
+{
+  "/rerank" : {
+    "userID": "5097",
+    "items": [
+      {
+        "id": "638012bd-b70e-4035-bf83-fbb777c7a6ea",
+        "url": "http://xxx.cloudfront.net/#/product/638012bd-b70e-4035-bf83-fbb777c7a6ea",
+        "sk": "",
+        "name": "Grandma's Mascara",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "The 20s look that never went out of fashion, till after the 20s.",
+        "price": 18,
+        "image": "http://xxx.cloudfront.net/images/beauty/638012bd-b70e-4035-bf83-fbb777c7a6ea.jpg",
+        "gender_affinity": "F",
+        "current_stock": 13,
+        "itemId": "638012bd-b70e-4035-bf83-fbb777c7a6ea"
+      },
+      {
+        "id": "9d1be460-7c75-4627-990d-1f1a6731dc3e",
+        "url": "http://xxx.cloudfront.net/#/product/9d1be460-7c75-4627-990d-1f1a6731dc3e",
+        "sk": "",
+        "name": "Camera Tripod",
+        "category": "electronics",
+        "style": "camera",
+        "description": "Take video anywhere, anytime, like a spy.",
+        "price": 49,
+        "image": "http://xxx.cloudfront.net/images/electronics/9d1be460-7c75-4627-990d-1f1a6731dc3e.jpg",
+        "gender_affinity": "F",
+        "current_stock": 10,
+        "itemId": "9d1be460-7c75-4627-990d-1f1a6731dc3e"
+      },
+      {
+        "id": "79fc3af3-c071-4e26-9062-b869f2ec128d",
+        "url": "http://xxx.cloudfront.net/#/product/79fc3af3-c071-4e26-9062-b869f2ec128d",
+        "sk": "",
+        "name": "Nice Stripy Blouse",
+        "category": "apparel",
+        "style": "shirt",
+        "description": "Easy-wearing and comfy momfy!",
+        "price": 39,
+        "image": "http://xxx.cloudfront.net/images/apparel/79fc3af3-c071-4e26-9062-b869f2ec128d.jpg",
+        "gender_affinity": "F",
+        "current_stock": 10,
+        "itemId": "79fc3af3-c071-4e26-9062-b869f2ec128d"
+      },
+      {
+        "id": "8759b4e2-51cc-456f-a224-01a34d04db2b",
+        "url": "http://xxx.cloudfront.net/#/product/8759b4e2-51cc-456f-a224-01a34d04db2b",
+        "sk": "",
+        "name": "Pocket Powder Case",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Touch up on the go! Wherever, whenever!",
+        "price": 29,
+        "image": "http://xxx.cloudfront.net/images/beauty/8759b4e2-51cc-456f-a224-01a34d04db2b.jpg",
+        "gender_affinity": "F",
+        "current_stock": 12,
+        "itemId": "8759b4e2-51cc-456f-a224-01a34d04db2b"
+      },
+      {
+        "id": "89728417-5269-403d-baa3-04b59cdffd0a",
+        "url": "http://xxx.cloudfront.net/#/product/89728417-5269-403d-baa3-04b59cdffd0a",
+        "sk": "",
+        "name": "4-Piece Makeup Brush Set",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Get makeup done, the only way how, on your skin.",
+        "price": 26,
+        "image": "http://xxx.cloudfront.net/images/beauty/89728417-5269-403d-baa3-04b59cdffd0a.jpg",
+        "gender_affinity": "F",
+        "current_stock": 4,
+        "itemId": "89728417-5269-403d-baa3-04b59cdffd0a"
+      },
+      {
+        "id": "2f3f075b-66ff-475f-95e3-71b462f328c5",
+        "url": "http://xxx.cloudfront.net/#/product/2f3f075b-66ff-475f-95e3-71b462f328c5",
+        "sk": "",
+        "name": "Eyeshadow Palette - Set of 3 Palettes",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Perfect for trialling different shades, each palette contains 4 different shades.",
+        "price": 145,
+        "image": "http://xxx.cloudfront.net/images/beauty/2f3f075b-66ff-475f-95e3-71b462f328c5.jpg",
+        "gender_affinity": "F",
+        "current_stock": 19,
+        "itemId": "2f3f075b-66ff-475f-95e3-71b462f328c5"
+      }
+    ],
+    "feature": "home_featured_rerank"
+  },
+  "/choose_discounted" : {
+    "userID": "5097",
+    "items": [
+      {
+        "id": "638012bd-b70e-4035-bf83-fbb777c7a6ea",
+        "url": "http://xxx.cloudfront.net/#/product/638012bd-b70e-4035-bf83-fbb777c7a6ea",
+        "sk": "",
+        "name": "Grandma's Mascara",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "The 20s look that never went out of fashion, till after the 20s.",
+        "price": 18,
+        "image": "http://xxx.cloudfront.net/images/beauty/638012bd-b70e-4035-bf83-fbb777c7a6ea.jpg",
+        "gender_affinity": "F",
+        "current_stock": 13,
+        "itemId": "638012bd-b70e-4035-bf83-fbb777c7a6ea"
+      },
+      {
+        "id": "9d1be460-7c75-4627-990d-1f1a6731dc3e",
+        "url": "http://xxx.cloudfront.net/#/product/9d1be460-7c75-4627-990d-1f1a6731dc3e",
+        "sk": "",
+        "name": "Camera Tripod",
+        "category": "electronics",
+        "style": "camera",
+        "description": "Take video anywhere, anytime, like a spy.",
+        "price": 49,
+        "image": "http://xxx.cloudfront.net/images/electronics/9d1be460-7c75-4627-990d-1f1a6731dc3e.jpg",
+        "gender_affinity": "F",
+        "current_stock": 10,
+        "itemId": "9d1be460-7c75-4627-990d-1f1a6731dc3e"
+      },
+      {
+        "id": "79fc3af3-c071-4e26-9062-b869f2ec128d",
+        "url": "http://xxx.cloudfront.net/#/product/79fc3af3-c071-4e26-9062-b869f2ec128d",
+        "sk": "",
+        "name": "Nice Stripy Blouse",
+        "category": "apparel",
+        "style": "shirt",
+        "description": "Easy-wearing and comfy momfy!",
+        "price": 39,
+        "image": "http://xxx.cloudfront.net/images/apparel/79fc3af3-c071-4e26-9062-b869f2ec128d.jpg",
+        "gender_affinity": "F",
+        "current_stock": 10,
+        "itemId": "79fc3af3-c071-4e26-9062-b869f2ec128d"
+      },
+      {
+        "id": "8759b4e2-51cc-456f-a224-01a34d04db2b",
+        "url": "http://xxx.cloudfront.net/#/product/8759b4e2-51cc-456f-a224-01a34d04db2b",
+        "sk": "",
+        "name": "Pocket Powder Case",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Touch up on the go! Wherever, whenever!",
+        "price": 29,
+        "image": "http://xxx.cloudfront.net/images/beauty/8759b4e2-51cc-456f-a224-01a34d04db2b.jpg",
+        "gender_affinity": "F",
+        "current_stock": 12,
+        "itemId": "8759b4e2-51cc-456f-a224-01a34d04db2b"
+      },
+      {
+        "id": "89728417-5269-403d-baa3-04b59cdffd0a",
+        "url": "http://xxx.cloudfront.net/#/product/89728417-5269-403d-baa3-04b59cdffd0a",
+        "sk": "",
+        "name": "4-Piece Makeup Brush Set",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Get makeup done, the only way how, on your skin.",
+        "price": 26,
+        "image": "http://xxx.cloudfront.net/images/beauty/89728417-5269-403d-baa3-04b59cdffd0a.jpg",
+        "gender_affinity": "F",
+        "current_stock": 4,
+        "itemId": "89728417-5269-403d-baa3-04b59cdffd0a"
+      },
+      {
+        "id": "2f3f075b-66ff-475f-95e3-71b462f328c5",
+        "url": "http://xxx.cloudfront.net/#/product/2f3f075b-66ff-475f-95e3-71b462f328c5",
+        "sk": "",
+        "name": "Eyeshadow Palette - Set of 3 Palettes",
+        "category": "beauty",
+        "style": "grooming",
+        "description": "Perfect for trialling different shades, each palette contains 4 different shades.",
+        "price": 145,
+        "image": "http://xxx.cloudfront.net/images/beauty/2f3f075b-66ff-475f-95e3-71b462f328c5.jpg",
+        "gender_affinity": "F",
+        "current_stock": 19,
+        "itemId": "2f3f075b-66ff-475f-95e3-71b462f328c5"
+      }
+    ],
+    "feature": "home_featured_rerank"
+  }
+}

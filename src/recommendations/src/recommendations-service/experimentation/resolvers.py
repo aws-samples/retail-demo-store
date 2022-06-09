@@ -216,8 +216,10 @@ class PersonalizeRecommendationsResolver(Resolver):
             elif self.filter_arn:
                 params['filterArn'] = self.filter_arn
 
-            # contextual metadata is not supported in related items recipe
-            if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
+            if params.get('filterArn') and kwargs.get('filter_values'):
+                params['filterValues'] = kwargs.get('filter_values')
+
+        if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
 
         if item_id:
             params['itemId'] = item_id
@@ -340,6 +342,11 @@ class PersonalizeRankingResolver(Resolver):
             params['filterArn'] = filter_arn
         elif self.filter_arn:
             params['filterArn'] = self.filter_arn
+
+        if params.get('filterArn') and kwargs.get('filter_values'):
+            params['filterValues'] = kwargs.get('filter_values')
+
+        if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
 
         log.debug('PersonalizeRankingResolver - getting personalized ranking %s', params)
 
