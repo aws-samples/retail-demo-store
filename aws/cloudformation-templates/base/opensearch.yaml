@@ -21,20 +21,18 @@ Parameters:
 Resources:
 
   OpenSearchDomain:
-    Type: AWS::Elasticsearch::Domain
+    Type: AWS::OpenSearchService::Domain
     Properties:
-      ElasticsearchVersion: '7.4'
-      ElasticsearchClusterConfig:
+      EngineVersion: OpenSearch_1.2
+      ClusterConfig:
         InstanceCount: 1
-        InstanceType: t3.small.elasticsearch
+        InstanceType: t3.small.search
         ZoneAwarenessEnabled: false
       EBSOptions:
         EBSEnabled: true
         Iops: 0
         VolumeSize: 10
-        VolumeType: standard
-      SnapshotOptions:
-        AutomatedSnapshotStartHour: 0
+        VolumeType: gp2
       AccessPolicies:
         Version: 2012-10-17
         Statement:
@@ -58,7 +56,7 @@ Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Elasticsearch Security Group
+      GroupDescription: OpenSearch Security Group
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - FromPort: 443

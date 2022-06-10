@@ -878,9 +878,9 @@ Outputs:
         AWS_XRAY_DAEMON_ADDRESS=xray:2000
 
         # Search service
-        ES_SEARCH_DOMAIN_SCHEME=https
-        ES_SEARCH_DOMAIN_HOST="${Base.Outputs.ElasticsearchDomainEndpoint}"
-        ES_SEARCH_DOMAIN_PORT=9200
+        OPENSEARCH_DOMAIN_SCHEME=https
+        OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
+        OPENSEARCH_DOMAIN_PORT=9200
 
         # Users service
         AWS_REGION=${AWS::Region}

@@ -1,12 +1,11 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import os
 import yaml
 import logging
 import boto3
 from crhelper import CfnResource
-from opensearch import OpenSearch
+from opensearchpy import OpenSearch
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

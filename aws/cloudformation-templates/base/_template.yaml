@@ -222,10 +222,10 @@ Resources:
   # Create role here rather than in OpenSearch nested template so role has time to become consistent
   OpenSearchServiceLinkedRole:
     Condition: CreateOpenSearchServiceLinkedRole
-    Type: 'AWS::IAM::ServiceLinkedRole'
+    Type: AWS::IAM::ServiceLinkedRole
     Properties:
-      AWSServiceName: es.amazonaws.com
-      Description: "Role for ES to access resources in VPC"
+      AWSServiceName: opensearchservice.amazonaws.com
+      Description: "Role for OpenSearch to access resources in VPC"
 
   OpenSearchRoleWaitHandle:
     Condition: CreateOpenSearchServiceLinkedRole

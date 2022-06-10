@@ -10,7 +10,7 @@ patch_all()
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from opensearch import OpenSearch, NotFoundError
+from opensearchpy import OpenSearch, NotFoundError
 
 import json
 import os

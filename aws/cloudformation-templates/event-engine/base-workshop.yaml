@@ -47,7 +47,7 @@ Resources:
         GitHubBranch: "master" # N/A SO DO NOT CHANGE
         GitHubToken: "dummy" # N/A SO DO NOT CHANGE
         GitHubUser: "aws-samples" # N/A SO DO NOT CHANGE
-        PreIndexElasticsearch: "No" # Change to 'Yes' if you don't want customers to have to do ES workshop
+        PreIndexOpenSearch: "No" # Change to 'Yes' if you don't want customers to have to do ES workshop
         PreCreatePersonalizeResources: "No" # Change to 'Yes' if you don't want customers to have to do Personalize workshop (requires 2.5 hours AFTER CFN deployment to complete)
         PreCreatePinpointWorkshop: "No" # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
         PinpointEmailFromAddress: "dummy@dummy.com" # Only change if you change PreCreatePinpointWorkshop to 'Yes'

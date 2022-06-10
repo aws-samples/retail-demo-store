@@ -81,7 +81,7 @@ services:
 
   # OpenSearch required for search service
   opensearch:
-    image: opensearchproject/opensearch:1.0.0
+    image: opensearchproject/opensearch:1.3.3
     container_name: opensearch
     environment:
       - plugins.security.disabled=true
