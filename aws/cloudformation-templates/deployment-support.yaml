@@ -369,7 +369,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/opensearch-pre-index.zip'
-      Runtime: python3.8
+      Runtime: python3.9
       Timeout: 300
       VpcConfig:
         SecurityGroupIds:
