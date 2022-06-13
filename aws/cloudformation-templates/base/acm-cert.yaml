@@ -27,8 +27,8 @@ Resources:
           CompatibleRuntimes:
             - python3.9
           Content:
-            S3Bucket: lambda-layer-ptelzp
-            S3Key: lambda-layer.zip
+            S3Bucket: ${ResourceBucket}
+            S3Key: aws-lambda/lambda-layer.zip
           LayerName: "OpenSSL-Python3-9-Layer1"
         
     ACMimportCertLambdaFunction:
