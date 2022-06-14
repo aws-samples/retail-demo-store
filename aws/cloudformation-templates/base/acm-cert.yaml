@@ -3,7 +3,12 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
     This template deploys the SSL/TLS selfsigned certificate for Retail Demo Store ELBs to ACM
     Author: Ronak Shah <ronakbsh@amazon.com>
- 
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the deployment Resources are stored (cloudformation, images, lambda code)
+
 Resources:
     ACMARNParameter:
         Type: AWS::SSM::Parameter
@@ -27,7 +32,7 @@ Resources:
           CompatibleRuntimes:
             - python3.9
           Content:
-            S3Bucket: ${ResourceBucket}
+            S3Bucket: !Ref ResourceBucket
             S3Key: aws-lambda/lambda-layer.zip
           LayerName: "OpenSSL-Python3-9-Layer1"
         
