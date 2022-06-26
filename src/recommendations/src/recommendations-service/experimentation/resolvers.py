@@ -115,7 +115,7 @@ class SearchSimilarProductsResolver(Resolver):
 
     This class uses the Search service to return items/products similar to
     an existing/current item/product. Internally the Search service uses
-    the Elasticsearch "more like this" query type which can be considered
+    the OpenSearch "more like this" query type which can be considered
     a content filtering approach to recommendations. So still not personalized
     but an improvement over the DefaultProductResolver.
     """
