@@ -140,7 +140,7 @@ Resources:
                 Action:
                   - servicediscovery:DiscoverInstances
                   - es:ListDomainNames
-                  - es:DescribeElasticsearchDomain
+                  - es:DescribeDomain
                   - es:ListTags
                 Resource: "*"
         -

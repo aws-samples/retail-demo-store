@@ -82,7 +82,7 @@ Parameters:
     Type: String
     Default: 80
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -373,9 +373,9 @@ Resources:
               Value: !Ref ParameterIVSVideoChannelMap
             - Name: USE_DEFAULT_IVS_STREAMS
               Value: !Ref UseDefaultIVSStreams
-            - Name: ES_SEARCH_DOMAIN_HOST
-              Value: !Ref EnvElasticsearchDomainEndpoint
-            - Name: ES_SEARCH_DOMAIN_PORT
+            - Name: OPENSEARCH_DOMAIN_HOST
+              Value: !Ref EnvOpenSearchDomainEndpoint
+            - Name: OPENSEARCH_DOMAIN_PORT
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable

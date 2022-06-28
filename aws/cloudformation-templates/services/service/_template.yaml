@@ -159,7 +159,7 @@ Parameters:
     Type: String
     Default: 80
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -292,7 +292,7 @@ Resources:
         EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
         EnvOffersServiceInternalUrl: !Ref EnvOffersServiceInternalUrl
         EnvOffersServiceInternalPort: !Ref EnvOffersServiceInternalPort
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ResourceBucket: !Ref ResourceBucket
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams

@@ -20,7 +20,7 @@ src/alexa/lambda/.env
 src/alexa/infrastructure/
 src/aws-lambda/*/bin/
 src/aws-lambda/*/package
-src/aws-lambda/elasticsearch-pre-index/products.yaml
+src/aws-lambda/opensearch-pre-index/products.yaml
 src/aws-lambda/personalize-delete-resources/models
 src/aws-lambda/personalize-pre-create-resources/models
 src/aws-lambda/personalize-pre-create-resources/data

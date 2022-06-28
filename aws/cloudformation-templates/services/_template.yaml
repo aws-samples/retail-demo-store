@@ -77,7 +77,7 @@ Parameters:
   ServiceDiscoveryNamespace:
     Type: String
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -292,7 +292,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -326,7 +326,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -360,7 +360,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey

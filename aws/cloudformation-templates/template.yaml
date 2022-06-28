@@ -13,7 +13,7 @@ Metadata:
         Parameters:
           - ResourceBucket
           - ResourceBucketRelativePath
-          - CreateElasticsearchServiceLinkedRole
+          - CreateOpenSearchServiceLinkedRole
       - Label:
           default: "Source Deployment Approach"
         Parameters:
@@ -28,7 +28,7 @@ Metadata:
       - Label:
           default: "Auto-Build Resources"
         Parameters:
-          - PreIndexElasticsearch
+          - PreIndexOpenSearch
           - PreCreatePersonalizeResources
           - PreCreatePinpointWorkshop
           - PinpointEmailFromAddress
@@ -84,8 +84,8 @@ Metadata:
         default: "Deployment Resources Staging Bucket Name"
       ResourceBucketRelativePath:
         default: "Deployment Resources Staging Bucket Relative Path (optional)"
-      CreateElasticsearchServiceLinkedRole:
-        default: "Create Elasticsearch Service Role?"
+      CreateOpenSearchServiceLinkedRole:
+        default: "Create OpenSearch Service Role?"
       SourceDeploymentType:
         default: "Deployment Type"
       GitHubRepo:
@@ -96,8 +96,8 @@ Metadata:
         default: "GitHub Personal Access Token"
       GitHubUser:
         default: "GitHub Username"
-      PreIndexElasticsearch:
-        default: "Auto-Load Elasticsearch Index"
+      PreIndexOpenSearch:
+        default: "Auto-Load OpenSearch Index"
       PreCreatePersonalizeResources:
         default: "Auto-Build Personalize Resources"
       PreCreatePinpointWorkshop:
@@ -176,10 +176,10 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
-  CreateElasticsearchServiceLinkedRole:
+  CreateOpenSearchServiceLinkedRole:
     Type: String
     Description: >
-      If your account already has an IAM Role named 'AWSServiceRoleForAmazonElasticsearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
+      If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
     AllowedValues:
       - "Yes"
       - "No"
@@ -219,10 +219,10 @@ Parameters:
     Description: Your GitHub username.
     Default: aws-samples
 
-  PreIndexElasticsearch:
+  PreIndexOpenSearch:
     Type: String
     Description: >
-      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would
+      Automatically index the Retail Demo Store products in OpenSearch. Otherwise, select 'No' if you would
       prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
@@ -490,7 +490,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SourceDeploymentType: !Ref SourceDeploymentType
-        CreateElasticsearchServiceLinkedRole: !Ref CreateElasticsearchServiceLinkedRole
+        CreateOpenSearchServiceLinkedRole: !Ref CreateOpenSearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
         ParentStackName: !Ref AWS::StackName
@@ -535,7 +535,7 @@ Resources:
         VpcId: !GetAtt Base.Outputs.VpcId
         ClusterName: !GetAtt Base.Outputs.ClusterName
         ServiceDiscoveryNamespace: !GetAtt Base.Outputs.ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
@@ -720,13 +720,13 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        PreIndexElasticsearch: !Ref PreIndexElasticsearch
+        PreIndexOpenSearch: !Ref PreIndexOpenSearch
         PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
         Subnet1: !GetAtt Base.Outputs.Subnet1
         Subnet2: !GetAtt Base.Outputs.Subnet2
-        ElasticsearchSecurityGroupId: !GetAtt Base.Outputs.ElasticsearchSecurityGroupId
-        ElasticsearchDomainArn: !GetAtt Base.Outputs.ElasticsearchDomainArn
-        ElasticsearchDomainEndpoint: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+        OpenSearchSecurityGroupId: !GetAtt Base.Outputs.OpenSearchSecurityGroupId
+        OpenSearchDomainArn: !GetAtt Base.Outputs.OpenSearchDomainArn
+        OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
@@ -806,9 +806,9 @@ Outputs:
     Description: Retail Demo Store Web UI URL
     Value: !GetAtt Base.Outputs.WebUICDNURL
 
-  ElasticsearchDomainEndpoint:
-    Description: Elasticsearch Endpoint
-    Value: !GetAtt Base.Outputs.ElasticsearchDomainEndpoint
+  OpenSearchDomainEndpoint:
+    Description: OpenSearch Endpoint
+    Value: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
 
   ParameterIVSVideoChannelMap:
     Description: Retail Demo Store video file to IVS channel mapping parameter
@@ -883,9 +883,9 @@ Outputs:
         AWS_XRAY_DAEMON_ADDRESS=xray:2000
 
         # Search service
-        ES_SEARCH_DOMAIN_SCHEME=https
-        ES_SEARCH_DOMAIN_HOST="${Base.Outputs.ElasticsearchDomainEndpoint}"
-        ES_SEARCH_DOMAIN_PORT=9200
+        OPENSEARCH_DOMAIN_SCHEME=https
+        OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
+        OPENSEARCH_DOMAIN_PORT=9200
 
         # Users service
         AWS_REGION=${AWS::Region}
