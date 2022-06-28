@@ -3,7 +3,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
     This template deploys the SSL/TLS selfsigned certificate for Retail Demo Store ELBs to ACM
     Author: Ronak Shah <ronakbsh@amazon.com>
-
 Parameters:
   ResourceBucket:
     Type: String
@@ -50,11 +49,9 @@ Resources:
               from botocore.exceptions import ClientError
               
               response_data = {}
-
               acm_client = boto3.client('acm')
               ssm_client = boto3.client('ssm')
               
-
               def handler(event, context):
                 response_status = cfnresponse.SUCCESS
                 acmarn_param_name = '/retaildemostore/acm-arn';
@@ -93,7 +90,6 @@ Resources:
                         ca_cert.gmtime_adj_notBefore(0)
                         ca_cert.gmtime_adj_notAfter(10*365*24*60*60)
                         ca_certifictate_pem = crypto.dump_certificate(crypto.FILETYPE_PEM, ca_cert).decode('utf-8')
-
                         # Create Self-Signed Certificate
                         client_key = crypto.PKey()
                         client_key.generate_key(crypto.TYPE_RSA, 2048)
@@ -169,7 +165,6 @@ Resources:
                   print("Error: " + str(e))
                   response_status = cfnresponse.FAILED
                   response_data['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
-
                 cfnresponse.send(event, context, response_status, response_data)
           Handler: index.handler            
           Runtime: python3.9
@@ -192,7 +187,7 @@ Resources:
                 - 'sts:AssumeRole'    
           Path: /
           Policies:
-              - PolicyName: CustomLogAndSSMPolicy
+              - PolicyName: CustomPolicy
                 PolicyDocument:
                   Version: 2012-10-17
                   Statement:
@@ -207,10 +202,15 @@ Resources:
                     Action:
                       - ssm:GetParameter
                       - ssm:PutParameter
-                    Resource: '*'
-          ManagedPolicyArns:
-            - 'arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess'
-            
+                    Resource: 
+                      - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/acm-arn'
+                  - Effect: Allow
+                    Action:
+                      - acm:ImportCertificate
+                      - acm:DeleteCertificate
+                      - acm:AddTagsToCertificate                      
+                    Resource:
+                      - !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/*'
     ACMimportCertLambdaFunctionExecution:
         Type: Custom::CustomLambdaACMCert
         Version: "1.0"
@@ -223,4 +223,4 @@ Outputs:
     Value: !GetAtt ACMimportCertLambdaFunction.Arn
   ACMimportCertArn:
     Description: ACM self signed cert Arn to use in ELB listener
-    Value: !GetAtt ACMimportCertLambdaFunctionExecution.certificate_arn			
+    Value: !GetAtt ACMimportCertLambdaFunctionExecution.certificate_arn
