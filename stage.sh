@@ -23,9 +23,9 @@ set -e
 ########################################################################################################################################
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this case, we take 2 arguments for BUCKET and S3PATH
-# 2. "private_s3" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true.
-# 3. "only_cfn_template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
-# 4. "skip_generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
+# 2. "private-s3" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true.
+# 3. "only-cfn-template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
+# 4. "skip-generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
 ########################################################################################################################################
 args=()
 private_s3=false
@@ -163,11 +163,13 @@ if [ "$only_cfn_template" = false ]; then
 
     for function in ./src/aws-lambda/*/
     do
-        echo "  + Staging $function"
-        cd $function
-        chmod +x ./stage.sh
-        ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
-        cd -
+        if [ -f ./${function}/stage.sh ]; then
+            echo "  + Staging $function"
+            cd $function
+            chmod +x ./stage.sh
+            ./stage.sh ${BUCKET} ${S3PATH} > ../../../local/stage.log
+            cd -
+        fi
     done
 fi
 echo " + Done s3://${BUCKET}/${S3PATH} "

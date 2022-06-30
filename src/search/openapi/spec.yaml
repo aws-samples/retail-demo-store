@@ -3,8 +3,7 @@ info:
   title: Search API
   version: v1
   description: |-
-    The Search web service provides a RESTful API for retrieving product information based on a search term. The [Web UI](../../web-ui) makes calls to this service when a user performs a search.
-    Internally, this service makes calls to an [Elasticsearch](https://www.elastic.co/) cluster for search results. When deployed on AWS, [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/) is used. When deployed locally, a local Elasticsearch node is used for searches.
+    The Search web service provides a RESTful API for retrieving product information based on search criteria. OpenSearch is used as the underlying search engine.
 
   license:
     url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
