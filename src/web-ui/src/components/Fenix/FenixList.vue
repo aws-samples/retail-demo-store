@@ -63,6 +63,7 @@ export default {
       fenixData: '',
       fenixResponse: '',
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
+      xapikey: process.env.VUE_APP_FENIX_X_API_KEY,
       ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
       showAllOptions: false,
       fenixDataReceived: false,
@@ -156,6 +157,7 @@ export default {
     getEstimates() {
       const headers = {
         tenantId: this.tenantId,
+        'x-api-key': this.xapikey,
         'Content-Type': 'application/json',
       };
 
