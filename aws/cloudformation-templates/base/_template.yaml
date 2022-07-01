@@ -318,8 +318,6 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/acm-cert.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
 
 Outputs:
   UserPoolId:
