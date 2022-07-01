@@ -147,6 +147,12 @@ Parameters:
       - 'FALSE'
     Default: 'TRUE'
 
+  FenixXapiKey:
+    Type: String
+    Description: Fenix Commerce Demo Env x-api-key
+    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+    NoEcho: true
+
 
 Resources:
   # Authentication

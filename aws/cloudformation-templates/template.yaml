@@ -79,6 +79,7 @@ Metadata:
           - FenixEnabledPdp
           - FenixEnabledCart
           - FenixEnabledCheckout
+          - FenixXapiKey
     ParameterLabels:
       ResourceBucket:
         default: "Deployment Resources Staging Bucket Name"
@@ -162,6 +163,8 @@ Metadata:
         default: "Fenix Commerce enable EDD on CART"
       FenixEnabledCheckout:
         default: "Fenix Commerce enable EDD on Checkoutpage"
+      FenixXapiKey:
+        default: "Fenix Commerce X-Api-Key"
 
 Parameters:
   ResourceBucket:
@@ -426,16 +429,17 @@ Parameters:
   FenixEddEndpoint:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
-    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+    Default: 'https://platform.api.fenixcommerce.com/awsretaildemostore/fenixdelest/api/v2/deliveryestimates'
+    
 
   FenixMonetaryValue:
     Type: String
-    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
+    Description: Fenix Commerce Default monetary value to control free shipping above $100.
     Default: 100
 
   FenixEnabledPdp:
     Type: String
-    Description: Fenix Commerce Flag to enable EDD on PDP
+    Description: Fenix Commerce Flag to enable display of Estimated Delivery Date (EDD) on PDP. OFF/FALSE by default
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
@@ -443,7 +447,7 @@ Parameters:
 
   FenixEnabledCart:
     Type: String
-    Description: Fenix Commerce Flag to enable EDD on CART
+    Description: Fenix Commerce Flag to enable EDD on CART Page
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
@@ -451,11 +455,17 @@ Parameters:
 
   FenixEnabledCheckout:
     Type: String
-    Description: Fenix Commerce Flag to enable EDD on checkout
+    Description: Fenix Commerce Flag to enable EDD on checkout Page
     AllowedValues:
       - 'TRUE'
       - 'FALSE'
     Default: 'FALSE'
+
+  FenixXapiKey:
+    Type: String
+    Description: Fenix Commerce Demo Env x-api-key
+    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+    NoEcho: true
 
 Conditions:
   DeploySegmentResources: !Equals
@@ -513,6 +523,7 @@ Resources:
         FenixEnabledPdp: !Ref FenixEnabledPdp
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
+        FenixXapiKey: !Ref FenixXapiKey
 
   # Services Resources
   Services:
@@ -591,6 +602,7 @@ Resources:
         FenixEnabledPdp: !Ref FenixEnabledPdp
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
+        FenixXapiKey: !Ref FenixXapiKey
 
         LocationResourceName:
           !If [
