@@ -32,7 +32,6 @@ generators/*.gz
 .unotes/*
 !workshop/5-Conversational/RetailDemoStore_Lex.zip
 *.zip
-!src/aws-lambda/acm-cert-lambda-layer/lambda-layer.zip
 workshop/data/*
 workshop/datagenerator/*
 workshop/requirements.txt
