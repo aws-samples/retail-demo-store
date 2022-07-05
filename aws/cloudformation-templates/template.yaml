@@ -563,6 +563,7 @@ Resources:
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
+        ACMCertARN: !GetAtt Base.Outputs.ACMCertARN
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -872,6 +873,10 @@ Outputs:
   EvidentlyProjectName:
     Description: ARN for the CloudWatch Evidently project
     Value: !GetAtt Base.Outputs.EvidentlyProjectName
+
+  ACMCertARN:
+    Description: ARN for selfsigned cert for ELB
+    Value: !GetAtt Base.Outputs.ACMCertARN
 
   ExportEnvVarScript:
     Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.

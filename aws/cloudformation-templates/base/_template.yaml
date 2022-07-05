@@ -319,6 +319,12 @@ Resources:
       Parameters:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
+  # SelfSignedCertACM
+  SelfSignedCertACM:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/acm-cert.yaml
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -451,3 +457,7 @@ Outputs:
   EvidentlyProjectName:
     Description: Evidently project name
     Value: !GetAtt Evidently.Outputs.EvidentlyProjectName
+
+  ACMCertARN:
+    Description: selfsigned cert ARN
+    Value: !GetAtt SelfSignedCertACM.Outputs.ACMimportCertArn
