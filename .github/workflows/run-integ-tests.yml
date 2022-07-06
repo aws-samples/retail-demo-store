@@ -51,7 +51,7 @@ jobs:
           ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
   run-integ-tests:
     name: Run Integration Tests
-    # needs: deploy-stacks
+    needs: deploy-stacks
     runs-on: ubuntu-20.04
     permissions:
       id-token: write # needed to interact with GitHub's OIDC Token endpoint.
