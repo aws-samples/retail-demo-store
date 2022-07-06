@@ -1,9 +1,6 @@
 name: run-integ-tests
 
 on:
-  push: #TODO: remove this after finishing development
-    branches:
-      - ijemmy/integ-tests-on-aws
   workflow_dispatch: {}
 
 env:
@@ -12,43 +9,43 @@ env:
   REGION: us-west-2
 
 jobs:
-  # stage-assets:
-  #   name: Staging Asset
-  #   runs-on: ubuntu-20.04
-  #   permissions:
-  #     id-token: write # needed to interact with GitHub's OIDC Token endpoint.
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       name: Checkout Repository
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.6.1
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
-  #         role-session-name: GitHub-Action-Stage-Assets
-  #         aws-region: ${{ env.REGION }}
-  #     - name: Build and upload assets to an S3 bucket
-  #       run: |
-  #         ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
-  # deploy-stacks:
-  #   name: Deploy Stacks
-  #   needs: stage-assets
-  #   runs-on: ubuntu-20.04
-  #   permissions:
-  #     id-token: write # needed to interact with GitHub's OIDC Token endpoint.
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       name: Checkout Repository
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.6.1
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
-  #         role-session-name: GitHub-Action-Deploy-Stack
-  #         aws-region: ${{ env.REGION }}
-  #     - name: Deploy all stacks to AWS
-  #       run: |
-  #         ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
+  stage-assets:
+    name: Staging Asset
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Stage-Assets
+          aws-region: ${{ env.REGION }}
+      - name: Build and upload assets to an S3 bucket
+        run: |
+          ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
+  deploy-stacks:
+    name: Deploy Stacks
+    needs: stage-assets
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Deploy-Stack
+          aws-region: ${{ env.REGION }}
+      - name: Deploy all stacks to AWS
+        run: |
+          ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
   run-integ-tests:
     name: Run Integration Tests
     # needs: deploy-stacks
@@ -96,23 +93,23 @@ jobs:
           cd src/run-tests
           make setup
           make test SERVICE="${{ matrix.service.name }}" "${{ matrix.service.env_var_name }}"="$api_url"
-  # destroy-stacks:
-  #   name: Destroy Stacks
-  #   needs: run-integ-tests
-  #   runs-on: ubuntu-20.04
-  #   permissions:
-  #     id-token: write # needed to interact with GitHub's OIDC Token endpoint.
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       name: Checkout Repository
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.6.1
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
-  #         role-session-name: GitHub-Action-Delete-Stacks
-  #         aws-region: ${{ env.REGION }}
-  #     - name: Delete all retaildemostore stacks
-  #       run: |
-  #         ./scripts/delete-cloudformation-stacks.sh ${{ env.REGION }} ${{ env.STACK_NAME }}
+  destroy-stacks:
+    name: Destroy Stacks
+    needs: run-integ-tests
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Delete-Stacks
+          aws-region: ${{ env.REGION }}
+      - name: Delete all retaildemostore stacks
+        run: |
+          ./scripts/delete-cloudformation-stacks.sh ${{ env.REGION }} ${{ env.STACK_NAME }}
 
