@@ -31,7 +31,7 @@ Resources:
   # This references the root template.yaml file that comes with the Retail Demo Store as a nested template. The parameters passed
   # to this template are set to sensible default values for a base Retail Demo Store workshop experience. If you want to run an
   # event with different template parameter values than these, create your own blueprint and module in Event Engine, use this
-  # file/template as your team template, and adjust values as needed. Be sure to leave "CreateElasticsearchServiceLinkedRole" set
+  # file/template as your team template, and adjust values as needed. Be sure to leave "CreateOpenSearchServiceLinkedRole" set
   # to "No" below and add "es.amazonaws.com" to the "IAM Service Linked Roles" in your Event Engine template so EE will conditionally
   # create this role for you. Happy Eventing.
   ee: # Keep the resource name short to avoid name length issues in nested template resources
@@ -41,13 +41,13 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        CreateElasticsearchServiceLinkedRole: "No" # DO NOT CHANGE - should be managed by EE module in the "IAM Service Linked Roles" field
+        CreateOpenSearchServiceLinkedRole: "No" # DO NOT CHANGE - should be managed by EE module in the "IAM Service Linked Roles" field
         SourceDeploymentType: "CodeCommit" # DO NOT CHANGE
         GitHubRepo: "retail-demo-store" # N/A SO DO NOT CHANGE
         GitHubBranch: "master" # N/A SO DO NOT CHANGE
         GitHubToken: "dummy" # N/A SO DO NOT CHANGE
         GitHubUser: "aws-samples" # N/A SO DO NOT CHANGE
-        PreIndexElasticsearch: "No" # Change to 'Yes' if you don't want customers to have to do ES workshop
+        PreIndexOpenSearch: "No" # Change to 'Yes' if you don't want customers to have to do ES workshop
         PreCreatePersonalizeResources: "No" # Change to 'Yes' if you don't want customers to have to do Personalize workshop (requires 2.5 hours AFTER CFN deployment to complete)
         PreCreatePinpointWorkshop: "No" # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
         PinpointEmailFromAddress: "dummy@dummy.com" # Only change if you change PreCreatePinpointWorkshop to 'Yes'

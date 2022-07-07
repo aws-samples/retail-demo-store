@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 # Utility script for local development that indexes products in a local
-# Elasticsearch instance. Typically you would be running Elasticsearch
+# OpenSearch instance. Typically you would be running OpenSearch
 # in a local Docker container for development. See the docker-compose.yml
 # file for details.
 
@@ -25,16 +25,16 @@ logger.addHandler(handler)
 
 INDEX_NAME = 'products'
 
-# Defaults assume you're running Elasticsearch locally on port 9200
-es_search_domain_scheme = os.environ.get('ES_SEARCH_DOMAIN_SCHEME', 'http')
-es_search_domain_host = os.environ.get('ES_SEARCH_DOMAIN_HOST', 'localhost')
-es_search_domain_port = os.environ.get('ES_SEARCH_DOMAIN_PORT', 9200)
+# Defaults assume you're running OpenSearch locally on port 9200
+search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'http')
+search_domain_host = os.environ.get('OPENSEARCH_DOMAIN_HOST', 'localhost')
+search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 9200)
 
-logger.info('Elasticsearch scheme: ' + es_search_domain_scheme)
-logger.info('Elasticsearch endpoint: ' + es_search_domain_host)
-logger.info('Elasticsearch port: ' + str(es_search_domain_port))
+logger.info('OpenSearch scheme: ' + search_domain_scheme)
+logger.info('OpenSearch endpoint: ' + search_domain_host)
+logger.info('OpenSearch port: ' + str(search_domain_port))
 
-url = '{}://{}:{}/{}'.format(es_search_domain_scheme, es_search_domain_host, es_search_domain_port, INDEX_NAME)
+url = '{}://{}:{}/{}'.format(search_domain_scheme, search_domain_host, search_domain_port, INDEX_NAME)
 
 headers = { "Content-Type": "application/json" }
 
@@ -66,7 +66,7 @@ else:
         products_list = yaml.safe_load(file)
 
         for product in products_list:
-            url = '{}://{}:{}/{}/_doc/{}'.format(es_search_domain_scheme, es_search_domain_host, es_search_domain_port, INDEX_NAME, product['id'])
+            url = '{}://{}:{}/{}/_doc/{}'.format(search_domain_scheme, search_domain_host, search_domain_port, INDEX_NAME, product['id'])
             r = requests.put(url, headers = headers, json = product)
             products_indexed += 1
 

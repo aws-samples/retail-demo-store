@@ -39,6 +39,7 @@ export default {
       fenixResponse: "",
       fenixCartItems : this.lineItems.items,
       tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
+      xapikey: process.env.VUE_APP_FENIX_X_API_KEY,
       fenixSSIDCookie: Cookies.get('fenixSSID'),
       endPointUrl: process.env.VUE_APP_FENIX_EDD_ENDPOINT,
       requestData: {
@@ -73,6 +74,7 @@ export default {
       this.requestData.skus = requiredobject;
       const headers = {
         tenantId: this.tenantId,
+        'x-api-key': this.xapikey,
         'Content-Type': 'application/json',
       };
 

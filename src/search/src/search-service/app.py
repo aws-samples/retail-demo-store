@@ -10,7 +10,7 @@ patch_all()
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from elasticsearch import Elasticsearch, NotFoundError
+from opensearchpy import OpenSearch, NotFoundError
 
 import json
 import os
@@ -18,15 +18,15 @@ import pprint
 
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
 
-es_search_domain_scheme = os.environ.get('ES_SEARCH_DOMAIN_SCHEME', 'https')
-es_search_domain_host = os.environ['ES_SEARCH_DOMAIN_HOST']
-es_search_domain_port = os.environ.get('ES_SEARCH_DOMAIN_PORT', 443)
-es_products_index_name = 'products'
+search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'https')
+search_domain_host = os.environ['OPENSEARCH_DOMAIN_HOST']
+search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
+INDEX_PRODUCTS = 'products'
 
-es = Elasticsearch(
-    [es_search_domain_host],
-    scheme=es_search_domain_scheme,
-    port=es_search_domain_port,
+search_client = OpenSearch(
+    [search_domain_host],
+    scheme=search_domain_scheme,
+    port=search_domain_port,
 )
 
 # -- Logging
@@ -102,7 +102,7 @@ def search_products():
     app.logger.info(f'Searching products for "{search_term}" starting at {offset} and returning {size} hits')
 
     try:
-        results = es.search(index = es_products_index_name, body={
+        results = search_client.search(index = INDEX_PRODUCTS, body={
             "from": offset,
             "size": size,
             "query": {
@@ -147,14 +147,14 @@ def similar_products():
     app.logger.info(f'Searching for similar products to "{product_id}" starting at {offset} and returning {size} hits')
 
     try:
-        results = es.search(index = es_products_index_name, body={
+        results = search_client.search(index = INDEX_PRODUCTS, body={
             "from": offset,
             "size": size,
                 "query": {
                     "more_like_this": {
                         "fields": ["name", "category", "style", "description"],
                         "like": [{
-                            "_index": es_products_index_name,
+                            "_index": INDEX_PRODUCTS,
                             "_id": product_id
                         }],
                         "min_term_freq" : 1,
