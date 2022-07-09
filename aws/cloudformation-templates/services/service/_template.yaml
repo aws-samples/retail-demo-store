@@ -159,7 +159,7 @@ Parameters:
     Type: String
     Default: 80
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -214,6 +214,10 @@ Parameters:
     Type: String
     Description: Evidently project name
 
+  ACMCertARN:
+    Type: String
+    Description: Self signed cert ARN
+
 Resources:
 
   Loadbalancer:
@@ -224,6 +228,7 @@ Resources:
         ServiceName: !Ref ServiceName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        ACMCertARN: !Ref ACMCertARN
 
   Pipeline:
     Type: AWS::CloudFormation::Stack
@@ -287,7 +292,7 @@ Resources:
         EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
         EnvOffersServiceInternalUrl: !Ref EnvOffersServiceInternalUrl
         EnvOffersServiceInternalPort: !Ref EnvOffersServiceInternalPort
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ResourceBucket: !Ref ResourceBucket
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams

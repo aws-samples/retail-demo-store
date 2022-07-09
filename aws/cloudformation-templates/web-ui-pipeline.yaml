@@ -181,6 +181,11 @@ Parameters:
     Description: Fenix Commerce Flag to enable EDD on checkout
     Default: 'TRUE'
 
+  FenixXapiKey:
+    Type: String
+    Description: Fenix Commerce Demo Env x-api-key
+    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -461,7 +466,9 @@ Resources:
           - Name: FENIX_ENABLED_CART
             Value: !Ref FenixEnabledCart
           - Name: FENIX_ENABLED_CHECKOUT
-            Value: !Ref FenixEnabledCheckout  
+            Value: !Ref FenixEnabledCheckout
+          - Name: FENIX_X_API_KEY
+            Value: !Ref FenixXapiKey  
         Image: 'aws/codebuild/standard:5.0'
         Type: LINUX_CONTAINER
 

@@ -1,0 +1,4 @@
+crhelper
+opensearch-py==2.0.0
+pyyaml
+requests

@@ -14,6 +14,9 @@ Parameters:
   VpcId:
     Type: String
 
+  ACMCertARN:
+    Type: String
+
 Resources:
   SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
@@ -51,11 +54,36 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
 
+  LoadBalancerHTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ACMCertARN
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
   # Listener Rules
   ListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       ListenerArn: !Ref LoadBalancerListener
+      Priority: 2
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - /
+      Actions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+
+  ListenerHTTPSRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref LoadBalancerHTTPSListener
       Priority: 2
       Conditions:
         - Field: path-pattern

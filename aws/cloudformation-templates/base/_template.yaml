@@ -5,9 +5,9 @@ Description: >
   This template deploys the Retail Demo Store.
 
 Conditions:
-  CreateElasticsearchServiceLinkedRole: !Equals
-    - !Ref CreateElasticsearchServiceLinkedRole
-    - "Yes"
+  CreateOpenSearchServiceLinkedRole: !Equals
+    - !Ref CreateOpenSearchServiceLinkedRole
+    - 'Yes'
 
 Parameters:
   ResourceBucket:
@@ -26,9 +26,9 @@ Parameters:
       - "CodeCommit"
     Default: "CodeCommit"
 
-  CreateElasticsearchServiceLinkedRole:
+  CreateOpenSearchServiceLinkedRole:
     Type: String
-    Description: Whether to create Elasticsearch Service Linked Role
+    Description: Whether to create OpenSearch Service Linked Role
     AllowedValues:
       - "Yes"
       - "No"
@@ -147,6 +147,12 @@ Parameters:
       - 'FALSE'
     Default: 'TRUE'
 
+  FenixXapiKey:
+    Type: String
+    Description: Fenix Commerce Demo Env x-api-key
+    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+    NoEcho: true
+
 
 Resources:
   # Authentication
@@ -209,7 +215,7 @@ Resources:
   # VPC
   VPC:
     Type: AWS::CloudFormation::Stack
-    DependsOn: ElasticsearchRoleWaitCondition # Ensure role is fully consistent before network and ultimately ES domain is created
+    DependsOn: OpenSearchRoleWaitCondition # Ensure role is fully consistent before network and ultimately ES domain is created
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/vpc.yaml
       Parameters:
@@ -218,39 +224,34 @@ Resources:
         Subnet1CIDR: 10.215.10.0/24
         Subnet2CIDR: 10.215.20.0/24
 
-  # Elasticsearch
-  # Create role here rather than in ES nested template so role has time to become consistent
-  ElasticsearchServiceLinkedRole:
-    Condition: CreateElasticsearchServiceLinkedRole
-    Type: "AWS::IAM::ServiceLinkedRole"
+  # OpenSearch
+  # Create role here rather than in OpenSearch nested template so role has time to become consistent
+  OpenSearchServiceLinkedRole:
+    Condition: CreateOpenSearchServiceLinkedRole
+    Type: AWS::IAM::ServiceLinkedRole
     Properties:
-      AWSServiceName: es.amazonaws.com
-      Description: "Role for ES to access resources in VPC"
+      AWSServiceName: opensearchservice.amazonaws.com
+      Description: "Role for OpenSearch to access resources in VPC"
 
-  ElasticsearchRoleWaitHandle:
-    Condition: CreateElasticsearchServiceLinkedRole
-    DependsOn: ElasticsearchServiceLinkedRole
+  OpenSearchRoleWaitHandle:
+    Condition: CreateOpenSearchServiceLinkedRole
+    DependsOn: OpenSearchServiceLinkedRole
     Type: AWS::CloudFormation::WaitConditionHandle
 
   WaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  ElasticsearchRoleWaitCondition:
+  OpenSearchRoleWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
     Properties:
-      Handle:
-        !If [
-          CreateElasticsearchServiceLinkedRole,
-          !Ref ElasticsearchRoleWaitHandle,
-          !Ref WaitHandle,
-        ]
+      Handle: !If [CreateOpenSearchServiceLinkedRole, !Ref OpenSearchRoleWaitHandle, !Ref WaitHandle]
       Timeout: "1"
       Count: 0
 
-  Elasticsearch:
+  OpenSearch:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/elasticsearch.yaml
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/opensearch.yaml
       Parameters:
         VpcId: !GetAtt VPC.Outputs.VpcId
         Subnets: !GetAtt VPC.Outputs.Subnets
@@ -318,6 +319,12 @@ Resources:
       Parameters:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
+  # SelfSignedCertACM
+  SelfSignedCertACM:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/acm-cert.yaml
+
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -363,17 +370,17 @@ Outputs:
     Description: Service Discovery Namespace.
     Value: !GetAtt ServiceDiscovery.Outputs.ServiceDiscoveryNamespace
 
-  ElasticsearchDomainEndpoint:
-    Description: Elasticsearch Domain
-    Value: !GetAtt Elasticsearch.Outputs.DomainEndpoint
+  OpenSearchDomainEndpoint:
+    Description: OpenSearch Domain
+    Value: !GetAtt OpenSearch.Outputs.DomainEndpoint
 
-  ElasticsearchDomainArn:
-    Description: Elasticsearch Domain
-    Value: !GetAtt Elasticsearch.Outputs.DomainArn
+  OpenSearchDomainArn:
+    Description: OpenSearch Domain
+    Value: !GetAtt OpenSearch.Outputs.DomainArn
 
-  ElasticsearchSecurityGroupId:
-    Description: Elasticsearch Security Group Id
-    Value: !GetAtt Elasticsearch.Outputs.SecurityGroupId
+  OpenSearchSecurityGroupId:
+    Description: OpenSearch Security Group Id
+    Value: !GetAtt OpenSearch.Outputs.SecurityGroupId
 
   PinpointAppId:
     Description: Pinpoint App Id
@@ -450,3 +457,7 @@ Outputs:
   EvidentlyProjectName:
     Description: Evidently project name
     Value: !GetAtt Evidently.Outputs.EvidentlyProjectName
+
+  ACMCertARN:
+    Description: selfsigned cert ARN
+    Value: !GetAtt SelfSignedCertACM.Outputs.ACMimportCertArn
