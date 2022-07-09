@@ -5,6 +5,14 @@ Description: >
     This template deploys the Retail Demo Store SageMaker Notebook Instances.
 
 Parameters:
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
   GitHubUser:
     Type: String
     Description: Your GitHub username.
@@ -130,6 +138,11 @@ Resources:
                 Action:
                   - sagemaker:ListTags
                 Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/*'
+              -
+                Effect: "Allow"
+                Action:
+                  - cloudformation:DescribeStacks
+                Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}*'
         -
           PolicyName: "0-StartHere"
           PolicyDocument:
@@ -171,6 +184,12 @@ Resources:
                 Resource:
                   - !Sub arn:aws:s3:::${StackBucketName}/*
                   - !Sub arn:aws:s3:::${StackBucketName}
+              -
+                Effect: "Allow"
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub arn:aws:s3:::${ResourceBucket}/${ResourceBucketRelativePath}csvs/*
               -
                 Effect: "Allow"
                 Action:
