@@ -6,7 +6,7 @@
     "style": "screwdriver",
     "description": "Essential screwdriver for every craftperson",
     "price": 3.99,
-    "image": "http://xxx.cloudfront.net/images/tools/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
+    "image": "8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
     "featured": "true",
     "gender_affinity": "F",
     "current_stock": 9
@@ -18,7 +18,7 @@
     "style": "screwdriver",
     "description": "Essential screwdriver for every craftperson",
     "price": 3.99,
-    "image": "http://xxx.cloudfront.net/images/tools/8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
+    "image": "8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
     "featured": "true",
     "gender_affinity": "F",
     "current_stock": 9

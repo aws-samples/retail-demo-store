@@ -83,6 +83,8 @@ def assertions(r, endpoint, schemas_path):
     if r.headers["Content-Type"].startswith("application/json") or r.headers["Content-Type"].startswith("text/plain"):
         assert validate_schema(r.text, endpoint, schemas_path) is True
     else:
+        print('### Header does NOT contain expected Content-Type, response object = ')
+        print(r)
         assert False
 
 

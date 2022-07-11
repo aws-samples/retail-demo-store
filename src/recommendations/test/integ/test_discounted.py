@@ -7,13 +7,16 @@ from testhelpers.integ import (
     post_request_assert,
     read_file
 )
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DEFAULT_LOCAL_API = 'http://localhost:8005'
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 request_bodies_path = absolute_file_path(cwd, "json_request_bodies.json")
 schemas_path = absolute_file_path(cwd, "json_schemas.json")
-recommendation_api_url = os.getenv("RECOMMENDATIONS_API_URL") or sys.exit(
-    "Please provide an environment variable RECOMMENDATIONS_API_URL"
-)
+recommendations_api_url = os.getenv("RECOMMENDATIONS_API_URL", DEFAULT_LOCAL_API)
 
 input_request_body = read_file(request_bodies_path, "/choose_discounted")
 
@@ -29,14 +32,14 @@ def count_discounted(items):
 def test_post_choose_discounted_should_return_with_correct_schema():
     endpoint = "/choose_discounted"
     post_request_assert(
-        recommendation_api_url, endpoint, request_bodies_path, schemas_path
+        recommendations_api_url, endpoint, request_bodies_path, schemas_path
     )
 
 
 def test_post_choose_discounted_should_return_two_items_with_discount():
     endpoint = "/choose_discounted"
     response = post_request_assert(
-        recommendation_api_url, endpoint, request_bodies_path, schemas_path
+        recommendations_api_url, endpoint, request_bodies_path, schemas_path
     )
     items = response.json()
 
@@ -47,4 +50,4 @@ def test_post_choose_discounted_should_return_two_items_with_discount():
 def test_get_coupon_offer_should_return_with_correct_schema():
     endpoint = "/coupon_offer?userID=:userID"
     params = {":userID": "5097"}
-    get_request_assert(recommendation_api_url, endpoint, schemas_path, params)
+    get_request_assert(recommendations_api_url, endpoint, schemas_path, params)
