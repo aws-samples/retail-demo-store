@@ -1,4 +1,4 @@
-# Running Tests with GNU Make
+# Running integration tests with GNU Make
 
 ## Getting started
 
@@ -24,9 +24,9 @@ make integ SERVICE=recommendations RECOMMENDATIONS_API_URL=http://retai-LoadB-xx
 
 ## List of environment variables used in the integration tests
 
-You can find the list in `<root_project_folder>/.env.template`. All of them have default values and cna work out of the box. 
+You can find the list in `<root_project_folder>/.env.template`. All of them have default values and should work out of the box.
 
-The important variables are the `<SERVICE>_API_URL`. They are used to redict the tests to run against different URLs.
+The important variables are the `<SERVICE>_API_URL`. They are used to redirect the tests to run against different URLs.
 
 ## Targets
 
