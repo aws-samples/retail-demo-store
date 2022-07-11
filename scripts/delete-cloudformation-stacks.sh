@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Deploy to AWS with all default values. 
-# You can use the following flags to pre create resources
+# Delete CloudFormation stack
+#
 #
 # Example usage
-# ./scripts/deploy-cloudformation-stacks.sh S3_BUCKET REGION [--pre-create-personalize] [--pre-index-elasticsearch]
+# ./scripts/delete-cloudformation-stacks.sh REGION S3_BUCKET
 #
 
 set -e
