@@ -191,6 +191,9 @@ Resources:
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
         EvidentlyProjectName: !GetAtt Evidently.Outputs.EvidentlyProjectName
+        WebUIBucketName: !GetAtt CloudFront.Outputs.WebUIBucketName
+        ProductsTable: !GetAtt Tables.Outputs.ProductsTable
+        CategoriesTable: !GetAtt Tables.Outputs.CategoriesTable
 
   # Tables
   Tables:
