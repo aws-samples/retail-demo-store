@@ -19,12 +19,12 @@ Metadata:
         Parameters:
           - SourceDeploymentType
       - Label:
-          default: "GitHub Linked Deployment (only required for GitHub deployment approach)"
+          default: "GitHub Repository"
         Parameters:
           - GitHubRepo
           - GitHubBranch
-          - GitHubToken
           - GitHubUser
+          - GitHubToken
       - Label:
           default: "Auto-Build Resources"
         Parameters:
@@ -82,7 +82,7 @@ Metadata:
           - FenixXapiKey
     ParameterLabels:
       ResourceBucket:
-        default: "Deployment Resources Staging Bucket Name"
+        default: "Deployment Resources Staging Bucket Name (required)"
       ResourceBucketRelativePath:
         default: "Deployment Resources Staging Bucket Relative Path (optional)"
       CreateOpenSearchServiceLinkedRole:
@@ -90,13 +90,13 @@ Metadata:
       SourceDeploymentType:
         default: "Deployment Type"
       GitHubRepo:
-        default: "GitHub Repository Name"
+        default: "GitHub Repository Name (required)"
       GitHubBranch:
-        default: "GitHub Branch"
-      GitHubToken:
-        default: "GitHub Personal Access Token"
+        default: "GitHub Branch (required)"
       GitHubUser:
-        default: "GitHub Username"
+        default: "GitHub Username (required)"
+      GitHubToken:
+        default: "GitHub Personal Access Token (optional)"
       PreIndexOpenSearch:
         default: "Auto-Load OpenSearch Index"
       PreCreatePersonalizeResources:
@@ -182,7 +182,7 @@ Parameters:
   CreateOpenSearchServiceLinkedRole:
     Type: String
     Description: >
-      If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchService', select 'No'. Otherwise, select 'Yes' and one will be created automatically.
+      If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchService', select 'No'. Otherwise, select 'Yes' and one will be created.
     AllowedValues:
       - "Yes"
       - "No"
@@ -204,23 +204,25 @@ Parameters:
 
   GitHubRepo:
     Type: String
-    Description: Name of Retail Demo Store GitHub repository in your GitHub account.
+    Description: Name of Retail Demo Store GitHub repository. Will almost always be 'retail-demo-store'.
     Default: retail-demo-store
 
   GitHubBranch:
     Type: String
-    Description: Name of GitHub branch to link to this Retail Demo Store deployment.
+    Description: Name of GitHub branch within the GitHub repository to link to this Retail Demo Store deployment.
     Default: master
-
-  GitHubToken:
-    Type: String
-    Description: GitHub Personal Access Token for your GitHub account. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
-    NoEcho: true
 
   GitHubUser:
     Type: String
-    Description: Your GitHub username.
+    Description: If you are linking and deploying from a fork of the Retail Demo Store repository, enter your GitHub username. Otherwise, use the default of 'aws-samples' to link to the upstream repository.
     Default: aws-samples
+
+  GitHubToken:
+    Type: String
+    Description: >
+      If you are linking and deploying from a private fork of the Retail Demo Store repository in your GitHub account, a GitHub Personal
+      Access Token is required. Otherwise, leave blank. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
+    NoEcho: true
 
   PreIndexOpenSearch:
     Type: String
@@ -430,7 +432,7 @@ Parameters:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
     Default: 'https://platform.api.fenixcommerce.com/awsretaildemostore/fenixdelest/api/v2/deliveryestimates'
-    
+
 
   FenixMonetaryValue:
     Type: String
