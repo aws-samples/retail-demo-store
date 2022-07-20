@@ -191,6 +191,7 @@ Resources:
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
         EvidentlyProjectName: !GetAtt Evidently.Outputs.EvidentlyProjectName
+        NeptuneHostName: 'rds-same-vpc2.cluster-cthcmpyzzcfe.us-east-1.neptune.amazonaws.com' #TODO: Replace this with a Dynamic value
         WebUIBucketName: !GetAtt CloudFront.Outputs.WebUIBucketName
         ProductsTable: !GetAtt Tables.Outputs.ProductsTable
         CategoriesTable: !GetAtt Tables.Outputs.CategoriesTable

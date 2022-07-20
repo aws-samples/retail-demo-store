@@ -46,6 +46,9 @@ Parameters:
   EvidentlyProjectName:
     Type: String
 
+  NeptuneHostName:
+    Type: String
+
   WebUIBucketName:
     Type: String
 
@@ -70,16 +73,41 @@ Resources:
         RepositoryUrl:  !Sub
         - 'https://github.com/${User}/retail-demo-store.git'
         - { User: !If [ UseDefaultGitHubUser, 'aws-samples', !Ref GitHubUser ] }
+  NoteBookLifeCycleConfig:
+    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
+    Properties:
+      OnStart:
+        - Content:
+            "Fn::Base64": !Sub |
+              #!/bin/bash
+              
+              set -e
+              
+              sudo -u ec2-user -i <<'EOF'
+              
+              echo "export GRAPH_NOTEBOOK_AUTH_MODE=DEFAULT" >> ~/.bashrc
+              echo "export GRAPH_NOTEBOOK_HOST=${NeptuneHostName}" >> ~/.bashrc
+              echo "export GRAPH_NOTEBOOK_PORT=8182" >> ~/.bashrc
+              echo "export NEPTUNE_LOAD_FROM_S3_ROLE_ARN=" >> ~/.bashrc
+              echo "export AWS_REGION=${AWS::Region}" >> ~/.bashrc
+
+              aws s3 cp s3://aws-neptune-notebook/graph_notebook.tar.gz /tmp/graph_notebook.tar.gz
+              rm -rf /tmp/graph_notebook
+              tar -zxvf /tmp/graph_notebook.tar.gz -C /tmp
+              /tmp/graph_notebook/install.sh
+
+              EOF
   NotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: !Sub ${Uid}
+      NotebookInstanceName: !Sub ${Uid}-force-recreation
       InstanceType: "ml.t2.medium"  # Ensure instance type is supported by all target regions in README before changing
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
         - !Ref SecurityGroup
       DefaultCodeRepository: !Sub '${Uid}-demo-store'
+      LifecycleConfigName: !GetAtt NoteBookLifeCycleConfig.NotebookInstanceLifecycleConfigName
       Tags:
         -
           Key: "Uid"
@@ -376,6 +404,11 @@ Resources:
                 Action:
                   - logs:CreateLogGroup
                 Resource: '*'
+        - 
+          PolicyName: "9-GraphDatabase"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
               ################################################
               # Access Neptune instances (For Graph database workshop)
               ################################################
