@@ -62,6 +62,8 @@ Metadata:
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - TealiumAccount
+          - TealiumProfile
           - IncludemParticleDependencies
           - mParticleOrgId
           - mParticleApiKey
@@ -135,6 +137,10 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      TealiumAccount:
+        default: "Tealium account name"
+      TealiumProfile:
+        default: "Tealium account profile"
       IncludemParticleDependencies:
         default: "Deploy mParticle Resources"
       mParticleOrgId:
@@ -372,6 +378,27 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
+  IncludTealiumDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the Tealium workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  TealiumAccount:
+    Type: String
+    Description: >
+      Tealium account name from your Tealium IQ console
+    NoEcho: true
+
+  TealiumProfile:
+    Type: String
+    Description: >
+      Tealium account profile name from your Tealium IQ console.
+    NoEcho: true
+
   IncludemParticleDependencies:
     Type: String
     Description: >
@@ -508,6 +535,8 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        TealiumAccount: !Ref TealiumAccount
+        TealiumProfile: !Ref TealiumProfile
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
@@ -767,6 +796,16 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/segment.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
+  # Tealium workshop resources
+  TealiumPersonalize:
+    Condition: DeployTealiumResources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/tealium.yaml
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath

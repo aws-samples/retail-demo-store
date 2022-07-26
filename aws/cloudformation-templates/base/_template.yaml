@@ -57,6 +57,16 @@ Parameters:
     Description: Segment source write key (optional).
     NoEcho: true
 
+  TealiumAccount:
+    Type: String
+    Description: Tealium account name
+    NoEcho: true
+
+  TealiumProfile:
+    Type: String
+    Description: Tealium profile name
+    NoEcho: true
+
   mParticleOrgId:
     Type: String
     Description: mParticle Org Id
@@ -271,6 +281,8 @@ Resources:
         AmplitudeApiKey: !Ref AmplitudeApiKey
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        TealiumAccount: !Ref TealiumAccount
+        TealiumProfile: !Ref TealiumProfile
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
