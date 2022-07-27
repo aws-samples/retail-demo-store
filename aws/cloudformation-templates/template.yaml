@@ -62,6 +62,7 @@ Metadata:
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
+          - IncludeTealiumDependencies
           - TealiumAccount
           - TealiumProfile
           - IncludemParticleDependencies
@@ -378,7 +379,7 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
-  IncludTealiumDependencies:
+  IncludeTealiumDependencies:
     Type: String
     Description: >
       Whether to deploy the resources required for the Tealium workshops.
@@ -499,6 +500,10 @@ Parameters:
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
+    - "Yes"
+
+  DeployTealiumResources: !Equals
+    - !Ref IncludeTealiumDependencies
     - "Yes"
 
   DeploymParticleResources: !Equals

@@ -1,0 +1,11 @@
+{
+  "name": "tealium-eventbridge-personalize",
+  "version": "1.0.0",
+  "description": "tealium eventbridge to personalize integration example",
+  "main": "tealium-personalize.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
