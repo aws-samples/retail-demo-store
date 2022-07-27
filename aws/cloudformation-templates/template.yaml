@@ -814,6 +814,7 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
   # mParticle Lambda Functions Kinesis and Roles
   mParticlePersonalize:
