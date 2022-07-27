@@ -79,33 +79,39 @@ Resources:
                   - personalize:PutEvents
                 Resource: '*'
 
-  tealiumEventRule: 
-    Type: AWS::Events::Rule
-    Properties: 
-      Description: "Example event rule to handle Tealium events"
-      EventBusName: "tealiumLiveEventBus"
-      EventPattern: 
-        detail-type:
-          - transaction   
-      State: "ENABLED"
-      Targets: 
-        - 
-          Arn: 
-            Fn::GetAtt: 
-              - "tealiumPersonalizeLambda"
-              - "Arn"
+  # tealiumLiveEventBus: 
+  #   Type: AWS::Events::EventBus
+  #   Properties: 
+  #       EventSourceName: !Sub 'aws.partner/tealium.com/${AWS:AccountId}-tealium-event-source'
+  #       Name: "Tealium live events source"
 
-  PermissionForEventsToInvokeLambda: 
-    Type: AWS::Lambda::Permission
-    Properties: 
-      FunctionName: 
-        Ref: "tealiumPersonalizeLambda"
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: 
-        Fn::GetAtt: 
-          - "tealiumEventRule"
-          - "Arn"
+  # tealiumEventRule: 
+  #   Type: AWS::Events::Rule
+  #   Properties: 
+  #     Description: "Handles Tealium events."
+  #     EventBusName: tealiumLiveEventBus
+  #     EventPattern: 
+  #       detail-type:
+  #         - transaction   
+  #     State: "ENABLED"
+  #     Targets: 
+  #       - 
+  #         Arn: 
+  #           Fn::GetAtt: 
+  #             - "tealiumPersonalizeLambda"
+  #             - "Arn"
+
+  # PermissionForEventsToInvokeLambda: 
+  #   Type: AWS::Lambda::Permission
+  #   Properties: 
+  #     FunctionName: 
+  #       Ref: "tealiumPersonalizeLambda"
+  #     Action: "lambda:InvokeFunction"
+  #     Principal: "events.amazonaws.com"
+  #     SourceArn: 
+  #       Fn::GetAtt: 
+  #         - "tealiumEventRule"
+  #         - "Arn"
 
 Outputs:
   tealiumPersonalizeLambdaArn:
