@@ -1042,6 +1042,10 @@ export const AnalyticsHandler = {
         return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
     },
 
+    tealiumEnabled() {
+        return process.env.VUE_APP_TEALIUM_ACCOUNT && process.env.VUE_APP_TEALIUM_PROFILE != 'NONE';
+    },
+
     amplitudeEnabled() {
         return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE';
     },
