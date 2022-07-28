@@ -226,7 +226,7 @@ Resources:
   ParameterTealiumAccount:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-tealium-account"
+      Name: "/retaildemostore/webui/tealium_account"
       Type: "String"
       Value: !If [HasTealiumAccount, !Ref TealiumAccount, "NONE"]
       Description: "Retail Demo Store Tealium account name"
@@ -234,7 +234,7 @@ Resources:
   ParameterTealiumProfile:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-tealium-profile"
+      Name: "/retaildemostore/webui/tealium_profile"
       Type: "String"
       Value: !If [HasTealiumProfile, !Ref TealiumProfile, "NONE"]
       Description: "Retail Demo Store Tealium profile name"

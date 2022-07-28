@@ -130,14 +130,6 @@ Parameters:
     Type: String
     Description: SSM Parameter name for the Segment write key parameter name
 
-  ParameterTealiumAccount:
-    Type: String
-    Description: SSM Parameter name for the Tealium account parameter name
-
-  ParameterTealiumProfile:
-    Type: String
-    Description: SSM Parameter name for the Tealium profile parameter name
-
   ParameterGoogleAnalyticsMeasurementId:
     Type: String
     Description: Google Analytics Measurement Id parameter name
@@ -454,12 +446,6 @@ Resources:
           - Name: SEGMENT_WRITE_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterSegmentWriteKey
-          - Name: TEALIUM_ACCOUNT 
-            Type: PARAMETER_STORE
-            Value: !Ref ParameterTealiumAccount
-          - Name: TEALIUM_PROFILE
-            Type: PARAMETER_STORE
-            Value: !Ref ParameterTealiumProfile
           - Name: GOOGLE_ANALYTICS_ID
             Type: PARAMETER_STORE
             Value: !Ref ParameterGoogleAnalyticsMeasurementId
