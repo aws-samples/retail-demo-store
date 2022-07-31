@@ -44,7 +44,7 @@ Metadata:
           - DeployLocationServices
           - DeployPersonalizedOffersCampaign
       - Label:
-          default: "Amazon Pay (optional)"
+          default: "Amazon Pay (Optional)"
         Parameters:
           - AmazonPayStoreId
           - AmazonPayMerchantId
@@ -56,24 +56,27 @@ Metadata:
           - AlexaSkillId
           - AlexaAmazonPayDefaultSandboxEmail
       - Label:
-          default: "Optional Integrations"
+          default: "Customer Data Platform (CDP) Integrations (Optional)"
         Parameters:
           - AmplitudeApiKey
-          - OptimizelySdkKey
-          - IncludeSegmentDependencies
-          - SegmentWriteKey
-          - IncludeTealiumDependencies
-          - TealiumAccount
-          - TealiumProfile
           - IncludemParticleDependencies
           - mParticleOrgId
           - mParticleApiKey
           - mParticleSecretKey
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
-          - GoogleAnalyticsMeasurementId
+          - IncludeSegmentDependencies
+          - SegmentWriteKey
+          - IncludeTealiumDependencies
+          - TealiumAccount
+          - TealiumProfile
       - Label:
-          default: "Fenix Commerce EDD Integration"
+          default: "Measurement Integrations (Optional)"
+        Parameters:
+          - GoogleAnalyticsMeasurementId
+          - OptimizelySdkKey
+      - Label:
+          default: "Fenix Commerce EDD Integration (Optional)"
         Parameters:
           - FenixZipDetectUrl
           - FenixTenantId
