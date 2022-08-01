@@ -235,7 +235,7 @@ dataset_group_confs = [
             },
             {
                 'name': 'retaildemostore-filter-include-categories',
-                'expression': 'INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ($CATEGORIES)',
+                'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ($CATEGORIES)',
                 'param': '/retaildemostore/personalize/filters/filter-include-categories-arn',
                 'paramDescription': 'Retail Demo Store Filter to Include by Categories Arn Parameter'
             }
