@@ -10,19 +10,26 @@
         rel="noreferrer noopener"
         >Similar-Items</a
       >
+      with
+      <a
+        href="https://docs.aws.amazon.com/personalize/latest/dg/personalized-ranking-recipes.html"
+        target="_blank"
+        rel="noreferrer noopener"
+        >Personalized-Ranking</a
+      >
     </template>
 
     <p>
-      Similar item recommendations help users discover new products or compare existing items in your catalog. Amazon
-      Personalize recommends similar items in real-time, based on user behavior to create unique, relevant experiences
+      Related item recommendations help users discover new products or compare existing items in your catalog. Amazon
+      Personalize recommends related items in real-time, based on user behavior and thematically similar item attributes to create unique, relevant experiences
       for your customers.
     </p>
 
     <p>
-      Pretty simple idea, implemented via a combination of item-item collaborative filtering, basically looking at how people are
-      interacting with particular items, and thematic similarities between items based on their item metadata. This recipe uses
-      state-of-the-art deep learning techniques to strike a balance between collaborative and content filtering to make highly
-      relevant related item recommendations.
+      This user experinece is implemented using the Similar-Items algorithm that considers co-occurrence in interactions data (how often these items appear together across user histories)
+      and thematic similarity (what is similar about the items in your catalog) when making recommendations to better quantify similarity for less popular or new items in
+      your catalog. The product detail page in this demo takes it a step further by using the Personalized-Ranking recipe to rerank related items recommendations for each user. This adds a level of
+      personalization to the user experience.
     </p>
 
     <p>
@@ -31,7 +38,8 @@
 
     <p class="similar-item-recommendations">
       The similar item recommendations use case is implemented in all the product detail pages under the “Compare similar items”
-      carousel widget.
+      carousel widget. The order of items is personalized to each user by leveraging the Personalized-Ranking recipe to reorder
+      related items based on the current user's interest.
     </p>
 
     <ArticleFeature>

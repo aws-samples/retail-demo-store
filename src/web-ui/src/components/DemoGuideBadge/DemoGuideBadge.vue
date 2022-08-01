@@ -70,7 +70,7 @@ export default {
         case Articles.SIMS_RECOMMENDATIONS:
           return 'Learn more about similar item (SIMS) recommendations';
         case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
-          return 'Learn more about similar items recommendations';
+          return 'Learn more about similar items recommendations with personalized ranking';
         case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
           return 'Learn more about customers who viewed X viewed';
         case Articles.ECOMM_FBT:

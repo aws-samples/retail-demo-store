@@ -95,7 +95,7 @@ import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoG
 import Fenixmaster from '@/components/Fenix/Fenixmaster';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
-const MAX_RECOMMENDATIONS = 6;
+const MAX_RECOMMENDATIONS = 10;
 const EXPERIMENT_FEATURE = 'product_detail_related';
 
 export default {
@@ -215,7 +215,8 @@ export default {
 
       if (response.headers) {
         const experimentName = response.headers['x-experiment-name'];
-        const personalizeRecipe = response.headers['x-personalize-recipe'];
+        // For composite use cases such as this one, we may get more than one recipe (comma delimited). Use the first recipe to lookup demo badge.
+        const personalizeRecipe = response.headers['x-personalize-recipe'] ? response.headers['x-personalize-recipe'].split(',')[0] : null;
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
         if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
