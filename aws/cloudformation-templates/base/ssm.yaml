@@ -36,6 +36,11 @@ Parameters:
     Description: Name of the Tealium profile used for this deployment.
     NoEcho: true
 
+  TealiumSourceID:
+    Type: String
+    Description: Name of the source ID
+    NoEcho: true
+
   mParticleOrgId:
     Type: String
     Description: mParticle Org ID from your mParticle workspace.
@@ -79,6 +84,8 @@ Conditions:
     !Not [!Equals [!Ref TealiumAccount, ""]]
   HasTealiumProfile:
     !Not [!Equals [!Ref TealiumProfile, ""]]
+  HasTealiumSourceID:
+    !Not [!Equals [!Ref TealiumSourceID, ""]]
   HasmParticleOrgId:
     !Not [!Equals [!Ref mParticleOrgId, ""]]
   HasmParticleApiKey:
@@ -238,6 +245,14 @@ Resources:
       Type: "String"
       Value: !If [HasTealiumProfile, !Ref TealiumProfile, "NONE"]
       Description: "Retail Demo Store Tealium profile name"
+
+  ParameterTealiumSourceID:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/tealium_source_id"
+      Type: "String"
+      Value: !If [HasTealiumSourceID, !Ref TealiumSourceID, "NONE"]
+      Description: "Retail Demo Store Tealium source ID"
 
   ParametermParticleOrgId:
     Type: "AWS::SSM::Parameter"

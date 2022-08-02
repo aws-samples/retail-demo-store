@@ -67,6 +67,11 @@ Parameters:
     Description: Tealium profile name
     NoEcho: true
 
+  TealiumSourceID:
+    Type: String
+    Description: Tealium source ID
+    NoEcho: true
+
   mParticleOrgId:
     Type: String
     Description: mParticle Org Id
@@ -283,6 +288,7 @@ Resources:
         SegmentWriteKey: !Ref SegmentWriteKey
         TealiumAccount: !Ref TealiumAccount
         TealiumProfile: !Ref TealiumProfile
+        TealiumSourceID: !Ref TealiumSourceID
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey

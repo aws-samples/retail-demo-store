@@ -70,6 +70,7 @@ Metadata:
           - IncludeTealiumDependencies
           - TealiumAccount
           - TealiumProfile
+          - TealiumSourceID
       - Label:
           default: "Measurement Integrations (Optional)"
         Parameters:
@@ -145,6 +146,8 @@ Metadata:
         default: "Tealium account name"
       TealiumProfile:
         default: "Tealium account profile"
+      TealiumSourceID:
+        default: "Tealium source key"
       IncludemParticleDependencies:
         default: "Deploy mParticle Resources"
       mParticleOrgId:
@@ -395,13 +398,16 @@ Parameters:
     Type: String
     Description: >
       Tealium account name from your Tealium IQ console
-    NoEcho: true
 
   TealiumProfile:
     Type: String
     Description: >
       Tealium account profile name from your Tealium IQ console.
-    NoEcho: true
+
+  TealiumSourceID:
+    Type: String
+    Description: >
+      Tealium source key for the web UI from your Tealium IQ console.
 
   IncludemParticleDependencies:
     Type: String
@@ -545,6 +551,7 @@ Resources:
         SegmentWriteKey: !Ref SegmentWriteKey
         TealiumAccount: !Ref TealiumAccount
         TealiumProfile: !Ref TealiumProfile
+        TealiumSourceID: !Ref TealiumSourceID
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
