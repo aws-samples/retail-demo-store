@@ -1012,6 +1012,10 @@ export const AnalyticsHandler = {
             window.analytics.track('Search', eventProperties);
         }
 
+        if (this.tealiumEnabled()) {
+            window.tealium.track('Search', eventProperties);
+        }
+
         if (this.mParticleEnabled()) {
             let customAttributes = {
                 resultCount: numResults,
