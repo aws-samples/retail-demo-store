@@ -1,0 +1,80 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys the base Retail Demo Store project and workshop notebooks in Event Engine.
+  MUST BE DEPLOYED IN THE SAME REGION AS THE ResourceBucket PARAMETER BELOW!
+
+Parameters:
+  ResourceBucket:
+    Type: String
+    Description: >
+      S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
+      notebooks, deployment Lambda code, etc).
+    # This is the Retail Demo Store project's standard staging bucket for deployments in us-east-1. The contents in this
+    # bucket are always kept in sync with the latest from the upstream Retail Demo Store GH repo. If you want to deploy custom
+    # coding changes, data files, custom nested CFN templates, or whatever for your workshop, you will need to stage ALL required
+    # deployment resources to a public S3 bucket (or to the EEAssetsBucket for your EE module) and change the default value
+    # below to match your bucket. The stage.sh script in the root of the Retail Demo Store repo can be used to stage these
+    # resources. See the documentation in the GH repo for details. As noted above, the region of your staging bucket must
+    # match the region where you're deploying your event in Event Engine.
+    Default: "retail-demo-store-us-east-1"
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+    Default: ""
+
+Resources:
+  # This references the root template.yaml file that comes with the Retail Demo Store as a nested template. The parameters passed
+  # to this template are set to sensible default values for a base Retail Demo Store workshop experience. If you want to run an
+  # event with different template parameter values than these, create your own blueprint and module in Event Engine, use this
+  # file/template as your team template, and adjust values as needed. Be sure to leave "CreateElasticsearchServiceLinkedRole" set
+  # to "No" below and add "es.amazonaws.com" to the "IAM Service Linked Roles" in your Event Engine template so EE will conditionally
+  # create this role for you. Happy Eventing.
+  ee: # Keep the resource name short to avoid name length issues in nested template resources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/template.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        CreateElasticsearchServiceLinkedRole: "No" # DO NOT CHANGE - should be managed by EE module in the "IAM Service Linked Roles" field
+        SourceDeploymentType: "CodeCommit" # DO NOT CHANGE
+        GitHubRepo: "retail-demo-store" # N/A SO DO NOT CHANGE
+        GitHubBranch: "master" # N/A SO DO NOT CHANGE
+        GitHubToken: "dummy" # N/A SO DO NOT CHANGE
+        GitHubUser: "aws-samples" # N/A SO DO NOT CHANGE
+        PreIndexElasticsearch: "No" # Change to 'Yes' if you don't want customers to have to do ES workshop
+        PreCreatePersonalizeResources: "No" # Change to 'Yes' if you don't want customers to have to do Personalize workshop (requires 2.5 hours AFTER CFN deployment to complete)
+        PreCreatePinpointWorkshop: "No" # Change to 'Yes' if you don't want customers to have to do Pinpoint workshop
+        PinpointEmailFromAddress: "dummy@dummy.com" # Only change if you change PreCreatePinpointWorkshop to 'Yes'
+        PinpointEmailFromName: "AWS Retail Demo Store"
+        UseDefaultIVSStreams: "Yes" # Leave to 'Yes' until EE supports reaping IVS resources
+        DeployLocationServices: "No" # Switch to 'Yes' to deploy location services resources used by demo. Orthogonal to Location Services workshop.
+        DeployPersonalizedOffersCampaign: "No" # Switch to 'Yes' to get personalised offers triggered by geofence events in the demo. Orthogonal to personalised offers workshop.
+        PinpointSMSLongCode: "NONE"
+        AmplitudeApiKey: "NONE"
+        OptimizelySdkKey: "NONE"
+        AmazonPayStoreId: ""
+        AmazonPayMerchantId: ""
+        AmazonPayPublicKeyId: ""
+        AmazonPayPrivateKey: ""
+        AlexaSkillId: ""
+        AlexaAmazonPayDefaultSandboxEmail: ""
+        IncludeSegmentDependencies: "Yes" # Change to 'Yes' for Segment workshop
+        SegmentWriteKey: "NONE"
+        IncludemParticleDependencies: "No" # Change to 'Yes' for mParticle workshop
+        mParticleOrgId: ""
+        mParticleApiKey: ""
+        mParticleSecretKey: ""
+        mParticleS2SApiKey: ""
+        mParticleS2SSecretKey: ""
+        GoogleAnalyticsMeasurementId: "NONE"
+
+Outputs:
+  WebURL:
+    Description: Retail Demo Store Web UI URL
+    Value: !GetAtt ee.Outputs.WebURL
