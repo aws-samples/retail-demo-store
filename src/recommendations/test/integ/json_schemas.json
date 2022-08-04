@@ -1,0 +1,164 @@
+{
+  "/recommendations": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["product"],
+      "property": {
+        "product": {
+          "type": "object",
+          "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+          "properties": {
+              "id": {"type": "string"},
+              "itemId": {"type": "string"},
+              "url": {"type": "string"},
+              "sk": {"type": "string"},
+              "name": {"type": "string"},
+              "category": {"type": "string"},
+              "style": {"type": "string"},
+              "description": {"type": "string"},
+              "price": {"type": "number"},
+              "image": {"type": "string"},
+              "featured": {"type": "string"},
+              "gender_affinity": {
+                "type": "string", 
+                "enum": ["M", "F"]
+              },
+              "current_stock": {"type": "integer"}
+          }
+        }
+        }
+    }
+  },
+  "/popular": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["product"],
+      "property": {
+        "product": {
+          "type": "object",
+          "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+          "properties": {
+              "id": {"type": "string"},
+              "itemId": {"type": "string"},
+              "url": {"type": "string"},
+              "sk": {"type": "string"},
+              "name": {"type": "string"},
+              "category": {"type": "string"},
+              "style": {"type": "string"},
+              "description": {"type": "string"},
+              "price": {"type": "number"},
+              "image": {"type": "string"},
+              "featured": {"type": "string"},
+              "gender_affinity": {
+                "type": "string", 
+                "enum": ["M", "F"]
+              },
+              "current_stock": {"type": "integer"}
+          }
+        }
+        }
+    }
+  },
+  "/related": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["product"],
+      "property": {
+        "product": {
+          "type": "object",
+          "required": ["id", "url", "sk", "name", "category", "style", "description", "aliases", "price", "image", "current_stock"],
+          "properties": {
+              "id": {"type": "string"},
+              "url": {"type": "string"},
+              "sk": {"type": "string"},
+              "name": {"type": "string"},
+              "category": {"type": "string"},
+              "style": {"type": "string"},
+              "description": {"type": "string"},
+              "price": {"type": "number"},
+              "image": {"type": "string"},
+              "featured": {"type": "string"},
+              "gender_affinity": {
+                "type": "string", 
+                "enum": ["M", "F"]
+              },
+              "current_stock": {"type": "integer"}
+          }
+        }
+        }
+    }
+  },
+  "/rerank": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "price", "image", "gender_affinity", "current_stock"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "gender_affinity": {
+            "type": "string", 
+            "enum": ["M", "F"]
+          },
+          "current_stock": {"type": "integer"}
+      }
+    }
+  },
+  "/choose_discounted": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["id", "url", "sk", "name", "category", "style", "description", "price", "image", "gender_affinity", "current_stock", "discounted"],
+      "properties": {
+          "id": {"type": "string"},
+          "url": {"type": "string"},
+          "sk": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "style": {"type": "string"},
+          "description": {"type": "string"},
+          "price": {"type": "number"},
+          "image": {"type": "string"},
+          "gender_affinity": {
+            "type": "string", 
+            "enum": ["M", "F"]
+          },
+          "current_stock": {"type": "integer"},
+          "discounted": {"enum": [true, false]}
+      }
+    }
+  },
+  "/coupon_offer": {
+    "type": "object",
+    "required": ["offer"],
+    "properties": {
+        "offer": {
+          "type": "object",
+          "required": ["codes", "description", "expiry", "id", "preference"],
+          "properties": {
+            "codes": {
+              "type": "array",
+              "items": {
+                "types": "string"
+              }
+            },
+            "description": {"type": "string"},
+            "expiry": {"type": ["string", "null"], "nullable": true},
+            "id": {"type": "integer"},
+            "preference": {"type": "integer"}
+          }
+
+        }
+    }
+  }
+}

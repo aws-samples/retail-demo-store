@@ -1,0 +1,29 @@
+{
+  "/products/id/:product_id" : {
+    "sk": "",
+    "name": "Screwdriver",
+    "category": "tools",
+    "style": "screwdriver",
+    "description": "Essential screwdriver for every craftperson",
+    "price": 3.99,
+    "image": "8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
+    "featured": "true",
+    "gender_affinity": "F",
+    "current_stock": 9
+  },
+  "/products" : {
+    "sk": "",
+    "name": "Screwdriver",
+    "category": "tools",
+    "style": "screwdriver",
+    "description": "Essential screwdriver for every craftperson",
+    "price": 3.99,
+    "image": "8bffb5fb-624f-48a8-a99f-b8e9c64bbe29.jpg",
+    "featured": "true",
+    "gender_affinity": "F",
+    "current_stock": 9
+  },
+  "/products/id/:product_id/inventory" : {
+    "stock_delta": 5
+  }
+}

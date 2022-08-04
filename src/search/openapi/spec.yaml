@@ -2,13 +2,12 @@ openapi: '3.0.2'
 info:
   title: Search API
   version: v1
-  description: |- 
-    The Search web service provides a RESTful API for retrieving product information based on a search term. The [Web UI](../../web-ui) makes calls to this service when a user performs a search. 
-    Internally, this service makes calls to an [Elasticsearch](https://www.elastic.co/) cluster for search results. When deployed on AWS, [Amazon Elasticsearch Service](https://aws.amazon.com/elasticsearch-service/) is used. When deployed locally, a local Elasticsearch node is used for searches.
-    
-  license: 
+  description: |-
+    The Search web service provides a RESTful API for retrieving product information based on search criteria. OpenSearch is used as the underlying search engine.
+
+  license:
     url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
-    name: Amazon Software License (ASL)
+    name: MIT No Attribution (MIT-0)
 
 tags:
   - name: Search
@@ -21,7 +20,7 @@ servers:
       host:
         default: 'localhost'
       port:
-        default: '8006' 
+        default: '8006'
         description: Use the port from ../docker-compose.yml
 paths:
   /search/products:
@@ -59,6 +58,8 @@ paths:
                 $ref: '#/components/schemas/Result'
         '400':
           description: Bad request
+        '404':
+          description: Underlying search index does not exist, most likely because the search workshop has not been completed yet
   /similar/products:
     get:
       tags:
@@ -94,11 +95,13 @@ paths:
                 $ref: '#/components/schemas/Result'
         '400':
           description: Bad request
+        '404':
+          description: Underlying search index does not exist, most likely because the search workshop has not been completed yet
 components:
   schemas:
     Result:
       type: array
-      items: 
+      items:
         type: object
         properties:
           itemId:

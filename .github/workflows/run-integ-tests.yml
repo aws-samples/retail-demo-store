@@ -1,0 +1,115 @@
+name: run-integ-tests
+
+on:
+  workflow_dispatch: {}
+
+env:
+  STACK_NAME: retaildemostore
+  STAGE_S3_BUCKET: retail-demo-store-integ-test-assets
+  REGION: us-west-2
+
+jobs:
+  stage-assets:
+    name: Staging Asset
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Stage-Assets
+          aws-region: ${{ env.REGION }}
+      - name: Build and upload assets to an S3 bucket
+        run: |
+          ./stage.sh ${{ env.STAGE_S3_BUCKET }} --private-s3
+  deploy-stacks:
+    name: Deploy Stacks
+    needs: stage-assets
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Deploy-Stack
+          aws-region: ${{ env.REGION }}
+      - name: Deploy all stacks to AWS
+        run: |
+          ./scripts/deploy-cloudformation-stacks.sh ${{ env.STAGE_S3_BUCKET }} ${{ env.REGION }} ${{ env.STACK_NAME }}
+  run-integ-tests:
+    name: Run Integration Tests
+    needs: deploy-stacks
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        service: 
+          - name: products
+            output_key: ProductsServiceUrl
+            env_var_name: PRODUCTS_API_URL
+          - name: users
+            output_key: UsersServiceUrl
+            env_var_name: USERS_API_URL
+          - name: orders
+            output_key: OrdersServiceUrl
+            env_var_name: ORDERS_API_URL
+          - name: recommendations
+            output_key: RecommendationsServiceUrl
+            env_var_name: RECOMMENDATIONS_API_URL
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Delete-Stacks
+          aws-region: ${{ env.REGION }}
+      - name: Run integration test of the service
+        env:
+          REGION: ${{ env.REGION }}
+          STACK_NAME: ${{ env.STACK_NAME }}
+        run: |
+          # Retrieve url from CloudFormation stack output
+          api_url=$(./scripts/retrieve-url.sh $REGION $STACK_NAME ${{ matrix.service.output_key }})
+
+          # Run the test against actual url from the deployed stack
+          cd src/run-tests
+          make setup
+          make test SERVICE="${{ matrix.service.name }}" "${{ matrix.service.env_var_name }}"="$api_url"
+  destroy-stacks:
+    name: Destroy Stacks
+    needs: run-integ-tests
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write # needed to interact with GitHub's OIDC Token endpoint.
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Repository
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          role-session-name: GitHub-Action-Delete-Stacks
+          aws-region: ${{ env.REGION }}
+      - name: Delete all retaildemostore stacks
+        run: |
+          ./scripts/delete-cloudformation-stacks.sh ${{ env.REGION }} ${{ env.STACK_NAME }}
+

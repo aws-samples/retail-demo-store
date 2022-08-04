@@ -1,0 +1,8 @@
+pytest==7.1.1
+requests==2.27.1
+jsonschema==4.4.0
+assertpy==1.1
+black==22.1.0
+pytest-watch==4.2.0
+python-dotenv
+../../testing

@@ -10,7 +10,7 @@ patch_all()
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from elasticsearch import Elasticsearch, NotFoundError
+from opensearchpy import OpenSearch, NotFoundError
 
 import json
 import os
@@ -18,15 +18,15 @@ import pprint
 
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
 
-es_search_domain_scheme = os.environ.get('ES_SEARCH_DOMAIN_SCHEME', 'https')
-es_search_domain_host = os.environ['ES_SEARCH_DOMAIN_HOST']
-es_search_domain_port = os.environ.get('ES_SEARCH_DOMAIN_PORT', 443)
-es_products_index_name = 'products'
+search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'https')
+search_domain_host = os.environ['OPENSEARCH_DOMAIN_HOST']
+search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
+INDEX_PRODUCTS = 'products'
 
-es = Elasticsearch(
-    [es_search_domain_host],
-    scheme=es_search_domain_scheme,
-    port=es_search_domain_port,
+search_client = OpenSearch(
+    [search_domain_host],
+    scheme=search_domain_scheme,
+    port=search_domain_port,
 )
 
 # -- Logging
@@ -92,7 +92,7 @@ def index():
     return 'Search Service'
 
 @app.route('/search/products', methods=['GET'])
-def searchProducts():
+def search_products():
     search_term = request.args.get('searchTerm')
     if not search_term:
         raise BadRequest('searchTerm is required')
@@ -102,16 +102,16 @@ def searchProducts():
     app.logger.info(f'Searching products for "{search_term}" starting at {offset} and returning {size} hits')
 
     try:
-        results = es.search(index = es_products_index_name, body={
+        results = search_client.search(index = INDEX_PRODUCTS, body={
             "from": offset,
             "size": size,
             "query": {
                 "dis_max" : {
                     "queries" : [
-                        { "wildcard" : { "name" : { "value": '{}*'.format(search_term), "boost": 1.2 }}},
-                        { "term" : { "category" : search_term }},
-                        { "term" : { "style" : search_term }},
-                        { "wildcard" : { "description" : { "value": '{}*'.format(search_term), "boost": 0.6 }}}
+                        { "match_bool_prefix" : { "name" : { "query": search_term, "boost": 1.2 }}},
+                        { "match_bool_prefix" : { "category" : search_term }},
+                        { "match_bool_prefix" : { "style" : search_term }},
+                        { "match_bool_prefix" : { "description" : { "query": search_term, "boost": 0.6 }}}
                     ],
                     "tie_breaker" : 0.7
                 }
@@ -139,7 +139,7 @@ def searchProducts():
         raise BadRequest(message = 'Unhandled error', status_code = 500)
 
 @app.route('/similar/products', methods=['GET'])
-def similarProducts():
+def similar_products():
     product_id = request.args.get('productId')
     if not product_id:
         raise BadRequest('productId is required')
@@ -147,14 +147,14 @@ def similarProducts():
     app.logger.info(f'Searching for similar products to "{product_id}" starting at {offset} and returning {size} hits')
 
     try:
-        results = es.search(index = es_products_index_name, body={
+        results = search_client.search(index = INDEX_PRODUCTS, body={
             "from": offset,
             "size": size,
                 "query": {
                     "more_like_this": {
                         "fields": ["name", "category", "style", "description"],
                         "like": [{
-                            "_index": es_products_index_name,
+                            "_index": INDEX_PRODUCTS,
                             "_id": product_id
                         }],
                         "min_term_freq" : 1,

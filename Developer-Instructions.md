@@ -18,7 +18,7 @@ Save your access token in a secure location.
 
 The Retail Demo Store provides several options for managing deployments.  Here are the most common ones:
 
-### Deploy via an S3 Staging Bucket
+### Option 3.1 Deploy via an S3 Staging Bucket
 
 If you want to modify deployment templates and manage the whole deployment process yourself, you will need to configure an S3 bucket for staging Retail Demo Store deployment templates and resources prior to deployment in your own AWS account.  This bucket must be in the region in which you plan to deploy.
 
@@ -69,12 +69,16 @@ The [stage.sh](stage.sh) script at the root of the repository must be used to up
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 
 ```bash
-./stage.sh mycustombucket path/
+./stage.sh MY_CUSTOM_BUCKET S3_PATH/
 ```
 
-The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console.
+The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console or use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
 
-### Deploy Infrastructure from the Main Repo, Deploy Application and Services via GitHub
+```bash
+./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
+```
+
+### Option 3.2 Deploy Infrastructure from the Main Repo, Deploy Application and Services via GitHub
 
 If you only want to modify the web user interface, or the Retail Demo Store backend services, you can deploy Retail Demo Store using the options below, and issue commits in your own fork via GitHub to trigger a re-deploy.  This will allow you to push changes to the Retail Demo Store services and web user interface using a CodeDeploy pipeline.
 
@@ -90,7 +94,6 @@ Europe (Ireland) | eu-west-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite
 Asia Pacific (Tokyo) | ap-northeast-1 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-northeast-1/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-northeast-1&param_SourceDeploymentType=GitHub)
 Asia Pacific (Sydney) | ap-southeast-2 | [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/create/review?templateURL=https://s3.amazonaws.com/retail-demo-store-ap-southeast-2/cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=retail-demo-store-ap-southeast-2&param_SourceDeploymentType=GitHub)
 
-
 The CloudFormation deployment will take 20-30 minutes to complete. If you chose to have the Amazon Personalize campaigns automatically built post-deployment, this process will take an additional 2-2.5 hours. This process happens in the background so you don't have to wait for it to complete before exploring the Retail Demo Store application and architecture. Once the Personalize campaigns are created, they will be automatically activated in the [Web UI](src/web-ui) and [Recommendations](src/recommendations) service. You can monitor the progress in CloudWatch under the `/aws/lambda/RetailDemoStorePersonalizePreCreateCampaigns` log group.
 
 ### Developing Services Locally
@@ -98,3 +101,12 @@ The CloudFormation deployment will take 20-30 minutes to complete. If you chose 
 The Retail Demo Store also supports running the web user interface and backend services in a local container on your machine.  This may be a handy option while testing a fix or enhancement.
 
 [Detailed instructions](./src) are available on how to get going with local development.  Note that you will still need to set up one of the development options described above, and have a working deployment in your AWS account as some of the services will need to access cloud-based services as part of deployment.
+
+### Integration tests
+
+Integration tests can be run on either
+
+1. Local development (via Docker Compose)
+2. Actual (deployed) AWS environment
+
+You can find more information about the running the integration tests in `src/run-tests/README.md`.

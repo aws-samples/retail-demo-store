@@ -20,7 +20,7 @@ Parameters:
 
   WebRootUrl:
     Type: String
-    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface. 
+    Description: Public facing root URL where the Retail Demo Store web user interface is served. Used when building fully qualified URLs for the web user interface.
     AllowedPattern: "^https?://[^\\s/$.?#].[^\\s]*$"
     ConstraintDescription: Must be a valid URL referring to the root domain where web assets are located
 
@@ -58,7 +58,7 @@ Parameters:
 
   UserPoolClientId:
     Type: String
-  
+
   IdentityPoolId:
     Type: String
 
@@ -77,7 +77,7 @@ Parameters:
   ServiceDiscoveryNamespace:
     Type: String
 
-  EnvElasticsearchDomainEndpoint:
+  EnvOpenSearchDomainEndpoint:
     Type: String
     Default: none
 
@@ -119,10 +119,18 @@ Parameters:
   UseDefaultIVSStreams:
     Type: String
     Description: Whether to use created IVS streams or those hosted by AWS.
-  
+
   ParentStackName:
     Type: String
     Description: Parent stack name
+
+  EvidentlyProjectName:
+    Type: String
+    Description: Evidently project name
+
+  ACMCertARN:
+    Type: String
+    Description: Self signed cert ARN
 
 Resources:
 
@@ -159,6 +167,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -191,6 +201,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   CartsService:
     Type: AWS::CloudFormation::Stack
@@ -222,6 +234,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   OrdersService:
     Type: AWS::CloudFormation::Stack
@@ -253,6 +267,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   SearchService:
     Type: AWS::CloudFormation::Stack
@@ -276,7 +292,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -285,6 +301,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   LocationService:
     Type: AWS::CloudFormation::Stack
@@ -308,7 +326,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -317,6 +335,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   OffersService:
     Type: AWS::CloudFormation::Stack
@@ -340,7 +360,7 @@ Resources:
         VpcId: !Ref VpcId
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvElasticsearchDomainEndpoint: !Ref EnvElasticsearchDomainEndpoint
+        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -349,6 +369,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -383,6 +405,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
 
   VideosService:
     Type: AWS::CloudFormation::Stack
@@ -416,7 +440,9 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
- 
+        EvidentlyProjectName: !Ref EvidentlyProjectName
+        ACMCertARN: !Ref ACMCertARN
+
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
     Type: AWS::CloudFormation::Stack
@@ -519,19 +545,19 @@ Resources:
                 Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/retaildemostore*'
 
 Outputs:
-  ProductsServiceUrl: 
+  ProductsServiceUrl:
     Description: Products load balancer URL.
     Value: !GetAtt ProductsService.Outputs.ServiceUrl
 
-  UsersServiceUrl: 
+  UsersServiceUrl:
     Description: Users load balancer URL.
     Value: !GetAtt UsersService.Outputs.ServiceUrl
 
-  CartsServiceUrl: 
+  CartsServiceUrl:
     Description: Carts load balancer URL.
     Value: !GetAtt CartsService.Outputs.ServiceUrl
 
-  OrdersServiceUrl: 
+  OrdersServiceUrl:
     Description: Orders load balancer URL.
     Value: !GetAtt OrdersService.Outputs.ServiceUrl
 
@@ -547,7 +573,7 @@ Outputs:
     Description: Videos load balancer URL.
     Value: !GetAtt VideosService.Outputs.ServiceUrl
 
-  SearchServiceUrl: 
+  SearchServiceUrl:
     Description: Search load balancer URL.
     Value: !GetAtt SearchService.Outputs.ServiceUrl
 

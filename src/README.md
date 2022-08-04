@@ -10,6 +10,25 @@ Besides cloning this repository to your local system, you also need to have the 
 
 Docker Compose will load the [.env](.env) file to resolve environment variables referenced in the [docker-compose.yml](./docker-compose.yml) file. You can copy the [.env.template](.env.template) file to [.env](.env) as a starting point. This is where you can customize variables to match your desired configuration.
 
+You can find the common environment variables from your deployed stack in the CloudFormation output name `ExportEnvVarScript`. Use this CLI to get the output in a proper format.
+
+```sh
+aws cloudformation describe-stacks --stack-name retaildemostore \
+  --region REGION \
+  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue"
+  --output text
+```
+
+Then you can copy and override variables for each service in your [.env](.env) file.
+
+### Amazon ECR authorization
+
+Since some of the Docker images are hosted in Amazon ECR, you must authenticate your shell session before running docker-compose. Otherwise, the images will not be able to be downloaded. Run the following command to authenticate before running docker-compose. You should only have to do this once per shell session.
+
+```sh
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+```
+
 ### AWS credentials
 
 Some services, such as the [products](./products) and [recommendations](./recommendations) services, need to access AWS services running in your AWS account from your local machine. Given the differences between these container setups, different approaches are needed to pass in the AWS credentials needed to make these connections. For example, for the recommendations service we can map your local `~./.aws` configuration directory into the container's `/root` directory so the AWS SDK in the container can pick up the credentials it needs. Alternatively, since the products service is packaged from a [scratch image](https://hub.docker.com/_/scratch), credentials must be passed using the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables. In this case, rather than setting these variables in `.env` and risk exposing these values, consider setting these three variables in your shell environment. The following command can be used to obtain a session token which can be used to set your environment variables in your shell.

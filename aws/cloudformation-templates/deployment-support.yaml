@@ -17,10 +17,10 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
-  PreIndexElasticsearch:
+  PreIndexOpenSearch:
     Type: String
     Description: >
-      Automatically index the Retail Demo Store products in Elasticsearch. Otherwise, select 'No' if you would
+      Automatically index the Retail Demo Store products in OpenSearch. Otherwise, select 'No' if you would
       prefer to complete this process yourself by stepping through the Search workshop included in this deployment
       as a Jupyter notebook in SageMaker.
     AllowedValues:
@@ -56,13 +56,13 @@ Parameters:
   Subnet2:
     Type: String
 
-  ElasticsearchSecurityGroupId:
+  OpenSearchSecurityGroupId:
     Type: String
 
-  ElasticsearchDomainArn:
+  OpenSearchDomainArn:
     Type: String
 
-  ElasticsearchDomainEndpoint:
+  OpenSearchDomainEndpoint:
     Type: String
 
   ParameterIVSVideoChannelMap:
@@ -105,8 +105,8 @@ Parameters:
     Type: String
 
 Conditions:
-  DeployPreIndexElasticsearch: !Equals
-    - !Ref PreIndexElasticsearch
+  DeployPreIndexOpenSearch: !Equals
+    - !Ref PreIndexOpenSearch
     - 'Yes'
 
   DeployPreCreatePinpointWorkshop: !Equals
@@ -355,31 +355,31 @@ Resources:
     Properties:
       ServiceToken: !GetAtt IVSCreateChannelsLambdaFunction.Arn
 
-  ####################### Pre-Index Elasticsearch #######################
+  ####################### Pre-Index OpenSearch #######################
 
-  ElasticsearchPreIndexLambdaFunction:
-    Condition: DeployPreIndexElasticsearch
+  OpenSearchPreIndexLambdaFunction:
+    Condition: DeployPreIndexOpenSearch
     Type: 'AWS::Lambda::Function'
     Properties:
-      Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon Elasticsearch'
-      Handler: elasticsearch-pre-index.lambda_handler
+      Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon OpenSearch'
+      Handler: opensearch-pre-index.lambda_handler
       Role: !GetAtt
-        - ElasticsearchPreIndexLambdaExecutionRole
+        - OpenSearchPreIndexLambdaExecutionRole
         - Arn
       Code:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/elasticsearch-pre-index.zip'
-      Runtime: python3.8
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/opensearch-pre-index.zip'
+      Runtime: python3.9
       Timeout: 300
       VpcConfig:
         SecurityGroupIds:
-          - !Ref ElasticsearchSecurityGroupId
+          - !Ref OpenSearchSecurityGroupId
         SubnetIds:
           - !Ref Subnet1
           - !Ref Subnet2
 
-  ElasticsearchPreIndexLambdaExecutionRole:
-    Condition: DeployPreIndexElasticsearch
+  OpenSearchPreIndexLambdaExecutionRole:
+    Condition: DeployPreIndexOpenSearch
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -411,23 +411,23 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*Elasticsearch*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*OpenSearch*:log-stream:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*OpenSearch*'
               - Effect: Allow
                 Action:
                   - es:ESHttpDelete
                   - es:ESHttpGet
                   - es:ESHttpPost
                   - es:ESHttpPut
-                Resource: !Ref ElasticsearchDomainArn
+                Resource: !Ref OpenSearchDomainArn
 
-  # Custom resource to launch elasticsearch preindex function
-  CustomLaunchElasticsearchPreIndexLambdaFunction:
-    Condition: DeployPreIndexElasticsearch
-    Type: Custom::CustomLambdaElasticSearch
+  # Custom resource to launch opensearch preindex function
+  CustomLaunchOpenSearchPreIndexLambdaFunction:
+    Condition: DeployPreIndexOpenSearch
+    Type: Custom::CustomLambdaOpenSearch
     Properties:
-      ServiceToken: !GetAtt ElasticsearchPreIndexLambdaFunction.Arn
-      ElasticsearchDomainEndpoint: !Ref ElasticsearchDomainEndpoint
+      ServiceToken: !GetAtt OpenSearchPreIndexLambdaFunction.Arn
+      OpenSearchDomainEndpoint: !Ref OpenSearchDomainEndpoint
       Bucket: !Ref ResourceBucket
       File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
 

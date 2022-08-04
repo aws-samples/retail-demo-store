@@ -2,16 +2,16 @@ openapi: '3.0.2'
 info:
   title: Recommendations API
   version: v1
-  description: |- 
+  description: |-
     The Recommendations web service provides a RESTful API for retrieving personalized product recommendations, related products, product reranking, and suggested discounts (powered by Amazon Personalize).
-    
+
     The [Web UI](../../web-ui) makes calls to this service when a user is viewing the home view (recommended products), product detail view (related products), or the category view (personalized ranking of products). If Amazon Personalize campaigns have been created for these use-cases (either by the deployment Lambda option or by stepping through the [Personalization](../../../workshop/1-Personalization/1.1-Personalize.ipynb) workshop), then those campaigns will be called by the Recommendations service. Otherwise, the service will call the [Products](../../products) service to provide a suitable default behavior such as displaying featured products or products from the same category as the displayed product.
 
     This service also provides support for running experiments for personalization approaches using techniques such as A/B testing, interleaving results testing, and multi-armed bandit testing. The [Experimentation](../../../workshop/3-Experimentation/3.1-Overview.ipynb) workshops are designed to walk you through how to setup, run, and evaluate experiments.
 
-  license: 
+  license:
     url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
-    name: Amazon Software License (ASL)
+    name: MIT No Attribution (MIT-0)
 
 tags:
   - name: Recommendations
@@ -24,24 +24,22 @@ tags:
     description: Suggest relevant discounts based on user and item list
   - name: Experiments
     description: Related to experiment
-  - name: Training
-    description: Related to training Personalize
 servers:
   - url: http://{host}:{port}
     variables:
       host:
         default: 'localhost'
       port:
-        default: '8005' 
+        default: '8005'
         description: Use the port from ../docker-compose.yml
 
-  
+
 paths:
   /health:
     get:
       tags:
         - Health Check
-      description: Helath check
+      description: Health check
       responses:
         '200':
           description: Health check status
@@ -52,6 +50,40 @@ paths:
                 enum: ['OK']
                 example: 'OK'
   /recommendations:
+    get:
+      tags:
+        - Recommendations
+      description: |-
+        Returns item/product recommendations for a given user in the context
+        of a current item (e.g. the user is viewing a product and I want to provide
+        recommendations for other products they may be interested in).
+
+        If an experiment is currently active for this feature ('home_product_recs'),
+        recommendations will be provided by the experiment. Otherwise, the default
+        behavior will be used which will look to see if an Amazon Personalize
+        campaign is available. If not, the Product service will be called to get
+        products from the same category as the current product or featured products.
+      parameters:
+        - $ref: '#/components/parameters/userID'
+        - name: currentItemID
+          in: query
+          schema:
+            type: string
+            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/numResults'
+        - $ref: '#/components/parameters/feature'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/fullyQualifyImageUrls'
+      responses:
+        '200':
+          description: Successful
+          content:
+            appllication/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recommendation'
+  /popular:
     get:
       tags:
         - Recommendations
@@ -84,12 +116,15 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Recommendation'
+                  type: object
+                  properties:
+                    product:
+                      $ref: '#/components/schemas/Product'
   /related:
     get:
       tags:
         - Related
-      description: |- 
+      description: |-
         Returns related products given an item/product
 
         If a feature name is provided and there is an active experiment for the
@@ -99,12 +134,7 @@ paths:
         will be called to get products from the same category as the current product.
       parameters:
         - $ref: '#/components/parameters/userID'
-        - name: currentItemID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '89728417-5269-403d-baa3-04b59cdffd0a'
+        - $ref: '#/components/parameters/currentItemID'
         - $ref: '#/components/parameters/numResults'
         - $ref: '#/components/parameters/feature'
         - $ref: '#/components/parameters/filter'
@@ -130,7 +160,7 @@ paths:
       description: |-
         Gets user ID, items list and feature and gets ranking of items according to reranking campaign.
       requestBody:
-        description: UserID, items, and feature 
+        description: UserID, items, and feature
         required: true
         content:
           application/json:
@@ -166,7 +196,7 @@ paths:
 
         This API is used in the web UI's live stream page
       requestBody:
-        description: UserID, items, and feature 
+        description: UserID, items, and feature
         required: true
         content:
           application/json:
@@ -216,7 +246,7 @@ paths:
       description: |-
         Tracks an outcome/conversion for an experiment
       requestBody:
-        description: UserID, items, and feature 
+        description: UserID, items, and feature
         required: true
         content:
           application/json:
@@ -245,38 +275,23 @@ paths:
                     example: correlationId is invalid
         '404':
           description: Experiment not found
-  /reset/realtime:
-    post:
-      tags:
-        - "Training"
-      description: |-
-        Sets the training configuration in SSM so that the polling lambda trains a new campaign and then deletes
-        the old one. Logic is in that lambda; here we configure the Lambda.
-        Also re-enables that Lambda's polling rule if it has been disabled.
-      responses:
-        '200':
-          description: Successful
-          content:
-            application/json:
-              schema:
-                type: string
-                example: 'Rebuild of Amazon Personalize initiated. Check the Amazon Personalize console or PersonalizePreCreateLambdaFunction lambda function logs for details'
-        '500':
-          description: Internal error (e.g. Cannot find CloudWatch event rule to enable)
-          content:
-            text/html:
-              schema:
-                type: string
 
 components:
   parameters:
     userID:
-      name: userID 
+      name: userID
       in: query
       required: true
       schema:
         type: string
         example: '5097'
+    currentItemID:
+      name: currentItemID 
+      in: query
+      required: true
+      schema:
+        type: string
+        example: '89728417-5269-403d-baa3-04b59cdffd0a'
     numResults:
       name: numResults
       in: query
@@ -295,7 +310,7 @@ components:
         type: string
         example: 'product_detail_related'
     filter:
-      name: filter 
+      name: filter
       in: query
       schema:
         type: string
@@ -306,7 +321,7 @@ components:
           - 'cstore'
         example: 'not-already-purchased'
     fullyQualifyImageUrls:
-      name: fulfullyQualifyImageUrlslyQu
+      name: fullyQualifyImageUrls
       in: query
       schema:
         type: string
@@ -386,9 +401,9 @@ components:
         userID:
           type: string
           example: '5097'
-        'items':
+        items:
           type: array
-          items: 
+          items:
             $ref: '#/components/schemas/Product'
           example:
             - id: "638012bd-b70e-4035-bf83-fbb777c7a6ea"

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-LAMBDA_SOURCE=elasticsearch-pre-index.py
-PACKAGE_FILE=elasticsearch-pre-index.zip
+LAMBDA_SOURCE=opensearch-pre-index.py
+PACKAGE_FILE=opensearch-pre-index.zip
 
 echo "Cleaning up intermediate files"
 [ -e ${PACKAGE_FILE} ] && rm ${PACKAGE_FILE}

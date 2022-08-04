@@ -16,6 +16,13 @@
               <template v-else>Items currently in stock: {{ product.current_stock }}</template>
             </div>
 
+            <div v-if="fenixenablePDP == 'TRUE'" class="fenix-estimates">
+              <Fenixmaster
+                :currentvariant="fenixcurrentvariant"
+              >
+              </Fenixmaster>
+            </div>
+
             <div v-if="cartHasMaxAmount" class="mb-2">Sorry, you cannot add more of this item to your cart.</div>
 
             <div class="mb-5 mb-md-4 d-flex">
@@ -85,6 +92,7 @@ import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+import Fenixmaster from '@/components/Fenix/Fenixmaster';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 6;
@@ -98,6 +106,7 @@ export default {
     FiveStars,
     RecommendedProductsSection,
     DemoGuideBadge,
+    Fenixmaster,
   },
   mixins: [product],
   props: {
@@ -106,6 +115,7 @@ export default {
       required: false,
       default: false,
     },
+    currentvariant: [Object, Number, String],
   },
   data() {
     return {
@@ -114,6 +124,8 @@ export default {
       relatedProducts: null,
       demoGuideBadgeArticle: null,
       experiment: null,
+      fenixcurrentvariant: {},
+      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
     };
   },
   computed: {
@@ -180,6 +192,8 @@ export default {
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
 
+      this.fenixcurrentvariant = this.product.id;
+
       this.getRelatedProducts();
 
       this.recordProductViewed(this.$route.query.feature, this.$route.query.exp, this.$route.query.di);
@@ -194,6 +208,7 @@ export default {
       const response = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,
+        this.product.category,
         MAX_RECOMMENDATIONS,
         EXPERIMENT_FEATURE,
       );
