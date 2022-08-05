@@ -371,6 +371,10 @@ export const AnalyticsHandler = {
             }
         }
 
+        if (this.tealiumEnabled()) {
+            window.utag.track("link", eventProperties);
+        }
+
         if (this.googleAnalyticsEnabled()) {
             Vue.prototype.$gtag.event('add_to_cart', {
                 "currency": "USD",
