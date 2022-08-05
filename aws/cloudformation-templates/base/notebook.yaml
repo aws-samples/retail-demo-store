@@ -58,6 +58,8 @@ Conditions:
   UseDefaultGitHubUser: !Equals
       - !Ref GitHubUser
       - ''
+  # ml.t3.medium instance type not available in all Sydney AZs (https://aws.amazon.com/releasenotes/sagemaker-instance-types-in-sydney-ap-southeast-2/)
+  UseT3InstanceType: !Not [!Equals [!Ref 'AWS::Region', 'ap-southeast-2'] ]
 
 Resources:
   RetailDemoStoreGitHubRepo:
@@ -73,7 +75,7 @@ Resources:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
       NotebookInstanceName: !Sub ${Uid}
-      InstanceType: "ml.t2.medium"  # Ensure instance type is supported by all target regions in README before changing
+      InstanceType: !If [UseT3InstanceType, 'ml.t3.medium', 'ml.t2.medium']  # Ensure instance type is supported by all target regions in README before changing
       PlatformIdentifier: "notebook-al2-v2"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
