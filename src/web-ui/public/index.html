@@ -27,14 +27,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
     <!-- This code is for the Tealium integration - DO NOT REMOVE -->
-    <!--
     <%= VUE_APP_TEALIUM_ACCOUNT === 'NONE' && VUE_APP_TEALIUM_PROFILE === 'NONE' && VUE_APP_TEALIUM_SOURCE_ID === 'NONE' ? '' :
       `<script type=\"text\/javascript\">\r\n  (function(a,b,c,d) {\r\n      a=\'\/\/tags.tiqcdn.com\/utag\/${VUE_APP_TEALIUM_ACCOUNT}\/${VUE_APP_TEALIUM_PROFILE}\/prod\/utag.js\';\r\n      b=document;c=\'script\';d=b.createElement(c);d.src=a;\r\n      d.type=\'text\/java\'+c;d.async=true;\r\n      a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a)})();\r\n<\/script>` %>
-    -->
-    
-    <%= VUE_APP_TEALIUM_ACCOUNT === 'NONE' && VUE_APP_TEALIUM_PROFILE === 'NONE' && VUE_APP_TEALIUM_SOURCE_ID === 'NONE' ? '' :
-      `<script type=\"text\/javascript\">\r\n  (function(t,e,a,l,i,u,m,j,s){\r\n    m=function(o,p,q){j.q.push([o,p,q])};j=u[i]={q:[],config:function(n,d)\r\n    {m(\"config\",n,d)},track:function(n,d){m(\"track\",n,d)},debug:function(n)\r\n    {m(\"debug\",n)}};s=function(){u[i]=Tealium(j.q)};j.config(\"init\",\r\n    [t,e,a,l]);if(u.Tealium&&u.TEAL&&u.TEAL[t+\"\/\"+e+\"\/\"+l]){s()}else{j.callback=s}\r\n  })(\"${VUE_APP_TEALIUM_ACCOUNT}\",\"${VUE_APP_TEALIUM_PROFILE}\",\"prod\",\"${VUE_APP_TEALIUM_SOURCE_ID}\",\"tealium\",window);\r\n<\/script>\r\n` %>
-    <%= VUE_APP_TEALIUM_ACCOUNT === 'NONE' && VUE_APP_TEALIUM_PROFILE === 'NONE' && VUE_APP_TEALIUM_SOURCE_ID === 'NONE' ? '' :
-      `<script async src=\"https:\/\/tags.tiqcdn.com\/tms\/${VUE_APP_TEALIUM_ACCOUNT}\/${VUE_APP_TEALIUM_PROFILE}\/prod\/${VUE_APP_TEALIUM_SOURCE_ID}\/tealium.js\"><\/script>` %> 
   </body>
 </html>
