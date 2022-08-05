@@ -277,8 +277,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
 
         item.pop('itemId')
 
-    resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
-    return resp
+    return items, resp_headers
 
 # -- Logging
 class LoggingMiddleware(object):
@@ -381,16 +380,33 @@ def related():
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
-        return get_products(
+        # If a user ID is provided, automatically perform reranking of related items to personalize items (composite use case).
+        if user_id:
+            rerank_items = True
+            related_count = num_results * 3
+        else:
+            rerank_items = False
+            related_count = num_results
+
+        items, resp_headers = get_products(
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,
-            num_results = num_results,
+            num_results = related_count,
             default_inference_arn_param_name='/retaildemostore/personalize/related-items-arn',
             default_filter_arn_param_name=filter_ssm,
             filter_values=filter_values,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
+
+        if rerank_items:
+            app.logger.info('Reranking related items to personalize order for user %s', user_id)
+            items, resp_headers = get_ranking(user_id, items, feature = None, resp_headers = resp_headers)
+
+            items = items[0:num_results]    # Trim back down to the requested number of items.
+
+        resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
+        return resp
 
     except Exception as e:
         app.logger.exception('Unexpected error generating related items', e)
@@ -433,7 +449,7 @@ def recommendations():
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
-        response = get_products(
+        items, resp_headers = get_products(
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,
@@ -442,7 +458,10 @@ def recommendations():
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
-        app.logger.debug(f"Recommendations response to be returned: {response}")
+
+        response = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
+
+        app.logger.debug("Recommendations response to be returned: %s", response)
         return response
 
     except Exception as e:
@@ -486,7 +505,7 @@ def popular():
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
     try:
-        response = get_products(
+        items, resp_headers = get_products(
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,
@@ -495,7 +514,10 @@ def popular():
             default_filter_arn_param_name=filter_ssm,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
-        app.logger.debug(f"Recommendations response to be returned: {response}")
+
+        response = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
+
+        app.logger.debug("Recommendations response to be returned: %s", response)
         return response
 
     except Exception as e:
@@ -531,7 +553,7 @@ def ranking_request_params():
 
 def get_ranking(user_id, items, feature,
                 default_inference_arn_param_name='/retaildemostore/personalize/personalized-ranking-arn',
-                top_n=None, context=None):
+                top_n=None, context=None, resp_headers=None):
     """
     Re-ranks a list of items using personalized reranking.
     Or delegates to experiment manager if there is an active experiment.
@@ -544,6 +566,7 @@ def get_ranking(user_id, items, feature,
         default_inference_arn_param_name: For discounts this would be different.
         top_n (Optional[int]): Only return the top N ranked if not None.
         context (Optional[dict]): If available, passed to the reranking Personalization recipe.
+        resp_headers (Optional[dict]): Response headers from chained call
 
     Returns:
         Items as passed in, but ordered according to reranker - also might have experimentation metadata added.
@@ -557,13 +580,19 @@ def get_ranking(user_id, items, feature,
     item_map = {}
     unranked_items = []
     for item in items:
-        item_id = item.get('itemId') if item.get('itemId') else item.get('id')
+        item_id = item.get('itemId')
+        if not item_id:
+            item_id = item.get('id')
+        if not item_id and item.get('product'):
+            item_id = item.get('product').get('id')
         item_map[item_id] = item
         unranked_items.append(item_id)
 
     app.logger.info(f"Unranked items: {unranked_items}")
 
-    resp_headers = {}
+    if resp_headers is None:
+        resp_headers = {}
+
     experiment = None
     exp_manager = None
 
@@ -573,7 +602,7 @@ def get_ranking(user_id, items, feature,
         experiment = exp_manager.get_active(feature, user_id)
 
     if experiment:
-        app.logger.info('Using experiment: ' + experiment.name)
+        app.logger.info('Using experiment: %s', experiment.name)
 
         # Get ranked items from experiment.
         tracker = exp_manager.default_tracker()
@@ -586,7 +615,7 @@ def get_ranking(user_id, items, feature,
             timestamp=get_timestamp_from_request()
         )
 
-        app.logger.debug(f"Experiment ranking resolver gave us this ranking: {ranked_items}")
+        app.logger.debug("Experiment ranking resolver gave us this ranking: %s", ranked_items)
 
         resp_headers['X-Experiment-Name'] = experiment.name
         resp_headers['X-Experiment-Type'] = experiment.type
@@ -602,7 +631,11 @@ def get_ranking(user_id, items, feature,
 
         if inference_arn:
             resolver = PersonalizeRankingResolver(inference_arn=inference_arn, filter_arn=filter_arn)
-            resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
+            recipe_arn = get_recipe(inference_arn)
+            if resp_headers.get('X-Personalize-Recipe'):
+                resp_headers['X-Personalize-Recipe'] = resp_headers['X-Personalize-Recipe'] + ',' + recipe_arn
+            else:
+                resp_headers['X-Personalize-Recipe'] = recipe_arn
         else:
             app.logger.info(f'Falling back to No-op: {values}')
             resolver = RankingProductsNoOpResolver()
@@ -642,7 +675,6 @@ def get_ranking(user_id, items, feature,
         response_items.append(item)
 
     return response_items, resp_headers
-
 
 @app.route('/rerank', methods=['POST'])
 def rerank():

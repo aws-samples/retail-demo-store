@@ -99,9 +99,18 @@ def search_products():
     search_term = search_term.lower()
 
     offset, size = get_offset_and_size(request)
-    app.logger.info(f'Searching products for "{search_term}" starting at {offset} and returning {size} hits')
+    collapse_size = int(max(size / 15, 15))
+    app.logger.info('Searching products for "%s" starting at %d and returning %d hits with collapse size of %d',
+        search_term, offset, size, collapse_size
+    )
 
     try:
+        # Query OpenSearch using a disjunction max query across multiple fields using the "match_bool_prefix".
+        # The "match_bool_prefix" query will tokenize the search expression where the last token is turned into
+        # a prefix query. This is good match for an "auto-complete" search UX.
+        # To improve the diversity of hits across categories (particularly important when the search expression is
+        # short/vague), the search is collapsed on the category keyword field. This ensures that the top hits are pulled
+        # from all categories which are then aggregated into a unified response.
         results = search_client.search(index = INDEX_PRODUCTS, body={
             "from": offset,
             "size": size,
@@ -115,17 +124,74 @@ def search_products():
                     ],
                     "tie_breaker" : 0.7
                 }
+            },
+            "fields":[
+                "_id"
+            ],
+            "_source": False,
+            "collapse": {
+                "field": "category.keyword",
+                "inner_hits": {
+                    "name": "category_hits",
+                    "size": collapse_size,
+                    "fields":[
+                        "_id"
+                    ],
+                    "_source": False
+                }
             }
         })
 
         app.logger.debug(json.dumps(results))
 
+        # Because we're collapsing results across categories, the total hits will likely be > size.
+        total_hits = results["hits"]["total"]["value"]
+        app.logger.debug('Total hits across categories: %d', total_hits)
+
+        cats_with_hits = len(results["hits"]["hits"])
+        avg_hits_cat = int(size / cats_with_hits)
+        app.logger.debug('Average hits per category: %d', avg_hits_cat)
+        hits_for_cats = []
+        accum_hits = 0
+        cats_with_more = 0
+
+        # Determine the number of hits per category that we can use.
+        for item in results['hits']['hits']:
+            cat_hits = item["inner_hits"]["category_hits"]["hits"]["total"]["value"]
+            if cat_hits > avg_hits_cat:
+                cats_with_more += 1
+            hits_this_cat = min(cat_hits, avg_hits_cat)
+            accum_hits += hits_this_cat
+            hits_for_cats.append([cat_hits, hits_this_cat])
+
+        if accum_hits < size and cats_with_more:
+            # Still more room available. Add more items across categories that have more than average.
+            more_each = int((size - accum_hits) / cats_with_more)
+            for counts in hits_for_cats:
+                more_this_cat = min(more_each, counts[0] - counts[1])
+                accum_hits += more_this_cat
+                counts[1] += more_this_cat
+
         found_items = []
 
-        for item in results['hits']['hits']:
-            found_items.append({
-                'itemId': item['_id']
-            })
+        for idx, item in enumerate(results['hits']['hits']):
+            cat_hits = item["inner_hits"]["category_hits"]["hits"]["hits"]
+
+            if accum_hits < size and hits_for_cats[idx][1] < hits_for_cats[idx][0]:
+                # If still more room available, use first one with more to give.
+                to_add = min(size - accum_hits, hits_for_cats[idx][0] - hits_for_cats[idx][1])
+                hits_for_cats[idx][1] += to_add
+                accum_hits += to_add
+
+            added = 0
+            for hit in cat_hits:
+                found_items.append({
+                    'itemId': hit['_id']
+                })
+                added += 1
+                if added == hits_for_cats[idx][1]:
+                    break
+
         return json.dumps(found_items)
 
     except NotFoundError as e:

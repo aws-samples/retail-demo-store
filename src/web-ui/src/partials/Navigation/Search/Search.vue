@@ -138,6 +138,7 @@ export default {
       if (val.length > 0) {
         this.isSearching = true;
         this.results = null;
+        this.searchError = null
         try {
           await this.search(val);
         } finally {
