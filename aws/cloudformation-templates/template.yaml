@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 # Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
-  RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks.
+  RETAIL_DS: This template deploys the Retail Demo Store reference architecture and workshop notebooks. (uksb-1t80l2nq1)
 
 Metadata:
   AWS::CloudFormation::Interface:
