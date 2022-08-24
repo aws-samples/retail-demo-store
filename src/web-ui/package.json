@@ -18,30 +18,30 @@
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@mparticle/web-sdk": "^2.16.2",
+    "@mparticle/web-sdk": "^2.17.0",
     "@optimizely/optimizely-sdk": "^4.9.2",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
-    "axios": "^0.21.2",
+    "axios": "^0.21.4",
     "mapbox-gl": "^1.12.0",
     "register-service-worker": "^1.7.2",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.3",
-    "vue": "^2.6.14",
+    "vue": "^2.7.10",
     "vue-agile": "^1.1.3",
     "vue-gtag": "^1.16.1",
-    "vue-router": "^3.5.4",
+    "vue-router": "^3.6.3",
     "vue-the-mask": "^0.11.1",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^3.2.0",
-    "workbox-webpack-plugin": "^6.5.3"
+    "workbox-webpack-plugin": "^6.5.4"
   },
   "devDependencies": {
-    "@layer0/cli": "^4.15.6",
-    "@layer0/core": "^4.15.6",
-    "@layer0/devtools": "^4.15.6",
-    "@layer0/prefetch": "^4.15.6",
+    "@layer0/cli": "^4.18.4",
+    "@layer0/core": "^4.18.4",
+    "@layer0/devtools": "^4.18.4",
+    "@layer0/prefetch": "^4.18.4",
     "@vue/cli-plugin-babel": "^4.5.19",
     "@vue/cli-plugin-eslint": "^4.5.19",
     "@vue/cli-service": "^4.5.19",
@@ -52,13 +52,14 @@
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.21",
-    "vue-template-compiler": "^2.6.14",
-    "webpack": "^4.44.2",
-    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack": "^4.46.0",
+    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {
-    "minimist": "1.2.6"
+    "immer": "9.0.15",
+    "minimist": "1.2.6",
+    "webpack-bundle-analyzer": "4.5.0"
   },
   "eslintConfig": {
     "root": true,
