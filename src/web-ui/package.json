@@ -23,7 +23,7 @@
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
     "aws-amplify-vue": "^2.1.2",
-    "axios": "^0.21.2",
+    "axios": "^0.21.4",
     "mapbox-gl": "^1.12.0",
     "register-service-worker": "^1.7.2",
     "sweetalert": "^2.1.2",
@@ -52,12 +52,14 @@
     "eslint-plugin-vue": "^6.2.2",
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.21",
-    "webpack": "^4.44.2",
-    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack": "^4.46.0",
+    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {
-    "minimist": "1.2.6"
+    "immer": "9.0.15",
+    "minimist": "1.2.6",
+    "webpack-bundle-analyzer": "4.5.0"
   },
   "eslintConfig": {
     "root": true,
