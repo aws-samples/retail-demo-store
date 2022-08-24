@@ -18,7 +18,7 @@
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@mparticle/web-sdk": "^2.16.2",
+    "@mparticle/web-sdk": "^2.17.0",
     "@optimizely/optimizely-sdk": "^4.9.2",
     "amplitude-js": "^5.8.0",
     "aws-amplify": "^3.0.23",
@@ -35,13 +35,13 @@
     "vue-the-mask": "^0.11.1",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^3.2.0",
-    "workbox-webpack-plugin": "^6.5.3"
+    "workbox-webpack-plugin": "^6.5.4"
   },
   "devDependencies": {
-    "@layer0/cli": "^4.15.6",
-    "@layer0/core": "^4.15.6",
-    "@layer0/devtools": "^4.15.6",
-    "@layer0/prefetch": "^4.15.6",
+    "@layer0/cli": "^4.18.4",
+    "@layer0/core": "^4.18.4",
+    "@layer0/devtools": "^4.18.4",
+    "@layer0/prefetch": "^4.18.4",
     "@vue/cli-plugin-babel": "^4.5.19",
     "@vue/cli-plugin-eslint": "^4.5.19",
     "@vue/cli-service": "^4.5.19",
