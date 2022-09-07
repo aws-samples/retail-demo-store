@@ -372,7 +372,8 @@ export const AnalyticsHandler = {
         }
 
         if (this.tealiumEnabled()) {
-            window.utag.track("link", eventProperties);
+            eventProperties.tealium_event = 'AddToCart';
+            window.utag.link(eventProperties);
         }
 
         if (this.googleAnalyticsEnabled()) {
