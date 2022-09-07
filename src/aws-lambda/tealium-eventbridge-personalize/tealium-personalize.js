@@ -67,20 +67,14 @@ exports.tealiumPersonalizeEventHandler = async (event) => {
     eventList: []
   };
 
-  const timestamp = Math.floor(e.data.timestamp_unixtime_ms / 1000);
-  const action = event.detail.udo.;
-  const event_id = e.data.event_id;
+  const timestamp = Math.floor(event.detail.udo.tealium_timestamp_epoch / 1000);
+  const action = event.detail.udo.eventName;
 
-  // Build the list of events for the user session...
-  for (const product of e.data.product_action.products) {
-    const purchasedItem = { itemId: product.id, discount: "No" };
-    params.eventList.push({
-      properties: purchasedItem,
-      sentAt: timestamp,
-      eventId: event_id,
-      eventType: action
-    });
-  }
+  params.eventList.push({
+    properties: event.detail.udo.productId,
+    sentAt: timestamp,
+    eventType: action
+  });
 
   // Send the events to Amazon Personalize for training purposes
   try {
