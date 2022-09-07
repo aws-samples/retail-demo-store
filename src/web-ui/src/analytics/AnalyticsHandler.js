@@ -373,6 +373,7 @@ export const AnalyticsHandler = {
 
         if (this.tealiumEnabled()) {
             eventProperties.tealium_event = 'add_to_cart';
+            eventProperties.eventName = 'AddToCart'; 
             window.utag.link(eventProperties);
         }
 
