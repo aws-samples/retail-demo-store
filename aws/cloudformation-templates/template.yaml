@@ -900,6 +900,9 @@ Outputs:
         OPENSEARCH_DOMAIN_SCHEME=https
         OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
         OPENSEARCH_DOMAIN_PORT=9200
+      
+        # Evidently
+        EVIDENTLY_PROJECT_NAME="${Base.Outputs.EvidentlyProjectName}"
 
         # Users service
         AWS_REGION=${AWS::Region}
