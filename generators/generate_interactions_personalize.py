@@ -26,6 +26,7 @@ import gzip
 import random
 import yaml
 import logging
+import uuid
 from collections import defaultdict
 
 # Keep things deterministic
@@ -33,6 +34,17 @@ RANDOM_SEED = 0
 
 # Where to put the generated data so that it is picked up by stage.sh
 GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-resources/data"
+IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
+IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz",
+                      "src/users/src/users-service/data/cstore_users.json.gz"]
+
+# This is where stage.sh will pick up input data files
+out_items_filename = f"{GENERATED_DATA_ROOT}/items.csv"
+out_users_filename = f"{GENERATED_DATA_ROOT}/users.csv"
+
+# These are output file definitions
+personalize_interactions_file = f"{GENERATED_DATA_ROOT}/interactions.csv"
+amplitude_interactions_file = f"{GENERATED_DATA_ROOT}/amplitude/interactions.json"
 
 # Interactions will be generated between these dates
 
@@ -60,29 +72,33 @@ NORMALISE_PER_PRODUCT_WEIGHT = 1.0
 DISCOUNT_PROBABILITY = 0.2
 DISCOUNT_PROBABILITY_WITH_PREFERENCE = 0.5
 
-IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
-IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz",
-                      "src/users/src/users-service/data/cstore_users.json.gz"]
-
 PROGRESS_MONITOR_SECONDS_UPDATE = 30
-
 GENDER_ANY = 'Any'
-
-# This is where stage.sh will pick them up from
-out_items_filename = f"{GENERATED_DATA_ROOT}/items.csv"
-out_users_filename = f"{GENERATED_DATA_ROOT}/users.csv"
-out_interactions_filename = f"{GENERATED_DATA_ROOT}/interactions.csv"
 
 # The meaning of the below constants is described in the relevant notebook.
 
 # Minimum number of interactions to generate
-min_interactions = 675000
+min_interactions =  675000 
 
 # Percentages of each event type to generate
 product_added_percent = .08
 cart_viewed_percent = .05
 checkout_started_percent = .02
 order_completed_percent = .01
+
+class OutputWriter:
+    def __init__(self):
+        # Make sure paths exist
+        Path(personalize_interactions_file).parents[0].mkdir(parents=True, exist_ok=True)
+        Path(amplitude_interactions_file).parents[0].mkdir(parents=True, exist_ok=True)
+        # Create the writers
+        self.personalize_writer = PersonalizeOutputFileWriter(personalize_interactions_file)
+        self.amplitude_writer = AmplitudeOutputFileWriter(amplitude_interactions_file)
+        print(f'Writing interactions to: {personalize_interactions_file}, {amplitude_interactions_file}')
+
+    def event(self, event_name, timestamp, user, **properties):
+        self.personalize_writer.event(event_name, timestamp, properties['product']['id'],  user['id'], properties['discount_context'])
+        self.amplitude_writer.event(event_name, timestamp, user["id"], user['name'], user['age'], user['gender'], user['persona'], properties['product'])
 
 class PersonalizeOutputFileWriter:
     def __init__(self, file_name):
@@ -91,31 +107,43 @@ class PersonalizeOutputFileWriter:
         # Write the header row
         self.csv_file.writerow(["ITEM_ID", "USER_ID", "EVENT_TYPE", "TIMESTAMP", "DISCOUNT"])
 
-    def event(self, event_name, timestamp, user, **properties):
-        self.csv_file.writerow([properties['product']['id'],
-                                user['id'],
+    def event(self, event_name, timestamp, product_id, user_id, discount_context):
+        self.csv_file.writerow([product_id,
+                                user_id,
                                 event_name,
                                 timestamp,
-                                properties['discount_context']])
+                                discount_context])
+
+def np_encoder(object):
+    if isinstance(object, np.generic):
+        return object.item()
 
 class AmplitudeOutputFileWriter:
     def __init__(self, file_name):
         self.file = open(file_name, 'w')
 
-    def event(self, event_name, timestamp, user, **properties):
-        user_id = f'{user["id"]:0>5}'
+    def event(self, event_name, timestamp, user_id, user_name, user_age, user_gender, user_persona, product):
+        user_id_str = f'{user_id:0>5}'
         amplitude_event = {
-            'event_type': event_name,
-            'time': timestamp * 1000,  # Amplitude wants time in ms since the epoch
-            'user_id': user_id,
-            'user_properties': {
-                'name': user['name'],
-                'age': user['age'],
-                'gender': user['gender'],
-                'persona': user['persona']
+            "event_type": event_name,
+            "time": int(timestamp * 1000),  # Amplitude wants time in ms since the epoch, we have sec
+            "user_id": user_id_str,  # Amplitude wants a UID as a string with no less than 5 chars
+            "insert_id": str(uuid.uuid4()),  # This is to prevent duplicates when re-running event gen scripts
+            "event_properties": {
+                "product_id": product["id"],
+                "product_price": product["price"],
+                "product_category": product["category"],
+                "product_description": product["description"],
+                "product_style": product["style"]
+            },
+            "user_properties": {
+                "name": user_name,
+                "age": user_age,
+                "gender": user_gender,
+                "persona": user_persona 
             } 
         }
-        self.file.write(f'{amplitude_event}\n')  # write this in Amplitude JSON event format for S3 import
+        self.file.write(f'{json.dumps(amplitude_event, default=np_encoder)}\n')  # write this in Amplitude JSON event format for S3 import
 
 def generate_user_items(out_users_filename, out_items_filename, in_users_filenames, in_products_filename):
 
@@ -156,7 +184,7 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     return users_df, products_df
 
-def generate_interactions(out_interactions_filename, users_df, products_df):
+def generate_interactions(users_df, products_df):
     """Generate items.csv, users.csv from users and product dataframes makes interactions.csv by simulating some
     shopping behaviour."""
 
@@ -171,8 +199,6 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     discounted_checkout_started_count = 0
     order_completed_count = 0
     discounted_order_completed_count = 0
-
-    Path(out_interactions_filename).parents[0].mkdir(parents=True, exist_ok=True)
 
     # ensure determinism
     random.seed(RANDOM_SEED)
@@ -193,7 +219,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(next_timestamp))))
     print('Seconds increment: {}'.format(seconds_increment))
 
-    print("Generating interactions... (this may take a few minutes)")
+    print("Generating interactions... (this will take a few minutes)")
     interactions = 0
 
     subsets_cache = {}
@@ -202,13 +228,8 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
     category_affinity_probs = np.array(CATEGORY_AFFINITY_PROBS)
 
-    print("Writing interactions to: {}".format(out_interactions_filename))
-
-    ###############################################################################
-    # TODO: ADD A CMD LINE OPTION TO CONTROL THIS
-
     # Create a file writer
-    ow = AmplitudeOutputFileWriter(out_interactions_filename)
+    ow = OutputWriter()
 
     category_frequencies = products_df.category.value_counts()
     category_frequencies /= sum(category_frequencies.values)
@@ -249,7 +270,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
         if (time.time() > next_update_progress):
             rate = interactions / (time.time() - start_time_progress)
             to_go = (min_interactions - interactions) / rate
-            print('Generated {} interactions so far (about {} seconds to go)'.format(interactions, int(to_go)))
+            print(f'Generated {interactions} interactions so far (about {int(to_go/60)} minutes to go)')
             next_update_progress += PROGRESS_MONITOR_SECONDS_UPDATE
 
         # Pick a random user
@@ -437,4 +458,4 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
     users_df, products_df = generate_user_items(out_users_filename, out_items_filename, IN_USERS_FILENAMES, IN_PRODUCTS_FILENAME)
-    generate_interactions(out_interactions_filename, users_df, products_df)
+    generate_interactions(users_df, products_df)
