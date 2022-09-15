@@ -14,17 +14,8 @@ if [ ! -z "$1" ]; then
   cd "$1" || { echo "Service does not exist."; exit 1; }
 fi
 
-echo "#######################################################"
-echo "### Starting integration tests..."
-echo "#######################################################"
-echo "### List of API URLs in the environment variable"
-echo "#######################################################"
-echo "# PRODUCTS_API_URL = $PRODUCT_API_URL"
-echo "# USERS_API_URL = $USERS_API_URL"
-echo "# ORDERS_API_URL = $ORDERS_API_URL"
-echo "# RECOMMENDATIONS_API_URL = $RECOMMENDATIONS_API_URL"
-echo "# Empty values will be defaulted to local URL"
-echo "########################################"
+# Displaying the environment variables that the python tests will use
+python "$home_dir/run-tests/display-environment-variables.py"
 
 #########################
 ####### Functions #######
