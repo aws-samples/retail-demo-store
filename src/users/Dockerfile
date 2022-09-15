@@ -3,9 +3,6 @@ WORKDIR /src/
 COPY src/users-service/*.* /src/
 COPY src/users-service/data/*.* /src/data/
 RUN apk add --no-cache git
-RUN go get -u github.com/gorilla/mux
-RUN go get -u gopkg.in/yaml.v2
-RUN go get -u github.com/aws/aws-sdk-go/service/pinpoint
 RUN CGO_ENABLED=0 go build -o /bin/users-service
 RUN apk add ca-certificates
 FROM scratch
