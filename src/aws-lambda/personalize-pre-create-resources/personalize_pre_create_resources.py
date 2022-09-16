@@ -439,23 +439,31 @@ def create_solution_version(dataset_group_arn: str, solution_conf: Dict) -> Tupl
         )
         solution_conf['solutionVersionArn'] = response['solutionVersionArn']
     else:
-        solution_version_exists = False
+        # Load solution versions into dictionary keyed by status.
+        solution_versions_by_status = {}
         paginator = personalize.get_paginator('list_solution_versions')
         for paginate_result in paginator.paginate(solutionArn=solution_conf['arn']):
             for solution_version in paginate_result['solutionVersions']:
-                solution_version_exists = True
-                logger.info('Using %s as solutionVersionArn with status of %s for solution %s', solution_version['solutionVersionArn'], solution_version['status'], solution_conf['arn'])
-                solution_conf['solutionVersionArn'] = solution_version['solutionVersionArn']
-                solution_conf['solutionVersionStatus'] = solution_version['status']
-                break
+                svs = solution_versions_by_status.setdefault(solution_version['status'], [])
+                svs.append(solution_version)
 
-        if not solution_version_exists:
+        if len(solution_versions_by_status) == 0:
             logger.info('Creating solution version for %s', solution_conf['arn'])
             response = personalize.create_solution_version(
                 solutionArn = solution_conf['arn'],
                 trainingMode = 'FULL'
             )
             solution_conf['solutionVersionArn'] = response['solutionVersionArn']
+        else:
+            # Find first solution version matching the status in the following order.
+            statuses = [ 'ACTIVE', 'CREATE PENDING', 'CREATE IN_PROGRESS', 'CREATE FAILED' ]
+            for status in statuses:
+                if len(solution_versions_by_status.get(status)) > 0:
+                    solution_version = solution_versions_by_status[status][0]
+                    logger.info('Using %s as solutionVersionArn with status of %s for solution %s', solution_version['solutionVersionArn'], solution_version['status'], solution_conf['arn'])
+                    solution_conf['solutionVersionArn'] = solution_version['solutionVersionArn']
+                    solution_conf['solutionVersionStatus'] = solution_version['status']
+                    break
 
     return solution_conf['solutionVersionArn'], not solution_exists
 
@@ -789,6 +797,8 @@ def update() -> bool:
                     )
         else:
             # More waiting required.
+            logger.info('Not done: all_recs_active = %s; all_svs_active = %s; all_campaigns_active = %s; event_tracker_active = %s; all_filters_active = %s',
+                    all_recs_active, all_svs_active, all_campaigns_active, event_tracker_active, all_filters_active)
             done = False
 
     if done:
