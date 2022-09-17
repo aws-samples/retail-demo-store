@@ -78,7 +78,7 @@ GENDER_ANY = 'Any'
 # The meaning of the below constants is described in the relevant notebook.
 
 # Minimum number of interactions to generate
-min_interactions =  675000 
+min_interactions = 675000 
 
 # Percentages of each event type to generate
 product_added_percent = .08
@@ -214,10 +214,10 @@ def generate_interactions(users_df, products_df):
 
     if seconds_increment <= 0: raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
 
-    print('Minimum interactions to generate: {}'.format(min_interactions))
-    print('Starting timestamp: {} ({})'.format(next_timestamp,
-                                               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(next_timestamp))))
-    print('Seconds increment: {}'.format(seconds_increment))
+    print(f'Minimum interactions to generate: {min_interactions}')
+    print(f'Starting timestamp: ({time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(next_timestamp))})')
+    print(f'Ending timestamp: ({time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(LAST_TIMESTAMP))})')
+    print(f'Seconds increment: {seconds_increment}')
 
     print("Generating interactions... (this will take a few minutes)")
     interactions = 0
@@ -380,7 +380,7 @@ def generate_interactions(users_df, products_df):
 
             discount_context = 'Yes' if discounted else 'No'
 
-            this_timestamp = next_timestamp + random.randint(1, seconds_increment)
+            this_timestamp = next_timestamp + random.randint(int(seconds_increment), int(seconds_increment * 2))
             ow.event('View',
                     this_timestamp,
                     user,
@@ -395,50 +395,50 @@ def generate_interactions(users_df, products_df):
                 discounted_product_viewed_count += 1
 
             if product_added_count < int(product_viewed_count * product_added_percent):
-                this_timestamp += random.randint(1, int(seconds_increment / 2))
+                this_timestamp += random.randint(int(seconds_increment), int(seconds_increment * 2))
                 ow.event('AddToCart',
                         this_timestamp,
                         user,
                         product=product, 
                         discount_context=discount_context)
-                interactions += 1
+                #interactions += 1
                 product_added_count += 1
 
                 if discounted:
                     discounted_product_added_count += 1
 
             if cart_viewed_count < int(product_viewed_count * cart_viewed_percent):
-                this_timestamp += random.randint(1, int(seconds_increment / 2))
+                this_timestamp += random.randint(int(seconds_increment), int(seconds_increment * 2))
                 ow.event('ViewCart',
                         this_timestamp,
                         user,
                         product=product, 
                         discount_context=discount_context)
-                interactions += 1
+                #interactions += 1
                 cart_viewed_count += 1
                 if discounted:
                     discounted_cart_viewed_count += 1
 
             if checkout_started_count < int(product_viewed_count * checkout_started_percent):
-                this_timestamp += random.randint(1, int(seconds_increment / 2))
+                this_timestamp += random.randint(int(seconds_increment), int(seconds_increment * 2))
                 ow.event('StartCheckout',
                         this_timestamp,
                         user,
                         product=product,
                         discount_context=discount_context)
-                interactions += 1
+                #interactions += 1
                 checkout_started_count += 1
                 if discounted:
                         discounted_checkout_started_count += 1
 
             if order_completed_count < int(product_viewed_count * order_completed_percent):
-                this_timestamp += random.randint(1, int(seconds_increment / 2))
+                this_timestamp += random.randint(int(seconds_increment), int(seconds_increment * 2))
                 ow.event('Purchase',
                         this_timestamp,
                         user,
                         product=product,
                         discount_context=discount_context)
-                interactions += 1
+                #interactions += 1
                 order_completed_count += 1
                 if discounted:
                     discounted_order_completed_count += 1
