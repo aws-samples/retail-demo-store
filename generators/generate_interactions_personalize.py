@@ -401,7 +401,6 @@ def generate_interactions(users_df, products_df):
                         user,
                         product=product, 
                         discount_context=discount_context)
-                #interactions += 1
                 product_added_count += 1
 
                 if discounted:
@@ -414,7 +413,6 @@ def generate_interactions(users_df, products_df):
                         user,
                         product=product, 
                         discount_context=discount_context)
-                #interactions += 1
                 cart_viewed_count += 1
                 if discounted:
                     discounted_cart_viewed_count += 1
@@ -426,7 +424,6 @@ def generate_interactions(users_df, products_df):
                         user,
                         product=product,
                         discount_context=discount_context)
-                #interactions += 1
                 checkout_started_count += 1
                 if discounted:
                         discounted_checkout_started_count += 1
@@ -438,7 +435,6 @@ def generate_interactions(users_df, products_df):
                         user,
                         product=product,
                         discount_context=discount_context)
-                #interactions += 1
                 order_completed_count += 1
                 if discounted:
                     discounted_order_completed_count += 1
