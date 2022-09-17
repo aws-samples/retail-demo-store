@@ -270,7 +270,7 @@ def generate_interactions(users_df, products_df):
         if (time.time() > next_update_progress):
             rate = interactions / (time.time() - start_time_progress)
             to_go = (min_interactions - interactions) / rate
-            print(f'Generated {interactions} interactions so far (about {int(to_go/60)} minutes to go)')
+            print(f'Generated {interactions} interactions so far (about {int(to_go)} seconds to go)')
             next_update_progress += PROGRESS_MONITOR_SECONDS_UPDATE
 
         # Pick a random user

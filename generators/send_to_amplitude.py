@@ -1,10 +1,8 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import datagenerator
 import json
 import requests
-import yaml
 
 # Amplitude event support
 # This follows the Amplitude V2 HTTP Bulk API spec, here:
@@ -12,7 +10,6 @@ import yaml
 #
 # These classes accept a user, platform, and general event properties and map them 
 # into an Amplitude API compatible represenation.
-
 
 amplitude_interactions_file = 'src/aws-lambda/personalize-pre-create-resources/data/amplitude/interactions.json'
 amplitude_key = 'f6cdf64a6db24778bb9ce82188c19a95'
