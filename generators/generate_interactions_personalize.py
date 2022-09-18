@@ -114,6 +114,7 @@ class PersonalizeOutputFileWriter:
                                 timestamp,
                                 discount_context])
 
+# This is a hack to get around numpy nonstandard type serialization to JSON
 def np_encoder(object):
     if isinstance(object, np.generic):
         return object.item()
@@ -215,8 +216,8 @@ def generate_interactions(users_df, products_df):
     if seconds_increment <= 0: raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
 
     print(f'Minimum interactions to generate: {min_interactions}')
-    print(f'Starting timestamp: ({time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(next_timestamp))})')
-    print(f'Ending timestamp: ({time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(LAST_TIMESTAMP))})')
+    print(f'Starting timestamp: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(next_timestamp))}')
+    print(f'Ending timestamp: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(LAST_TIMESTAMP))}')
     print(f'Seconds increment: {seconds_increment}')
 
     print("Generating interactions... (this will take a few minutes)")
@@ -266,7 +267,7 @@ def generate_interactions(users_df, products_df):
 
     user_category_to_first_prod = {}
 
-    while interactions < min_interactions:
+    while interactions < min_interactions or next_timestamp < LAST_TIMESTAMP:
         if (time.time() > next_update_progress):
             rate = interactions / (time.time() - start_time_progress)
             to_go = (min_interactions - interactions) / rate
@@ -402,6 +403,7 @@ def generate_interactions(users_df, products_df):
                         product=product, 
                         discount_context=discount_context)
                 product_added_count += 1
+                interactions += 1
 
                 if discounted:
                     discounted_product_added_count += 1
@@ -414,6 +416,8 @@ def generate_interactions(users_df, products_df):
                         product=product, 
                         discount_context=discount_context)
                 cart_viewed_count += 1
+                interactions += 1
+
                 if discounted:
                     discounted_cart_viewed_count += 1
 
@@ -425,6 +429,8 @@ def generate_interactions(users_df, products_df):
                         product=product,
                         discount_context=discount_context)
                 checkout_started_count += 1
+                interactions += 1
+
                 if discounted:
                         discounted_checkout_started_count += 1
 
@@ -436,6 +442,8 @@ def generate_interactions(users_df, products_df):
                         product=product,
                         discount_context=discount_context)
                 order_completed_count += 1
+                interactions += 1
+
                 if discounted:
                     discounted_order_completed_count += 1
 
