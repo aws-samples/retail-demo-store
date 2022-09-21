@@ -1,4 +1,4 @@
-module carts
+module orders
 
 go 1.11
 

@@ -1,4 +1,4 @@
-module carts
+module users
 
 go 1.11
 
