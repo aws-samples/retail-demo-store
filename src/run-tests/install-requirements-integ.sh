@@ -1,5 +1,7 @@
 source .venv/bin/activate
 
+pip install -r requirements.txt
+
 dir="$PWD"
 home_dir="$(dirname "$dir")"
 cd "$home_dir" || exit

@@ -15,7 +15,7 @@ You can find the common environment variables from your deployed stack in the Cl
 ```sh
 aws cloudformation describe-stacks --stack-name retaildemostore \
   --region REGION \
-  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue"
+  --query "Stacks[0].Outputs[?OutputKey=='ExportEnvVarScript'].OutputValue" \
   --output text
 ```
 

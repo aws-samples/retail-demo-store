@@ -15,7 +15,7 @@ set -e
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this script, we use only 2 arguments (S3_BUCKET, REGION)
 # 2. "pre_create_personalize" contains a boolean value whether "--pre-create-personalize" is presented 
-# 2. "pre_index_elasticsearch" contains a boolean value whether "--pre-index-elasticsearch" is presented
+# 3. "pre_index_elasticsearch" contains a boolean value whether "--pre-index-elasticsearch" is presented
 ########################################################################################################################################
 args=()
 pre_create_personalize=false
@@ -33,18 +33,18 @@ do
         bool=$(echo ${arg:2} | sed s/://g)
         if [ "$bool" == "pre-create-personalize" ]
         then
-            private_s3=true
-            echo Recieved a \"--pre-create-personalize\" flag. Will create personalize resources after deployment
+            pre_create_personalize=true
+            echo Received a \"--pre-create-personalize\" flag. Will create personalize resources after deployment
         elif [ "$bool" == "pre-index-elasticsearch" ]
         then
-            only_cfn_template=true
-            echo Recieved a \"--pre-index-elasticsearch\" flag. Will index ElasticSearch after deployment
+            pre_index_elasticsearch=true
+            echo Received a \"--pre-create-personalize\" flag. Will index ElasticSearch after deployment
         else
             echo Received an unknown flag \"$bool\"
             exit 1
         fi
       else
-        value=$1
+        # value=$1
         shift
         # echo \"$arg\" is flag with value \"$value\"
       fi
