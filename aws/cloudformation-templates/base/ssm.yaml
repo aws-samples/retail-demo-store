@@ -180,7 +180,7 @@ Resources:
   ParameterAmplitudeApiKey:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "retaildemostore-amplitude-api-key"
+      Name: "/retaildemostore/webui/amplitude_api_key"
       Type: "String"
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, "NONE"]
       Description: "Retail Demo Store Amplitude API key"

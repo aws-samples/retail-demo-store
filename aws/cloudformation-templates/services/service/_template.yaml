@@ -257,7 +257,6 @@ Resources:
         SearchServiceExternalUrl: !Ref SearchServiceExternalUrl
         PinpointAppId: !Ref PinpointAppId
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !Ref DeleteRepositoryLambdaArn
