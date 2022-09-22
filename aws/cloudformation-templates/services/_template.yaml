@@ -100,10 +100,6 @@ Parameters:
     Type: String
     Description: SSM parameter name for the Personalize event tracking ID
 
-  ParameterAmplitudeApiKey:
-    Type: String
-    Description: SSM parameter name for the Amplitude API key
-
   ParameterOptimizelySdkKey:
     Type: String
     Description: SSM parameter name for the Optimizely SDK key
@@ -160,7 +156,6 @@ Resources:
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -193,7 +188,6 @@ Resources:
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         PinpointAppId: !Ref PinpointAppId
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
@@ -227,7 +221,6 @@ Resources:
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -260,7 +253,6 @@ Resources:
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -294,7 +286,6 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -328,7 +319,6 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -362,7 +352,6 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -398,7 +387,6 @@ Resources:
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
@@ -431,7 +419,6 @@ Resources:
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
