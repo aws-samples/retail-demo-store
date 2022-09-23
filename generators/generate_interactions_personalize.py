@@ -111,7 +111,7 @@ class PersonalizeOutputFileWriter:
         self.csv_file.writerow([product_id,
                                 user_id,
                                 event_name,
-                                timestamp,
+                                int(timestamp),
                                 discount_context])
 
 # This is a hack to get around numpy nonstandard type serialization to JSON
