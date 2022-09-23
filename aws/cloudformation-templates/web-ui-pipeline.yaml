@@ -118,10 +118,6 @@ Parameters:
   ParameterPersonalizeEventTrackerId:
     Type: String
 
-  ParameterAmplitudeApiKey:
-    Type: String
-    Description: SSM parameter name for the Amplitude API key parameter name
-
   ParameterOptimizelySdkKey:
     Type: String
     Description: SSM Parameter name for the Optimizely SDK key parameter name
@@ -433,9 +429,6 @@ Resources:
           - Name: PERSONALIZE_TRACKING_ID
             Type: PARAMETER_STORE
             Value: !Ref ParameterPersonalizeEventTrackerId
-          - Name: AMPLITUDE_API_KEY
-            Type: PARAMETER_STORE
-            Value: !Ref ParameterAmplitudeApiKey
           - Name: OPTIMIZELY_SDK_KEY
             Type: PARAMETER_STORE
             Value: !Ref ParameterOptimizelySdkKey

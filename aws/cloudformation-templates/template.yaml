@@ -554,7 +554,6 @@ Resources:
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
-        ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
@@ -618,7 +617,6 @@ Resources:
             !GetAtt Location.Outputs.LocationNotificationEndpoint,
             "NotDeployed",
           ]
-        ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         ParameterSegmentWriteKey: !GetAtt Base.Outputs.ParameterSegmentWriteKey
         ParameterGoogleAnalyticsMeasurementId: !GetAtt Base.Outputs.ParameterGoogleAnalyticsMeasurementId

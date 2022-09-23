@@ -44,6 +44,9 @@ export default {
 
         return connection.get(related, { params: params })
     },
+
+    // TODO:  Add Amplitude Profile API switch here
+
     getRecommendationsForUser(userID, currentItemID, numResults, feature) {
         let params = {
             userID: userID,

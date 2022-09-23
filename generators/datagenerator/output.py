@@ -5,9 +5,6 @@ from datagenerator.segment import SegmentIdentifyEvent, SegmentTrackEvent, Segme
 from datagenerator.amplitude import AmplitudeIdentifyEvent, AmplitudeTrackEvent, AmplitudeSender
 from datagenerator.file import FileEvent
 
-# TODO: Add Personalize output file formatter
-# TODO: Add Amplitude output formatter
-
 class OutputFormatter:
   def __init__(self, timestamp, user, platform, properties, name = None):
     self.event = name

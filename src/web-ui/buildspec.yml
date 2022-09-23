@@ -4,6 +4,7 @@ env:
   parameter-store:
     MPARTICLE_API_KEY: "/retaildemostore/webui/mparticle_api_key"
     MPARTICLE_SECRET_KEY: "/retaildemostore/webui/mparticle_secret_key"
+    AMPLITUDE_API_KEY: "/retaildemostore/webui/amplitude_api_key"
 
 phases:
   install:
