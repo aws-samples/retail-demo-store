@@ -27,6 +27,7 @@ import random
 import yaml
 import logging
 from collections import defaultdict
+from datetime import datetime, timedelta
 
 # Keep things deterministic
 RANDOM_SEED = 0
@@ -34,9 +35,11 @@ RANDOM_SEED = 0
 # Where to put the generated data so that it is picked up by stage.sh
 GENERATED_DATA_ROOT = "src/aws-lambda/personalize-pre-create-resources/data"
 
-# Interactions will be generated between these dates
-FIRST_TIMESTAMP = 1591803782  # 2020-06-10, 18:43:02
-LAST_TIMESTAMP = 1599579782  # 2020-09-08, 18:43:02
+# Interactions will be generated across the last 90 days
+DAYS_BACK = 90
+now = datetime.now()
+LAST_TIMESTAMP = int(datetime.timestamp(now))
+FIRST_TIMESTAMP = int(datetime.timestamp(now - timedelta(days = DAYS_BACK)))
 
 # Users are set up with 3 product categories on their personas. If [0.6, 0.25, 0.15] it means
 # 60% of the time they'll choose a product from the first category, etc.
