@@ -33,6 +33,16 @@ export const AnalyticsHandler = {
            }
     },
 
+    generateAmplitudeUserId(user) {
+        if(user) {
+            console.log(`Amplitude User ID: ${user.id}`);
+            // Retail Demo Store has a lot of sub-5 digit user IDs this will follow the Amplitude 5 char user ID string spec
+            return String(user.id).padStart(5, '0');
+        }
+
+        return null;
+    },
+
     async identify(user) {
         if (!user) {
             return Promise.resolve()
@@ -359,9 +369,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
-            if(user) {
-                console.log(`Amp User ID: ${user.id}`);
-            }
+            eventProperties['user_id'] = this.generateAmplitudeUserId(user);
             Amplitude.getInstance().logEvent('AddToCart', eventProperties);
         }
 
