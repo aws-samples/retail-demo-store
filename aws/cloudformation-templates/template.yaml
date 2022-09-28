@@ -59,6 +59,8 @@ Metadata:
           default: "Optional Integrations"
         Parameters:
           - AmplitudeApiKey
+          - AmplitudeSecretApiKey
+          - AmplitudeRecommendationID
           - OptimizelySdkKey
           - IncludeSegmentDependencies
           - SegmentWriteKey
@@ -117,6 +119,10 @@ Metadata:
         default: "Deploy personalized offers and pickup notices using Location Services geofencing"
       AmplitudeApiKey:
         default: "Amplitude API Key"
+      AmplitudeSecretApiKey:
+        default: "Amplitude Project Secret API Key"
+      AmplitudeRecommendationID:
+        default: "Amplitude Recommender ID (from the Recommender Details page)"
       OptimizelySdkKey:
         default: "Optimizely SDK Key"
       AmazonPayStoreId:
@@ -291,6 +297,16 @@ Parameters:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
     NoEcho: true
+
+  AmplitudeSecretApiKey:
+    Type: String
+    Description: Amplitude secret API key from you project - this is used for the Profile API
+    NoEcho: true
+
+  AmplitudeRecommendationID:
+    Type: String
+    Description: Amplitude Receommender ID from the Recommender Details page
+    NoEcho: false
 
   OptimizelySdkKey:
     Type: String
@@ -505,6 +521,8 @@ Resources:
         CreateOpenSearchServiceLinkedRole: !Ref CreateOpenSearchServiceLinkedRole
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        AmplitudeSecretApiKey: !Ref AmplitudeSecretApiKey
+        AmplitudeRecommendationID: !Ref AmplitudeRecommendationID
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey

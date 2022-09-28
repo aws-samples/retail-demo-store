@@ -43,6 +43,16 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  AmplitudeSecretApiKey:
+    Type: String
+    Description: Amplitude secret API key from you project - this is used for the Profile API
+    NoEcho: true
+
+  AmplitudeRecommendationID:
+    Type: String
+    Description: Amplitude Receommender ID from the Recommender Details page
+    NoEcho: false
+
   ParentStackName:
     Type: String
     Description: Parent stack name
@@ -269,6 +279,8 @@ Resources:
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         ExperimentStrategyTableName: !GetAtt Tables.Outputs.ExperimentStrategyTable
         AmplitudeApiKey: !Ref AmplitudeApiKey
+        AmplitudeSecretApiKey: !Ref AmplitudeSecretApiKey
+        AmplitudeRecommendationID: !Ref AmplitudeRecommendationID
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
         mParticleOrgId: !Ref mParticleOrgId

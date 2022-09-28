@@ -16,6 +16,16 @@ Parameters:
     Description: Amplitude API key for product analytics and A/B testing results (optional).
     NoEcho: true
 
+  AmplitudeSecretApiKey:
+    Type: String
+    Description: Amplitude secret API key from you project - this is used for the Profile API
+    NoEcho: true
+
+  AmplitudeRecommendationID:
+    Type: String
+    Description: Amplitude Receommender ID from the Recommender Details page
+    NoEcho: false
+
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
@@ -61,6 +71,10 @@ Parameters:
 Conditions:
   HasAmplitudeApiKey:
     !Not [!Equals [!Ref AmplitudeApiKey, ""]]
+  HasAmplitudeSecretApiKey:
+    !Not [!Equals [!Ref AmplitudeSecretApiKey, ""]]
+  HasAmplitudeRecommendationID:
+    !Not [!Equals [!Ref AmplitudeRecommendationID, ""]]
   HasOptimizelySdkKey:
     !Not [!Equals [!Ref OptimizelySdkKey, ""]]
   HasSegmentWriteKey:
@@ -184,6 +198,22 @@ Resources:
       Type: "String"
       Value: !If [HasAmplitudeApiKey, !Ref AmplitudeApiKey, "NONE"]
       Description: "Retail Demo Store Amplitude API key"
+
+  ParameterAmplitudeSecretApiKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/amplitude_secret_api_key"
+      Type: "String"
+      Value: !If [HasAmplitudeSecretApiKey, !Ref AmplitudeSecretApiKey, "NONE"]
+      Description: "Retail Demo Store Amplitude secret API key"
+
+  ParameterAmplitudeRecommendationID:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/webui/amplitude_recommendation_id"
+      Type: "String"
+      Value: !If [HasAmplitudeRecommendationID, !Ref AmplitudeRecommendationID, "NONE"]
+      Description: "Retail Demo Store Amplitude Recommender ID (see Recommender Details page)"
 
   ParameterOptimizelySdkKey:
     Type: "AWS::SSM::Parameter"

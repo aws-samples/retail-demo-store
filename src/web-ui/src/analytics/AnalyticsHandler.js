@@ -19,8 +19,8 @@ export const AnalyticsHandler = {
     clearUser() {
         if (this.amplitudeEnabled()) {
             // Update Amplitude user
-            Amplitude.getInstance().setUserId(null)
-            Amplitude.getInstance().regenerateDeviceId()
+            Amplitude.getInstance().setUserId(null);
+            Amplitude.getInstance().regenerateDeviceId();
         }
         if (this.mParticleEnabled()) {
             var identityCallback = function() {
@@ -400,7 +400,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
-            eventProperties['user_id'] = this.generateAmplitudeUserId(user);
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('AddToCart', eventProperties);
         }
 
@@ -543,6 +543,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('RemoveFromCart', eventProperties);
         }
 
@@ -617,6 +618,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('UpdateQuantity', eventProperties);
         }
     },
@@ -776,6 +778,7 @@ export const AnalyticsHandler = {
 
         if (this.amplitudeEnabled()) {
             // Amplitude event
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('ViewCart', eventProperties);
         }
 
@@ -863,6 +866,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('StartCheckout', eventProperties);
         }
 
@@ -936,6 +940,7 @@ export const AnalyticsHandler = {
 
             if (this.amplitudeEnabled()) {
                 // Amplitude revenue
+                this.amplitudeIdentify(user);
                 let revenue = new Amplitude.Revenue()
                     .setProductId(orderItem.product_id.toString())
                     .setPrice(+orderItem.price.toFixed(2))
@@ -998,6 +1003,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('Purchase', eventProperties);
         }
 
@@ -1067,7 +1073,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
-            eventProperties['user_id'] = user.id
+            this.amplitudeIdentify(user);
             Amplitude.getInstance().logEvent('Search', eventProperties);
         }
 

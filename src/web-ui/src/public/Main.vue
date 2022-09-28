@@ -183,6 +183,9 @@ export default {
       }
 
       if (response.headers) {
+
+        // TODO: ADD AMPLITUDE is_control CHECK HERE TO PRESENT RECS OR NOT
+
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
