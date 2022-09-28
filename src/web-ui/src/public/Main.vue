@@ -161,17 +161,19 @@ export default {
       this.userRecommendationsDemoGuideBadgeArticle = null;
 
       var response;
-      if (this.personalizeRecommendationsForVisitor) {
+      if (this.personalizeRecommendationsForVisitor && process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID !== 'NONE' && 
+          process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID ) {
+        response = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+      } else if (this.personalizeRecommendationsForVisitor) {
+
         this.featureUserRecs = EXPERIMENT_USER_RECS_FEATURE;
 
         response = await RecommendationsRepository.getRecommendationsForUser(
           this.personalizeUserID,
           '',
           MAX_RECOMMENDATIONS,
-          this.featureUserRecs
-        );
-      }
-      else {
+          this.featureUserRecs);
+      } else {
         this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
 
         response = await RecommendationsRepository.getPopularProducts(
@@ -183,9 +185,6 @@ export default {
       }
 
       if (response.headers) {
-
-        // TODO: ADD AMPLITUDE is_control CHECK HERE TO PRESENT RECS OR NOT
-
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
@@ -206,6 +205,23 @@ export default {
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);
+          }
+        } else {  // This is an Amplitude response
+          // Check if this is a control user or actual recommendations
+          if (response.userData.recommendations[0].is_control) {
+            this.userRecommendationsTitle = 'Popular products';
+            this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
+
+            response = await RecommendationsRepository.getPopularProducts(
+              this.personalizeUserID,
+              '',
+              MAX_RECOMMENDATIONS,
+              this.featureUserRecs
+            );
+            this.userRecommendations = response.data; 
+          } else {
+            this.userRecommendationsTitle = 'Inspired by your shopping trends (Amplitude)'
+            this.userRecommendations = response.userData.recommendations[0].items;
           }
         }
       }
