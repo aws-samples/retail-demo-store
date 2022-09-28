@@ -35,9 +35,10 @@ export const AnalyticsHandler = {
 
     generateAmplitudeUserId(user) {
         if(user) {
-            console.log(`Amplitude User ID: ${user.id}`);
+            ampID = String(user.id).padStart(5, '0');
+            console.log(`Amplitude User ID: ${ampID}`);
             // Retail Demo Store has a lot of sub-5 digit user IDs this will follow the Amplitude 5 char user ID string spec
-            return String(user.id).padStart(5, '0');
+            return ampID;
         }
 
         return null;
