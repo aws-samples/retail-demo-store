@@ -5,11 +5,8 @@
         <div v-if="userRecommendationsTitle" class="mb-3 text-left">
           <h2 class="recommendations-heading">
             {{ userRecommendationsTitle }}
-            <DemoGuideBadge
-              v-if="userRecommendationsDemoGuideBadgeArticle"
-              :article="userRecommendationsDemoGuideBadgeArticle"
-              hideTextOnSmallScreens
-            ></DemoGuideBadge>
+            <DemoGuideBadge v-if="userRecommendationsDemoGuideBadgeArticle"
+              :article="userRecommendationsDemoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge>
           </h2>
           <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted small">
             <i class="fa fa-balance-scale px-1"></i>
@@ -17,45 +14,33 @@
           </div>
         </div>
 
-        <div
-          v-if="
-            personalizeUserID &&
-              ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
-          "
-        >
+        <div v-if="
+          personalizeUserID &&
+            ((isLoadingRecommendations && !userRecommendations) || (!isLoadingRecommendations && userRecommendations))
+        ">
           <LoadingFallback v-if="!userRecommendations" class="col my-4 text-center"></LoadingFallback>
 
           <div v-else class="user-recommendations">
-            <Product
-              v-for="item in userRecommendations"
-              :key="item.product.id"
-              :product="item.product"
-              :experiment="item.experiment"
-              :feature="featureUserRecs"
-            ></Product>
+            <Product v-for="item in userRecommendations" :key="item.product.id" :product="item.product"
+              :experiment="item.experiment" :feature="featureUserRecs"></Product>
           </div>
         </div>
 
         <div v-if="!isLoadingRecommendations && !userRecommendationsTitle" class="text-left">
           <em>
-            Personalized recommendations do not appear to be enabled for this instance of the storefront yet. Please complete the Personalization workshop labs to add personalized capabilities.
+            Personalized recommendations do not appear to be enabled for this instance of the storefront yet. Please
+            complete the Personalization workshop labs to add personalized capabilities.
             In the meantime, the default user experience will provide product information directly from the catalog.
           </em>
         </div>
       </section>
 
-      <RecommendedProductsSection
-        :feature="featureRerank"
-        :recommendedProducts="featuredProducts"
-        :experiment="featuredProductsExperiment"
-      >
+      <RecommendedProductsSection :feature="featureRerank" :recommendedProducts="featuredProducts"
+        :experiment="featuredProductsExperiment">
         <template #heading>
           Featured products
-          <DemoGuideBadge
-            v-if="featuredProductsDemoGuideBadgeArticle"
-            :article="featuredProductsDemoGuideBadgeArticle"
-            hideTextOnSmallScreens
-          ></DemoGuideBadge>
+          <DemoGuideBadge v-if="featuredProductsDemoGuideBadgeArticle" :article="featuredProductsDemoGuideBadgeArticle"
+            hideTextOnSmallScreens></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
     </div>
@@ -161,19 +146,17 @@ export default {
       this.userRecommendationsDemoGuideBadgeArticle = null;
 
       var response;
-      if (this.personalizeRecommendationsForVisitor && process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID !== 'NONE' && 
-          process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID ) {
-        response = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
-      } else if (this.personalizeRecommendationsForVisitor) {
-
+      if (this.personalizeRecommendationsForVisitor) {
         this.featureUserRecs = EXPERIMENT_USER_RECS_FEATURE;
 
         response = await RecommendationsRepository.getRecommendationsForUser(
           this.personalizeUserID,
           '',
           MAX_RECOMMENDATIONS,
-          this.featureUserRecs);
-      } else {
+          this.featureUserRecs
+        );
+      }
+      else {
         this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
 
         response = await RecommendationsRepository.getPopularProducts(
@@ -185,6 +168,9 @@ export default {
       }
 
       if (response.headers) {
+
+        // TODO: ADD AMPLITUDE is_control CHECK HERE TO PRESENT RECS OR NOT
+
         const experimentName = response.headers['x-experiment-name'];
         const personalizeRecipe = response.headers['x-personalize-recipe'];
 
@@ -205,23 +191,6 @@ export default {
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);
-          }
-        } else {  // This is an Amplitude response
-          // Check if this is a control user or actual recommendations
-          if (response.userData.recommendations[0].is_control) {
-            this.userRecommendationsTitle = 'Popular products';
-            this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
-
-            response = await RecommendationsRepository.getPopularProducts(
-              this.personalizeUserID,
-              '',
-              MAX_RECOMMENDATIONS,
-              this.featureUserRecs
-            );
-            this.userRecommendations = response.data; 
-          } else {
-            this.userRecommendationsTitle = 'Inspired by your shopping trends (Amplitude)'
-            this.userRecommendations = response.userData.recommendations[0].items;
           }
         }
       }
