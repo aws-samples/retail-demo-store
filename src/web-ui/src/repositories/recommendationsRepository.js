@@ -14,6 +14,13 @@ const connection = axios.create({
     baseURL
 })
 
+// Per the Amplitude Recommendation API spec:  https://developers.amplitude.com/docs/user-profile-api
+// and the Recommendations spec:  https://help.amplitude.com/hc/en-us/articles/360059626072-Use-recommendations-in-personalization-campaigns 
+const amplitudeAPI = axios.create({
+    baseURL: 'https://profile-api.amplitude.com',
+    headers: { 'Authorization': `Api-Key ${process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY}`}
+});
+
 const popular = "/popular"
 const related = "/related"
 const recommendations = "/recommendations"
@@ -21,6 +28,7 @@ const rerank = "/rerank"
 const chooseDiscounted = "/choose_discounted"
 const couponOffer = "/coupon_offer"
 const experimentOutcome = "/experiment/outcome"
+const amplitudeUserProfile = "/v1/userprofile"
 
 export default {
     getPopularProducts(userID, currentItemID, numResults, feature) {
@@ -46,6 +54,16 @@ export default {
     },
 
     // TODO:  Add Amplitude Profile API switch here
+    getAmplitudeRecommendationsForUser(userID) {
+        let ampID = String(userID).padStart(5, '0');
+        console.log(`Getting Amplitude recommendations for userID ${ampID}`);
+        let params = {
+            user_id: ampID,
+            rec_id: process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID
+        };
+
+        return amplitudeAPI.get(amplitudeUserProfile, { params: params });
+    },
 
     getRecommendationsForUser(userID, currentItemID, numResults, feature) {
         let params = {
