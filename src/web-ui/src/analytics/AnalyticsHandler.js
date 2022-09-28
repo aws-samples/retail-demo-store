@@ -236,33 +236,6 @@ export const AnalyticsHandler = {
             if (this.mParticleEnabled()) {
                 window.mParticle.logEvent('UserSignedIn', window.mParticle.EventType.Transaction, { "method": "Web" });
             }
-
-            if (this.amplitudeEnabled()) {
-                // Amplitude identify call
-                Amplitude.getInstance().setUserId(user.id);
-                // Should we be doing this. Need to support case of switching
-                // users and not getting sessions confused.
-                Amplitude.getInstance().regenerateDeviceId();
-
-                var identify = new Amplitude.Identify()
-                    .set('username', user.username)
-                    .set('email', user.email)
-                    .set('firstName', user.first_name)
-                    .set('lastName', user.last_name)
-                    .set('gender', user.gender)
-                    .set('age', user.age)
-                    .set('persona', user.persona)
-
-                if (user.sign_up_date) {
-                    identify.setOnce('signUpDate', user.sign_up_date)
-                }
-
-                if (user.last_sign_in_date) {
-                    identify.set('lastSignInDate', user.last_sign_in_date)
-                }
-
-                Amplitude.getInstance().identify(identify)
-            }
         }
     },
 
@@ -386,6 +359,9 @@ export const AnalyticsHandler = {
         }
 
         if (this.amplitudeEnabled()) {
+            if(user) {
+                console.log(`Amp User ID: ${user.id}`);
+            }
             Amplitude.getInstance().logEvent('AddToCart', eventProperties);
         }
 
