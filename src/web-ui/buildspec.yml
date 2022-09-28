@@ -5,7 +5,9 @@ env:
     MPARTICLE_API_KEY: "/retaildemostore/webui/mparticle_api_key"
     MPARTICLE_SECRET_KEY: "/retaildemostore/webui/mparticle_secret_key"
     AMPLITUDE_API_KEY: "/retaildemostore/webui/amplitude_api_key"
-
+    AMPLITUDE_SECRET_API_KEY: "/retaildemostore/webui/amplitude_secret_api_key"
+    AMPLITUDE_RECOMMENDATION_ID: "/retaildemostore/webui/amplitude_recommendation_id"
+    
 phases:
   install:
     runtime-versions:
