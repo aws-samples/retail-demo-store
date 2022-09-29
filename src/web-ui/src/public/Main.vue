@@ -139,7 +139,7 @@ export default {
       }
     },
 
-    async getAmplitudeRecs(userId) {
+    async getAmplitudeRecommendations(userId) {
       try {
         let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(userId);
         console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
@@ -176,7 +176,7 @@ export default {
 
         if (process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY && process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY != 'NONE' &&
             process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID && process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID != 'NONE') {
-          this.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+          this.getAmplitudeRecommendations(this.personalizeUserID);
         }
         
       }
