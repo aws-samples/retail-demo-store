@@ -138,6 +138,20 @@ export default {
         this.featuredProducts = featuredProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
       }
     },
+
+    async getAmplitudeRecs(userId) {
+      try {
+        let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+        console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+        console.log('Amplitude Response');
+        console.log(JSON.stringify(ampRecs));
+        return ampRecs.userData.recommendations[0];
+      } catch (e) {
+        console.log(`ERROR fetching Amplitude results: ${e}`);
+        return null;
+      }
+    },
+
     async getUserRecommendations() {
       this.isLoadingRecommendations = true;
       this.userRecommendationsTitle = null;
@@ -156,14 +170,15 @@ export default {
           this.featureUserRecs
         );
 
-        let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
-
         console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
         console.log('Personalize Results');
         console.log(JSON.stringify(response));
-        console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
-        console.log('Amplitude Response');
-        console.log(JSON.stringify(ampRecs));
+
+        if (process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY && process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY != 'NONE' &&
+            process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID && process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID != 'NONE') {
+          let ampResults = this.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+        }
+        
       }
       else {
         this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
