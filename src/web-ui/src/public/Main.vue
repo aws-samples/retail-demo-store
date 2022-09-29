@@ -141,7 +141,7 @@ export default {
 
     async getAmplitudeRecs(userId) {
       try {
-        let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+        let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(userId);
         console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
         console.log('Amplitude Response');
         console.log(JSON.stringify(ampRecs));
@@ -176,7 +176,7 @@ export default {
 
         if (process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY && process.env.VUE_APP_AMPLITUDE_SECRET_API_KEY != 'NONE' &&
             process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID && process.env.VUE_APP_AMPLITUDE_RECOMMENDATION_ID != 'NONE') {
-          let ampResults = this.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+          this.getAmplitudeRecommendationsForUser(this.personalizeUserID);
         }
         
       }
