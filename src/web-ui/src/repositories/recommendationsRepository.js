@@ -53,7 +53,6 @@ export default {
         return connection.get(related, { params: params })
     },
 
-    // TODO:  Add Amplitude Profile API switch here
     getAmplitudeRecommendationsForUser(userID) {
         let ampID = String(userID).padStart(5, '0');
         console.log(`Getting Amplitude recommendations for userID ${ampID}`);

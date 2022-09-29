@@ -155,6 +155,15 @@ export default {
           MAX_RECOMMENDATIONS,
           this.featureUserRecs
         );
+
+        let ampRecs = await RecommendationsRepository.getAmplitudeRecommendationsForUser(this.personalizeUserID);
+
+        console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+        console.log('Personalize Results');
+        console.log(JSON.stringify(response));
+        console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+        console.log('Amplitude Response');
+        console.log(JSON.stringify(ampRecs));
       }
       else {
         this.featureUserRecs = EXPERIMENT_USER_RECS_COLD_FEATURE;
