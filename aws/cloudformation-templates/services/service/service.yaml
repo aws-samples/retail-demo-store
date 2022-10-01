@@ -342,6 +342,10 @@ Resources:
           Secrets:
             - Name: OPTIMIZELY_SDK_KEY
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
+            - Name: AMPLITUDE_SECRET_API_KEY
+              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/webui/amplitude_api_key'
+            - Name: AMPLITUDE_RECOMMENDATION_ID
+              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore/webui/amplitude_recommendation_id'
             - Name: SEGMENT_WRITE_KEY
               ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
           Environment:
