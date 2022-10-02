@@ -31,13 +31,13 @@ class AmplitudeFeatureTest(experiment.Experiment):
                                     filter_values=filter_values,
                                     context=context)
 
-        log.info(f'Resolver Items: ${items}')
+        log.info(f'Resolver Items: {items}')
 
-        response = requests.get('https://profile-api.amplitude.com', 
-            headers={'Authorization': f'Api-Key ${amplitude_secret_key}'},
-            params={'user_id': f'${user_id}', 'rec_id': amplitude_rec_id})
+        response = requests.get('https://profile-api.amplitude.com/v1/userprofile', 
+            headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
+            params={'user_id': f'{user_id}', 'rec_id': amplitude_rec_id})
 
-        log.info(f'Amplitude Items: ${response}')
+        log.info(f'Amplitude Items: {response}')
 
         self.feature = 'home_product_recs' # Only for the home page for this workshop
 
@@ -45,7 +45,7 @@ class AmplitudeFeatureTest(experiment.Experiment):
             #correlation_id = self._create_correlation_id(user_id, variation_key, rank)
             item['experiment'] = {'type': 'amplitude',
                                   'feature': self.feature,
-                                  'name': f'Amplitude ${amplitude_rec_id}'}
+                                  'name': f'Amplitude {amplitude_rec_id}'}
         return items
 
     def track_conversion(self, correlation_id: str, timestamp: datetime = datetime.now()):

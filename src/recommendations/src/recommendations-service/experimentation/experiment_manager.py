@@ -1,7 +1,6 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-from recommendations.src.recommendations-service.experimentation.experiment_amplitude import AmplitudeFeatureTest
 import boto3
 import logging
 
