@@ -1,6 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+from recommendations.src.recommendations-service.experimentation.experiment_amplitude import AmplitudeFeatureTest
 import boto3
 import logging
 
@@ -10,6 +11,7 @@ from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
 from experimentation.evidently_feature_resolver import EvidentlyFeatureResolver
 from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk, optimizely_configured
+from experimentation.experiment_amplitude import AmplitudeFeatureTest, amplitude_configured
 from experimentation.tracking import KinesisTracker
 
 log = logging.getLogger(__name__)
@@ -40,8 +42,15 @@ class ExperimentManager:
     def is_optimizely_configured(self):
         return optimizely_configured
 
+    def is_amplitude_configured(self):
+        return amplitude_configured
+
     def get_active(self, feature, user_id):
         """ Returns the active experiment for the given feature """
+
+        if self.is_amplitude_configured():
+            return AmplitudeFeatureTest()
+
         # 1. If Optimizely is configured for this deployment, check for active Optimizely experiment.
         if self.is_optimizely_configured():
             config = optimizely_sdk.get_optimizely_config()

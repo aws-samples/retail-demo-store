@@ -145,7 +145,7 @@ export default {
         console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
         console.log('Amplitude Response');
         console.log(JSON.stringify(ampRecs));
-        return ampRecs.userData.recommendations[0];
+        return ampRecs.data.userData.recommendations[0];
       } catch (e) {
         console.log(`ERROR fetching Amplitude results: ${e}`);
         return null;
