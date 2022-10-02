@@ -8,7 +8,7 @@ import requests
 import logging
 
 amplitude_rec_id = os.environ.get('AMPLITUDE_RECOMMENDATION_ID', 'NONE')
-amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_KEY', 'NONE')
+amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_API_KEY', 'NONE')
 amplitude_configured =  amplitude_rec_id != 'NONE' and amplitude_secret_key != 'NONE'
 
 log = logging.getLogger(__name__)
