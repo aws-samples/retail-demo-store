@@ -1028,7 +1028,7 @@ if __name__ == '__main__':
             logging.getLogger('experimentation.experiment_manager').addHandler(handler)
             handler.setLevel(level)  # this will get the main app logs to CloudWatch
 
-    app.wsgi_app = LoggingMiddleware(app.wsgi_app)
+    #app.wsgi_app = LoggingMiddleware(app.wsgi_app)
 
     amplitude_rec_id = os.environ.get('AMPLITUDE_RECOMMENDATION_ID', 'NONE')
     amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_KEY', 'NONE')
