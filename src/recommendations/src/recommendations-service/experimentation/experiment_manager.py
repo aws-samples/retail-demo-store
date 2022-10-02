@@ -10,7 +10,7 @@ from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
 from experimentation.evidently_feature_resolver import EvidentlyFeatureResolver
 from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk, optimizely_configured
-from experimentation.experiment_amplitude import AmplitudeFeatureTest, amplitude_configured
+from experimentation.experiment_amplitude import AmplitudeFeatureTest, amplitude_configured, amplitude_rec_id
 from experimentation.tracking import KinesisTracker
 
 log = logging.getLogger(__name__)
@@ -50,7 +50,13 @@ class ExperimentManager:
         log.debug(f'************ AMPLITUDE CONFIGURED: {self.is_amplitude_configured()} *******************')
 
         if self.is_amplitude_configured() and feature == 'home_product_recs':
-            return AmplitudeFeatureTest()
+            data = {'id': amplitude_rec_id,
+                    'feature': feature,
+                    'name': 'amplitude-home-product-recs',
+                    'status': 'ACTIVE',
+                    'type': 'amplitude',
+                    'variations': []}
+            return AmplitudeFeatureTest(**data)
 
         # 1. If Optimizely is configured for this deployment, check for active Optimizely experiment.
         if self.is_optimizely_configured():
