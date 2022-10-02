@@ -1030,4 +1030,11 @@ if __name__ == '__main__':
 
     app.wsgi_app = LoggingMiddleware(app.wsgi_app)
 
+    amplitude_rec_id = os.environ.get('AMPLITUDE_RECOMMENDATION_ID', 'NONE')
+    amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_KEY', 'NONE')
+
+    logging.info('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+    logging.info(f'amp id: {amplitude_rec_id}')
+    logging.info(f'amp secret: {amplitude_secret_key}')
+
     app.run(debug=True, host='0.0.0.0', port=80)

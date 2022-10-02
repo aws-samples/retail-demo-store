@@ -13,9 +13,6 @@ amplitude_configured =  amplitude_rec_id != 'NONE' and amplitude_secret_key != '
 
 log = logging.getLogger(__name__)
 
-log.info('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
-log.info(f'amp id: {amplitude_rec_id}')
-
 class AmplitudeFeatureTest(experiment.Experiment):
     def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
         assert user_id, "`user_id` is required"
