@@ -70,6 +70,8 @@ services:
       - OFFERS_SERVICE_PORT
       - AWS_XRAY_DAEMON_ADDRESS=xray:2000
       - EVIDENTLY_PROJECT_NAME
+      - AMPLITUDE_SECRET_API_KEY
+      - AMPLITUDE_RECOMMENDATION_ID
     volumes:
       - ~/.aws/:/root/.aws:ro
     build:
