@@ -1033,8 +1033,8 @@ if __name__ == '__main__':
     amplitude_rec_id = os.environ.get('AMPLITUDE_RECOMMENDATION_ID', 'NONE')
     amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_KEY', 'NONE')
 
-    app.logger.debug('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
-    app.logger.debug(f'amp id: {amplitude_rec_id}')
-    app.logger.debug(f'amp secret: {amplitude_secret_key}')
+    print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+    print(f'amp id: {amplitude_rec_id}')
+    print(f'amp secret: {amplitude_secret_key}')
 
     app.run(debug=True, host='0.0.0.0', port=80)
