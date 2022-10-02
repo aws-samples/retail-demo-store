@@ -21,34 +21,31 @@ class AmplitudeFeatureTest(experiment.Experiment):
         # If user is in control, get DefaultResolver (featrued products)
         # else recommend the amplitude ones as this user get the treatment in the experiment
 
-        # All the kwargs that are passed to ResolverFactory.get will be stored as a JSON feature variable.
-        # algorithm_type = optimizely_sdk.get_feature_variable_string(self.feature, 'algorithm_type', user_id=user_id)
-        # algorithm_config = optimizely_sdk.get_feature_variable_json(self.feature, 'algorithm_config', user_id=user_id)
-        # resolver = resolvers.ResolverFactory.get(type=algorithm_type, **algorithm_config)
+        algorithm_config = {}
+        resolver = resolvers.ResolverFactory.get(type=resolvers.ResolverFactory.TYPE_PRODUCT, **algorithm_config)
 
-        # items = resolver.get_items(user_id=user_id,
-        #                            product_id=current_item_id,
-        #                            product_list=item_list,
-        #                            num_results=num_results,
-        #                            filter_values=filter_values,
-        #                            context=context)
+        items = resolver.get_items(user_id=user_id,
+                                    product_id=current_item_id,
+                                    product_list=item_list,
+                                    num_results=num_results,
+                                    filter_values=filter_values,
+                                    context=context)
+
+        log.info(f'Resolver Items: ${items}')
 
         response = requests.get('https://profile-api.amplitude.com', 
-            headers={'Authorization': f'Api-Key ${amplitude_secret_key}'})
+            headers={'Authorization': f'Api-Key ${amplitude_secret_key}'},
+            params={'user_id': f'${user_id}', 'rec_id': amplitude_rec_id})
 
-        log.info(f'${response}')
+        log.info(f'Amplitude Items: ${response}')
 
-        feature = 'home_product_recs' # Only for the home page for this workshop
+        self.feature = 'home_product_recs' # Only for the home page for this workshop
 
         for rank, item in enumerate(items, 1):
-            correlation_id = self._create_correlation_id(user_id, variation_key, rank)
+            #correlation_id = self._create_correlation_id(user_id, variation_key, rank)
             item['experiment'] = {'type': 'amplitude',
                                   'feature': self.feature,
-                                  'name': experiment_key,
-                                  'experiment_key': experiment_key,
-                                  'variationIndex': variation_key,
-                                  'revision_number': config.revision,
-                                  'correlationId': correlation_id}
+                                  'name': f'Amplitude ${amplitude_rec_id}'}
         return items
 
     def track_conversion(self, correlation_id: str, timestamp: datetime = datetime.now()):
