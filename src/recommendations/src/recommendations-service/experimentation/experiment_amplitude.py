@@ -11,8 +11,6 @@ amplitude_rec_id = os.environ.get('AMPLITUDE_RECOMMENDATION_ID', 'NONE')
 amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_API_KEY', 'NONE')
 amplitude_configured =  amplitude_rec_id != 'NONE' and amplitude_secret_key != 'NONE'
 
-log = logging.getLogger(__name__)
-
 class AmplitudeFeatureTest(experiment.Experiment):
     def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
         assert user_id, "`user_id` is required"
@@ -31,13 +29,13 @@ class AmplitudeFeatureTest(experiment.Experiment):
                                     filter_values=filter_values,
                                     context=context)
 
-        log.info(f'Resolver Items: {items}')
+        print(f'******************** Amp Resolver Items: {items}')
 
         response = requests.get('https://profile-api.amplitude.com/v1/userprofile', 
             headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
             params={'user_id': f'{user_id}', 'rec_id': amplitude_rec_id})
 
-        log.info(f'Amplitude Items: {response}')
+        print(f'********************* Amplitude Items: {response}')
 
         self.feature = 'home_product_recs' # Only for the home page for this workshop
 

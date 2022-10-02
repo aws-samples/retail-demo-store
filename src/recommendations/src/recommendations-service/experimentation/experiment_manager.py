@@ -47,9 +47,9 @@ class ExperimentManager:
     def get_active(self, feature, user_id):
         """ Returns the active experiment for the given feature """
 
+        print(f'************ AMPLITUDE CONFIGURED: {self.is_amplitude_configured()} *******************')
+
         if self.is_amplitude_configured():
-            log.debug('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
-            log.debug('Amplitude Configured')
             return AmplitudeFeatureTest()
 
         # 1. If Optimizely is configured for this deployment, check for active Optimizely experiment.
