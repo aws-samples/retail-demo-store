@@ -32,10 +32,6 @@ class AmplitudeFeatureTest(experiment.Experiment):
     def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
         assert user_id, "`user_id` is required"
 
-        # Call Amplitude
-        # If user is in control, get DefaultResolver (featrued products)
-        # else recommend the amplitude ones as this user get the treatment in the experiment
-
         is_control, items = self.get_amplitude_items(user_id)
 
         if is_control:  # This user is in the control group, show them most popular products        
