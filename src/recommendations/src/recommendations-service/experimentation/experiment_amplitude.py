@@ -13,7 +13,7 @@ amplitude_configured =  amplitude_rec_id != 'NONE' and amplitude_secret_key != '
 
 class AmplitudeFeatureTest(experiment.Experiment):
 
-    def get_amplitude_items(user_id):
+    def get_amplitude_items(self, user_id):
         uid = f'{user_id:0>5}' 
         response = requests.get('https://profile-api.amplitude.com/v1/userprofile', 
             headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
