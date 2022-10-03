@@ -47,9 +47,8 @@ class ExperimentManager:
     def get_active(self, feature, user_id):
         """ Returns the active experiment for the given feature """
 
-        log.debug(f'************ AMPLITUDE CONFIGURED: {self.is_amplitude_configured()} *******************')
-
         if self.is_amplitude_configured() and feature == 'home_product_recs':
+            log.debug(f'************ AMPLITUDE CONFIGURED: {self.is_amplitude_configured()} *******************')
             data = {'id': amplitude_rec_id,
                     'feature': feature,
                     'name': 'amplitude-home-product-recs',

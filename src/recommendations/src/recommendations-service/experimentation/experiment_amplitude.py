@@ -35,15 +35,33 @@ class AmplitudeFeatureTest(experiment.Experiment):
             headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
             params={'user_id': f'{user_id}', 'rec_id': amplitude_rec_id})
 
-        print(f'********************* Amplitude Items: {response}')
+        print(f'********************* Amplitude Items: {response.content}')
 
         self.feature = 'home_product_recs' # Only for the home page for this workshop
 
         for rank, item in enumerate(items, 1):
+            correlation_id = self._create_correlation_id(user_id, 0, rank)
+
+            item_experiment = {
+                'id': self.id,
+                'feature': self.feature,
+                'name': self.name,
+                'type': self.type,
+                'variationIndex': 0,
+                'resultRank': rank,
+                'correlationId': correlation_id
+            }
+
+            item.update({
+                'experiment': item_experiment
+            })
+
+            rank += 1
+
             #correlation_id = self._create_correlation_id(user_id, variation_key, rank)
-            item['experiment'] = {'type': 'amplitude',
-                                  'feature': self.feature,
-                                  'name': f'Amplitude {amplitude_rec_id}'}
+            # item['experiment'] = {'type': 'amplitude',
+            #                       'feature': self.feature,
+            #                       'name': f'Amplitude {amplitude_rec_id}'}
         return items
 
     def track_conversion(self, correlation_id: str, timestamp: datetime = datetime.now()):
