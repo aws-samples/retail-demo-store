@@ -12,6 +12,23 @@ amplitude_secret_key = os.environ.get('AMPLITUDE_SECRET_API_KEY', 'NONE')
 amplitude_configured =  amplitude_rec_id != 'NONE' and amplitude_secret_key != 'NONE'
 
 class AmplitudeFeatureTest(experiment.Experiment):
+
+    def get_amplitude_items(user_id):
+        uid = f'{user_id:0>5}' 
+        response = requests.get('https://profile-api.amplitude.com/v1/userprofile', 
+            headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
+            params={'user_id': uid, 'rec_id': amplitude_rec_id})
+        res = response.json()
+        items = []
+        is_user_in_control_group = True
+        if res:
+            for item in res['userData']['recommendations'][0]['items']:
+                items.append({'itemId': item})
+
+            is_user_in_control_group = res['userData']['recommendations'][0]['is_control']
+
+        return is_user_in_control_group, items
+
     def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
         assert user_id, "`user_id` is required"
 
@@ -19,23 +36,18 @@ class AmplitudeFeatureTest(experiment.Experiment):
         # If user is in control, get DefaultResolver (featrued products)
         # else recommend the amplitude ones as this user get the treatment in the experiment
 
-        algorithm_config = {}
-        resolver = resolvers.ResolverFactory.get(type=resolvers.ResolverFactory.TYPE_PRODUCT, **algorithm_config)
+        is_control, items = self.get_amplitude_items(user_id)
 
-        items = resolver.get_items(user_id=user_id,
-                                    product_id=current_item_id,
-                                    product_list=item_list,
-                                    num_results=num_results,
-                                    filter_values=filter_values,
-                                    context=context)
+        if is_control:  # This user is in the control group, show them most popular products        
+            algorithm_config = {}
+            resolver = resolvers.ResolverFactory.get(type=resolvers.ResolverFactory.TYPE_PRODUCT, **algorithm_config)
 
-        print(f'******************** Amp Resolver Items: {items}')
-
-        response = requests.get('https://profile-api.amplitude.com/v1/userprofile', 
-            headers={'Authorization': f'Api-Key {amplitude_secret_key}'},
-            params={'user_id': f'{user_id}', 'rec_id': amplitude_rec_id})
-
-        print(f'********************* Amplitude Items: {response.content}')
+            items = resolver.get_items(user_id=user_id,
+                                        product_id=current_item_id,
+                                        product_list=item_list,
+                                        num_results=num_results,
+                                        filter_values=filter_values,
+                                        context=context)
 
         self.feature = 'home_product_recs' # Only for the home page for this workshop
 
