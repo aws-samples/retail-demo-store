@@ -3,6 +3,7 @@
 
 import json
 import requests
+import sys
 
 # Amplitude event support
 # This follows the Amplitude V2 HTTP Bulk API spec, here:
@@ -12,6 +13,7 @@ import requests
 # into an Amplitude API compatible represenation.
 
 amplitude_interactions_file = 'src/aws-lambda/personalize-pre-create-resources/data/amplitude/interactions.json'
+conversion_events_file = 'src/aws-lambda/personalize-pre-create-resources/data/amplitude/conversion_events.json'
 amplitude_key = 'f6cdf64a6db24778bb9ce82188c19a95'
 
 class AmplitudeSender:
@@ -39,8 +41,8 @@ class AmplitudeSender:
       print(f'Sent {len(batch_events["events"])} events and got {response}')
     return response
 
-if __name__ == '__main__':
-    with open(amplitude_interactions_file, 'r') as events_file:
+def send_file(filename):
+    with open(filename, 'r') as events_file:
         sender = AmplitudeSender( { 'api_key': amplitude_key })
 
         total_event_count = 0
@@ -61,3 +63,17 @@ if __name__ == '__main__':
         if len(events) > 0:
             sender.send_batch(events)
             print(f'sending {len(events)} events')
+
+def get_args(name='default', first='noop'):
+    return first
+
+if __name__ == '__main__':
+  op = get_args(*sys.argv)
+  if op == 'noop':
+    print('SENDING EVENTS FILE')
+    send_file(amplitude_interactions_file)
+  elif op == 'conversion':
+    print('SENDING CONVERSIONS FILE')
+    send_file(conversion_events_file)
+  else:
+    print(f'INVALID OPTION {op} - USAGE:  send_to_amplitude.py [conversion - optional]')
