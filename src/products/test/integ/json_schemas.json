@@ -15,7 +15,8 @@
           "aliases": {"type": ["array", "null"]},
           "price": {"type": "number"},
           "image": {"type": "string"},
-          "current_stock": {"type": "number"}
+          "current_stock": {"type": "number"},
+          "promoted": {"type": "string"}
       }
     }
   },
@@ -34,8 +35,9 @@
         "price": {"type": "number"},
         "image": {"type": "string"},
         "featured": {"type": "string"},
-        "current_stock": {"type": "number"}
-    }
+        "current_stock": {"type": "number"},
+        "promoted": {"type": "string"}
+  }
   },
     "/products/featured": {
     "type": "array",
@@ -55,7 +57,8 @@
           "image": {"type": "string"},
           "featured": {"type": "string"},
           "gender_affinity": {"type": "string"},
-          "current_stock": {"type": "number"}
+          "current_stock": {"type": "number"},
+          "promoted": {"type": "string"}
       }
     }
   },
@@ -75,7 +78,8 @@
           "aliases": {"type": ["array", "null"]},
           "price": {"type": "number"},
           "image": {"type": "string"},
-          "current_stock": {"type": "number"}
+          "current_stock": {"type": "number"},
+          "promoted": {"type": "string"}
       }
     }
   },
@@ -120,7 +124,8 @@
         "image": {"type": "string"},
         "featured": {"type": "string"},
         "gender_affinity": {"type":  "string"},
-        "current_stock": {"type": "number"}
-    }
+        "current_stock": {"type": "number"},
+        "promoted": {"type": "string"}
+  }
   }
 }

@@ -244,7 +244,8 @@ func RepoFindProductByCategory(category string) Products {
 		expression.Name("description"),
 		expression.Name("price"),
 		expression.Name("gender_affinity"),
-		expression.Name("current_stock"))
+		expression.Name("current_stock"),
+		expression.Name("promoted"))
 	expr, err := expression.NewBuilder().WithKeyCondition(keycond).WithProjection(proj).Build()
 
 	if err != nil {

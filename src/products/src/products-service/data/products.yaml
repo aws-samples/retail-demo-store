@@ -108,6 +108,7 @@
   image: 1a3fa9d4-e320-4873-be58-f3f6af5f99f4.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: da1f2a8f-5372-4102-b357-9e40900ebb08
   current_stock: 10
   name: Red Backpack
@@ -118,6 +119,7 @@
   image: da1f2a8f-5372-4102-b357-9e40900ebb08.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 0c47dade-1ec0-483a-9ab4-1b87604bdaf8
   current_stock: 19
   name: Pink Backpack
@@ -128,6 +130,7 @@
   image: 0c47dade-1ec0-483a-9ab4-1b87604bdaf8.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f995ec8d-237c-4513-8bfa-9aee210f097c
   current_stock: 19
   name: Dark Olive Green Backpack
@@ -158,6 +161,7 @@
   image: b438ff91-d7cc-461b-b7fb-951d195e32bb.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: d2d5b3ba-8e15-4161-b50a-e56869e20eb2
   current_stock: 13
   name: Black Backpack
@@ -178,6 +182,7 @@
   image: bb7d8938-2183-4556-a6af-c3761c094711.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: ccf64e5d-bee5-438a-99b7-14d8cf33596a
   current_stock: 17
   name: Dark Olive Green Backpack
@@ -199,6 +204,7 @@
   image: 77165ec4-e965-47b2-adbc-5d0e519c00ed.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a6d169a8-4d21-4cb3-b04a-ba3c978b6009
   current_stock: 8
   name: Pale Gray Backpack
@@ -322,6 +328,7 @@
   price: 126.99
   image: b535e4ad-3f3c-4b05-9715-9dc7077239de.jpg
   where_visible: UI
+  promoted: true
 - id: 2cc89e77-685d-423c-80a9-82e07ea13b7c
   current_stock: 10
   name: Dark Slate Gray Backpack
@@ -331,6 +338,7 @@
   price: 82.99
   image: 2cc89e77-685d-423c-80a9-82e07ea13b7c.jpg
   where_visible: UI
+  promoted: true
 - id: 5c010bac-31a6-4ff3-9557-2f5e20b509cc
   current_stock: 12
   name: Leather Backpack
@@ -376,6 +384,7 @@
   price: 133.99
   image: a3ad25e8-c9c3-459a-a853-c26a0ad837eb.jpg
   where_visible: UI
+  promoted: true
 - id: 90946422-31ea-4dd1-8651-a9e3a122bcf6
   current_stock: 10
   name: Dark Slate Gray Backpack
@@ -394,6 +403,7 @@
   price: 120.99
   image: d9d3351f-1fdb-4ba7-b757-55f18a1a2dc0.jpg
   where_visible: UI
+  promoted: true
 - id: 0d748c4b-8fae-47e7-80f5-bfbae8c4c2f1
   current_stock: 12
   name: Black Backpack
@@ -403,6 +413,7 @@
   price: 111.99
   image: 0d748c4b-8fae-47e7-80f5-bfbae8c4c2f1.jpg
   where_visible: UI
+  promoted: true
 - id: d0062fa5-02b3-4c94-be9f-2fdafa7cde2d
   current_stock: 9
   name: Gainsboro Backpack
@@ -466,6 +477,7 @@
   price: 90.99
   image: 8325cf2c-2158-4b9b-ab7a-d55e072e9ce6.jpg
   where_visible: UI
+  promoted: true
 - id: 3efb5bf2-b419-43b9-9b1f-78a6aa6fc2b7
   current_stock: 18
   name: Black Bag
@@ -586,6 +598,7 @@
   image: 58c0ca95-b1ff-4cd4-a7c2-2ea2ce714ad4.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 4743a2b1-89a1-42c2-bd95-fe6feb8befea
   current_stock: 13
   name: Black Bag
@@ -596,6 +609,7 @@
   image: 4743a2b1-89a1-42c2-bd95-fe6feb8befea.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 78770acc-562f-42a9-89fb-22bf5b6b60a2
   current_stock: 8
   name: Saddle Brown Bag
@@ -626,6 +640,7 @@
   image: fd4829c9-5c51-49a1-ac9f-1d316506a75f.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: cb12324e-4a35-4c97-a5ec-b14424bb1570
   current_stock: 9
   name: Peru-Orange Bag
@@ -693,6 +708,7 @@
   image: e2c8393e-2109-4a91-966f-f30274d0515d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b31c2063-c802-4ceb-a77a-0cab15cf99ee
   current_stock: 12
   name: Hip Belt
@@ -713,6 +729,7 @@
   image: af7da9e1-844a-4c9a-8277-0127feda35b4.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 55b3f4ff-7a92-4ad7-bc1b-59c98c23c6d9
   current_stock: 16
   name: Swell Belt
@@ -793,6 +810,7 @@
   image: 9c05f815-7ecf-4054-9132-7f47455d3a43.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 07441beb-9b1a-4c25-b302-2f11362cff86
   current_stock: 8
   name: Supercool Belt
@@ -893,6 +911,7 @@
   image: 6cae2ce6-9fae-4eff-a26e-f483ff6aead6.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 40661057-b318-4fc9-bf00-8a1ab1b3c3cb
   current_stock: 7
   name: Groovy Belt
@@ -903,6 +922,7 @@
   image: 40661057-b318-4fc9-bf00-8a1ab1b3c3cb.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: ac841c3e-6a9d-42d3-8b1a-5465380c2af2
   current_stock: 14
   name: Swanky Belt
@@ -963,6 +983,7 @@
   image: c6dd0909-46f3-4cf9-a059-fbdff93198dd.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 3eba60d7-fbde-4f4d-bb3a-30df62057fe0
   current_stock: 19
   name: Ultracool Belt
@@ -993,6 +1014,7 @@
   image: 083c4c20-48c3-4610-b3f1-405602408f15.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: f1eb9d5b-94d8-4c3d-bf0b-3cad66c5f58e
   current_stock: 10
   name: Fashionable Belt
@@ -1023,6 +1045,7 @@
   image: fcb6244e-d745-41cc-b364-961cc301e36e.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: e6a872ab-6a79-4703-9148-1efdca2289e5
   current_stock: 6
   name: Funky Belt
@@ -1063,6 +1086,7 @@
   image: c3801e4e-9cdf-4ca8-80ec-7c7ce09a84fa.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 75edcc32-739d-4f67-aa1b-167ccb734c48
   current_stock: 6
   name: Fashionable Glasses
@@ -1073,6 +1097,7 @@
   image: 75edcc32-739d-4f67-aa1b-167ccb734c48.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 844846d9-dc61-4709-8286-a0f79d6ae809
   current_stock: 10
   name: Fashionable Glasses
@@ -1103,6 +1128,7 @@
   image: 4e5d7396-eb2c-48a2-8087-501333c06065.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 7c0147c7-4dba-4d4c-a543-57c5da5a4774
   current_stock: 18
   name: Voguish Glasses
@@ -1123,6 +1149,7 @@
   image: cd8355e3-d70a-4243-a216-37e30319023d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 161ff272-2e10-46ff-895a-83c52e3ce8ed
   current_stock: 19
   name: Funky Glasses
@@ -1143,6 +1170,7 @@
   image: 9e676f4b-d23f-416e-9b12-ce2179c88caf.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c912eaa1-6c6c-4096-8194-ab220e1830c0
   current_stock: 7
   name: Ultrahip Glasses
@@ -1173,6 +1201,7 @@
   image: d24d73d1-2c7e-4fe8-abe7-88de2c2bca51.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b48717fa-76f0-4cd9-af37-81961de245a6
   current_stock: 14
   name: Sassy Glasses
@@ -1183,6 +1212,7 @@
   image: b48717fa-76f0-4cd9-af37-81961de245a6.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 39d2d574-f973-4dbb-9c2c-8ae277a812db
   current_stock: 12
   name: Cool Glasses
@@ -1213,6 +1243,7 @@
   image: dc073623-4b95-47d9-93cb-0171c20baa04.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 3d8b3023-0b1e-4da4-8bc3-fc130bbedf17
   current_stock: 15
   name: Cool Glasses
@@ -1223,6 +1254,7 @@
   image: 3d8b3023-0b1e-4da4-8bc3-fc130bbedf17.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9fbbfe69-98f3-43a6-9a78-7d8ac254a777
   current_stock: 6
   name: Edgy Glasses
@@ -1233,6 +1265,7 @@
   image: 9fbbfe69-98f3-43a6-9a78-7d8ac254a777.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 101c0296-48b4-496d-accd-2205e79a0048
   current_stock: 12
   name: Ultrachic Glasses
@@ -1273,6 +1306,7 @@
   image: 5af0136a-862b-42fa-a127-958a8bbd2167.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 0d76bb55-cd0f-4efb-afda-613b6c6e1fae
   current_stock: 8
   name: Ultrahip Glasses
@@ -1333,6 +1367,7 @@
   image: 62cffe33-18c5-4fe6-852c-988271dff3e1.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 0451bd94-f74f-4fb6-99db-951275508ae3
   current_stock: 7
   name: Edgy Glasses
@@ -1353,6 +1388,7 @@
   image: 273065c3-745d-4346-b1e0-9803948e7978.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a5a8b97e-8464-4da5-ab78-3531e5d313df
   current_stock: 12
   name: Groovy Glasses
@@ -1363,6 +1399,7 @@
   image: a5a8b97e-8464-4da5-ab78-3531e5d313df.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: c219ee74-6a27-4dd2-8ccb-f3c6611e5d9f
   current_stock: 12
   name: Fashionable Glasses
@@ -1383,6 +1420,7 @@
   image: c3d0fa25-54b9-4876-8a83-9c10e35c711f.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: eb18ce0f-6a22-41e6-b04a-27daab2846d0
   current_stock: 18
   name: Cool Glasses
@@ -1423,6 +1461,7 @@
   image: e358575b-7983-4f61-9902-bd44ce9ead6b.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 31e38e25-f6be-43de-a7d1-facbc1f1529b
   current_stock: 16
   name: Dapper Glasses
@@ -1433,6 +1472,7 @@
   image: 31e38e25-f6be-43de-a7d1-facbc1f1529b.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 36d7d18d-d064-4009-8a2d-8ddf7884daca
   current_stock: 10
   name: Ultracool Glasses
@@ -1513,6 +1553,7 @@
   image: c11354c7-a2fa-489d-9850-1ce5dcebeec5.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 7c94be0d-e4c7-4f22-8adc-7619f1df5c26
   current_stock: 19
   name: Cool Glasses
@@ -1533,6 +1574,7 @@
   image: 39f54127-2206-445c-ab15-ffb044137c56.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: bc3a633f-d164-4911-a931-4350f958d767
   current_stock: 19
   name: Hip Glasses
@@ -1563,6 +1605,7 @@
   image: ff973006-27da-45dd-899c-8441c5eaebe0.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: ca3f03ff-72a5-4a6a-9cd9-a513fcde604e
   current_stock: 13
   name: Supercool Glasses
@@ -1583,6 +1626,7 @@
   image: 321f93c5-c289-4418-ae3d-05c524f867ad.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: c0a8f249-ed54-4860-8417-5875beffbcf1
   current_stock: 8
   name: Trendy Glasses
@@ -1633,6 +1677,7 @@
   image: dcc91c9f-60e8-4232-9a79-2ce51736c087.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: b9eef17f-2ee0-4a08-b22f-2c2cd24e04d7
   current_stock: 18
   name: Dapper Glasses
@@ -1643,6 +1688,7 @@
   image: b9eef17f-2ee0-4a08-b22f-2c2cd24e04d7.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 9943c887-d454-420d-a39b-b4a81e2980b7
   current_stock: 10
   name: Sienna Handbag
@@ -1758,6 +1804,7 @@
   image: 16c829fc-6585-426d-a1cd-922266e20678.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b98a3579-2a92-47e5-a9ae-65d776c76ac3
   current_stock: 6
   name: Beige Handbag
@@ -1778,6 +1825,7 @@
   image: 8840e8ea-d896-4132-80ea-1247b95bb62d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c07ba51e-48d5-4efb-bce7-95fd6243666a
   current_stock: 18
   name: Dark Slate Blue Handbag
@@ -1839,6 +1887,7 @@
   image: 0485ddb0-0112-4a31-afe0-75f9ddf6e14f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 68a13141-37a2-4caf-925b-33a7b6310861
   current_stock: 10
   name: Leather Handbag
@@ -1849,6 +1898,7 @@
   image: 68a13141-37a2-4caf-925b-33a7b6310861.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 4df77d59-732e-4194-b9aa-7ad3878345e7
   current_stock: 17
   name: Tan Handbag
@@ -1889,6 +1939,7 @@
   image: 49ed0f16-157d-4d9e-a408-5b48b7ec256d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: e65ebcd0-dd43-4fe6-a54a-9e23afbd19fb
   current_stock: 11
   name: Light Pink Handbag
@@ -1929,6 +1980,7 @@
   image: ae654958-7897-4115-8baf-b5059c20d72b.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c15d7a38-9df9-44ee-8733-6bda17f89e8c
   current_stock: 18
   name: Linen Hue Handbag
@@ -1939,6 +1991,7 @@
   image: c15d7a38-9df9-44ee-8733-6bda17f89e8c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 8c36eff5-e299-49c0-8e91-5c72ed5fa605
   current_stock: 6
   name: Pink Handbag
@@ -2058,6 +2111,7 @@
   image: a6183f9b-75dc-4dd3-9a1e-3d0fbb0e49f1.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 6928c229-e860-45f9-8720-45e2ea2fae2f
   current_stock: 10
   name: Ultrahip Watch
@@ -2088,6 +2142,7 @@
   image: 1249276c-851a-4f46-81fb-873fd7d5f60f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9c37e1bd-ece1-4319-9349-b80bf86bea15
   current_stock: 18
   name: Spiffy Watch
@@ -2098,6 +2153,7 @@
   image: 9c37e1bd-ece1-4319-9349-b80bf86bea15.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 7220b5cd-110b-4105-813a-677846470816
   current_stock: 14
   name: Swell Watch
@@ -2158,6 +2214,7 @@
   image: b354d578-7bc2-460e-a1d1-703ae0af1343.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a3d102ea-c01f-4c8b-ae38-08402bc32712
   current_stock: 7
   name: Trendy Watch
@@ -2318,6 +2375,7 @@
   image: da045e5a-9383-482d-956b-8a3b6d705bdc.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 3eeaa0d2-b2bf-44d6-83cf-0bd1cb7d32f3
   current_stock: 16
   name: Denim Overcoat
@@ -2328,6 +2386,7 @@
   image: 3eeaa0d2-b2bf-44d6-83cf-0bd1cb7d32f3.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: d55cb0b4-613b-4dd7-865a-458033564ecc
   current_stock: 15
   name: Dark Slate Gray Jacket
@@ -2368,6 +2427,7 @@
   image: b03a9d18-3bd9-4d1c-9ebb-2d94cad7c7cc.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 71624fbc-5ef0-4ce0-badf-fca084a92595
   current_stock: 19
   name: Midnight Blue Denim
@@ -2478,6 +2538,7 @@
   image: 772d4a37-ca54-4df2-bd5e-611ac3b9e4ac.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: d38d09a5-0504-42bd-97f1-83631d2e31ee
   current_stock: 11
   name: Crimson Jacket
@@ -2518,6 +2579,7 @@
   image: 18feeda6-063d-46b0-b0aa-86c514d8151f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: ef6ca20c-3280-4ac7-bbdb-6c1d055ec62e
   current_stock: 18
   name: Winter Jacket
@@ -2578,6 +2640,7 @@
   image: 4509f2ec-2ed9-4906-ab6c-97f8f945defb.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 6e6ad102-7510-4a02-b8ce-5a0cd6f431d1
   current_stock: 13
   name: Gainsboro Jacket
@@ -2618,6 +2681,7 @@
   image: ad62d66b-887f-4f87-afbc-26a372e0d9f7.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f47de389-968c-4387-b753-5fede3cbb100
   current_stock: 9
   name: Dark Slate Gray Jacket
@@ -2668,6 +2732,7 @@
   image: e44cc0bf-d467-4aae-99fe-268e85eb0d1c.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a5f2bd4e-61a8-4643-afea-188825cbb3fa
   current_stock: 10
   name: Black Leather Jacket
@@ -2688,6 +2753,7 @@
   image: f928dfd9-93f3-433c-bd00-ef702f58418a.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: dce757b6-709e-48c2-89d7-3002963b871e
   current_stock: 14
   name: Saddle Brown Coat
@@ -2778,6 +2844,7 @@
   image: 3b4ec162-f680-4323-8ddc-95cf37366248.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: d2a2b6d3-7d7a-483e-9112-4a73d2be964c
   current_stock: 15
   name: Dark Slate Gray Jacket
@@ -2808,6 +2875,7 @@
   image: a17b4428-be23-4ccf-820c-e4d502b18979.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 8b5b37ee-6d26-4ce1-b010-75149fc0674d
   current_stock: 11
   name: Swanky Denim Jacket
@@ -2828,6 +2896,7 @@
   image: ac29564f-2c74-47c7-8f00-5249c8eda839.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: fd282367-138f-4f8c-bd7b-4e07242bff34
   current_stock: 17
   name: Cadet Blue Jacket
@@ -2838,6 +2907,7 @@
   image: fd282367-138f-4f8c-bd7b-4e07242bff34.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 1849aebd-fdda-4f05-be3f-28f2c61d8901
   current_stock: 6
   name: Black Rain Jacket
@@ -2908,6 +2978,7 @@
   image: df47e844-f0de-488b-b6eb-38753c204ae9.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 7d676725-83fd-47a4-bd64-8acbed6a5e74
   current_stock: 7
   name: Dark Slate Gray Coat
@@ -2918,6 +2989,7 @@
   image: 7d676725-83fd-47a4-bd64-8acbed6a5e74.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 1772332f-facc-4f13-b229-2c25f7c360ca
   current_stock: 11
   name: Dark Brown Coat
@@ -2928,6 +3000,7 @@
   image: 1772332f-facc-4f13-b229-2c25f7c360ca.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: e2ea5f0e-7c91-4d51-89e2-a06afc5e939b
   current_stock: 17
   name: Dark Slate Gray Jacket
@@ -3028,6 +3101,7 @@
   image: c108b04b-64fd-43bd-80fc-4819eb01803a.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 34cce05b-39b9-4927-897f-753e118fdd48
   current_stock: 7
   name: Black Jacket
@@ -3079,6 +3153,7 @@
   image: 4b284c98-08b1-4337-9a5e-d1ae8010c85d.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 9e90d949-90f7-443a-8a85-fa7e590bc589
   current_stock: 14
   name: Hip Scarf
@@ -3129,6 +3204,7 @@
   image: e1669081-8ffc-4dec-97a6-e9176d7f6651.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 924010e4-eaf2-4067-91dd-854ad41b593c
   current_stock: 18
   name: Outstanding Scarf
@@ -3139,6 +3215,7 @@
   image: 924010e4-eaf2-4067-91dd-854ad41b593c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: e592c09b-990c-4b6a-842a-71c4b2de9773
   current_stock: 13
   name: Modish Scarf
@@ -3199,6 +3276,7 @@
   image: b751f814-869a-4d95-993a-15753208f0ca.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f51fb444-2d3a-4f88-bda3-667114177172
   current_stock: 16
   name: Sublime Scarf
@@ -3219,6 +3297,7 @@
   image: 83a3e082-774d-489d-a082-0cfab4829b19.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 291d81c2-023b-40f0-8d06-ff3c8ccd1dfb
   current_stock: 9
   name: Groovy Scarf
@@ -3229,6 +3308,7 @@
   image: 291d81c2-023b-40f0-8d06-ff3c8ccd1dfb.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b58b6838-04f7-4d13-bd35-633883f94a11
   current_stock: 18
   name: Quintessential Scarf
@@ -3239,6 +3319,7 @@
   image: b58b6838-04f7-4d13-bd35-633883f94a11.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 6077dc55-683e-4261-9397-df2c615811a8
   current_stock: 18
   name: First-Class Scarf
@@ -3299,6 +3380,7 @@
   image: 53014964-755a-4cf6-9f6c-5c917773e3c9.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c7beb662-1cc4-4709-a420-ef768a43f6ad
   current_stock: 19
   name: First-Rate Scarf
@@ -3359,6 +3441,7 @@
   image: bc9319be-3d58-4094-995e-4415bd2b0193.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 17d2050f-19c4-4cf9-bf10-a83421f0052d
   current_stock: 10
   name: Sublime Scarf
@@ -3369,6 +3452,7 @@
   image: 17d2050f-19c4-4cf9-bf10-a83421f0052d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: e13ea370-f88c-49f9-ab8f-7b139825959d
   current_stock: 6
   name: Sans Pareil Scarf
@@ -3449,6 +3533,7 @@
   image: ef3bfb5d-2117-4fce-948d-a7ac144c96fc.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: c4ccb793-988a-46d9-bb54-8d58ca35213c
   current_stock: 14
   name: Dandyish Scarf
@@ -3459,6 +3544,7 @@
   image: c4ccb793-988a-46d9-bb54-8d58ca35213c.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: ead8e13f-9f00-45c6-8c60-9f52359af39e
   current_stock: 10
   name: Trendy Scarf
@@ -3539,6 +3625,7 @@
   image: 5ced3c03-4769-4822-8151-8c30e45fdf25.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 0451dee1-8367-4bf7-95a8-1e96c4f96784
   current_stock: 15
   name: Funky Scarf
@@ -3549,6 +3636,7 @@
   image: 0451dee1-8367-4bf7-95a8-1e96c4f96784.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 880ac468-d596-4332-9920-e5f96176ef65
   current_stock: 15
   name: Supercool Scarf
@@ -3579,6 +3667,7 @@
   image: 59b807a4-23d7-49f4-b3c1-64035bb3f35b.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: c29ec39d-7e15-445f-9077-26c63abfdc04
   current_stock: 18
   name: Funky Scarf
@@ -3599,6 +3688,7 @@
   image: 49f1a917-d624-4aa0-a797-35dc7f925f52.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: d75b932b-0593-4cbe-b61d-a9b2dbd16e51
   current_stock: 16
   name: Fashionable Scarf
@@ -3639,6 +3729,7 @@
   image: 1811c348-a164-4305-97e2-bd0427074f30.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 75e95254-d8e3-42eb-ba49-5b9c5c54be2f
   current_stock: 6
   name: Blue Sea Tee
@@ -3669,6 +3760,7 @@
   image: d37f2c71-3ed8-4b5c-b65d-06bb3ca69943.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: d31c6edf-9d66-4d87-bc80-854b328678e1
   current_stock: 11
   name: Crop Top
@@ -3679,6 +3771,7 @@
   image: d31c6edf-9d66-4d87-bc80-854b328678e1.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c6461825-558b-4def-aa22-3fa082dcb6af
   current_stock: 10
   name: Gainsboro Shirt
@@ -3699,6 +3792,7 @@
   image: 898401f5-771d-40c8-a4b5-a230c0bb68a5.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 48ed391e-d56e-46d8-968d-b2b4b1a99b0c
   current_stock: 13
   name: Floral Top
@@ -3709,6 +3803,7 @@
   image: 48ed391e-d56e-46d8-968d-b2b4b1a99b0c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 474388d1-dae8-43db-bf66-af0a22a221f7
   current_stock: 13
   name: Light Steel Blue Shirt
@@ -3719,6 +3814,7 @@
   image: 474388d1-dae8-43db-bf66-af0a22a221f7.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b4523e99-2599-42de-9d09-c950370aba1a
   current_stock: 8
   name: Black Shirt
@@ -3739,6 +3835,7 @@
   image: d9f978ee-732c-41cb-88db-221ac4b9bdf6.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 68a3a53b-4593-4aad-895f-2d8ae8695327
   current_stock: 10
   name: Light Gray Shirt
@@ -3789,6 +3886,7 @@
   image: e51f4c9b-ecdb-40db-8d8b-7d61f1fb2890.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: d47cc222-a711-4d26-9e86-d84cd9ba8dd4
   current_stock: 17
   name: Brown Shirt
@@ -3869,6 +3967,7 @@
   image: 0eceb1b4-30c6-4ce8-bd60-d4208ceb7acb.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 239e42a6-e8d8-404e-91f3-d713a2806ad0
   current_stock: 15
   name: Classic White Top
@@ -3909,6 +4008,7 @@
   image: 308e1a70-e10e-4f27-a923-5f1ac5d3c5d7.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9f886e97-dc28-4690-a011-8f8fb3ce5bfe
   current_stock: 19
   name: Pale Gray Shirt
@@ -3959,6 +4059,7 @@
   image: a4173910-cab1-4897-8317-ac138109ba8d.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: f49331ff-4021-465f-bb42-9dd6a5933791
   current_stock: 15
   name: Pale Gray Shirt
@@ -3999,6 +4100,7 @@
   image: 9dd60e44-d07a-4b7c-a72d-30a05577faed.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 4064a5eb-2183-4b89-8989-b8741e4dcb1c
   current_stock: 11
   name: Light Steel Blue Shirt
@@ -4059,6 +4161,7 @@
   image: ff9c5ec9-69d0-4338-b4b2-96d48b2e91aa.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: b2d44b10-c317-49cc-acb3-4bf9e5af8a74
   current_stock: 9
   name: Multicolor Checkered Shirt
@@ -4119,6 +4222,7 @@
   image: 74752034-abd6-482b-a652-eca3bdbc906e.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 370d4c36-44ed-4abd-8ccb-41d85b4251c9
   current_stock: 10
   name: Supercool Shirt
@@ -4149,6 +4253,7 @@
   image: 30da015d-6f04-4b45-aacb-82e1f0e9c0fc.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 5f052100-8675-4ed9-9b97-d12fc9e38539
   current_stock: 18
   name: Fashionable Shirt
@@ -4169,6 +4274,7 @@
   image: 1af515fd-522d-402a-b73c-ff73b0d2efe9.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a3474b22-2c5b-41f1-87b7-ea8040b6b2f6
   current_stock: 17
   name: Trendy White Shirt
@@ -4189,6 +4295,7 @@
   image: cafd3a0b-1cee-4b14-a852-fe507c8197cd.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 7266d3ec-a6ab-4ac3-b3bf-0b4bdd12ca13
   current_stock: 10
   name: Supercool White Shirt
@@ -4239,6 +4346,7 @@
   image: 02353f2f-f55f-4db5-b0bf-b9e588ecfe26.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a88f0fe2-5621-4168-a378-045362dcdc91
   current_stock: 12
   name: Trendy White Shirt
@@ -4359,6 +4467,7 @@
   image: 9b23f522-d90c-4f8e-9195-655ba8ca69bf.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 57aaa8c6-e8ba-4128-b3c6-daac8d023624
   current_stock: 16
   name: First-rate Socks
@@ -4399,6 +4508,7 @@
   image: d06df410-174c-4ef7-abcd-478f206f335f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 181136fc-b294-4594-afc6-3eb9c8185de6
   current_stock: 14
   name: Performance Socks
@@ -4429,6 +4539,7 @@
   image: 9ef22ad3-955a-4925-a4fc-b000a56fdada.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: ae6b8d70-760c-4e97-936b-4c56aaf9eac3
   current_stock: 6
   name: Fashionable Socks
@@ -4449,6 +4560,7 @@
   image: 17b30ddf-a797-42ba-8145-364fd62e724c.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 6d08204b-35e4-419b-b2c7-ef762a3c6597
   current_stock: 12
   name: Cool Socks
@@ -4469,6 +4581,7 @@
   image: ccb407b1-7620-4303-8521-fea86c51f503.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 62c73bcf-6dc0-473b-b038-455122c05173
   current_stock: 10
   name: Ultracool Socks
@@ -4623,6 +4736,7 @@
   price: 36.99
   image: 72ae72f3-e7f0-4f03-b8eb-12e78c77741d.jpg
   where_visible: UI
+  promoted: true
 - id: 5d6023ca-e614-49ea-aa61-643d9f7284d7
   current_stock: 10
   name: Charcoal Cream
@@ -4632,6 +4746,7 @@
   price: 9.99
   image: 5d6023ca-e614-49ea-aa61-643d9f7284d7.jpg
   where_visible: UI
+  promoted: true
 - id: 692ce7b7-54ec-422e-b40f-cd9967475263
   current_stock: 17
   name: Lip Balm
@@ -4714,6 +4829,7 @@
   price: 71.99
   image: 7fd05ca4-ac20-46cf-b4f8-87147eef8d65.jpg
   where_visible: UI
+  promoted: true
 - id: fe96a096-a0b6-4b20-a332-e11db6c0c7b0
   current_stock: 18
   name: Soft Towel
@@ -4771,6 +4887,7 @@
   image: 09920b2e-4e07-41f7-aca6-47744777a2a7.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 39945ad0-57c9-4c28-a69c-532d5d167202
   current_stock: 18
   name: Makeup Brushes
@@ -4801,6 +4918,7 @@
   image: 1bfbe5c7-6f02-4465-82f1-6083a4b302c0.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 6d5b3f03-ade6-42f7-969d-acd1f2162332
   current_stock: 10
   name: Razor
@@ -4831,6 +4949,7 @@
   image: afdd9c41-2762-45bf-b6a7-e3fb8f1b34ba.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 5dbc7cb7-39c5-4795-9064-d1655d78b3ca
   current_stock: 7
   name: Razor
@@ -4841,6 +4960,7 @@
   image: 5dbc7cb7-39c5-4795-9064-d1655d78b3ca.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 1e58593d-6395-41ca-9fb0-a9607337ce18
   current_stock: 13
   name: Toothbrush
@@ -4922,6 +5042,7 @@
   price: 81.99
   image: 5449ebf6-1579-4fdc-8e02-7f631d2cdfbd.jpg
   where_visible: UI
+  promoted: true
 - id: b2f9ea63-f7d4-4944-84ce-208164326c8e
   current_stock: 7
   name: Toothbrush
@@ -4949,6 +5070,7 @@
   price: 52.99
   image: 31eef6b5-781e-4353-a851-d73ff9c22f9a.jpg
   where_visible: UI
+  promoted: true
 - id: b740e07e-f890-4ace-8c97-4dc4cf1d173b
   current_stock: 17
   name: French Cuisine
@@ -4958,6 +5080,7 @@
   price: 19.99
   image: b740e07e-f890-4ace-8c97-4dc4cf1d173b.jpg
   where_visible: UI
+  promoted: true
 - id: 5e1679f5-2a52-44be-8453-760bf61d43b4
   current_stock: 16
   name: French Cuisine
@@ -4985,6 +5108,7 @@
   price: 25.99
   image: e3ba411e-c199-4933-a31f-5eb4260baa4a.jpg
   where_visible: UI
+  promoted: true
 - id: 9cc46ed9-287c-4ce8-bdb5-8e1fed177dd5
   current_stock: 16
   name: Italian Cuisine
@@ -5012,6 +5136,7 @@
   price: 27.99
   image: aee3290c-fe89-4606-916f-b59867dbcf04.jpg
   where_visible: UI
+  promoted: true
 - id: 9e663074-853f-45a4-a950-9419eaff5531
   current_stock: 18
   name: Spanish Cuisine
@@ -5093,6 +5218,7 @@
   price: 10.99
   image: b55e794f-1137-4de2-bcea-806041e080e6.jpg
   where_visible: UI
+  promoted: true
 - id: 84ab276d-9713-409f-861e-35502d6dc64a
   current_stock: 11
   name: Visit China
@@ -5148,6 +5274,7 @@
   price: 13.99
   image: 2a372402-5ea1-42cb-b374-0f6c10200fcc.jpg
   where_visible: UI
+  promoted: true
 - id: 1dddc877-52ac-480c-b786-2dbd2be70c04
   current_stock: 12
   name: Visit Iceland
@@ -5175,6 +5302,7 @@
   price: 14.99
   image: 6095dabe-0311-476c-b537-84f6f3dc2d75.jpg
   where_visible: UI
+  promoted: true
 - id: ec02b332-05a5-40dd-ae9d-2b0672baaa6e
   current_stock: 6
   name: Visit Japan
@@ -5238,6 +5366,7 @@
   price: 12.99
   image: e53a6570-3a3f-4ca8-b6dc-8ff378bca757.jpg
   where_visible: UI
+  promoted: true
 - id: 5c7c00f5-37fa-4fab-95f8-f6982401f762
   current_stock: 10
   name: Visit Sweden
@@ -5285,6 +5414,7 @@
   price: 16.99
   image: 5d6929a4-570d-4eaa-a0c4-4b1aa350add6.jpg
   where_visible: UI
+  promoted: true
 - id: ab704911-0afe-4c60-bf22-134c9e45f6d5
   current_stock: 7
   name: Convenient Cable
@@ -5294,6 +5424,7 @@
   price: 11.99
   image: ab704911-0afe-4c60-bf22-134c9e45f6d5.jpg
   where_visible: UI
+  promoted: true
 - id: 41a12d66-8172-4551-be7d-f575f9d85098
   current_stock: 11
   name: Ideal Cable
@@ -5323,6 +5454,7 @@
   price: 13.99
   image: 9f274415-3a6c-4266-9de3-239a75ca36c1.jpg
   where_visible: UI
+  promoted: true
 - id: 2a69de63-48a5-4fcf-b086-4faab06bf63a
   current_stock: 16
   name: Unrivaled Cable
@@ -5387,6 +5519,7 @@
   price: 1216.99
   image: 48504eb2-f982-44ac-919b-0555539f525d.jpg
   where_visible: UI
+  promoted: true
 - id: 55988ddb-e48f-4cb0-9474-93c4abba4f0f
   current_stock: 9
   name: Camera
@@ -5405,6 +5538,7 @@
   price: 665.99
   image: 1395fa7c-cceb-4ed2-a0dc-16500c639165.jpg
   where_visible: UI
+  promoted: true
 - id: b889fa0e-bbba-4e93-a41e-eff046a14073
   current_stock: 9
   name: Camera
@@ -5423,6 +5557,7 @@
   price: 9.99
   image: 0cb3ab29-b939-4732-b8ac-72ec61a4f950.jpg
   where_visible: UI
+  promoted: true
 - id: 7ef35f21-5d7d-4608-a3ea-63252c3ceaeb
   current_stock: 7
   name: Camera
@@ -5450,6 +5585,7 @@
   price: 9.99
   image: a3d100db-ddcf-4500-b3b9-74908b19b08f.jpg
   where_visible: UI
+  promoted: true
 - id: 999aaf19-41f9-4de6-913d-ff01ddcec556
   current_stock: 8
   name: Camera
@@ -5486,6 +5622,7 @@
   price: 9.99
   image: 40b1b91a-d1ff-40cf-8ea6-cea00103c8c7.jpg
   where_visible: UI
+  promoted: true
 - id: 838c1bd8-b433-4eba-aec6-34255db327dc
   current_stock: 10
   name: Camera
@@ -5504,6 +5641,7 @@
   price: 1840.99
   image: 8d23133d-113b-4798-a714-5418302835f0.jpg
   where_visible: UI
+  promoted: true
 - id: 0ce88e06-0088-4591-8be1-329bb8241c9e
   current_stock: 6
   name: Video Camera
@@ -5513,6 +5651,7 @@
   price: 1520.99
   image: 0ce88e06-0088-4591-8be1-329bb8241c9e.jpg
   where_visible: UI
+  promoted: true
 - id: 5b6eb862-f3a9-4b2c-8981-50a604ca676c
   current_stock: 13
   name: Video Camera
@@ -5531,6 +5670,7 @@
   price: 9.99
   image: 65439d96-79d7-41e2-bea7-6e98c0f204c0.jpg
   where_visible: UI
+  promoted: true
 - id: f899a4fd-832d-4820-b651-31f0d252525a
   current_stock: 12
   name: Video Camera
@@ -5639,6 +5779,7 @@
   price: 447.99
   image: 35d4970e-cd3d-4f69-9754-15c8765793d6.jpg
   where_visible: UI
+  promoted: true
 - id: a051511e-d3ac-46d3-ac9c-e82fa8e60a3e
   current_stock: 6
   name: Video Camera
@@ -5675,6 +5816,7 @@
   price: 9.99
   image: 536b9388-bafb-432d-9085-ad4af01edd6f.jpg
   where_visible: UI
+  promoted: true
 - id: 5156955f-dda2-4e19-831e-752c92bd8f85
   current_stock: 11
   name: Desktop Computer
@@ -5693,6 +5835,7 @@
   price: 9.99
   image: 5dd5e235-4d2e-432b-a1b9-8e738dc8aa3a.jpg
   where_visible: UI
+  promoted: true
 - id: 6bc496d1-f431-4642-b9ae-9dcc5881afe9
   current_stock: 8
   name: Desktop Computer
@@ -5702,6 +5845,7 @@
   price: 783.99
   image: 6bc496d1-f431-4642-b9ae-9dcc5881afe9.jpg
   where_visible: UI
+  promoted: true
 - id: e64a78fe-21c6-4a9d-afd2-454692ad7196
   current_stock: 19
   name: Desktop Computer
@@ -5720,6 +5864,7 @@
   price: 453.99
   image: 050f28e4-376d-474b-b2d0-0b62c751e85d.jpg
   where_visible: UI
+  promoted: true
 - id: b803aff7-6e4b-4beb-8d1d-dc7fe609274d
   current_stock: 15
   name: Laptop Computer
@@ -5738,6 +5883,7 @@
   price: 74.99
   image: 51de6572-fb70-4e41-8150-c107fd4a2763.jpg
   where_visible: UI
+  promoted: true
 - id: b4a323f8-0571-4bde-afe7-a27bc5394603
   current_stock: 6
   name: Accurate Headphones
@@ -5784,6 +5930,7 @@
   price: 109.99
   image: f440b3d5-5ac4-4371-9c82-574c9cdc52b9.jpg
   where_visible: UI
+  promoted: true
 - id: 94ff973a-3b0a-48d0-a182-c3abba01d61e
   current_stock: 10
   name: Authoritative Headphones
@@ -5793,6 +5940,7 @@
   price: 72.99
   image: 94ff973a-3b0a-48d0-a182-c3abba01d61e.jpg
   where_visible: UI
+  promoted: true
 - id: 1cd4ec2e-4786-47f7-92f4-6d44db0cff2c
   current_stock: 10
   name: High Fidelity Headphones
@@ -5856,6 +6004,7 @@
   price: 83.99
   image: 9b37c048-ae78-4095-9c27-5be95dbf5e3f.jpg
   where_visible: UI
+  promoted: true
 - id: ea27628a-e7a4-4383-a13b-71c32ddeee1c
   current_stock: 18
   name: Accurate Headphones
@@ -5874,6 +6023,7 @@
   price: 146.99
   image: 3d3f666f-013d-4bed-b694-f5b0623e8335.jpg
   where_visible: UI
+  promoted: true
 - id: 50b8092d-7f72-4fca-924f-1a953570cece
   current_stock: 9
   name: Computer Keyboard
@@ -5883,6 +6033,7 @@
   price: 37.99
   image: 50b8092d-7f72-4fca-924f-1a953570cece.jpg
   where_visible: UI
+  promoted: true
 - id: 4b86c44c-547e-4e54-bd16-b96d91875e4a
   current_stock: 16
   name: Computer Keyboard
@@ -5946,6 +6097,7 @@
   price: 191.99
   image: e780c3e7-9c9c-4b54-87ad-8bde1b837dd8.jpg
   where_visible: UI
+  promoted: true
 - id: 807e17f3-5daf-41c3-a07f-dbf6d48af7d9
   current_stock: 16
   name: High Fidelity Speakers
@@ -6027,6 +6179,7 @@
   price: 207.99
   image: fe1a58b0-93dd-4600-8955-1d90d04320fa.jpg
   where_visible: UI
+  promoted: true
 - id: 2a44c312-f951-4c8a-a77d-bf379a5e80cb
   current_stock: 16
   name: High Fidelity Speakers
@@ -6063,6 +6216,7 @@
   price: 246.99
   image: ea84753c-3c7c-4ab4-a60b-b6fa7f191c25.jpg
   where_visible: UI
+  promoted: true
 - id: 6fb0d1b7-6bff-44c6-b053-66d622642332
   current_stock: 10
   name: High Definition Speakers
@@ -6189,6 +6343,7 @@
   price: 114.99
   image: fe52b818-4912-4b08-afe5-76a6f7001d2c.jpg
   where_visible: UI
+  promoted: true
 - id: ee609388-f074-41ee-b469-fbe9c61166ab
   current_stock: 6
   name: Carnations Arrangement
@@ -6198,6 +6353,7 @@
   price: 145.99
   image: ee609388-f074-41ee-b469-fbe9c61166ab.jpg
   where_visible: UI
+  promoted: true
 - id: b3e617ef-2757-410b-a997-f2cd2006f770
   current_stock: 12
   name: Carnations Arrangement
@@ -6261,6 +6417,7 @@
   price: 70.99
   image: b7d5094b-4df4-4579-a49a-dadfef26a0f7.jpg
   where_visible: UI
+  promoted: true
 - id: ba461048-048b-473b-a7d6-5ff9e02da8d5
   current_stock: 8
   name: Mixed Arrangement
@@ -6279,6 +6436,7 @@
   price: 67.99
   image: 1d152012-c60b-4049-845b-9a80310e0d4a.jpg
   where_visible: UI
+  promoted: true
 - id: d184be83-f8ff-4da0-b4d1-3294a8ff3b22
   current_stock: 19
   name: Mixed Arrangement
@@ -6315,6 +6473,7 @@
   price: 116.99
   image: 6e329907-dc47-4dc8-982c-6ff32616551f.jpg
   where_visible: UI
+  promoted: true
 - id: 23f9d5f0-2eca-4dcd-95bf-f614a73e35d3
   current_stock: 17
   name: Roses Arrangement
@@ -6342,6 +6501,7 @@
   price: 58.99
   image: 2fef172f-0e5a-4376-b890-215f016bc6ed.jpg
   where_visible: UI
+  promoted: true
 - id: e8ab7a8c-eb5e-4feb-aa0d-8a235aef1842
   current_stock: 11
   name: Roses Arrangement
@@ -6396,6 +6556,7 @@
   price: 150.99
   image: f9c470b0-152b-4776-893a-67ffc4064675.jpg
   where_visible: UI
+  promoted: true
 - id: cbac7097-59a4-4152-b304-08b778177d63
   current_stock: 7
   name: Roses Arrangement
@@ -6432,6 +6593,7 @@
   price: 75.99
   image: 97ea93f8-fd1c-4ee5-8081-24080139f9b1.jpg
   where_visible: UI
+  promoted: true
 - id: 540fdc40-a457-46e9-8b10-14e0a2f3ed33
   current_stock: 12
   name: Roses Arrangement
@@ -6504,6 +6666,7 @@
   price: 85.99
   image: e89c9268-7e07-459a-8596-76f69451e563.jpg
   where_visible: UI
+  promoted: true
 - id: e1d2ec50-2970-43be-aeb7-fc90779086b7
   current_stock: 16
   name: Wedding Bouquet
@@ -6513,6 +6676,7 @@
   price: 102.99
   image: e1d2ec50-2970-43be-aeb7-fc90779086b7.jpg
   where_visible: UI
+  promoted: true
 - id: 4bb66b8a-cf13-4959-87ce-ca506fa568a2
   featured: true
   current_stock: 6
@@ -6559,6 +6723,7 @@
   price: 114.99
   image: 88d2eee9-2791-4cd7-b768-a08b6b590d38.jpg
   where_visible: UI
+  promoted: true
 - id: d997e27d-a2ce-41b7-b10b-75cf61585575
   current_stock: 17
   name: Wedding Bouquet
@@ -6595,6 +6760,7 @@
   price: 108.99
   image: 766b6412-c63e-44de-b1ec-a457ca39d48d.jpg
   where_visible: UI
+  promoted: true
 - id: e61f8a6c-2bb6-4ccc-bb2c-c0a9ea17f750
   current_stock: 17
   name: Wedding Bouquet
@@ -6604,6 +6770,7 @@
   price: 106.99
   image: e61f8a6c-2bb6-4ccc-bb2c-c0a9ea17f750.jpg
   where_visible: UI
+  promoted: true
 - id: 08501583-c08b-411b-9ae7-06582e2d8c26
   current_stock: 12
   name: Wedding Bouquet
@@ -6649,6 +6816,7 @@
   price: 76.99
   image: d805e752-3621-4844-a38d-f0c247f5036b.jpg
   where_visible: UI
+  promoted: true
 - id: 63f27bb8-d14f-471b-b317-6c3d43bd128e
   current_stock: 15
   name: Wedding Bouquet
@@ -6730,6 +6898,7 @@
   price: 89.99
   image: 77a73995-ee61-4793-b48c-f9e1125fbce4.jpg
   where_visible: UI
+  promoted: true
 - id: bb17aef4-a862-4f3f-bf77-fd2721743698
   current_stock: 10
   name: Centerpiece
@@ -6739,6 +6908,7 @@
   price: 105.99
   image: bb17aef4-a862-4f3f-bf77-fd2721743698.jpg
   where_visible: UI
+  promoted: true
 - id: 2d9dfb7e-23c1-49d3-a900-cf95a9c740a2
   current_stock: 13
   name: Centerpiece
@@ -6820,6 +6990,7 @@
   price: 117.99
   image: 59bb3cc4-9757-49a0-ac62-8c0afe105a3d.jpg
   where_visible: UI
+  promoted: true
 - id: 28ae4b79-78e1-42ed-95a1-38fb306144b2
   current_stock: 10
   name: Indoor Plant
@@ -6919,6 +7090,7 @@
   price: 129.99
   image: 5d926c34-3aca-40c3-9199-603c6717ea37.jpg
   where_visible: UI
+  promoted: true
 - id: 7c982760-c605-4e7c-ad2d-d1e24228be70
   current_stock: 7
   name: Indoor Plant
@@ -6946,6 +7118,7 @@
   price: 126.99
   image: 5a94b7d5-b210-44b3-9287-c8b0b5488a15.jpg
   where_visible: UI
+  promoted: true
 - id: 128c6bfd-533a-478e-8e63-bb25deabe186
   current_stock: 10
   name: Drought-Resistant Indoor Plant
@@ -6965,6 +7138,7 @@
   price: 103.99
   image: f2658d49-665b-433f-b48c-a1761d3de63c.jpg
   where_visible: UI
+  promoted: true
 - id: be9b69b4-4677-4484-a88a-24e29c52a46b
   current_stock: 12
   name: Drought-Resistant Indoor Plant
@@ -6985,6 +7159,7 @@
   price: 66.99
   image: 710d86b7-71d6-4acc-973f-443f3ffbc812.jpg
   where_visible: UI
+  promoted: true
 - id: 9d8e0772-5de5-4285-af60-ef8190468943
   current_stock: 19
   name: Drought-Resistant Indoor Plant
@@ -7034,6 +7209,7 @@
   price: 150.99
   image: d5f830bd-8c49-4bc2-85ba-3d120c90caa6.jpg
   where_visible: UI
+  promoted: true
 - id: e9564c87-1af5-49d0-8ef2-4522e6d0f2c6
   current_stock: 9
   name: Drought-Resistant Indoor Plant
@@ -7109,6 +7285,7 @@
   price: 84.99
   image: 3b0aaa5e-85fa-4ab8-ab9b-6c2dbd36763d.jpg
   where_visible: UI
+  promoted: true
 - id: 61697f16-9198-4d1a-89a5-e43386c2b759
   current_stock: 19
   name: Drought-Resistant Indoor Plant
@@ -7138,6 +7315,7 @@
   price: 52.99
   image: ad9b2dfd-2967-4242-80b8-86f253d9d113.jpg
   where_visible: UI
+  promoted: true
 - id: 8c273951-c115-4400-a50e-25a4bd1a9a52
   current_stock: 14
   name: Drought-Resistant Indoor Plant
@@ -7212,6 +7390,7 @@
   price: 134.99
   image: 6fd585f4-1edf-4235-83ab-51f871f95f36.jpg
   where_visible: UI
+  promoted: true
 - id: 045324c6-7df9-4ce7-9688-d352a6d73e02
   current_stock: 15
   name: Christmas Wreath
@@ -7221,6 +7400,7 @@
   price: 92.99
   image: 045324c6-7df9-4ce7-9688-d352a6d73e02.jpg
   where_visible: UI
+  promoted: true
 - id: 85ebb1fc-8e6f-4f21-a48c-449135f378a9
   current_stock: 15
   name: Christmas Wreath
@@ -7248,6 +7428,7 @@
   price: 145.99
   image: 9c1dc656-48fb-4fd2-86b5-04da58eed610.jpg
   where_visible: UI
+  promoted: true
 - id: e30ac0a3-8fbc-446a-a97c-4efff7c00c54
   current_stock: 15
   name: Christmas Wreath
@@ -7284,6 +7465,7 @@
   price: 128.99
   image: 36cfd856-dd30-46a9-8654-1f1de77e674a.jpg
   where_visible: UI
+  promoted: true
 - id: 3fb35e00-d584-4d1c-a8de-eb7af9ca9efb
   current_stock: 18
   name: Fall Wreath
@@ -7320,6 +7502,7 @@
   price: 56.99
   image: 49f48b44-2a8e-4922-b2ff-2ff8c52b43f3.jpg
   where_visible: UI
+  promoted: true
 - id: 8ac10473-effb-464a-9270-b9108f72f401
   current_stock: 16
   name: Wedding Wreath
@@ -7329,6 +7512,7 @@
   price: 62.99
   image: 8ac10473-effb-464a-9270-b9108f72f401.jpg
   where_visible: UI
+  promoted: true
 - id: 6a14c9e7-e667-48b1-9b77-b9ccee9e63b5
   current_stock: 7
   name: Wedding Wreath
@@ -7338,6 +7522,7 @@
   price: 121.99
   image: 6a14c9e7-e667-48b1-9b77-b9ccee9e63b5.jpg
   where_visible: UI
+  promoted: true
 - id: f7c1d04c-3076-4389-b06a-91993c983777
   current_stock: 9
   name: Saddle Brown Boots
@@ -7398,6 +7583,7 @@
   image: e83f8280-a563-4744-9e19-02a8f0828872.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9955397c-d668-40d7-ae63-0f4a3aa8a523
   current_stock: 11
   name: Black Boots
@@ -7418,6 +7604,7 @@
   image: 24f8ba65-f4e1-4cd1-8a6e-cb3ea490890a.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 131f849e-cffb-4332-bbe0-183ffb4d272f
   current_stock: 12
   name: Sienna Boots
@@ -7428,6 +7615,7 @@
   image: 131f849e-cffb-4332-bbe0-183ffb4d272f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f1c73a48-b83e-45b7-b812-8b0b7f372208
   current_stock: 11
   name: Gray Boots
@@ -7638,6 +7826,7 @@
   image: 61875c90-20ec-461b-b523-1c8a6fe6ce97.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 80cfb14b-83e4-4ccc-8062-f282c7646c15
   current_stock: 11
   name: White Shoes
@@ -7658,6 +7847,7 @@
   image: b15d24d5-8551-477b-bcfa-70aa9e78538a.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: ffdb2dc7-ea75-4197-9826-e81ccd42f578
   current_stock: 10
   name: Reed Platform Heels
@@ -7708,6 +7898,7 @@
   image: ca25b000-2e61-4d1d-b4f5-02263bb3e93f.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: bb3f926c-9869-4b47-b13d-63271768f0b1
   current_stock: 14
   name: Sparkly Heels
@@ -7728,6 +7919,7 @@
   image: 2adca223-bbf0-46d4-9f4a-72666293b174.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: cb70731b-cf70-437b-bb3d-9142323f61db
   current_stock: 19
   name: Platform Heels
@@ -7768,6 +7960,7 @@
   image: 072f2cf7-33e8-4c74-9406-2c1fc21b3168.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b5e00890-da2d-4a3e-8bce-b4ca1a0320dc
   current_stock: 10
   name: Black Heels
@@ -7798,6 +7991,7 @@
   image: 06716b83-b3dc-45b4-a144-c6dd843db907.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 0dc8e3c4-4556-45fe-a80f-48176777fb83
   current_stock: 7
   name: Neon Pink Shoes
@@ -7848,6 +8042,7 @@
   image: 5cf1825f-b9e9-4168-a4a7-ac516733417c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: e5e842c6-9d8e-4940-a245-a0f02a5552ad
   current_stock: 7
   name: Black Heels
@@ -7858,6 +8053,7 @@
   image: e5e842c6-9d8e-4940-a245-a0f02a5552ad.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9802c245-7bca-4541-b68e-008df7673639
   current_stock: 12
   name: Tan Shoes
@@ -7908,6 +8104,7 @@
   image: 4992fa6d-03f3-4e30-9f0e-bff69a4fb67d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: e428be7e-1558-44d5-8f96-6a7374becfa7
   current_stock: 7
   name: Lavender Shoes
@@ -8028,6 +8225,7 @@
   image: fb25a396-0a15-4a43-816c-ba79cad09621.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 367c7c48-d53c-438b-92ff-900282b2789a
   current_stock: 19
   name: Sparkly Heels
@@ -8038,6 +8236,7 @@
   image: 367c7c48-d53c-438b-92ff-900282b2789a.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f39a1cf9-00cb-4d41-98f2-a429e03dfc73
   current_stock: 14
   name: Sparkly Heels
@@ -8078,6 +8277,7 @@
   image: 5ca334e8-5ae0-4935-b797-9b392dd4d0d9.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 038bad45-2da7-40ed-ad24-a18dcf4ae139
   current_stock: 7
   name: Sienna Shoes
@@ -8088,6 +8288,7 @@
   image: 038bad45-2da7-40ed-ad24-a18dcf4ae139.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 6d1e04fb-e960-43c3-9709-d83e19007cda
   current_stock: 16
   name: Black Heels
@@ -8098,6 +8299,7 @@
   image: 6d1e04fb-e960-43c3-9709-d83e19007cda.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 56d219a5-8175-49f1-ba5f-a820d1804fff
   current_stock: 11
   name: Brown Leather Shoes
@@ -8108,6 +8310,7 @@
   image: 56d219a5-8175-49f1-ba5f-a820d1804fff.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 8a4af646-ffb5-4413-a201-750537e2a318
   current_stock: 11
   name: Black Shoes
@@ -8158,6 +8361,7 @@
   image: 4010d654-8125-4552-a97b-c182823f19d2.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 3e1e85cc-1df4-40c6-9b4f-b92807f25477
   current_stock: 14
   name: Rosy-Brown Shoes
@@ -8168,6 +8372,7 @@
   image: 3e1e85cc-1df4-40c6-9b4f-b92807f25477.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: e7af1dbd-4ab2-4201-b70f-1a52e4ea9250
   current_stock: 6
   name: Brown Shoes
@@ -8178,6 +8383,7 @@
   image: e7af1dbd-4ab2-4201-b70f-1a52e4ea9250.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: e1105a38-cf8f-4bbf-a1de-968b94b22b80
   current_stock: 15
   name: Brown Shoes
@@ -8218,6 +8424,7 @@
   image: f468ce19-e359-438a-8141-8efef422a392.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 139fe0ab-605f-4710-9268-2f9baef56947
   current_stock: 18
   name: Saddle Brown Shoes
@@ -8248,6 +8455,7 @@
   image: d67133ab-0d9d-4de5-b68e-56416fa8d82a.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 23226ca8-a535-4dd6-a7a8-a68c0200d2a3
   current_stock: 14
   name: Brown Shoes
@@ -8268,6 +8476,7 @@
   image: 47134a61-d2cb-45f9-8016-7a1063250cce.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 492bbb4d-5f25-44be-b0d4-1a9c8ed0ed02
   current_stock: 15
   name: Brown Shoes
@@ -8288,6 +8497,7 @@
   image: bcf8e7ab-0886-4892-8756-d8e30d3f452f.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 2c20c3cd-3aa7-4882-a621-32c38fb20294
   current_stock: 9
   name: Brown Shoes
@@ -8348,6 +8558,7 @@
   image: ba131f5c-e3c7-4617-acbd-22c561c7cf97.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: dff3f75f-838d-4b4d-9c7c-cee7ae2aac10
   current_stock: 13
   name: Brown Shoes
@@ -8378,6 +8589,7 @@
   image: cfd9119f-ee29-4bc5-a08d-a58f471e7c73.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: f364e438-a80c-4aba-af36-388fc908be18
   current_stock: 18
   name: Saddle Brown Shoes
@@ -8388,6 +8600,7 @@
   image: f364e438-a80c-4aba-af36-388fc908be18.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: b958399d-8f7a-4bdf-963d-2f4b8528a539
   current_stock: 8
   name: Saddle Brown Shoes
@@ -8448,6 +8661,7 @@
   image: ec81f2e5-2ffb-4b28-8b88-7c70a5db0cef.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9256691b-aafe-4771-8759-0a52dc29d819
   current_stock: 19
   name: Edgy Sandals
@@ -8478,6 +8692,7 @@
   image: 9564165e-606b-469e-a198-69c3d465e082.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 5cb18925-3a3c-4867-8f1c-46efd7eba067
   current_stock: 14
   name: Spiffy Sandals
@@ -8538,6 +8753,7 @@
   image: e850acc3-3cb1-499b-bea9-fd495d4c56ca.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 494d3480-3c7d-448e-8d3b-834b06fff156
   current_stock: 10
   name: Spiffy Sandals
@@ -8598,6 +8814,7 @@
   image: 0bb3928f-adff-452e-97d8-b199b14d134f.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a7015a02-8d80-4c1a-b5c9-e4be85b32c3b
   current_stock: 15
   name: Ultracool Sandals
@@ -8608,6 +8825,7 @@
   image: a7015a02-8d80-4c1a-b5c9-e4be85b32c3b.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: b46e1a7f-6df6-42ab-a464-101078f00e11
   current_stock: 18
   name: Slio-on Sandals
@@ -8638,6 +8856,7 @@
   image: b51bd298-43b7-49e2-852d-de8c1aff6724.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 6b93d149-38a1-459b-8ef5-01490f14cb48
   current_stock: 8
   name: Supercool Sandals
@@ -8678,6 +8897,7 @@
   image: 42e45568-7020-4bd3-983d-5c30f454c089.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 34ef7f57-ed89-4708-809b-fe6ba43c5af0
   current_stock: 19
   name: Groovy Sandals
@@ -8698,6 +8918,7 @@
   image: b7e41a09-36da-4ed1-9f91-a517437bec7f.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a8234c1a-de42-4e7a-93fb-105a1c28a6a0
   current_stock: 6
   name: Dapper Sandals
@@ -8758,6 +8979,7 @@
   image: b4d4716e-27e6-4745-9c16-bc80aa194554.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 06acd586-2c90-486f-9a26-75ce1205e25f
   current_stock: 16
   name: Pink Sneakers
@@ -8798,6 +9020,7 @@
   image: fee00f2f-e2cf-466f-86e9-f67d0c1ec26c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 22552eb1-57f1-4fa3-a93a-a9fa22851f9f
   featured: true
   current_stock: 18
@@ -8849,6 +9072,7 @@
   image: dcf8a704-e158-4d3f-85eb-f72c8200ae7c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b40ff760-cc65-40a4-af7c-4a57282b2b16
   current_stock: 6
   name: Powder Blue Sneakers
@@ -8869,6 +9093,7 @@
   image: c09f5f3b-d1ab-4cb0-8171-d7d3365915bd.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 336ab80b-95c7-4290-97cb-f4d7744cc26e
   current_stock: 13
   name: Light Gray Sneakers
@@ -8879,6 +9104,7 @@
   image: 336ab80b-95c7-4290-97cb-f4d7744cc26e.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: f9339b98-c08c-4264-8239-804abdb54eb0
   current_stock: 17
   name: Pale Gray Sneakers
@@ -8979,6 +9205,7 @@
   image: ebee2ea6-fdc1-4d94-a9ac-b05f328e7ddb.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a51e9895-f3ee-47c1-b594-a8e7df8e8fd8
   current_stock: 18
   name: Dark Slate Blue Sneakers
@@ -8989,6 +9216,7 @@
   image: a51e9895-f3ee-47c1-b594-a8e7df8e8fd8.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: c98ac530-8313-4fbf-b413-9c40a991d9fc
   current_stock: 17
   name: Denim Sneakers
@@ -9049,6 +9277,7 @@
   image: d27f4e83-4730-4075-b5c5-766b1a732fe9.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: e4db0751-f3a1-465f-bd2a-e0773d36e7fe
   current_stock: 6
   name: Blue Sneakers
@@ -9059,6 +9288,7 @@
   image: e4db0751-f3a1-465f-bd2a-e0773d36e7fe.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: fdeba818-2269-4cf1-81c8-29fc8d984e6c
   current_stock: 19
   name: Dark Slate Gray Sneakers
@@ -9079,6 +9309,7 @@
   image: 47a6ceba-b467-43cb-aac8-b9eb95e3740a.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 65b3bc05-4d84-48ef-ba0f-ce12301643c7
   current_stock: 9
   name: Black Sneakers
@@ -9203,6 +9434,7 @@
   image: bade7609-f412-45cf-9e85-8ce84ed261fd.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 2ed4b6f8-5d37-480e-9469-4ea26f475716
   current_stock: 7
   name: Black Sneakers
@@ -9260,6 +9492,7 @@
   price: 148.99
   image: c7ed1688-5cb8-463d-b0d3-2af518c6146c.jpg
   where_visible: UI
+  promoted: true
 - id: 1ef8b06f-0a08-484a-a851-8b87363f7f49
   current_stock: 7
   name: Dark Goldenrod Armchair
@@ -9314,6 +9547,7 @@
   price: 150.99
   image: 36136315-1170-4da8-af1f-1bb90c87b05d.jpg
   where_visible: UI
+  promoted: true
 - id: 48941756-e6c4-4b45-a869-c4f33daccdeb
   current_stock: 12
   name: Yellow Armchair
@@ -9368,6 +9602,7 @@
   price: 155.99
   image: ab6462b7-2061-42ba-a19f-a1efc877d800.jpg
   where_visible: UI
+  promoted: true
 - id: 553b81ed-f39e-417e-a541-b6ef9d806e20
   current_stock: 9
   name: Gray Armchair
@@ -9431,6 +9666,7 @@
   price: 82.99
   image: 9e798d24-65b8-42ee-b592-21afe2a23b07.jpg
   where_visible: UI
+  promoted: true
 - id: 1f88855c-7ed3-4796-9143-dcdd395c03ad
   current_stock: 10
   name: Dark Gray Armchair
@@ -9449,6 +9685,7 @@
   price: 160.99
   image: ee0cec46-8edf-4436-84f0-d83e7f9c453f.jpg
   where_visible: UI
+  promoted: true
 - id: 5d56ce53-f18b-4ee0-aecd-dd96400ed49f
   current_stock: 12
   name: Dark Goldenrod Armchair
@@ -9476,6 +9713,7 @@
   price: 243.99
   image: 87e34e87-de1f-4a83-9343-c885e82941b8.jpg
   where_visible: UI
+  promoted: true
 - id: 124db2fa-17c0-4e94-9844-d1b64a081df5
   current_stock: 12
   name: White Dining Chair
@@ -9521,6 +9759,7 @@
   price: 125.99
   image: eb46bfcc-34df-40e2-8670-ee808d5cb958.jpg
   where_visible: UI
+  promoted: true
 - id: 8822ca00-724c-4eaa-a905-eebb49a38ffe
   current_stock: 15
   name: Gainsboro Dining Chair
@@ -9566,6 +9805,7 @@
   price: 113.99
   image: 3e766c14-75f3-4b25-8808-32b97393434b.jpg
   where_visible: UI
+  promoted: true
 - id: 21ea0edc-1984-4f79-a6af-b2d1135471b5
   current_stock: 16
   name: Light Gray Dining Chair
@@ -9602,6 +9842,7 @@
   price: 87.99
   image: 3648ad78-08f6-421e-a025-999f4bdc8fa7.jpg
   where_visible: UI
+  promoted: true
 - id: d725a542-ddaf-4e1c-a2fb-10628a6e1407
   current_stock: 15
   name: Black Office Chair
@@ -9611,6 +9852,7 @@
   price: 112.99
   image: d725a542-ddaf-4e1c-a2fb-10628a6e1407.jpg
   where_visible: UI
+  promoted: true
 - id: 1ddc59b3-7f01-4039-8f07-21a30362ab75
   current_stock: 10
   name: Black Office Chair
@@ -9629,6 +9871,7 @@
   price: 205.99
   image: 079ab14b-3435-4a95-ba1d-fc0b21e0cf4b.jpg
   where_visible: UI
+  promoted: true
 - id: f9ce4c4d-dd69-46b2-8bc4-4226f0c7b567
   current_stock: 10
   name: Black Office Chair
@@ -9665,6 +9908,7 @@
   price: 182.99
   image: 29359485-1173-4a37-9bb7-6065c58a4f9e.jpg
   where_visible: UI
+  promoted: true
 - id: 50e7e081-20a5-4777-871a-ae671932333a
   current_stock: 17
   name: Black Office Chair
@@ -9674,6 +9918,7 @@
   price: 162.99
   image: 50e7e081-20a5-4777-871a-ae671932333a.jpg
   where_visible: UI
+  promoted: true
 - id: 7af26050-056f-4855-ba8a-bcee48f0923d
   current_stock: 15
   name: Black Office Chair
@@ -9683,6 +9928,7 @@
   price: 231.99
   image: 7af26050-056f-4855-ba8a-bcee48f0923d.jpg
   where_visible: UI
+  promoted: true
 - id: 7549f8b8-a48a-4d17-921a-dd58b760900b
   current_stock: 8
   name: Black Office Chair
@@ -9692,6 +9938,7 @@
   price: 157.99
   image: 7549f8b8-a48a-4d17-921a-dd58b760900b.jpg
   where_visible: UI
+  promoted: true
 - id: 9747c3ce-b89d-4992-bf3d-f4ecc5a668fe
   current_stock: 9
   name: Dark Gray Office Chair
@@ -9728,6 +9975,7 @@
   price: 162.99
   image: 180575fc-ef84-48fc-a83f-067d50141221.jpg
   where_visible: UI
+  promoted: true
 - id: 68be8b14-ffc4-40a8-b4d6-eec43bd0f4d8
   current_stock: 18
   name: Crimson Office Chair
@@ -9737,6 +9985,7 @@
   price: 159.99
   image: 68be8b14-ffc4-40a8-b4d6-eec43bd0f4d8.jpg
   where_visible: UI
+  promoted: true
 - id: 1fd2dbd0-c0a4-40f7-b7f7-94c0d94a751d
   current_stock: 8
   name: Light Gray Office Chair
@@ -9764,6 +10013,7 @@
   price: 139.99
   image: c9b8db98-e17a-49f3-ae8a-efa440be45be.jpg
   where_visible: UI
+  promoted: true
 - id: 2e4d07d7-8d48-4b16-a2b0-91cbaa1f7c89
   current_stock: 11
   name: Black Office Chair
@@ -9782,6 +10032,7 @@
   price: 210.99
   image: 489dee3d-6abf-4470-bb94-8b9c0d12f18e.jpg
   where_visible: UI
+  promoted: true
 - id: d0cb72b7-f819-432e-8492-9bc8b7692043
   current_stock: 14
   name: Sienna Office Chair
@@ -9809,6 +10060,7 @@
   price: 151.99
   image: 3ce61cd6-8cbd-42d7-9563-37eb7378fbc5.jpg
   where_visible: UI
+  promoted: true
 - id: f115c9be-eae6-4bdf-9b92-32ba579a43b1
   current_stock: 15
   name: Black Office Chair
@@ -9818,6 +10070,7 @@
   price: 208.99
   image: f115c9be-eae6-4bdf-9b92-32ba579a43b1.jpg
   where_visible: UI
+  promoted: true
 - id: a97e9f4f-d8a3-49c9-b393-d4bb575e186c
   current_stock: 10
   name: White Office Chair
@@ -9854,6 +10107,7 @@
   price: 86.99
   image: 8ea787f8-cdf1-49bb-a788-e7349244f55f.jpg
   where_visible: UI
+  promoted: true
 - id: b842b868-4117-4254-aa1c-be43b05abb87
   current_stock: 14
   name: Dark Khaki Office Chair
@@ -9863,6 +10117,7 @@
   price: 124.99
   image: b842b868-4117-4254-aa1c-be43b05abb87.jpg
   where_visible: UI
+  promoted: true
 - id: aca48197-40cf-47b1-8eb3-ceeb29f7f23e
   current_stock: 14
   name: Black Office Chair
@@ -9890,6 +10145,7 @@
   price: 261.99
   image: 4e2f66a8-6378-4792-800d-d781922da189.jpg
   where_visible: UI
+  promoted: true
 - id: 75cb828e-ccc5-41ff-9bdd-9ac3dc7740aa
   current_stock: 12
   name: White Dresser
@@ -9908,6 +10164,7 @@
   price: 262.99
   image: d94f2195-c77a-45f1-ad44-38131f3f875d.jpg
   where_visible: UI
+  promoted: true
 - id: 0121f086-4d27-4bbb-bd44-a90b34d86983
   current_stock: 14
   name: Sienna Dresser
@@ -9917,6 +10174,7 @@
   price: 200.99
   image: 0121f086-4d27-4bbb-bd44-a90b34d86983.jpg
   where_visible: UI
+  promoted: true
 - id: 12f97970-a5e7-4659-8f24-9f77bb45cd0e
   current_stock: 18
   name: White Dresser
@@ -9926,6 +10184,7 @@
   price: 160.99
   image: 12f97970-a5e7-4659-8f24-9f77bb45cd0e.jpg
   where_visible: UI
+  promoted: true
 - id: 6ae04681-0217-46c7-a34c-a3e74c96a1fe
   current_stock: 19
   name: Wooden Dresser
@@ -9953,6 +10212,7 @@
   price: 143.99
   image: 6e73f9f1-2432-4d84-93d2-cc4cf0b83dd7.jpg
   where_visible: UI
+  promoted: true
 - id: e9c299d3-f657-448f-85cd-8cda432a59b8
   current_stock: 11
   name: Dark Slate Gray Dresser
@@ -9962,6 +10222,7 @@
   price: 125.99
   image: e9c299d3-f657-448f-85cd-8cda432a59b8.jpg
   where_visible: UI
+  promoted: true
 - id: 30af0c6d-23d3-4388-a04f-1ed90c2b10e2
   current_stock: 6
   name: Dark Olive Green Dresser
@@ -9980,6 +10241,7 @@
   price: 194.99
   image: ce8ac6db-1e73-4a0e-ae3c-0f21c6e86ae7.jpg
   where_visible: UI
+  promoted: true
 - id: 485457cd-3e31-4ddc-bb09-e9bb9f151d19
   current_stock: 13
   name: Dark Slate Gray Dresser
@@ -10063,6 +10325,7 @@
   price: 228.99
   image: 778b57bd-7c54-4edd-8ed4-02deb90bad94.jpg
   where_visible: UI
+  promoted: true
 - id: 6d9480ff-36c6-4ece-a685-f7b55958b57b
   current_stock: 16
   name: Gray Dresser
@@ -10117,6 +10380,7 @@
   price: 238.99
   image: 4f6f36db-0808-4ead-80c7-82f2fa08b5cb.jpg
   where_visible: UI
+  promoted: true
 - id: 75899182-0ec8-4cc8-b578-dcb8d18fad55
   current_stock: 10
   name: White Dresser
@@ -10126,6 +10390,7 @@
   price: 230.99
   image: 75899182-0ec8-4cc8-b578-dcb8d18fad55.jpg
   where_visible: UI
+  promoted: true
 - id: c40c054e-75b2-4af7-985e-20a2538a8180
   current_stock: 16
   name: Gainsboro Dresser
@@ -10153,6 +10418,7 @@
   price: 202.99
   image: e6e72b3e-0d71-43d3-90e3-a49d5e3ff1e8.jpg
   where_visible: UI
+  promoted: true
 - id: 3fbbba10-1b89-40c2-909b-4933db1c0811
   current_stock: 16
   name: Dark Slate Gray Dresser
@@ -10180,6 +10446,7 @@
   price: 750.99
   image: 58b3efdc-79bf-4163-9f4e-38f0833304a8.jpg
   where_visible: UI
+  promoted: true
 - id: cfe2daa9-3b76-45c9-9d36-2d11472f4005
   current_stock: 12
   name: Saddle Brown Sofa
@@ -10189,6 +10456,7 @@
   price: 448.99
   image: cfe2daa9-3b76-45c9-9d36-2d11472f4005.jpg
   where_visible: UI
+  promoted: true
 - id: c79d70a4-118a-4ec4-8d92-35a489912c27
   current_stock: 8
   name: Black Sofa
@@ -10279,6 +10547,7 @@
   price: 735.99
   image: 43dbbd80-b7f7-44c0-a942-e144006cc020.jpg
   where_visible: UI
+  promoted: true
 - id: 546bdb90-945a-48e8-84c7-557f8c48a032
   current_stock: 6
   name: Yellow Sofa
@@ -10297,6 +10566,7 @@
   price: 958.99
   image: a45b6432-7a7a-4938-a039-2ac723f30952.jpg
   where_visible: UI
+  promoted: true
 - id: a4da2349-049f-45dd-be64-9795808ce393
   current_stock: 9
   name: Dark Khaki Sofa
@@ -10333,6 +10603,7 @@
   price: 506.99
   image: fe00d7b6-7c1a-482d-8552-cb9654f98286.jpg
   where_visible: UI
+  promoted: true
 - id: dd433903-6142-4b27-8736-8f19f6ddc07f
   current_stock: 11
   name: Gray Sofa
@@ -10387,6 +10658,7 @@
   price: 811.99
   image: 7d278838-fb4e-45cd-8fb2-b5e736fb9aa2.jpg
   where_visible: UI
+  promoted: true
 - id: 7efdcf23-2d61-46df-9610-4a047da13a77
   current_stock: 14
   name: Gray Sofa
@@ -10432,6 +10704,7 @@
   price: 528.99
   image: e0eb7d76-8306-40c0-aba0-31c68161fddb.jpg
   where_visible: UI
+  promoted: true
 - id: 5e674500-b9b8-4e32-8e81-66f077898277
   current_stock: 12
   name: Pale Gray Sofa
@@ -10549,6 +10822,7 @@
   price: 856.99
   image: aad3e9c2-a21c-42cf-b477-466da2a0a32b.jpg
   where_visible: UI
+  promoted: true
 - id: 8b9733b9-cbea-4de3-978b-5e3f0e8c796c
   featured: true
   current_stock: 18
@@ -10604,6 +10878,7 @@
   price: 276.99
   image: a87aa681-f9bb-48a7-9d79-4aafc7b6d6db.jpg
   where_visible: UI
+  promoted: true
 - id: 946437d2-1462-4b8e-81fb-e637f47ae824
   current_stock: 7
   name: Gray Accent Table
@@ -10640,6 +10915,7 @@
   price: 144.99
   image: 0aa92eeb-2d88-4b26-9e3b-5cbf6053c925.jpg
   where_visible: UI
+  promoted: true
 - id: 78c4001b-7b3e-49eb-ab25-a5d3c8beff66
   current_stock: 16
   name: White Accent Table
@@ -10667,6 +10943,7 @@
   price: 244.99
   image: fda46669-e13c-4268-abf6-75a8bad23b47.jpg
   where_visible: UI
+  promoted: true
 - id: ded6d577-4fc3-44e1-9cde-d01d6d2f4c7c
   current_stock: 6
   name: Beige Accent Table
@@ -10685,6 +10962,7 @@
   price: 147.99
   image: 8b7e7fcf-5db4-4279-b00a-932dcbdcc03c.jpg
   where_visible: UI
+  promoted: true
 - id: 2d2ea623-ed58-46bb-a95c-c932546c124e
   current_stock: 12
   name: Golden Accent Table
@@ -10793,6 +11071,7 @@
   price: 163.99
   image: 3bde584c-b3eb-4d16-94d9-112799670674.jpg
   where_visible: UI
+  promoted: true
 - id: 87603f27-7e5a-441e-95f6-ee33878695da
   current_stock: 8
   name: Gainsboro Work Table
@@ -10865,6 +11144,7 @@
   price: 325.99
   image: 6377bbe2-0972-4376-a797-1af84af9a3a6.jpg
   where_visible: UI
+  promoted: true
 - id: 1ec03abf-262f-4710-83f8-ea251b155c37
   current_stock: 12
   name: Bisque Work Table
@@ -10883,6 +11163,7 @@
   price: 327.99
   image: d69281f1-1e9d-44b4-ab42-5fa8a3273ffc.jpg
   where_visible: UI
+  promoted: true
 - id: 7719893d-b5d8-4277-ac66-b2fb3394063e
   current_stock: 12
   name: White Work Table
@@ -10955,6 +11236,7 @@
   price: 237.99
   image: 1dd4c2da-d174-43b1-8d40-fadc666c26c9.jpg
   where_visible: UI
+  promoted: true
 - id: c02e9ebe-eb65-4a03-9078-e4faf330ddd0
   current_stock: 6
   name: Wheat Hue Work Table
@@ -10991,6 +11273,7 @@
   price: 340.99
   image: 86a3fc89-b3d4-4bbc-b168-696de7871ac9.jpg
   where_visible: UI
+  promoted: true
 - id: d4abbe9b-19dc-46d7-9ec7-1178f1df276a
   current_stock: 9
   name: Dark Slate Gray Worktable
@@ -11009,6 +11292,7 @@
   price: 281.99
   image: 59924a8d-3168-4a39-80f2-0d94283fd6d5.jpg
   where_visible: UI
+  promoted: true
 - id: dfe8e597-14f3-48af-b86b-cfd80f2321cf
   current_stock: 7
   name: Wooden Worktable
@@ -11054,6 +11338,7 @@
   price: 178.99
   image: d055f31f-2e3e-4338-ac64-521f88779b50.jpg
   where_visible: UI
+  promoted: true
 - id: 801de26f-fc73-4c71-bad0-e3d2509e2648
   current_stock: 17
   name: Gainsboro Worktable
@@ -11063,6 +11348,7 @@
   price: 207.99
   image: 801de26f-fc73-4c71-bad0-e3d2509e2648.jpg
   where_visible: UI
+  promoted: true
 - id: d3d53458-ea05-4544-9a11-5a44df873e4d
   current_stock: 6
   name: White Worktable
@@ -11081,6 +11367,7 @@
   price: 223.99
   image: 2dad0e8f-41d6-4490-ae4d-6a712007b4e7.jpg
   where_visible: UI
+  promoted: true
 - id: 6a1c85a2-0a73-4358-a99f-ec75b4c33f99
   current_stock: 18
   name: Light Gray Worktable
@@ -11135,6 +11422,7 @@
   price: 139.99
   image: 11ff6e47-b8e0-448e-92d5-df4137279634.jpg
   where_visible: UI
+  promoted: true
 - id: ff47435d-97d2-4d05-b3e8-294d4c47cbc3
   current_stock: 15
   name: Dark Gray Worktable
@@ -11234,6 +11522,7 @@
   price: 273.99
   image: e76b9772-afa5-4846-b2fb-057d810a364e.jpg
   where_visible: UI
+  promoted: true
 - id: 448bac96-2ade-4410-9632-e208c456fcf7
   current_stock: 9
   name: Powder Blue Work Table
@@ -11288,6 +11577,7 @@
   price: 320.99
   image: e8e48eb7-0b66-4087-b280-1c3a62804a5c.jpg
   where_visible: UI
+  promoted: true
 - id: 3ef07621-8af8-42c5-891b-94f403787fd7
   current_stock: 19
   name: Gray Work Table
@@ -11306,6 +11596,7 @@
   price: 201.99
   image: 966a08c6-ffab-4860-a3d1-f5dcd2e07f4f.jpg
   where_visible: UI
+  promoted: true
 - id: e99c24df-ebe9-429e-8c69-cd80132b87b3
   current_stock: 15
   name: Rosy-Brown Dining Table
@@ -11369,6 +11660,7 @@
   price: 169.99
   image: c8312844-248a-4a07-96a1-4c02cb1e2471.jpg
   where_visible: UI
+  promoted: true
 - id: 7991a67e-5d9b-4c51-8191-856551ebebca
   current_stock: 14
   name: White Dining Table
@@ -11396,6 +11688,7 @@
   price: 200.99
   image: 06c5b78d-d957-411c-902c-ab0d0110cca0.jpg
   where_visible: UI
+  promoted: true
 - id: 1dcab6d3-e5df-41f5-bf91-ef2872c14271
   current_stock: 9
   name: Black Dining Table
@@ -11432,6 +11725,7 @@
   price: 8.99
   image: 9fd8702a-7c00-4dd4-9813-1970dfcdffcb.jpg
   where_visible: UI
+  promoted: true
 - id: ea26b793-5078-4e8c-8fed-7fdcde4fc559
   current_stock: 15
   name: Bagel
@@ -11441,6 +11735,7 @@
   price: 7.99
   image: ea26b793-5078-4e8c-8fed-7fdcde4fc559.jpg
   where_visible: UI
+  promoted: true
 - id: 8ec70df0-0924-4749-9c23-6deddada2f5e
   current_stock: 10
   name: Bagel
@@ -11450,6 +11745,7 @@
   price: 6.99
   image: 8ec70df0-0924-4749-9c23-6deddada2f5e.jpg
   where_visible: UI
+  promoted: true
 - id: 9b777b98-9199-4efd-a46f-75429f6779e8
   current_stock: 16
   name: Bagel
@@ -11495,6 +11791,7 @@
   price: 8.99
   image: 7bc5ce87-2c88-4fe5-bd5e-b74e523c3bd2.jpg
   where_visible: UI
+  promoted: true
 - id: f0eff346-f331-4f8e-864f-6aaf67400e32
   current_stock: 6
   name: Bread
@@ -11522,6 +11819,7 @@
   price: 6.99
   image: 61a68119-7584-4f2d-9dd9-c98967d089cb.jpg
   where_visible: UI
+  promoted: true
 - id: cf6b6193-0261-4bdb-8ab8-8ace25956419
   current_stock: 14
   name: Bread
@@ -11558,6 +11856,7 @@
   price: 8.99
   image: 504a781b-e54c-4c33-a3a3-9d0036e2e190.jpg
   where_visible: UI
+  promoted: true
 - id: 73069c33-0ef4-4a1d-b9d7-ab9a46be2a0e
   current_stock: 10
   name: Bread
@@ -11567,6 +11866,7 @@
   price: 9.99
   image: 73069c33-0ef4-4a1d-b9d7-ab9a46be2a0e.jpg
   where_visible: UI
+  promoted: true
 - id: 37dc063d-f81d-4c2c-b67c-58d6c0828d0e
   current_stock: 11
   name: Bread
@@ -11576,6 +11876,7 @@
   price: 6.99
   image: 37dc063d-f81d-4c2c-b67c-58d6c0828d0e.jpg
   where_visible: UI
+  promoted: true
 - id: 9d8bf17d-3e72-41ba-943b-43eaeae84422
   current_stock: 13
   name: Bread
@@ -11648,6 +11949,7 @@
   price: 15.99
   image: 3966fa0c-21f0-46e2-836b-1696ea865699.jpg
   where_visible: UI
+  promoted: true
 - id: 889e1067-7514-4397-ae52-f0ae820c35cf
   current_stock: 8
   name: Strawberry Chocolate Cake
@@ -11657,6 +11959,7 @@
   price: 17.99
   image: 889e1067-7514-4397-ae52-f0ae820c35cf.jpg
   where_visible: UI
+  promoted: true
 - id: 87807a95-ee08-4a17-9a79-af93c7ccd1b5
   current_stock: 13
   name: Strawberry Cake
@@ -11693,6 +11996,7 @@
   price: 17.99
   image: fe01f22e-3783-4e27-8ae5-e2cd0cbcaf61.jpg
   where_visible: UI
+  promoted: true
 - id: e1c8e574-93fa-4bb4-8f17-374fdcf85da6
   current_stock: 18
   name: Cinamon Roll
@@ -11702,6 +12006,7 @@
   price: 8.99
   image: e1c8e574-93fa-4bb4-8f17-374fdcf85da6.jpg
   where_visible: UI
+  promoted: true
 - id: d142cebb-ce35-4581-8285-6e54171c23d9
   current_stock: 7
   name: Cookie
@@ -11729,6 +12034,7 @@
   price: 10.99
   image: 58c4056b-bad4-4098-9996-2c6d3be93218.jpg
   where_visible: UI
+  promoted: true
 - id: 28c5c21b-81c0-4ff7-85b5-a7367cb9c6db
   current_stock: 7
   name: Cookie
@@ -11738,6 +12044,7 @@
   price: 8.99
   image: 28c5c21b-81c0-4ff7-85b5-a7367cb9c6db.jpg
   where_visible: UI
+  promoted: true
 - id: fec114d1-6db3-41e3-a608-fc59313954c5
   current_stock: 13
   name: Croissant
@@ -11792,6 +12099,7 @@
   price: 5.99
   image: 329ee42e-a87a-4c25-a377-cbdd8efa70f9.jpg
   where_visible: UI
+  promoted: true
 - id: 3c378028-2226-4e87-94b4-7bc8a9aea5fe
   current_stock: 16
   name: Cupcake
@@ -11801,6 +12109,7 @@
   price: 9.99
   image: 3c378028-2226-4e87-94b4-7bc8a9aea5fe.jpg
   where_visible: UI
+  promoted: true
 - id: 2270ef08-c42c-4587-92e6-70789376d6b8
   current_stock: 18
   name: Cupcake
@@ -11864,6 +12173,7 @@
   price: 8.99
   image: 8b6bc04b-fab1-4a30-9790-a77cecebe5d3.jpg
   where_visible: UI
+  promoted: true
 - id: c26266b9-e809-4543-a6e2-b70a56b4c362
   current_stock: 13
   name: Apple Pie
@@ -11873,6 +12183,7 @@
   price: 8.99
   image: c26266b9-e809-4543-a6e2-b70a56b4c362.jpg
   where_visible: UI
+  promoted: true
 - id: 6fc7b390-e00f-47a8-9128-098517f02852
   current_stock: 7
   name: Berry Apple Pie
@@ -11900,6 +12211,7 @@
   price: 11.99
   image: 58407569-aaa8-40b4-8da0-13f6ffb18faf.jpg
   where_visible: UI
+  promoted: true
 - id: 7ae9fb66-ec70-4182-9573-2b243acff263
   current_stock: 12
   name: Walnut Pie
@@ -11909,6 +12221,7 @@
   price: 9.99
   image: 7ae9fb66-ec70-4182-9573-2b243acff263.jpg
   where_visible: UI
+  promoted: true
 - id: 8d6ec814-5d3c-44a9-8684-3ab4e5aba0e7
   current_stock: 14
   name: Butter
@@ -12071,6 +12384,7 @@
   price: 4.99
   image: 80795911-b1da-44cc-91c6-d6e320068cbb.jpg
   where_visible: UI
+  promoted: true
 - id: a8b3108e-7c37-4d94-9bb8-438285194ed4
   current_stock: 15
   name: Yogurt
@@ -12098,6 +12412,7 @@
   price: 5.99
   image: 16d2aa62-0f43-48d6-b42b-be7ae0f66e6b.jpg
   where_visible: UI
+  promoted: true
 - id: 8b44da10-1133-48e5-b1a6-4f081e46a150
   current_stock: 15
   name: Apples
@@ -12152,6 +12467,7 @@
   price: 2.99
   image: c76859f9-effa-428c-84e1-b8d4f837a79c.jpg
   where_visible: UI
+  promoted: true
 - id: 060ed40f-91cb-4bd5-a0fc-36f7351d2221
   current_stock: 17
   name: Bananas
@@ -12161,6 +12477,7 @@
   price: 3.99
   image: 060ed40f-91cb-4bd5-a0fc-36f7351d2221.jpg
   where_visible: UI
+  promoted: true
 - id: 62f6d1c3-33ea-415c-95dd-b3cf8a8051c9
   current_stock: 10
   name: Blackberries
@@ -12179,6 +12496,7 @@
   price: 5.99
   image: 9abdf04d-a9b7-4627-9ce8-b11668db3c98.jpg
   where_visible: UI
+  promoted: true
 - id: 0cb50483-3682-4db5-870c-2b007b2c08b6
   current_stock: 14
   name: Blueberries
@@ -12206,6 +12524,7 @@
   price: 5.99
   image: 35e2eae9-20ff-4ea0-ba75-a3b07f37a195.jpg
   where_visible: UI
+  promoted: true
 - id: 5723f368-aae1-4504-b5b6-3efbc47497cc
   current_stock: 8
   name: Grapes
@@ -12279,6 +12598,7 @@
   price: 2.99
   image: 546784ce-5a1e-4880-85ce-fcc8b84ce7b6.jpg
   where_visible: UI
+  promoted: true
 - id: f6139c12-bb79-491b-84c3-e84cf454eb52
   current_stock: 9
   name: Pear
@@ -12324,6 +12644,7 @@
   price: 3.99
   image: 08f37e68-f9de-4e33-8714-909903a4a43e.jpg
   where_visible: UI
+  promoted: true
 - id: e574f0de-94eb-4781-9ed7-248f5e041549
   current_stock: 18
   name: Tangerines
@@ -12369,6 +12690,7 @@
   price: 10.99
   image: 386fe76e-5573-45ae-8474-64afbd48e1b3.jpg
   where_visible: UI
+  promoted: true
 - id: db13fb46-bcd9-4708-b98d-5ec644f61c6a
   current_stock: 16
   name: Beef
@@ -12459,6 +12781,7 @@
   price: 11.99
   image: fabc3cde-1203-4f82-8080-bf3b1bf36a6b.jpg
   where_visible: UI
+  promoted: true
 - id: 9b77b034-1d58-415a-9184-fb121a8a5799
   current_stock: 13
   name: Beef
@@ -12486,6 +12809,7 @@
   price: 7.99
   image: 20d93fb0-f2b7-4b94-996e-42b54c0c2845.jpg
   where_visible: UI
+  promoted: true
 - id: ee882660-2b73-4243-beea-e34541a94a4e
   current_stock: 14
   name: Beef
@@ -12495,6 +12819,7 @@
   price: 13.99
   image: ee882660-2b73-4243-beea-e34541a94a4e.jpg
   where_visible: UI
+  promoted: true
 - id: 0770ffd6-c89a-489a-b9dc-e5c1c267e102
   current_stock: 18
   name: Beef
@@ -12675,6 +13000,7 @@
   price: 19.99
   image: a7bb3478-b9a9-43e2-bfae-39b88accf7d6.jpg
   where_visible: UI
+  promoted: true
 - id: d8145423-38c9-43a5-a98f-8cd16fc64817
   current_stock: 7
   name: Oysters
@@ -12684,6 +13010,7 @@
   price: 14.99
   image: d8145423-38c9-43a5-a98f-8cd16fc64817.jpg
   where_visible: UI
+  promoted: true
 - id: 4cdc5870-4d96-4cc3-8fc0-4ef81d7cc7f6
   current_stock: 18
   name: Oysters
@@ -12693,6 +13020,7 @@
   price: 23.99
   image: 4cdc5870-4d96-4cc3-8fc0-4ef81d7cc7f6.jpg
   where_visible: UI
+  promoted: true
 - id: 5f56f489-e61f-49e8-868a-4d98872b2ccb
   current_stock: 9
   name: Oysters
@@ -12765,6 +13093,7 @@
   price: 19.99
   image: 469d5ae2-0882-49fb-8201-0ae24d1b157d.jpg
   where_visible: UI
+  promoted: true
 - id: 4b29ebdb-28d3-49ee-a9b1-cdb49fbb51f9
   current_stock: 7
   name: Farmed Salmon
@@ -12819,6 +13148,7 @@
   price: 7.99
   image: a9d6ceb2-92da-4523-af26-8df87ca7569f.jpg
   where_visible: UI
+  promoted: true
 - id: 547c307d-f756-4e69-af71-897352247169
   current_stock: 6
   name: Avocado
@@ -12837,6 +13167,7 @@
   price: 7.99
   image: 49e88e2d-7b80-4e78-9262-8bdabe0507d8.jpg
   where_visible: UI
+  promoted: true
 - id: d13b6ca8-3868-4ad5-80a0-b6449dddf0c4
   current_stock: 12
   name: Bell Pepper
@@ -12846,6 +13177,7 @@
   price: 6.99
   image: d13b6ca8-3868-4ad5-80a0-b6449dddf0c4.jpg
   where_visible: UI
+  promoted: true
 - id: 4527bda1-0338-439f-9a56-749943dff6cb
   current_stock: 14
   name: Bell Pepper
@@ -12855,6 +13187,7 @@
   price: 4.99
   image: 4527bda1-0338-439f-9a56-749943dff6cb.jpg
   where_visible: UI
+  promoted: true
 - id: 006fc931-62fd-4096-b7c1-809500dbd1ac
   current_stock: 9
   name: Broccoli
@@ -12900,6 +13233,7 @@
   price: 5.99
   image: efb27815-d66a-4c22-915f-09566e7e091d.jpg
   where_visible: UI
+  promoted: true
 - id: 6b21b337-e764-4f23-8add-5b90921b6206
   current_stock: 12
   name: Chillies
@@ -12936,6 +13270,7 @@
   price: 7.99
   image: 63b4d4eb-639e-44e3-8622-ea05b0d9ae64.jpg
   where_visible: UI
+  promoted: true
 - id: d27b5683-8bcd-4c9d-a641-a8fe6b00f610
   current_stock: 15
   name: Chillies
@@ -12954,6 +13289,7 @@
   price: 6.99
   image: f48d05f9-9092-48b4-8ea8-41c763d6ce52.jpg
   where_visible: UI
+  promoted: true
 - id: 63469605-9669-4b98-bcbd-b99da8de810e
   current_stock: 19
   name: Cucumber
@@ -12963,6 +13299,7 @@
   price: 7.99
   image: 63469605-9669-4b98-bcbd-b99da8de810e.jpg
   where_visible: UI
+  promoted: true
 - id: ccaec8f5-b33d-4676-a1b9-bc4b96951ee4
   current_stock: 9
   name: Garlic
@@ -13026,6 +13363,7 @@
   price: 5.99
   image: 1462a200-0908-4e94-b110-00952e04ebd3.jpg
   where_visible: UI
+  promoted: true
 - id: 122339eb-ecbb-42e1-96c5-7559c3656f83
   current_stock: 13
   name: Mushrooms
@@ -13035,6 +13373,7 @@
   price: 5.99
   image: 122339eb-ecbb-42e1-96c5-7559c3656f83.jpg
   where_visible: UI
+  promoted: true
 - id: 1f2ab804-f5e3-484c-a629-9206c8fedbe4
   current_stock: 14
   name: Onion
@@ -13080,6 +13419,7 @@
   price: 6.99
   image: ef603e59-7a72-4240-ac88-497c1b440589.jpg
   where_visible: UI
+  promoted: true
 - id: d56b362e-5d34-4f5f-aa3d-2724ec45b569
   current_stock: 13
   name: Peas
@@ -13179,6 +13519,7 @@
   price: 3.99
   image: f168b545-8c75-4434-b4f0-0640f7830070.jpg
   where_visible: UI
+  promoted: true
 - id: a0209299-172b-4073-9588-2c56e7f13b87
   current_stock: 13
   name: Alarm Clock
@@ -13188,6 +13529,7 @@
   price: 92.99
   image: a0209299-172b-4073-9588-2c56e7f13b87.jpg
   where_visible: UI
+  promoted: true
 - id: dce75815-1d1f-4557-9a89-8fee065c5331
   current_stock: 16
   name: Alarm Clock
@@ -13197,6 +13539,7 @@
   price: 70.99
   image: dce75815-1d1f-4557-9a89-8fee065c5331.jpg
   where_visible: UI
+  promoted: true
 - id: b101a661-1448-4331-b2a3-42ea72442d13
   current_stock: 15
   name: Alarm Clock
@@ -13215,6 +13558,7 @@
   price: 135.99
   image: 2f71e413-32fe-4f1d-a28b-8995be0685e8.jpg
   where_visible: UI
+  promoted: true
 - id: c1c8a6c7-9714-4015-9944-ecedbd066dac
   current_stock: 12
   name: Alarm Clock
@@ -13251,6 +13595,7 @@
   price: 138.99
   image: 02aaaa49-e274-480e-9830-1e1a495f7da4.jpg
   where_visible: UI
+  promoted: true
 - id: c42ac631-be45-436f-a3cc-fedf5bf9d1ca
   current_stock: 15
   name: Pocket Clock
@@ -13314,6 +13659,7 @@
   price: 114.99
   image: 05d0753d-d0e5-4808-bca0-f23d65b8f6a0.jpg
   where_visible: UI
+  promoted: true
 - id: 9fbf8e43-b16c-4332-bb01-6e71eebbc98d
   current_stock: 9
   name: Wall Clock
@@ -13350,6 +13696,7 @@
   price: 86.99
   image: 073c7282-51c3-4a6e-a27a-2a166d817cf6.jpg
   where_visible: UI
+  promoted: true
 - id: c0966977-5b71-4f5e-92c7-04a86dbd7d71
   current_stock: 7
   name: Wall Clock
@@ -13386,6 +13733,7 @@
   price: 136.99
   image: e5274182-e14d-4456-91d7-7c910fcbd7db.jpg
   where_visible: UI
+  promoted: true
 - id: 0a33e46c-d245-4d44-9bad-d420e4c26c71
   current_stock: 8
   name: Wall Clock
@@ -13422,6 +13770,7 @@
   price: 136.99
   image: d61d81c7-dc92-463f-9f0b-3edfbe9516af.jpg
   where_visible: UI
+  promoted: true
 - id: 3d7fefba-b18a-4571-8a5f-0fc7547c7513
   current_stock: 9
   name: Wall Clock
@@ -13431,6 +13780,7 @@
   price: 144.99
   image: 3d7fefba-b18a-4571-8a5f-0fc7547c7513.jpg
   where_visible: UI
+  promoted: true
 - id: 06888a99-341b-4b86-8e31-879c414a43db
   current_stock: 9
   name: Wall Clock
@@ -13458,6 +13808,7 @@
   price: 57.99
   image: 8770aa6d-44e7-4219-9ab4-71b3fd828f36.jpg
   where_visible: UI
+  promoted: true
 - id: 78b34131-69a4-4f3d-9fe3-04c3bbd0e211
   current_stock: 16
   name: Light Gray Rectangular Cushion
@@ -13485,6 +13836,7 @@
   price: 51.99
   image: b7b07f88-31b4-425b-97a9-c161199f795c.jpg
   where_visible: UI
+  promoted: true
 - id: 47d7a314-6fe8-4e00-9586-682410719b7c
   current_stock: 14
   name: Red Rectangular Cushion
@@ -13503,6 +13855,7 @@
   price: 26.99
   image: 9577a89a-3d17-4db9-8f47-a95dd02ef90c.jpg
   where_visible: UI
+  promoted: true
 - id: f2fdac3f-e508-4f6b-9954-fe85374f747a
   current_stock: 12
   name: Tan Rectangular Cushion
@@ -13530,6 +13883,7 @@
   price: 49.99
   image: ead102ca-975b-415b-86f7-2ec87a9e6f03.jpg
   where_visible: UI
+  promoted: true
 - id: 7e79a109-06f4-4503-8879-c0b6a4759e96
   current_stock: 8
   name: Rosy-Brown Rectangular Cushion
@@ -13539,6 +13893,7 @@
   price: 49.99
   image: 7e79a109-06f4-4503-8879-c0b6a4759e96.jpg
   where_visible: UI
+  promoted: true
 - id: c76284e5-0186-42af-92d2-bd572c553508
   current_stock: 10
   name: Pale Gray Rectangular Cushion
@@ -13584,6 +13939,7 @@
   price: 20.99
   image: 92749684-7ff7-4ed6-8eb7-b948dfee0d79.jpg
   where_visible: UI
+  promoted: true
 - id: c8956c20-9214-4e38-9398-26e8d05b4924
   current_stock: 11
   name: Gray Set Cushion
@@ -13602,6 +13958,7 @@
   price: 40.99
   image: f4d4257d-aff2-4d81-a02f-9ab88b234a7b.jpg
   where_visible: UI
+  promoted: true
 - id: 7392337e-0136-4e87-875e-0f7b668ab742
   current_stock: 7
   name: Cushion Set
@@ -13629,6 +13986,7 @@
   price: 37.99
   image: 9b752d29-c442-4347-b282-a9b0b77be1b2.jpg
   where_visible: UI
+  promoted: true
 - id: bf35140f-0a5d-4462-857d-77a6a293e412
   current_stock: 15
   name: Light Gray Set Cushion
@@ -13773,6 +14131,7 @@
   price: 37.99
   image: 7d6e50fb-c941-4f1e-b97d-612f627a271a.jpg
   where_visible: UI
+  promoted: true
 - id: 9a22b940-8d56-4e2e-8fbb-14fee881b596
   current_stock: 16
   name: Pale Gray Square Cushion
@@ -13782,6 +14141,7 @@
   price: 15.99
   image: 9a22b940-8d56-4e2e-8fbb-14fee881b596.jpg
   where_visible: UI
+  promoted: true
 - id: c56e4566-e6ff-4307-8a9e-c5f2125d7338
   current_stock: 12
   name: Dark Gray Square Cushion
@@ -13881,6 +14241,7 @@
   price: 56.99
   image: 514cbd7d-71d8-4b75-8a67-448f40bab8e4.jpg
   where_visible: UI
+  promoted: true
 - id: 1d9ab420-01b5-4d5d-b7b9-43c10f4eac84
   current_stock: 12
   name: Rattan Basket
@@ -13890,6 +14251,7 @@
   price: 45.99
   image: 1d9ab420-01b5-4d5d-b7b9-43c10f4eac84.jpg
   where_visible: UI
+  promoted: true
 - id: 0a10f3b7-b91b-4b68-96a6-bfb6cc348095
   current_stock: 12
   name: Rattan Basket
@@ -13908,6 +14270,7 @@
   price: 20.99
   image: 76179541-8214-4940-bfa8-6d93739ba436.jpg
   where_visible: UI
+  promoted: true
 - id: f08e9ea2-5ad8-4fe1-a72e-622e31c363cb
   current_stock: 9
   name: Rattan Basket
@@ -13935,6 +14298,7 @@
   price: 46.99
   image: 771a0ced-1a1c-45d4-b94c-3d7b2188e48b.jpg
   where_visible: UI
+  promoted: true
 - id: 69ff0879-e2ad-4f83-9fa0-39df003e3f35
   current_stock: 11
   name: Rattan Basket
@@ -14016,6 +14380,7 @@
   price: 43.99
   image: 669b328d-0905-4a3f-b95d-79c8eb83482f.jpg
   where_visible: UI
+  promoted: true
 - id: b1d9668f-7605-4e8d-afab-0523ea0cdf21
   current_stock: 12
   name: Rattan Basket
@@ -14043,6 +14408,7 @@
   price: 52.99
   image: 75e48fa8-bbcb-49f9-ab57-c62472c19a69.jpg
   where_visible: UI
+  promoted: true
 - id: 646848a8-86ef-4aff-9468-1d0944bfe072
   current_stock: 11
   name: Wiker Basket
@@ -14088,6 +14454,7 @@
   price: 44.99
   image: 9e90de6d-e196-4426-84ea-4571fe40d164.jpg
   where_visible: UI
+  promoted: true
 - id: fad47cae-2242-47e4-a999-34fc41dd6ed6
   current_stock: 7
   name: Wiker Basket
@@ -14106,6 +14473,7 @@
   price: 41.99
   image: 6d9e6bd1-3e50-4311-bd58-7913dcdbce43.jpg
   where_visible: UI
+  promoted: true
 - id: 8b3b6f83-157b-413e-9205-2f459f2df378
   current_stock: 11
   name: Wiker Basket
@@ -14196,6 +14564,7 @@
   price: 20.99
   image: f89c2504-eb03-4568-a010-6ea50d6cd902.jpg
   where_visible: UI
+  promoted: true
 - id: 7186f66d-c305-4b61-b966-80d0c1e003b9
   current_stock: 8
   name: Frame
@@ -14205,6 +14574,7 @@
   price: 15.99
   image: 7186f66d-c305-4b61-b966-80d0c1e003b9.jpg
   where_visible: UI
+  promoted: true
 - id: 91b4d3d6-9880-40f9-a8f3-e732c91dbe3c
   current_stock: 6
   name: Ceramic Vase
@@ -14260,6 +14630,7 @@
   price: 31.99
   image: 9fa75331-d8a2-49de-968e-fb855e57d53b.jpg
   where_visible: UI
+  promoted: true
 - id: 81eee14d-d22e-43a2-8110-b610b6eaafd1
   current_stock: 6
   name: Ceramic Vase
@@ -14278,6 +14649,7 @@
   price: 33.99
   image: 6685cdbb-07c0-448d-9927-a5477e610363.jpg
   where_visible: UI
+  promoted: true
 - id: 7f7f75c8-8756-4f73-b655-da1c77679fe7
   current_stock: 10
   name: Ceramic Vase
@@ -14341,6 +14713,7 @@
   price: 36.99
   image: 2f11beab-a8ab-40c5-87af-9e7acce72e6b.jpg
   where_visible: UI
+  promoted: true
 - id: 6bd26ffc-9fae-447b-a23c-fcb14187302a
   current_stock: 13
   name: Glass Vase
@@ -14395,6 +14768,7 @@
   price: 38.99
   image: 0ed16f07-4f93-4b8a-9c77-17d0dbac9e47.jpg
   where_visible: UI
+  promoted: true
 - id: 38878e5d-f6ce-4960-845c-b0bac8700c79
   current_stock: 17
   name: Glass Vase
@@ -14404,6 +14778,7 @@
   price: 45.99
   image: 38878e5d-f6ce-4960-845c-b0bac8700c79.jpg
   where_visible: UI
+  promoted: true
 - id: ecfc70c9-a9a3-427e-91ea-5dd561a2564a
   current_stock: 15
   name: Glass Vase
@@ -14422,6 +14797,7 @@
   price: 56.99
   image: f2e66204-c339-434b-b0ae-b6cb6d815756.jpg
   where_visible: UI
+  promoted: true
 - id: cc5005d0-1a9e-48f1-9c79-14096b1d8c29
   current_stock: 13
   name: Glass Vase
@@ -14431,6 +14807,7 @@
   price: 24.99
   image: cc5005d0-1a9e-48f1-9c79-14096b1d8c29.jpg
   where_visible: UI
+  promoted: true
 - id: 9f50d5db-5054-43e8-97b0-80d5036a6bf7
   current_stock: 14
   name: Decorative Candle
@@ -14440,6 +14817,7 @@
   price: 45.99
   image: 9f50d5db-5054-43e8-97b0-80d5036a6bf7.jpg
   where_visible: UI
+  promoted: true
 - id: 833214f2-cdbc-4fbd-a25f-6f33357b503a
   current_stock: 14
   name: Decorative Candle
@@ -14566,6 +14944,7 @@
   price: 59.99
   image: 8c66f6d3-85de-4cff-bc4a-f05e34587813.jpg
   where_visible: UI
+  promoted: true
 - id: bd86408e-b36c-44b1-ba32-d3f9da0a1af0
   current_stock: 16
   name: Taper Candle
@@ -14575,6 +14954,7 @@
   price: 21.99
   image: bd86408e-b36c-44b1-ba32-d3f9da0a1af0.jpg
   where_visible: UI
+  promoted: true
 - id: 473d51cf-979d-4680-9ebb-542888f08472
   current_stock: 13
   name: Taper Candle
@@ -14629,6 +15009,7 @@
   price: 17.99
   image: 02f7e73f-b6fe-4ffd-bd06-60c6cb35d60f.jpg
   where_visible: UI
+  promoted: true
 - id: 91d0333b-76ec-4271-901a-6bb79cd9f12b
   current_stock: 6
   name: Floor Lamp
@@ -14656,6 +15037,7 @@
   price: 52.99
   image: 21a6eee1-20d3-4147-9c6e-5e784896c8e6.jpg
   where_visible: UI
+  promoted: true
 - id: 128237ba-34a4-4d45-88e1-fcb00109ff81
   current_stock: 16
   name: Floor Lamp
@@ -14665,6 +15047,7 @@
   price: 32.99
   image: 128237ba-34a4-4d45-88e1-fcb00109ff81.jpg
   where_visible: UI
+  promoted: true
 - id: 4fb90969-6e9b-41f5-8ff2-acde9878e868
   current_stock: 10
   name: Floor Lamp
@@ -14683,6 +15066,7 @@
   price: 48.99
   image: 304cd58e-1e7e-4151-9716-1bb222cb724e.jpg
   where_visible: UI
+  promoted: true
 - id: 35c9916f-1ffa-46f8-9208-f3cc8a2406ce
   current_stock: 13
   name: Floor Lamp
@@ -14737,6 +15121,7 @@
   price: 28.99
   image: 8c5e7127-d19a-40bf-92dd-3073e107bf67.jpg
   where_visible: UI
+  promoted: true
 - id: 0b9440be-f7d4-403f-a357-f4e9ce6473f8
   current_stock: 7
   name: Hanging Lamp
@@ -14800,6 +15185,7 @@
   price: 42.99
   image: f8c2af2c-313d-43aa-bf76-340bafd0d46c.jpg
   where_visible: UI
+  promoted: true
 - id: 1c54c650-dc19-486b-99a2-8621278acb9b
   current_stock: 7
   name: Hanging Lamp
@@ -14818,6 +15204,7 @@
   price: 51.99
   image: 7b56f6cc-5f6d-41a1-b98c-a128aaff24a7.jpg
   where_visible: UI
+  promoted: true
 - id: 56138fc9-df6d-4d6f-8594-768861870d30
   current_stock: 15
   name: Hanging Lamp
@@ -14881,6 +15268,7 @@
   price: 47.99
   image: f90602f6-d516-44f2-84d4-49d3058892bb.jpg
   where_visible: UI
+  promoted: true
 - id: b31c5f96-8a7d-40c7-8f0a-f587c1af4476
   current_stock: 7
   name: Table Lamp
@@ -14926,6 +15314,7 @@
   price: 40.99
   image: 2255952b-b517-4428-bae7-06ee5a96bdcf.jpg
   where_visible: UI
+  promoted: true
 - id: 34327402-69b9-44ed-b688-55e6f73b7fd9
   current_stock: 17
   name: Sophisticated Aluminum Bowl
@@ -14935,6 +15324,7 @@
   price: 21.99
   image: 34327402-69b9-44ed-b688-55e6f73b7fd9.jpg
   where_visible: UI
+  promoted: true
 - id: 78080d05-b078-441f-b245-54b2a2dec872
   current_stock: 7
   name: Sophisticated Ceramic Bowl
@@ -14944,6 +15334,7 @@
   price: 18.99
   image: 78080d05-b078-441f-b245-54b2a2dec872.jpg
   where_visible: UI
+  promoted: true
 - id: 8aee8fe1-081c-4565-bb20-b751870a2a7c
   current_stock: 16
   name: Magnificent Ceramic Bowl
@@ -14971,6 +15362,7 @@
   price: 31.99
   image: 14825b03-ef30-4383-b92c-e8f022aee4cd.jpg
   where_visible: UI
+  promoted: true
 - id: 25e0f1af-8620-4eca-8573-4924d3fbee52
   current_stock: 15
   name: Elegant Ceramic Bowl
@@ -15106,6 +15498,7 @@
   price: 59.99
   image: d3237d85-4917-43df-ab83-6f8fb1084f70.jpg
   where_visible: UI
+  promoted: true
 - id: d7886985-e5fa-4e4c-984c-d3e5be1036f5
   current_stock: 18
   name: Stylish Ceramic Bowl
@@ -15223,6 +15616,7 @@
   price: 17.99
   image: 481b9e0a-cc70-4daa-b663-a5b8abf69a42.jpg
   where_visible: UI
+  promoted: true
 - id: 447bc9e4-c176-4665-892e-2a0f47b3a582
   current_stock: 12
   name: Classic Ceramic Bowl
@@ -15259,6 +15653,7 @@
   price: 54.99
   image: 93ade4d8-4df8-41da-af5d-506f2c33b845.jpg
   where_visible: UI
+  promoted: true
 - id: 76f244eb-ed95-478e-97b7-d7c270980658
   current_stock: 7
   name: Luxurious Ceramic Bowl
@@ -15268,6 +15663,7 @@
   price: 71.99
   image: 76f244eb-ed95-478e-97b7-d7c270980658.jpg
   where_visible: UI
+  promoted: true
 - id: 08301406-e647-4881-85ad-8134ba2ff1ce
   current_stock: 10
   name: Appealing Ceramic Bowl
@@ -15295,6 +15691,7 @@
   price: 62.99
   image: 261aeff6-f317-4744-962e-490a0911eee1.jpg
   where_visible: UI
+  promoted: true
 - id: 69d5abcb-8040-4004-9329-8fe74a0ab650
   current_stock: 11
   name: Chic Ceramic Bowl
@@ -15412,6 +15809,7 @@
   price: 50.99
   image: f5be9f67-8def-405d-af7e-2abf6876277f.jpg
   where_visible: UI
+  promoted: true
 - id: 56853a1b-064b-498f-846d-28473bd22233
   current_stock: 13
   name: Baking Dish
@@ -15457,6 +15855,7 @@
   price: 53.99
   image: dc8f6e1b-3d49-436e-93ef-821fe08ffa4e.jpg
   where_visible: UI
+  promoted: true
 - id: 471622d6-3300-4591-816b-ab8487e70274
   current_stock: 18
   name: Coffee Maker
@@ -15475,6 +15874,7 @@
   price: 69.99
   image: acfba3f9-f7d6-4fff-9cef-35db086d2869.jpg
   where_visible: UI
+  promoted: true
 - id: 57a7d4c1-03f7-4a5b-a618-cbfb5a0004f1
   current_stock: 11
   name: Honey Dipper
@@ -15484,6 +15884,7 @@
   price: 70.99
   image: 57a7d4c1-03f7-4a5b-a618-cbfb5a0004f1.jpg
   where_visible: UI
+  promoted: true
 - id: e66109bf-9ad5-430a-90e5-900c00119f39
   current_stock: 6
   name: Dutch Oven
@@ -15511,6 +15912,7 @@
   price: 69.99
   image: e41db00e-517e-4030-8d7f-347d1050ae77.jpg
   where_visible: UI
+  promoted: true
 - id: 95c8bc73-c135-4d79-89fe-b53a36c99a08
   current_stock: 10
   name: Dutch Oven
@@ -15592,6 +15994,7 @@
   price: 71.99
   image: 3630053e-3962-4549-bcce-402c3a980557.jpg
   where_visible: UI
+  promoted: true
 - id: 10d35bdd-fe3d-4d23-99de-68bf1e24bcff
   current_stock: 7
   name: Beer Glass
@@ -15610,6 +16013,7 @@
   price: 73.99
   image: 9fb8bc6c-6d09-400a-aa51-64d2c523b9b7.jpg
   where_visible: UI
+  promoted: true
 - id: ea8abbc7-cc37-45df-b0f6-03961761c823
   current_stock: 14
   name: Beer Glass
@@ -15628,6 +16032,7 @@
   price: 52.99
   image: 540e414d-c279-45c2-bde6-4a731e7c54c7.jpg
   where_visible: UI
+  promoted: true
 - id: ee7b59b1-4621-45a5-9a47-7fc9f74719a5
   current_stock: 17
   name: Cocktail Glass
@@ -15664,6 +16069,7 @@
   price: 71.99
   image: c6d27512-52c2-4921-bd85-90a0ea2e2f33.jpg
   where_visible: UI
+  promoted: true
 - id: 89fbf7f1-0656-44eb-ba76-ecde10e834b9
   current_stock: 15
   name: Cocktail Glass
@@ -15673,6 +16079,7 @@
   price: 64.99
   image: 89fbf7f1-0656-44eb-ba76-ecde10e834b9.jpg
   where_visible: UI
+  promoted: true
 - id: 516dc1f4-0c1f-4b53-8146-66314e3a35ee
   current_stock: 16
   name: Cocktail Glass
@@ -15736,6 +16143,7 @@
   price: 55.99
   image: c24f3888-fdf7-44d6-bf3e-26ae57cba8b9.jpg
   where_visible: UI
+  promoted: true
 - id: 5c3eba68-83aa-4274-b4e6-296ffb35676a
   current_stock: 16
   name: Cocktail Glass
@@ -15763,6 +16171,7 @@
   price: 63.99
   image: 72fc1056-4862-463b-ae42-f703ff421879.jpg
   where_visible: UI
+  promoted: true
 - id: e5f9478b-9d05-450f-b5da-2b525c7f843b
   current_stock: 12
   name: Cocktail Glass
@@ -15772,6 +16181,7 @@
   price: 55.99
   image: e5f9478b-9d05-450f-b5da-2b525c7f843b.jpg
   where_visible: UI
+  promoted: true
 - id: d6c66a35-d63a-455e-a26e-62a72d1db254
   current_stock: 14
   name: Everyday Glass
@@ -15853,6 +16263,7 @@
   price: 60.99
   image: 5d28d7a1-4a71-4db3-9ec3-754c2b0b5d99.jpg
   where_visible: UI
+  promoted: true
 - id: 9a34152c-8be3-43f6-869f-6829a699c638
   current_stock: 8
   name: Wine Glass
@@ -15862,6 +16273,7 @@
   price: 62.99
   image: 9a34152c-8be3-43f6-869f-6829a699c638.jpg
   where_visible: UI
+  promoted: true
 - id: e12f1459-432c-4091-8a7b-cccad4075cc3
   current_stock: 18
   name: Wine Glass
@@ -15871,6 +16283,7 @@
   price: 74.99
   image: e12f1459-432c-4091-8a7b-cccad4075cc3.jpg
   where_visible: UI
+  promoted: true
 - id: d75463f1-d125-4229-835c-041119512149
   current_stock: 9
   name: Wine Glass
@@ -15889,6 +16302,7 @@
   price: 67.99
   image: 9ea37ad0-83fb-4b65-90aa-ccbda392b39d.jpg
   where_visible: UI
+  promoted: true
 - id: 1def0093-96b2-4cc4-a022-071941f75b92
   current_stock: 15
   name: Wine Glass
@@ -15907,6 +16321,7 @@
   price: 56.99
   image: ccdf737c-c4fd-4c78-abd2-d5ef0428ef20.jpg
   where_visible: UI
+  promoted: true
 - id: 6be08307-1ec0-44dc-b436-5d489a8010e8
   current_stock: 14
   name: Wine Glass
@@ -15925,6 +16340,7 @@
   price: 75.99
   image: 6d488475-1d67-4076-96b1-8e706709a847.jpg
   where_visible: UI
+  promoted: true
 - id: 247aedf8-bd1c-40fb-8d16-518e9d6f6813
   current_stock: 13
   name: Kettle
@@ -15934,6 +16350,7 @@
   price: 50.99
   image: 247aedf8-bd1c-40fb-8d16-518e9d6f6813.jpg
   where_visible: UI
+  promoted: true
 - id: aa5be513-89e8-4518-aba0-a40c8544adbc
   current_stock: 19
   name: Kettle
@@ -15961,6 +16378,7 @@
   price: 72.99
   image: b1a54da3-32d9-4447-9eeb-6c0fcfb75ca0.jpg
   where_visible: UI
+  promoted: true
 - id: aebf938b-e79b-48f3-a0b2-789f6e8f99f8
   current_stock: 15
   name: Kettle
@@ -15988,6 +16406,7 @@
   price: 75.99
   image: 8a0dbe9a-e063-480e-8bbc-2c60f390cd13.jpg
   where_visible: UI
+  promoted: true
 - id: 9d5f948a-713b-40c8-a1f8-2a289dcada5b
   current_stock: 15
   name: Kettle
@@ -16069,6 +16488,7 @@
   price: 51.99
   image: 95d8bb83-f344-47f8-b89b-c7ab3f591385.jpg
   where_visible: UI
+  promoted: true
 - id: 00740ca5-372b-4e72-a040-8eacde2ecf4f
   current_stock: 11
   name: Butter Knife
@@ -16087,6 +16507,7 @@
   price: 55.99
   image: eb8f10ab-1317-4a11-b058-b2098bb64326.jpg
   where_visible: UI
+  promoted: true
 - id: 912fb371-de19-4753-b43a-87bf4b18bac2
   current_stock: 13
   name: Chef Knife
@@ -16123,6 +16544,7 @@
   price: 65.99
   image: 323ca3fe-7849-490a-933d-e742866a2843.jpg
   where_visible: UI
+  promoted: true
 - id: 6edbdde6-0791-4a53-ae92-b8aaba88753d
   current_stock: 8
   name: Chef Knife
@@ -16168,6 +16590,7 @@
   price: 72.99
   image: de81e406-4fee-4934-9274-31b8b4acf002.jpg
   where_visible: UI
+  promoted: true
 - id: fadef46c-2b03-470d-97a3-c751f8075ec0
   current_stock: 18
   name: Blue Plates
@@ -16195,6 +16618,7 @@
   price: 52.99
   image: a5095e59-60e0-40cc-8a0d-d2caaac18cb2.jpg
   where_visible: UI
+  promoted: true
 - id: 6d164b55-f618-46af-a149-98818139fcd2
   current_stock: 11
   name: Floral Design Plates
@@ -16204,6 +16628,7 @@
   price: 60.99
   image: 6d164b55-f618-46af-a149-98818139fcd2.jpg
   where_visible: UI
+  promoted: true
 - id: d5e96c12-75cc-45ca-9991-7a987ed86ad3
   current_stock: 6
   name: Floral Design Plates
@@ -16213,6 +16638,7 @@
   price: 57.99
   image: d5e96c12-75cc-45ca-9991-7a987ed86ad3.jpg
   where_visible: UI
+  promoted: true
 - id: 5c0b070b-3bf1-4d2b-99a7-0906b90ca28f
   current_stock: 9
   name: Floral Design Plates
@@ -16276,6 +16702,7 @@
   price: 71.99
   image: cecc2045-5c45-4c72-97df-2378071abf73.jpg
   where_visible: UI
+  promoted: true
 - id: ac42df7e-55a3-46b5-b64e-b7de51e4f33b
   current_stock: 17
   name: White Plates
@@ -16303,6 +16730,7 @@
   price: 73.99
   image: 0e20e3c5-5a55-4aec-bea3-ad654c6aef5f.jpg
   where_visible: UI
+  promoted: true
 - id: 2aba4640-946f-48e2-bd43-c3ac3a70fb7c
   current_stock: 8
   name: White Plates
@@ -16393,6 +16821,7 @@
   price: 60.99
   image: 3c9976f4-b16d-4a09-b4e9-4f33da92a7e7.jpg
   where_visible: UI
+  promoted: true
 - id: 8770d681-3af6-45fa-be0a-2e97f5466ef0
   current_stock: 19
   name: White Plates
@@ -16429,6 +16858,7 @@
   price: 64.99
   image: b589a708-836e-439a-b4b0-147a3f22522b.jpg
   where_visible: UI
+  promoted: true
 - id: c0779eb2-bcb7-406a-9d60-cbb511ebed92
   current_stock: 11
   name: White Plates
@@ -16438,6 +16868,7 @@
   price: 68.99
   image: c0779eb2-bcb7-406a-9d60-cbb511ebed92.jpg
   where_visible: UI
+  promoted: true
 - id: caefdbe5-25ca-4d72-8aa1-c4a9662e5db7
   current_stock: 9
   name: White Plates
@@ -16492,6 +16923,7 @@
   price: 54.99
   image: 13a13747-5350-43f0-b7bf-f2fb4e6aa834.jpg
   where_visible: UI
+  promoted: true
 - id: 1d21572e-f35d-4c7b-8a39-a4d97b08276a
   current_stock: 11
   name: Pot
@@ -16582,6 +17014,7 @@
   price: 66.99
   image: 94cc3c8d-7efd-4f7b-84d0-9996f7e90c2f.jpg
   where_visible: UI
+  promoted: true
 - id: 1e96e374-be23-4c97-b87e-b5c45cb8999f
   featured: true
   current_stock: 15
@@ -16619,6 +17052,7 @@
   price: 58.99
   image: e11a34d8-846a-45f0-967a-39d176b491bc.jpg
   where_visible: UI
+  promoted: true
 - id: 1eb2dd1f-7eb1-4eb2-bfac-59ab4d47d0c8
   current_stock: 9
   name: Utensils Set
@@ -16628,6 +17062,7 @@
   price: 55.99
   image: 1eb2dd1f-7eb1-4eb2-bfac-59ab4d47d0c8.jpg
   where_visible: UI
+  promoted: true
 - id: 0cfb40f1-8122-4a30-bd6e-9524b70d30b2
   current_stock: 14
   name: Spoon
@@ -16673,6 +17108,7 @@
   price: 64.99
   image: b9ce61f9-58cc-4ccb-aa32-03e223025857.jpg
   where_visible: UI
+  promoted: true
 - id: dd982af5-c41c-4c65-bbcf-f4e009f7fca9
   current_stock: 14
   name: Teapot
@@ -16682,6 +17118,7 @@
   price: 63.99
   image: dd982af5-c41c-4c65-bbcf-f4e009f7fca9.jpg
   where_visible: UI
+  promoted: true
 - id: 425cc876-3935-4e87-ad8d-77f42b0b6a75
   current_stock: 15
   name: Teapot
@@ -16763,6 +17200,7 @@
   price: 71.99
   image: 1495081d-3fba-4cf0-a27d-afbae683f1b1.jpg
   where_visible: UI
+  promoted: true
 - id: 451987da-76c7-406e-a922-0b39ca12d745
   current_stock: 11
   name: Teapot
@@ -16781,6 +17219,7 @@
   price: 58.99
   image: 7b20a8e1-5c56-41e9-aef3-1a4fd4637310.jpg
   where_visible: UI
+  promoted: true
 - id: ef446e39-c864-46ea-b273-f2a48b7dc2a5
   current_stock: 17
   name: Teapot
@@ -16790,6 +17229,7 @@
   price: 54.99
   image: ef446e39-c864-46ea-b273-f2a48b7dc2a5.jpg
   where_visible: UI
+  promoted: true
 - id: 7bdf74bc-2f36-4528-ad40-0d13f534a057
   current_stock: 17
   name: Utensils
@@ -16835,6 +17275,7 @@
   price: 62.99
   image: 569e2d41-53f8-4615-9db3-045d3ff57b33.jpg
   where_visible: UI
+  promoted: true
 - id: 69a31bac-661e-499e-a6ff-c1f178e4bacb
   current_stock: 17
   name: Utensils
@@ -16844,6 +17285,7 @@
   price: 53.99
   image: 69a31bac-661e-499e-a6ff-c1f178e4bacb.jpg
   where_visible: UI
+  promoted: true
 - id: 168cc760-2d97-4a6e-9cf6-515996151b1d
   current_stock: 19
   name: Grand Piano
@@ -16898,6 +17340,7 @@
   price: 337.99
   image: 8c99de3f-95b9-4cc5-8e1a-87a5fac313fa.jpg
   where_visible: UI
+  promoted: true
 - id: 7a0bbccc-23e3-4528-8e46-1b6c8f6e0e26
   current_stock: 14
   name: Grand Piano
@@ -16934,6 +17377,7 @@
   price: 109.99
   image: 67b6b486-6d74-47a4-8173-d10a86ddc275.jpg
   where_visible: UI
+  promoted: true
 - id: c86e8896-b9e0-4121-a3e4-25dfb435e2f1
   current_stock: 14
   name: Keyboard
@@ -16988,6 +17432,7 @@
   price: 482.99
   image: 72ca8c60-b062-4e9c-9da0-89fdf09f96d9.jpg
   where_visible: UI
+  promoted: true
 - id: 2e2bca71-de2f-4130-ade3-f77ef0cf247c
   current_stock: 9
   name: Keyboard
@@ -16997,6 +17442,7 @@
   price: 211.99
   image: 2e2bca71-de2f-4130-ade3-f77ef0cf247c.jpg
   where_visible: UI
+  promoted: true
 - id: e727caad-132c-48d2-bd7f-131c99745b24
   current_stock: 6
   name: Keyboard
@@ -17006,6 +17452,7 @@
   price: 401.99
   image: e727caad-132c-48d2-bd7f-131c99745b24.jpg
   where_visible: UI
+  promoted: true
 - id: e4f7e8b7-2c26-4939-9efd-b10f53a2ed04
   current_stock: 9
   name: Keyboard
@@ -17042,6 +17489,7 @@
   price: 139.99
   image: 7750f919-4d16-4804-939c-6c5c4094354a.jpg
   where_visible: UI
+  promoted: true
 - id: 94e5c5a1-ee87-4d12-9657-e9ef9b27e901
   current_stock: 14
   name: Upright Piano
@@ -17069,6 +17517,7 @@
   price: 184.99
   image: 97b25afe-68ca-445d-a276-dc7e09df575d.jpg
   where_visible: UI
+  promoted: true
 - id: 340cd993-ed9c-407b-b4d0-edcc66445b8c
   current_stock: 7
   name: Upright Piano
@@ -17078,6 +17527,7 @@
   price: 182.99
   image: 340cd993-ed9c-407b-b4d0-edcc66445b8c.jpg
   where_visible: UI
+  promoted: true
 - id: 8c818e1b-69bd-4c92-9e93-08965146fc1f
   current_stock: 19
   name: Upright Piano
@@ -17096,6 +17546,7 @@
   price: 239.99
   image: 7d82f4d2-d9b7-428f-b19c-f8e3c7d45d2f.jpg
   where_visible: UI
+  promoted: true
 - id: 6298e772-d18e-4eb0-a226-70fbb2074edc
   current_stock: 12
   name: Upright Piano
@@ -17123,6 +17574,7 @@
   price: 223.99
   image: b2d729d1-5aef-4dbf-bdf5-6d99c6e86e12.jpg
   where_visible: UI
+  promoted: true
 - id: 885f38a7-46dc-4a5d-aa24-39799a72377b
   current_stock: 15
   name: Upright Piano
@@ -17141,6 +17593,7 @@
   price: 327.99
   image: 0c4379af-964a-451b-8c57-255194f653af.jpg
   where_visible: UI
+  promoted: true
 - id: 7dc2e174-b41c-48a2-ba8f-0248217d42c0
   current_stock: 7
   name: Accurate Microphone
@@ -17177,6 +17630,7 @@
   price: 499.99
   image: e09d3267-1a87-4518-9fa7-fa9ed847c80d.jpg
   where_visible: UI
+  promoted: true
 - id: 95be8b94-feeb-48df-8449-34924e4d849d
   current_stock: 7
   name: Faultless Microphone
@@ -17240,6 +17694,7 @@
   price: 259.99
   image: cfb51e9c-6a69-4ca8-ae56-9ef78c35adba.jpg
   where_visible: UI
+  promoted: true
 - id: 62545d27-dcf5-476a-b2fc-2f8caecc75dc
   current_stock: 13
   name: Accurate Microphone
@@ -17258,6 +17713,7 @@
   price: 253.99
   image: 9ffda50b-e5a9-47ae-9d63-a0ab90f8cbac.jpg
   where_visible: UI
+  promoted: true
 - id: e498d84e-29f9-4657-9511-bb203f6e0fda
   current_stock: 16
   name: Accurate Microphone
@@ -17276,6 +17732,7 @@
   price: 87.99
   image: 462d6acb-8cb9-4d11-aeef-7942d51345d8.jpg
   where_visible: UI
+  promoted: true
 - id: 9880afd7-f698-4a2c-929f-a9ce9be00d2b
   current_stock: 8
   name: Faultless Microphone
@@ -17303,6 +17760,7 @@
   price: 298.99
   image: 664a48cc-983d-489d-a7dd-421c676477e8.jpg
   where_visible: UI
+  promoted: true
 - id: a4634431-29bd-45a8-801f-55fb33b68bb4
   current_stock: 7
   name: Acoustic Drum
@@ -17321,6 +17779,7 @@
   price: 190.99
   image: c0417333-f966-420f-8e65-93bf708887b8.jpg
   where_visible: UI
+  promoted: true
 - id: 16dc3692-1dc3-4fc0-85ee-f1afcc0a67a5
   current_stock: 19
   name: Acoustic Drum
@@ -17393,6 +17852,7 @@
   price: 155.99
   image: 7b8e35ec-ddb6-465a-b209-0a6bf8ec1bc9.jpg
   where_visible: UI
+  promoted: true
 - id: 0269c908-fd3e-4c51-b9f0-0e0968623eb7
   current_stock: 8
   name: Acoustic Drum
@@ -17411,6 +17871,7 @@
   price: 237.99
   image: cf9e2ee4-476b-40d9-bc61-f866fc436520.jpg
   where_visible: UI
+  promoted: true
 - id: 828d99c3-9514-4e1b-83e4-20e989af861d
   current_stock: 6
   name: Acoustic Drum
@@ -17465,6 +17926,7 @@
   price: 263.99
   image: 7471868a-fecd-40a8-8b34-d4ab1d46c1ec.jpg
   where_visible: UI
+  promoted: true
 - id: 3ab996bb-9c82-4e05-b14a-81a68352c418
   current_stock: 12
   name: Acoustic Drum
@@ -17519,6 +17981,7 @@
   price: 150.99
   image: 4f456260-d3eb-4376-a2ac-58180f3446e7.jpg
   where_visible: UI
+  promoted: true
 - id: 942c213e-5571-43a0-9234-90826047a8b1
   current_stock: 9
   name: Cymbal
@@ -17546,6 +18009,7 @@
   price: 426.99
   image: 372342cf-d9cc-4f0e-a3bf-3f939dd5f9b4.jpg
   where_visible: UI
+  promoted: true
 - id: c5b52a98-63db-4924-98d3-c05a319dd8ac
   current_stock: 19
   name: Cymbal
@@ -17618,6 +18082,7 @@
   price: 498.99
   image: 21238146-9ddb-4672-8831-f12e1246e21e.jpg
   where_visible: UI
+  promoted: true
 - id: 1aec7c14-a081-4f44-822b-49ba8f64bce2
   current_stock: 8
   name: Drum Set
@@ -17627,6 +18092,7 @@
   price: 178.99
   image: 1aec7c14-a081-4f44-822b-49ba8f64bce2.jpg
   where_visible: UI
+  promoted: true
 - id: ee772434-345e-400d-bcd2-9fe696282bfe
   current_stock: 16
   name: Drumset
@@ -17717,6 +18183,7 @@
   price: 182.99
   image: f7b90f15-74e2-4dd0-a003-93e7965e2266.jpg
   where_visible: UI
+  promoted: true
 - id: 203b54b8-9ffd-4512-9b2b-aab6f47c5c42
   current_stock: 17
   name: Acoustic Bass
@@ -17789,6 +18256,7 @@
   price: 165.99
   image: 41c0efc4-35ea-4844-bf77-f45275c5a18d.jpg
   where_visible: UI
+  promoted: true
 - id: 4d874dd0-e88c-4698-8ce6-59bb627b6389
   current_stock: 6
   name: Acoustic Guitar
@@ -17825,6 +18293,7 @@
   price: 172.99
   image: c355dd01-24a6-4a99-b70e-539e39f18014.jpg
   where_visible: UI
+  promoted: true
 - id: 76507db4-0b67-4c86-b634-f3f1a479124c
   current_stock: 11
   name: Electric Bass
@@ -17834,6 +18303,7 @@
   price: 426.99
   image: 76507db4-0b67-4c86-b634-f3f1a479124c.jpg
   where_visible: UI
+  promoted: true
 - id: 3b7f5d4a-fa55-4a8d-a569-1e1f84462112
   current_stock: 16
   name: Electric Bass
@@ -17906,6 +18376,7 @@
   price: 405.99
   image: 23a0b541-5802-4664-9a0d-1d1e19903f90.jpg
   where_visible: UI
+  promoted: true
 - id: 6eeada5d-0418-48f6-83bc-802d1b52e93c
   current_stock: 15
   name: Electric Guitar
@@ -17924,6 +18395,7 @@
   price: 421.99
   image: c88ce500-8abd-443f-859b-c6168b58ea58.jpg
   where_visible: UI
+  promoted: true
 - id: bedf4979-a4ee-40b5-a6a6-58957977ea65
   current_stock: 7
   name: Electric Guitar
@@ -17951,6 +18423,7 @@
   price: 118.99
   image: 8220a6f2-3e00-4ce9-af2d-7ce9856d5354.jpg
   where_visible: UI
+  promoted: true
 - id: 0b4a89c6-821f-4420-88d5-afdbbce66545
   current_stock: 8
   name: Electric Guitar
@@ -17979,6 +18452,7 @@
   price: 405.99
   image: 3f9a39b2-0d63-4751-b6ee-4ecd08dd2276.jpg
   where_visible: UI
+  promoted: true
 - id: 79200e20-14e1-451f-b366-b13f8c4ed0dc
   current_stock: 8
   name: Electric Guitar
@@ -18060,6 +18534,7 @@
   price: 430.99
   image: 56ca3f0a-03cc-4496-9530-41d8c6069459.jpg
   where_visible: UI
+  promoted: true
 - id: aba82efa-2976-47ab-81cd-3092294b7a1b
   current_stock: 17
   name: Electric Guitar
@@ -18105,6 +18580,7 @@
   price: 263.99
   image: 2f182add-43fd-41f2-8899-d9e2fe507625.jpg
   where_visible: UI
+  promoted: true
 - id: bb3055a1-989f-4a8f-bf42-a010f19342e6
   current_stock: 7
   name: Electric Guitar
@@ -18177,6 +18653,7 @@
   price: 386.99
   image: 56df610b-ae16-4f6f-9276-3665c8da3655.jpg
   where_visible: UI
+  promoted: true
 - id: 4cabc8ea-263b-4642-bce6-7309d60f3e08
   current_stock: 6
   name: Violin
@@ -18231,6 +18708,7 @@
   price: 158.99
   image: 3f91dc0a-b158-47d4-a6ad-9bbf5c6560e5.jpg
   where_visible: UI
+  promoted: true
 - id: c14e9f90-ca7c-4f8b-aace-fa9b9cb27a83
   current_stock: 14
   name: Flute
@@ -18249,6 +18727,7 @@
   price: 279.99
   image: a00edb41-1c04-4dba-b7d4-431723d8c0c4.jpg
   where_visible: UI
+  promoted: true
 - id: 66725b05-5d69-48f5-bafc-883957a493d1
   current_stock: 14
   name: French Horn
@@ -18312,6 +18791,7 @@
   price: 285.99
   image: 06fee48b-f820-46b5-b4fe-1e459d1cf9d7.jpg
   where_visible: UI
+  promoted: true
 - id: 29cf2176-3ba3-4762-b537-66bc226a7766
   current_stock: 6
   name: Trumpet
@@ -18321,6 +18801,7 @@
   price: 200.99
   image: 29cf2176-3ba3-4762-b537-66bc226a7766.jpg
   where_visible: UI
+  promoted: true
 - id: 85cbbb25-676b-4619-9aa5-b73cdb40c773
   current_stock: 10
   name: Trumpet
@@ -18339,6 +18820,7 @@
   price: 108.99
   image: bae78d39-8f13-4497-839e-9dba87583b93.jpg
   where_visible: UI
+  promoted: true
 - id: a8d5f650-a661-4089-a6b6-674874eee4ae
   current_stock: 11
   name: Trumpet
@@ -18348,6 +18830,7 @@
   price: 402.99
   image: a8d5f650-a661-4089-a6b6-674874eee4ae.jpg
   where_visible: UI
+  promoted: true
 - id: f7b35f32-047d-4d05-be52-d38f648fe62d
   current_stock: 10
   name: Refined Bracelet
@@ -18358,6 +18841,7 @@
   image: f7b35f32-047d-4d05-be52-d38f648fe62d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9254d2a2-8e8b-4df4-af68-705a2deccda6
   current_stock: 17
   name: First-Rate Bracelet
@@ -18368,6 +18852,7 @@
   image: 9254d2a2-8e8b-4df4-af68-705a2deccda6.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 7a52ede4-bed8-4720-9cf3-9cb6908d89f5
   current_stock: 11
   name: Flawless Bracelet
@@ -18448,6 +18933,7 @@
   image: dbc54b26-dd46-4ed5-a67a-423450fff199.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 120e30c2-30ff-4c57-8265-17d084436ebb
   current_stock: 12
   name: Sans Pareil Bracelet
@@ -18498,6 +18984,7 @@
   image: 38441038-aa7a-44c9-a1a5-e03d1d8670e3.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 434b62f5-08ac-47c8-9847-bdfcb7283f08
   current_stock: 16
   name: Classy Bracelet
@@ -18538,6 +19025,7 @@
   image: ef3fbe9a-a82f-48a7-93e5-b51cc10f973e.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 8d4ea20c-19e5-4bc8-bdb3-7168e89bb176
   current_stock: 7
   name: Flawless Bracelet
@@ -18598,6 +19086,7 @@
   image: f57c96de-c35d-4b98-af5a-566f9479630d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: a7d17aa3-4576-4907-be47-1c2a735f90f3
   current_stock: 8
   name: Sans Pareil Bracelet
@@ -18658,6 +19147,7 @@
   image: 5e8a2b0f-899c-4061-a8d1-97cad4347803.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a74abb1e-026e-43ea-a5ba-233cdd114637
   current_stock: 13
   name: Groovy Bracelet
@@ -18668,6 +19158,7 @@
   image: a74abb1e-026e-43ea-a5ba-233cdd114637.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 642a675e-49e1-477a-97d8-6852380988b2
   current_stock: 12
   name: Dandyish Bracelet
@@ -18688,6 +19179,7 @@
   image: e9daa7cd-8230-4544-9f07-86fa84d7c3c1.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: a289ca2c-0135-4864-a710-865d4cf604d8
   current_stock: 8
   name: Groovy Bracelet
@@ -18718,6 +19210,7 @@
   image: 69f506f5-61ae-4a62-8e65-8a41386c1995.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 4039ce10-f9b9-40d8-97a0-87b7a1295b34
   current_stock: 9
   name: Hip Earrings
@@ -18738,6 +19231,7 @@
   image: aea053b3-c4c6-44b3-ab6c-9dc5f498cae1.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 6ec2a7e8-8b76-4187-b83d-9f9631639d76
   current_stock: 8
   name: Cool Earrings
@@ -18858,6 +19352,7 @@
   image: ea28def7-b36e-415b-8e31-ff4ec83f195a.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 34898360-79dc-4a8c-b774-9a799b0e7054
   current_stock: 8
   name: Modish Earrings
@@ -18878,6 +19373,7 @@
   image: cc3edb1a-d73a-4f6a-8718-600cba7f37b4.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 8f4bde5c-2d69-4c30-9c72-c5cff24ca58c
   current_stock: 15
   name: Supercool Earrings
@@ -18888,6 +19384,7 @@
   image: 8f4bde5c-2d69-4c30-9c72-c5cff24ca58c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: b84db397-022a-4cc2-a4ad-b8c320a51d04
   current_stock: 11
   name: Spiffy Earrings
@@ -18918,6 +19415,7 @@
   image: 3f791530-9540-4a36-9838-4fb14fc247ae.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c4a3ded4-0004-49dd-9f98-542bb6d71f2c
   current_stock: 19
   name: Groovy Earrings
@@ -18989,6 +19487,7 @@
   image: 8c0b69ac-e8db-4aca-83a9-1a89e0434965.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: c624d6a6-4269-4e2e-a172-4ae9da16533c
   current_stock: 9
   name: Swanky Necklace
@@ -18999,6 +19498,7 @@
   image: c624d6a6-4269-4e2e-a172-4ae9da16533c.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 7b8a3927-b430-4c2a-b5bb-32750b601795
   current_stock: 19
   name: Outstanding Necklace
@@ -19079,6 +19579,7 @@
   image: ad8938c6-c44a-47f8-a8d9-1627ee82030d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: cb106bf2-8a7f-40cb-9f09-2f9e988181f3
   current_stock: 10
   name: Quintessential Necklace
@@ -19099,6 +19600,7 @@
   image: 9a905b67-bcca-4445-aeea-ae3146e1cf0d.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: ddf7cd6e-633c-4906-a391-315ad1e91966
   current_stock: 13
   name: Edgy Necklace
@@ -19119,6 +19621,7 @@
   image: 722763f4-7a21-4947-bdbc-f44c82687338.jpg
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: 9f0c1468-bfd8-4723-98ad-afcb9301eefe
   current_stock: 12
   name: First-Class Necklace
@@ -19189,6 +19692,7 @@
   image: 26f3ac16-179b-4886-8ace-e9e83855e86b.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: d58cc491-e8ad-4f31-b6d5-4bcf417b40bd
   current_stock: 7
   name: Ultracool Necklace
@@ -19209,6 +19713,7 @@
   image: ad839732-f884-4354-91e4-721170d20df9.jpg
   gender_affinity: M
   where_visible: UI
+  promoted: true
 - id: 1db377d7-b12b-4e5a-88b1-c73ce1e2d020
   current_stock: 12
   name: hip Necklace
@@ -19258,6 +19763,7 @@
   price: 5.99
   image: 5106afab-048f-4d9f-b62b-3166e42ba01e.jpg
   where_visible: UI
+  promoted: true
 - id: 0c687920-9e48-4937-87fe-472911249386
   current_stock: 6
   name: Camping Chair
@@ -19384,6 +19890,7 @@
   price: 161.99
   image: 17fbc27f-0c88-43e7-890a-209afddb25fd.jpg
   where_visible: UI
+  promoted: true
 - id: 37cb1acd-1b2d-4718-9ec3-15864424de14
   current_stock: 13
   name: Camping Tent
@@ -19402,6 +19909,7 @@
   price: 175.99
   image: 04f098b3-f42f-4f8a-96b4-63cb789d00c0.jpg
   where_visible: UI
+  promoted: true
 - id: 0395c84b-d532-495d-8b4c-25cbaff606f7
   current_stock: 10
   name: Camping Tent
@@ -19420,6 +19928,7 @@
   price: 101.99
   image: a4429ded-b32e-4ff4-85ef-36f287649c13.jpg
   where_visible: UI
+  promoted: true
 - id: 4e59a438-e915-44d8-b15e-75b923c60639
   current_stock: 17
   name: Camping Tent
@@ -19429,6 +19938,7 @@
   price: 186.99
   image: 4e59a438-e915-44d8-b15e-75b923c60639.jpg
   where_visible: UI
+  promoted: true
 - id: 9f251479-7904-4563-b826-cd4f3739949b
   current_stock: 12
   name: Camping Tent
@@ -19492,6 +20002,7 @@
   price: 53.99
   image: 938bb9e7-d978-4159-b13d-e653c1548934.jpg
   where_visible: UI
+  promoted: true
 - id: 6931a1b1-26cd-4bab-8934-535374636e8f
   current_stock: 13
   name: Tested Fishing Lure
@@ -19501,6 +20012,7 @@
   price: 44.99
   image: 6931a1b1-26cd-4bab-8934-535374636e8f.jpg
   where_visible: UI
+  promoted: true
 - id: 549be4a8-29a9-41ae-84b4-e2d24c7b54bd
   current_stock: 16
   name: Incomparable Fishing Lure
@@ -19528,6 +20040,7 @@
   price: 44.99
   image: 7cd4cc5b-4302-40ee-989a-078559761ef8.jpg
   where_visible: UI
+  promoted: true
 - id: fbc3bec3-9271-42b5-8ca0-7f281f76e391
   current_stock: 9
   name: Foolproof Fishing Lure
@@ -19555,6 +20068,7 @@
   price: 74.99
   image: 462c7968-3fc8-4ce4-aef2-b732e87ac895.jpg
   where_visible: UI
+  promoted: true
 - id: b41b240a-6046-4f78-a4b7-9ce904e726d6
   current_stock: 9
   name: Trusty Fishing Hooks
@@ -19600,6 +20114,7 @@
   price: 105.99
   image: bedb6aec-0704-416f-b31c-0b43b6ff1b2e.jpg
   where_visible: UI
+  promoted: true
 - id: 8990ce18-b6ee-4219-917b-ceb15c7bf1d1
   current_stock: 10
   name: Unsurpassed Fishing Reel
@@ -19636,6 +20151,7 @@
   price: 109.99
   image: b1eb4959-3cf7-4e0b-9473-24d0f900b0ab.jpg
   where_visible: UI
+  promoted: true
 - id: 0bfb1cf5-f893-465c-9275-178833ad4969
   current_stock: 9
   name: Incomparable Fishing Lure
@@ -19654,6 +20170,7 @@
   price: 16.99
   image: af1fb35f-8fee-4ff2-a6a9-4be30d03c54b.jpg
   where_visible: UI
+  promoted: true
 - id: 0b6d1cd3-3e49-40ec-8663-6c5f3a41843f
   current_stock: 12
   name: Sure-Fire Fishing Reel
@@ -19690,6 +20207,7 @@
   price: 83.99
   image: 322c0e7a-4ab8-485d-b3c4-234a5962562d.jpg
   where_visible: UI
+  promoted: true
 - id: 404414a7-9562-4f9d-ade8-06d6923cf2ae
   current_stock: 6
   name: Fishing Hooks
@@ -19717,6 +20235,7 @@
   price: 39.99
   image: e43f798a-70c3-4d1f-a450-98c6597492e7.jpg
   where_visible: UI
+  promoted: true
 - id: 55f532d2-3067-4b48-9186-aba676681dfc
   current_stock: 19
   name: Reliable Fishing Reel
@@ -19780,6 +20299,7 @@
   price: 98.99
   image: 4941c536-ec23-481f-ae99-ec432d1ef35b.jpg
   where_visible: UI
+  promoted: true
 - id: 6ae76ab4-ad9a-4db0-9a24-7ae532647a41
   current_stock: 13
   name: Definitive Fishing Reel
@@ -19807,6 +20327,7 @@
   price: 55.99
   image: 959732aa-01c5-4416-8a60-067797539182.jpg
   where_visible: UI
+  promoted: true
 - id: 1b997958-e55c-4e1d-9764-ae969504b94d
   current_stock: 8
   name: Kayak
@@ -19816,6 +20337,7 @@
   price: 367.99
   image: 1b997958-e55c-4e1d-9764-ae969504b94d.jpg
   where_visible: UI
+  promoted: true
 - id: 75f06592-a0a2-4dc5-acfb-76b275dae3aa
   current_stock: 17
   name: Kayak
@@ -19834,6 +20356,7 @@
   price: 428.99
   image: 7ca458ba-184b-4243-bc9c-576ec9a2315e.jpg
   where_visible: UI
+  promoted: true
 - id: ef3312a1-6dd8-4433-9c72-772dd7abae82
   current_stock: 17
   name: Kayak
@@ -19861,6 +20384,7 @@
   price: 412.99
   image: 25a3547f-4a86-46f5-857a-fc17aa2b8fa0.jpg
   where_visible: UI
+  promoted: true
 - id: 82d6418c-0c2c-4be8-805d-a02a68b712e5
   current_stock: 10
   name: Kayak
@@ -19942,6 +20466,7 @@
   price: 52.99
   image: 54dc5dd9-3df4-410a-ae55-54844988a0ca.jpg
   where_visible: UI
+  promoted: true
 - id: baae9ca1-2fd5-4161-8eb3-d0c0616e34f6
   current_stock: 9
   name: Pet Accessory
@@ -19960,6 +20485,7 @@
   price: 13.99
   image: af669fc5-d861-41dd-b6a0-30fc30519252.jpg
   where_visible: UI
+  promoted: true
 - id: 0c4e5ca2-93cd-4ddb-a5d3-197fa2221ead
   current_stock: 7
   name: Pet Accessory
@@ -20033,6 +20559,7 @@
   price: 27.99
   image: 5e794430-4bc9-411f-b912-9007baaa67e2.jpg
   where_visible: UI
+  promoted: true
 - id: c72257d4-430b-4eb7-9de3-28396e593381
   current_stock: 11
   name: Dog Accessory
@@ -20069,6 +20596,7 @@
   price: 34.99
   image: a426a252-50ca-4a4d-b477-306985c3e0a6.jpg
   where_visible: UI
+  promoted: true
 - id: d51e4f8e-c010-4ddd-a88b-b70820806e17
   current_stock: 14
   name: Dog Accessory
@@ -20114,6 +20642,7 @@
   price: 80.99
   image: d41bcce7-a956-416a-bac8-ff8dd6c37387.jpg
   where_visible: UI
+  promoted: true
 - id: 4a07c36b-f4e7-4cc1-919e-e48563c1ad61
   current_stock: 19
   name: Christmas Decor
@@ -20132,6 +20661,7 @@
   price: 136.99
   image: 66887b8c-748b-4e47-ae9e-cbe11cfe94c3.jpg
   where_visible: UI
+  promoted: true
 - id: 4dabf3e9-9c2c-409a-84a9-ceb4528ba352
   current_stock: 16
   name: Christmas Decor
@@ -20168,6 +20698,7 @@
   price: 68.99
   image: e6c07e26-3f21-4b47-9f78-0afd24dfa409.jpg
   where_visible: UI
+  promoted: true
 - id: 67dbce8c-84d8-4715-8bf7-1590ad56ac91
   current_stock: 15
   name: Christmas Decor
@@ -20204,6 +20735,7 @@
   price: 79.99
   image: b2dba8a2-1634-4579-8b46-b52632f49de2.jpg
   where_visible: UI
+  promoted: true
 - id: 33308fd7-d70d-4b2a-a897-f3313609e86b
   current_stock: 10
   name: Christmas Figurines
@@ -20213,6 +20745,7 @@
   price: 63.99
   image: 33308fd7-d70d-4b2a-a897-f3313609e86b.jpg
   where_visible: UI
+  promoted: true
 - id: e723e9ec-ca6b-44c0-9415-fe85e007bf45
   current_stock: 15
   name: Christmas Figurines
@@ -20276,6 +20809,7 @@
   price: 120.99
   image: 09c6e4a6-70ad-4fe0-90ee-6e80bb541c84.jpg
   where_visible: UI
+  promoted: true
 - id: f7f8c5df-8b1c-40f1-9d02-596d025ad4b1
   current_stock: 14
   name: Christmas Figurines
@@ -20294,6 +20828,7 @@
   price: 105.99
   image: f1e0660b-53db-4e9a-a86a-8a990d6b2988.jpg
   where_visible: UI
+  promoted: true
 - id: 079f8824-e91b-40ea-b159-5f7d0a9d9124
   current_stock: 14
   name: Christmas Figurines
@@ -20312,6 +20847,7 @@
   price: 145.99
   image: 7859ff06-a36e-4f37-b3af-ab1e0d0a6a73.jpg
   where_visible: UI
+  promoted: true
 - id: 387d4f49-2c5c-4955-9c56-c9f80416e43d
   current_stock: 16
   name: Christmas Figurines
@@ -20321,6 +20857,7 @@
   price: 93.99
   image: 387d4f49-2c5c-4955-9c56-c9f80416e43d.jpg
   where_visible: UI
+  promoted: true
 - id: 0ed92852-f5ac-41e1-ad8f-1731b24e37c5
   current_stock: 8
   name: Christmas Figurines
@@ -20330,6 +20867,7 @@
   price: 72.99
   image: 0ed92852-f5ac-41e1-ad8f-1731b24e37c5.jpg
   where_visible: UI
+  promoted: true
 - id: db4f21bd-9abf-4213-81ab-30360979884d
   current_stock: 10
   name: Christmas Figurines
@@ -20339,6 +20877,7 @@
   price: 92.99
   image: db4f21bd-9abf-4213-81ab-30360979884d.jpg
   where_visible: UI
+  promoted: true
 - id: f48751db-ecd5-4e3c-9fef-82d45c4cf51a
   current_stock: 7
   name: Christmas Figurines
@@ -20366,6 +20905,7 @@
   price: 63.99
   image: 1a61e59b-c067-4d70-a9e7-3fe564f99b6a.jpg
   where_visible: UI
+  promoted: true
 - id: 8dc592e0-b192-44d7-a639-b79946f4e12b
   current_stock: 16
   name: Christmas Figurines
@@ -20384,6 +20924,7 @@
   price: 121.99
   image: 275c4b29-2dc5-48d9-8dc9-480314e40102.jpg
   where_visible: UI
+  promoted: true
 - id: 290bec5b-0b53-4297-9705-2d75322090bd
   current_stock: 9
   name: Christmas Lights
@@ -20429,6 +20970,7 @@
   price: 103.99
   image: 12c36504-3c91-4c48-8941-45fe2c119381.jpg
   where_visible: UI
+  promoted: true
 - id: cecf0bc0-822d-4119-a231-947952b718f6
   current_stock: 13
   name: Christmas Mug
@@ -20447,6 +20989,7 @@
   price: 70.99
   image: 6d1ac1e7-39a2-49db-a9cb-6fa0d1393f88.jpg
   where_visible: UI
+  promoted: true
 - id: 126de4a5-9a55-400e-9af2-325e3ad200c9
   current_stock: 8
   name: Christmas Ornament
@@ -20456,6 +20999,7 @@
   price: 145.99
   image: 126de4a5-9a55-400e-9af2-325e3ad200c9.jpg
   where_visible: UI
+  promoted: true
 - id: d843fe25-e7d1-40fb-84b0-64bdedf9bed6
   current_stock: 17
   name: Christmas Ornament
@@ -20483,6 +21027,7 @@
   price: 94.99
   image: a982d205-3cd1-4899-9591-1787b5422a80.jpg
   where_visible: UI
+  promoted: true
 - id: d3aac0e7-9b01-494a-82e3-5da750664f38
   current_stock: 9
   name: Christmas Ornament
@@ -20519,6 +21064,7 @@
   price: 146.99
   image: 4cf78f85-4200-469c-b7b9-05c93770bf44.jpg
   where_visible: UI
+  promoted: true
 - id: 57caed96-6886-4b9f-9d23-73bb9205812a
   current_stock: 16
   name: Christmas Ornament
@@ -20528,6 +21074,7 @@
   price: 148.99
   image: 57caed96-6886-4b9f-9d23-73bb9205812a.jpg
   where_visible: UI
+  promoted: true
 - id: 466a4ff2-f255-41a5-a83b-9d48443c724e
   current_stock: 10
   name: Christmas Ornament
@@ -20537,6 +21084,7 @@
   price: 110.99
   image: 466a4ff2-f255-41a5-a83b-9d48443c724e.jpg
   where_visible: UI
+  promoted: true
 - id: 317ee448-1f0a-4f98-a544-a27071502469
   current_stock: 8
   name: Christmas Ornament
@@ -20564,6 +21112,7 @@
   price: 69.99
   image: bca5931d-fdd4-41f3-ac6f-8529e9f4e5b2.jpg
   where_visible: UI
+  promoted: true
 - id: 57497543-af19-4367-88e2-a178530c96e9
   current_stock: 13
   name: Christmas Ornament
@@ -20618,6 +21167,7 @@
   price: 96.99
   image: 8ef855f7-8746-423d-b960-5cea2c6f4ecb.jpg
   where_visible: UI
+  promoted: true
 - id: 8f8f015a-4166-4e9e-ac0b-6d980614ca5d
   current_stock: 18
   name: Christmas Ornament
@@ -20690,6 +21240,7 @@
   price: 67.99
   image: 4a43c5f7-090c-4cce-93fe-36062539ec38.jpg
   where_visible: UI
+  promoted: true
 - id: 370e97e4-d355-4e01-a1c3-e3ffdd696ec4
   current_stock: 16
   name: Christmas Ornament
@@ -20726,6 +21277,7 @@
   price: 82.99
   image: 205efb0a-f956-43a3-9649-b019bd5f979e.jpg
   where_visible: UI
+  promoted: true
 - id: b57916d2-bc8f-440a-970e-b7413a9122aa
   current_stock: 12
   name: Christmas Ornament
@@ -20735,6 +21287,7 @@
   price: 58.99
   image: b57916d2-bc8f-440a-970e-b7413a9122aa.jpg
   where_visible: UI
+  promoted: true
 - id: 1149ac6c-9a52-4227-a887-f5bd000d652c
   current_stock: 12
   name: Christmas Ornament
@@ -20798,6 +21351,7 @@
   price: 93.99
   image: b2dbebe7-b9ba-409b-883a-d39ea9effef4.jpg
   where_visible: UI
+  promoted: true
 - id: 558cb1e8-ae39-4d52-b97f-b6712bf4f263
   current_stock: 9
   name: Christmas Wreath
@@ -20987,6 +21541,7 @@
   price: 49.99
   image: c16a5a56-aed7-44cd-b871-1459f604aa72.jpg
   where_visible: UI
+  promoted: true
 - id: 441bc75e-5d77-4cd2-9c3c-6d84e3f44521
   current_stock: 17
   name: Easter Decoration
@@ -21050,6 +21605,7 @@
   price: 46.99
   image: a6432520-a9fe-42a3-8e04-58cd50d18fb0.jpg
   where_visible: UI
+  promoted: true
 - id: 69db7a78-e649-482d-b460-4d4321e7f384
   current_stock: 7
   name: Easter Decoration
@@ -21059,6 +21615,7 @@
   price: 49.99
   image: 69db7a78-e649-482d-b460-4d4321e7f384.jpg
   where_visible: UI
+  promoted: true
 - id: 952413d6-ecea-4a6e-87e7-f33103ce8b29
   current_stock: 17
   name: Easter Decoration
@@ -21086,6 +21643,7 @@
   price: 37.99
   image: 1ed3ab3f-f190-4226-8650-8fa8298b0374.jpg
   where_visible: UI
+  promoted: true
 - id: 9be3c754-d792-4b9a-80e4-988130797bb1
   current_stock: 8
   name: Easter Decoration
@@ -21104,6 +21662,7 @@
   price: 37.99
   image: 836d01d4-df2c-4f79-82f3-45c077bec73f.jpg
   where_visible: UI
+  promoted: true
 - id: 9df66bf2-ba87-4d57-b1d3-810d8fffc0e0
   current_stock: 9
   name: Easter Chocolate Egg
@@ -21149,6 +21708,7 @@
   price: 57.99
   image: 543d28a2-c1f0-42bd-87c1-de4d9b546b9e.jpg
   where_visible: UI
+  promoted: true
 - id: a56308af-abd2-41a0-9cf3-b4a040fd8d3f
   current_stock: 8
   name: Easter Chocolate Egg
@@ -21212,6 +21772,7 @@
   price: 16.99
   image: 00225258-dbfb-4103-a573-007386571a49.jpg
   where_visible: UI
+  promoted: true
 - id: ebc42a2f-c549-4dfe-9b41-426e8a08bf90
   current_stock: 8
   name: Easter Decorative Egg
@@ -21221,6 +21782,7 @@
   price: 15.99
   image: ebc42a2f-c549-4dfe-9b41-426e8a08bf90.jpg
   where_visible: UI
+  promoted: true
 - id: 95aa9d7e-4b6d-4b44-a7a1-1b223dff08c1
   current_stock: 19
   name: Easter Decorative Egg
@@ -21266,6 +21828,7 @@
   price: 45.99
   image: 570f90c7-c8c0-4212-bd8a-488747480bb7.jpg
   where_visible: UI
+  promoted: true
 - id: 1b7db01f-0121-45e5-ae68-a46cb30e49a6
   current_stock: 14
   name: Easter Plastic Egg
@@ -21302,6 +21865,7 @@
   price: 21.99
   image: 83c5dbb7-cdfd-4ad9-84af-1b065405aef5.jpg
   where_visible: UI
+  promoted: true
 - id: 95f55bd7-c2fc-4a05-ad47-1f41e38a8456
   current_stock: 17
   name: Halloween Costume
@@ -21365,6 +21929,7 @@
   price: 22.99
   image: e91ea7d3-17d4-46a4-bf60-1e675351d828.jpg
   where_visible: UI
+  promoted: true
 - id: 91cfb05c-44cc-4eca-b622-1fa875e0256c
   current_stock: 14
   name: Halloween Decoration
@@ -21392,6 +21957,7 @@
   price: 33.99
   image: 68ef5629-725e-4c74-93e9-ce5eb2adbbfe.jpg
   where_visible: UI
+  promoted: true
 - id: 970e2650-8ab9-4cea-afb2-9eebdb05919d
   current_stock: 15
   name: Halloween Decoration
@@ -21447,6 +22013,7 @@
   price: 50.99
   image: c28fe40f-00bd-4c82-897d-1aff37a615ed.jpg
   where_visible: UI
+  promoted: true
 - id: eecbee28-73a3-425d-84e8-516c326e399c
   current_stock: 18
   name: Halloween Pumpkin
@@ -21582,6 +22149,7 @@
   price: 52.99
   image: 8278b7f5-7cc9-4bd6-9cfd-afba162ef4b8.jpg
   where_visible: UI
+  promoted: true
 - id: d3f11485-7716-4421-b3fb-247bb2764e35
   current_stock: 12
   name: Halloween Sign
@@ -21663,6 +22231,7 @@
   price: 35.99
   image: c48cdd85-79da-4903-8bbf-93ee217f1fb6.jpg
   where_visible: UI
+  promoted: true
 - id: 8fd77f20-e1cf-44d1-8a75-b38e6946edaf
   current_stock: 12
   name: Halloween Wreath
@@ -21690,6 +22259,7 @@
   price: 48.99
   image: 47d8c359-0366-4550-ac11-c359f35302d4.jpg
   where_visible: UI
+  promoted: true
 - id: 1a7ce92a-1c3b-4714-88ab-cf07f4fdd598
   current_stock: 13
   name: Halloween Wreath
@@ -21699,6 +22269,7 @@
   price: 43.99
   image: 1a7ce92a-1c3b-4714-88ab-cf07f4fdd598.jpg
   where_visible: UI
+  promoted: true
 - id: 382f9988-bdc2-42f8-a657-3ad75fd6640c
   current_stock: 13
   name: Valentine Candies
@@ -21753,6 +22324,7 @@
   price: 35.99
   image: 0d354dd4-ebd3-4787-8c9f-dd75f6f401a4.jpg
   where_visible: UI
+  promoted: true
 - id: ebaa480b-e069-4ff5-bb2c-ec8b33898626
   current_stock: 18
   name: Valentine Chocolates
@@ -21789,6 +22361,7 @@
   price: 43.99
   image: ae8772cf-a7ad-4eb8-b12e-b286fd0a773f.jpg
   where_visible: UI
+  promoted: true
 - id: aea126a0-ecc4-4eaf-847f-76841535b3a9
   current_stock: 18
   name: Valentine Chocolates
@@ -21798,6 +22371,7 @@
   price: 43.99
   image: aea126a0-ecc4-4eaf-847f-76841535b3a9.jpg
   where_visible: UI
+  promoted: true
 - id: d16257f7-da83-4b24-9e2f-5c4a2a67bdc9
   current_stock: 13
   name: Valentine Chocolates
@@ -21816,6 +22390,7 @@
   price: 41.99
   image: f58c9fff-3c8e-4da8-825e-d6aac4f4436a.jpg
   where_visible: UI
+  promoted: true
 - id: 66e5b0a9-0cc9-47b2-b78b-8730d561a297
   current_stock: 11
   name: Valentine Chocolates
@@ -21825,6 +22400,7 @@
   price: 52.99
   image: 66e5b0a9-0cc9-47b2-b78b-8730d561a297.jpg
   where_visible: UI
+  promoted: true
 - id: 2c59c08d-932d-4205-a692-2dbaa3d2027c
   current_stock: 6
   name: Valentine Chocolates
@@ -21843,6 +22419,7 @@
   price: 28.99
   image: 21a89a27-c1b2-4ccf-b68e-27d904b2f854.jpg
   where_visible: UI
+  promoted: true
 - id: d4caa74c-5d27-4f1a-847d-e2d93a6fdf32
   current_stock: 7
   name: Valentine Decorations
@@ -21897,6 +22474,7 @@
   price: 58.99
   image: 62259467-5d98-4c6d-a4f2-72e57bf52da6.jpg
   where_visible: UI
+  promoted: true
 - id: 5e10a645-8825-4f12-8a7c-0b42424b8c11
   current_stock: 9
   name: Valentine Decorations
@@ -21906,6 +22484,7 @@
   price: 47.99
   image: 5e10a645-8825-4f12-8a7c-0b42424b8c11.jpg
   where_visible: UI
+  promoted: true
 - id: 8f4b6800-6af3-4270-a851-b5a3e0666dc2
   current_stock: 6
   name: Valentine Decorations
@@ -21933,6 +22512,7 @@
   price: 29.99
   image: f1e98350-8bc1-4f5b-a008-29f467619bda.jpg
   where_visible: UI
+  promoted: true
 - id: b6149c48-4fa1-4468-bf01-87a0fd39bdd5
   current_stock: 10
   name: Valentine Decorations
@@ -21987,6 +22567,7 @@
   price: 24.99
   image: 3b320422-8c70-47ef-aae0-d949afa88ad1.jpg
   where_visible: UI
+  promoted: true
 - id: b8eb2f71-56ca-4b9b-991a-0734070e0f5b
   current_stock: 13
   name: Valentine Stuffed Teddybear
@@ -22005,6 +22586,7 @@
   price: 55.99
   image: bd446035-3a6f-49b0-a1c3-d346d12cb877.jpg
   where_visible: UI
+  promoted: true
 - id: 5b2336e4-d29e-4fb4-85eb-c871db892aae
   current_stock: 14
   name: Valentine Stuffed Teddybear
@@ -22140,6 +22722,7 @@
   price: 16.99
   image: 89b22997-f0a4-4846-9683-2d10f65bb45a.jpg
   where_visible: UI
+  promoted: true
 - id: 47549d7f-6352-4128-8e48-dbb838cd3b4c
   current_stock: 17
   name: Hammer
@@ -22149,6 +22732,7 @@
   price: 15.99
   image: 47549d7f-6352-4128-8e48-dbb838cd3b4c.jpg
   where_visible: UI
+  promoted: true
 - id: a58cc0a2-d54f-4e5a-85e7-e8c530592b76
   current_stock: 8
   name: Hammer
@@ -22167,6 +22751,7 @@
   price: 22.99
   image: d892b64c-e2cd-412e-9cbc-9ae8fff7aca9.jpg
   where_visible: UI
+  promoted: true
 - id: f9446e88-fe6e-4601-8f47-7529f80bbac5
   current_stock: 17
   name: Knife
@@ -22203,6 +22788,7 @@
   price: 15.99
   image: 9dab47f8-83a3-45e8-b2d1-377365203bf4.jpg
   where_visible: UI
+  promoted: true
 - id: 53ec1efb-0deb-48cf-96a3-7a7342b78608
   current_stock: 11
   name: Plier
@@ -22230,6 +22816,7 @@
   price: 11.99
   image: d090af37-2c9d-4779-9baf-2944eb436f14.jpg
   where_visible: UI
+  promoted: true
 - id: e65ad5b5-6860-4444-b873-9368c49cf30c
   current_stock: 10
   name: Plier
@@ -22248,6 +22835,7 @@
   price: 17.99
   image: 41fcefca-7208-4a6d-8c75-7b8139c769df.jpg
   where_visible: UI
+  promoted: true
 - id: e2a38514-a5f9-41d5-9545-8ccbdacdc128
   current_stock: 10
   name: Plier
@@ -22257,6 +22845,7 @@
   price: 7.99
   image: e2a38514-a5f9-41d5-9545-8ccbdacdc128.jpg
   where_visible: UI
+  promoted: true
 - id: 2aa46f50-0e73-40f4-92a2-fd5a7aec5a4d
   current_stock: 14
   name: Saw
@@ -22284,6 +22873,7 @@
   price: 23.99
   image: 092a278e-4d04-4ce3-bc18-e8a0491a9fb5.jpg
   where_visible: UI
+  promoted: true
 - id: 59a91997-1077-4df0-97a7-0d05dea0042b
   current_stock: 15
   name: Saw
@@ -22302,6 +22892,7 @@
   price: 17.99
   image: d2d8147f-0f24-42c3-bcbe-a232bab7e94d.jpg
   where_visible: UI
+  promoted: true
 - id: e9771bb4-cac0-45b4-9e7f-9928ea597e4d
   current_stock: 11
   name: Saw
@@ -22338,6 +22929,7 @@
   price: 8.99
   image: 58005aec-ba76-4bf6-8a5d-2bbfe2c565b0.jpg
   where_visible: UI
+  promoted: true
 - id: 5aea20a7-8515-4378-82f8-783b7b3c742d
   current_stock: 13
   name: Saw
@@ -22365,6 +22957,7 @@
   price: 15.99
   image: b630250c-41f3-4f14-865c-c1dc12e448ac.jpg
   where_visible: UI
+  promoted: true
 - id: bb710911-1bba-4587-9bbe-65124d8495d0
   current_stock: 16
   name: Saw
@@ -22510,6 +23103,7 @@
   price: 25.99
   image: 020741e4-2cbe-4455-97e8-27e2d2f6df61.jpg
   where_visible: UI
+  promoted: true
 - id: e9e1a010-d806-48b3-95f1-5ef137a16e18
   current_stock: 19
   name: Wrench
@@ -22537,6 +23131,7 @@
   price: 15.99
   image: b93b7b15-9bb3-407c-b80b-517e7c45e090.jpg
   where_visible: UI
+  promoted: true
 - id: d3707d88-756b-4937-b0d4-d7c84e4cc14e
   current_stock: 19
   name: Wrench
@@ -22546,6 +23141,7 @@
   price: 11.99
   image: d3707d88-756b-4937-b0d4-d7c84e4cc14e.jpg
   where_visible: UI
+  promoted: true
 - id: 277b9636-f9d4-46f7-9910-6a794f478740
   current_stock: 13
   name: Wrench
@@ -22615,6 +23211,7 @@
   style: grooming
   gender_affinity: F
   where_visible: UI
+  promoted: true
 - id: a4ea1f55-4f9e-4efa-ab32-343676b69593
   category: beauty
   current_stock: 2
@@ -22637,6 +23234,7 @@
   price: 99.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: cfe46492-c19b-4a3c-a022-540c49cc63bb
   category: beauty
   current_stock: 2
@@ -22649,6 +23247,7 @@
   price: 29.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: e0667c61-6f47-4481-a0a0-beaf734e477a
   category: beauty
   current_stock: 3
@@ -22661,6 +23260,7 @@
   price: 24.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: 8bc9e7d5-123c-46e4-a4f5-abeb79a77b3f
   category: beauty
   current_stock: 4
@@ -22685,6 +23285,7 @@
   price: 44.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: 7cfd10d1-ff92-4513-b688-0ee179deaaef
   category: beauty
   current_stock: 7
@@ -22734,6 +23335,7 @@
   price: 26.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: 03685e08-6d30-4e4e-a85e-9e525894c9ea
   category: beauty
   current_stock: 7
@@ -22783,6 +23385,7 @@
   price: 18.0
   style: grooming
   where_visible: UI
+  promoted: true
 - id: 638012bd-b70e-4035-bf83-fbb777c7a6ea
   category: beauty
   current_stock: 13
@@ -22807,6 +23410,7 @@
   price: 49.0
   style: camera
   where_visible: UI
+  promoted: true
 - id: 79fc3af3-c071-4e26-9062-b869f2ec128d
   category: apparel
   current_stock: 10
@@ -22818,6 +23422,7 @@
   price: 39.0
   style: shirt
   where_visible: UI
+  promoted: true
 - id: 8759b4e2-51cc-456f-a224-01a34d04db2b
   category: beauty
   current_stock: 12
@@ -22866,6 +23471,7 @@
   price: 179.0
   style: cushion
   where_visible: UI
+  promoted: true
 - id: b011ddc3-632f-47cb-a68a-ad83678ecfed
   category: housewares
   current_stock: 3
@@ -22893,49 +23499,75 @@
   category: food service
   style: pizza
   description: Slice of delicious pepperoni pizza
-  price: 3.00
+  price: 3.0
   image: 0790267c-c708-424d-81f5-46903a9c8444jpg
   image_license: AWS Supplied
-  link:
+  link: null
   current_stock: 90
-  aliases: [pizza, slice of pizza, a pizza slice, a slice of pizza, delicious pizza,
-    pizza slice, pepperoni pizza]
+  aliases:
+  - pizza
+  - slice of pizza
+  - a pizza slice
+  - a slice of pizza
+  - delicious pizza
+  - pizza slice
+  - pepperoni pizza
   where_visible: Alexa
+  promoted: true
 - id: b20ba076-58a7-4602-9b56-4bee46e98388
   name: Deluxe Nachos
   category: food service
   style: nachos
   description: The best nachos north of Mexico
-  price: 5.00
+  price: 5.0
   image: b20ba076-58a7-4602-9b56-4bee46e98388jpg
   image_license: AWS Supplied
-  link:
+  link: null
   current_stock: 90
-  aliases: [nachos, nacho plate, nachos with meat, meat nachos, nacho, deluxe nachos]
+  aliases:
+  - nachos
+  - nacho plate
+  - nachos with meat
+  - meat nachos
+  - nacho
+  - deluxe nachos
   where_visible: Alexa
 - id: aff05423-76e8-4339-a478-fc17d51ed985
   name: 16oz Soda
   category: cold dispensed
   style: fountain-carbonated
   description: 16oz fountain soda always hits the spot
-  price: 1.50
+  price: 1.5
   image: aff05423-76e8-4339-a478-fc17d51ed985jpg
   image_license: AWS Supplied
-  link:
+  link: null
   current_stock: 90
-  aliases: [soda, soda pop, cola, fizzy drink, bubbly drink, coke]
+  aliases:
+  - soda
+  - soda pop
+  - cola
+  - fizzy drink
+  - bubbly drink
+  - coke
   where_visible: Alexa
 - id: 6cc0deb8-4a56-4148-a2ab-677277522c80
   name: Nummy salted peanuts
   category: salty snacks
   style: nuts/seeds
   description: Meet your daily intake of yum
-  price: 1.60
+  price: 1.6
   image: 6cc0deb8-4a56-4148-a2ab-677277522c80jpg
-  image_license:
+  image_license: null
   link: Supplied by Dae.mn
   current_stock: 90
-  aliases: [nuts, peanuts, pea nuts, peanut, nut snack, salted nuts, salted peanuts]
+  aliases:
+  - nuts
+  - peanuts
+  - pea nuts
+  - peanut
+  - nut snack
+  - salted nuts
+  - salted peanuts
   where_visible: Alexa
 - id: 7a619c82-a5da-4bc9-b6e6-64e93c51fb55
   name: Delicious salted cashew nuts
@@ -22943,109 +23575,151 @@
   style: nuts/seeds
   description: You won't be able to stop eating them and you will have to come back
     for more.
-  price: 2.50
+  price: 2.5
   image: 7a619c82-a5da-4bc9-b6e6-64e93c51fb55jpg
-  image_license:
+  image_license: null
   link: Supplied by Dae.mn
   current_stock: 90
-  aliases: [cashews, cashew nuts, cashew, salted cashews, salted cashew nuts]
+  aliases:
+  - cashews
+  - cashew nuts
+  - cashew
+  - salted cashews
+  - salted cashew nuts
   where_visible: Alexa
 - id: e1146e90-3274-4ad6-a6a2-0170f0f8d597
   name: Moreish almonds
   category: salty snacks
   style: nuts/seeds
   description: A delightful blend of Californian and Oriental almonds
-  price: 1.90
+  price: 1.9
   image: e1146e90-3274-4ad6-a6a2-0170f0f8d597jpg
-  image_license:
+  image_license: null
   link: Supplied by Dae.mn
   current_stock: 90
-  aliases: [almonds, almond nuts, almond, salted almonds, salted almond nuts]
+  aliases:
+  - almonds
+  - almond nuts
+  - almond
+  - salted almonds
+  - salted almond nuts
   where_visible: Alexa
+  promoted: true
 - id: a6f43f84-a89a-446f-8adc-8b1a23a30a81
   name: Healthy stuffed vine leaves
   category: food service
   style: sandwiches/wraps
   description: Exotic and healthy, grape-vine leaves stuffed with rice... and spice
-  price: 3.90
+  price: 3.9
   image: a6f43f84-a89a-446f-8adc-8b1a23a30a81jpg
-  image_license:
+  image_license: null
   link: Supplied by Dae.mn
   current_stock: 10
-  aliases: [vine leaves, vine rolls, rice rolls, sarma, dolma]
+  aliases:
+  - vine leaves
+  - vine rolls
+  - rice rolls
+  - sarma
+  - dolma
   where_visible: Alexa
 - id: 25d7bbf6-7dd3-4912-93a7-4186ea417b54
   name: Salmon salad
   category: food service
   style: soup and salad
   description: Full of omega oils and taste
-  price: 4.90
+  price: 4.9
   image: 25d7bbf6-7dd3-4912-93a7-4186ea417b54jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=9039&picture=tomato-and-bacon-salad
   current_stock: 10
-  aliases: [salmon salad, salad with salmon, fish salad]
+  aliases:
+  - salmon salad
+  - salad with salmon
+  - fish salad
   where_visible: Alexa
 - id: 4496471c-b098-4915-9a1a-8b9e60043737
   name: Mediterranean Salad
   category: food service
   style: soup and salad
   description: The taste of summer and energy
-  price: 4.10
+  price: 4.1
   image: 4496471c-b098-4915-9a1a-8b9e60043737jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=261119&picture=salad-bowl
   current_stock: 10
-  aliases: [mediterranean Salad, leafy salad, salad, tomato salad, cucumber salad]
+  aliases:
+  - mediterranean Salad
+  - leafy salad
+  - salad
+  - tomato salad
+  - cucumber salad
   where_visible: Alexa
 - id: 24c62ad2-6977-4f69-be75-e37d897c1434
   name: Tomato soup
   category: food service
   style: soup and salad
   description: Warms you to your bowels and delivers vitamins to your organs
-  price: 2.10
+  price: 2.1
   image: 24c62ad2-6977-4f69-be75-e37d897c1434jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=318298&picture=cup-of-vegetable-soup
   current_stock: 10
-  aliases: [soup, tomato soup, healthy soup]
+  aliases:
+  - soup
+  - tomato soup
+  - healthy soup
   where_visible: Alexa
 - id: 0de9bba0-1149-40e9-b1a6-7dcecaf68194
   name: Fruit smoothy
   category: cold dispensed
   style: fountain-non-carbonated
   description: Thick and fine smoothy, satisfying and healthy
-  price: 2.50
+  price: 2.5
   image: 0de9bba0-1149-40e9-b1a6-7dcecaf68194jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=6567&picture=smoothie-drinks
   current_stock: 10
-  aliases: [smoothy, milkshake, fruit smoothy, fruit and milk drink]
+  aliases:
+  - smoothy
+  - milkshake
+  - fruit smoothy
+  - fruit and milk drink
   where_visible: Alexa
 - id: 5afced84-ed2d-4520-a06d-dcfeab382e52
   name: Herbal iced tea
   category: cold dispensed
   style: fountain-non-carbonated
   description: Made with ginseng and joy
-  price: 2.50
+  price: 2.5
   image: 5afced84-ed2d-4520-a06d-dcfeab382e52jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=4436&picture=ice-tea
   current_stock: 10
-  aliases: [iced tea, herbal iced tea, cold tea, healthy iced tea, healthy cold tea]
+  aliases:
+  - iced tea
+  - herbal iced tea
+  - cold tea
+  - healthy iced tea
+  - healthy cold tea
   where_visible: Alexa
 - id: 0987bfa1-0a23-4b90-8882-8a6e9bd91e24
   name: Prawn curry
   category: food service
   style: seafood
   description: Juicy prawns with spicy sauce and rice
-  price: 5.50
+  price: 5.5
   image: 0987bfa1-0a23-4b90-8882-8a6e9bd91e24jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=331888&picture=shrimp-grilled-thai-foods
   current_stock: 10
-  aliases: [curry, prawns, prawn curry, shrimp curry, shrimps, prawn meal, shrimp
-      meal]
+  aliases:
+  - curry
+  - prawns
+  - prawn curry
+  - shrimp curry
+  - shrimps
+  - prawn meal
+  - shrimp meal
   where_visible: Alexa
 - id: 575c0ac0-5494-4c64-a886-a9c0cf8b779a
   name: Vegetarian lentil dish
@@ -23053,34 +23727,48 @@
   style: other cuisine
   description: Lentils with potatos, carrots and spices; a joy to your palate and
     super healthy
-  price: 3.50
+  price: 3.5
   image: 575c0ac0-5494-4c64-a886-a9c0cf8b779ajpg
   image_license: Free for commercial use - just do not resell as a stock photo
   link: https://pixabay.com/fr/photos/soupe-de-lentilles-lentilles-rago%C3%BBt-3738547/
   current_stock: 10
-  aliases: [lentils, lentil dish, lentil and potatos, lentil and carrots, lentil meal]
+  aliases:
+  - lentils
+  - lentil dish
+  - lentil and potatos
+  - lentil and carrots
+  - lentil meal
   where_visible: Alexa
+  promoted: true
 - id: 7000f6e7-41f7-4957-878a-ccc42a39ca59
   name: Hot chocolate
   category: hot dispensed
   style: hot chocolate
   description: Warm and sweet, get up and go.
-  price: 1.20
+  price: 1.2
   image: 7000f6e7-41f7-4957-878a-ccc42a39ca59jpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=222425&picture=hot-cup-of-coffee
   current_stock: 11
-  aliases: [hot chocolate, cocoa, chocolate drink, warm drink]
+  aliases:
+  - hot chocolate
+  - cocoa
+  - chocolate drink
+  - warm drink
   where_visible: Alexa
 - id: 9c1a2048-7aac-4565-b836-d8d4f726322c
   name: Potato chips
   category: salty snacks
   style: potato chips
   description: Crunchy and yummy! Crumbs in your lap!
-  price: 1.10
+  price: 1.1
   image: 9c1a2048-7aac-4565-b836-d8d4f726322cjpg
   image_license: CC0
   link: https://publicdomainpictures.net/en/view-image.php?image=344511&picture=delicious-potato-chips-in-bowl
   current_stock: 11
-  aliases: [chips, crisps, potato chips, potato crisps]
+  aliases:
+  - chips
+  - crisps
+  - potato chips
+  - potato crisps
   where_visible: Alexa
