@@ -1,0 +1,6 @@
+templates:
+  - aws/cloudformation-templates/*.yaml
+  - aws/cloudformation-templates/base/*.yaml
+  - aws/cloudformation-templates/event-engine/*.yaml
+  - aws/cloudformation-templates/services/*.yaml
+  - aws/cloudformation-templates/services/service/*.yaml
