@@ -565,7 +565,9 @@ Resources:
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
-        ACMCertARN: !GetAtt Base.Outputs.ACMCertARN
+        ACMCertARN: !GetAtt Base.Outputs.ACMCertARN        
+        LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
+        
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -629,6 +631,7 @@ Resources:
         ImageRootUrl: !Sub
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+        LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
 
   # Swagger UI Pipeline
   SwaggerUIPipeline:
@@ -656,6 +659,7 @@ Resources:
         LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+        LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
 
   # Lex personalization function
   ChatbotFunctions:

@@ -218,6 +218,10 @@ Parameters:
     Type: String
     Description: Self signed cert ARN
 
+  LoggingBucketName:
+    Type: String
+    Description: S3 Bucket For logging
+
 Resources:
 
   Loadbalancer:
@@ -265,7 +269,8 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         TaskRoleArn: !GetAtt Service.Outputs.TaskRoleArn
         TaskExecutionRoleArn: !GetAtt Service.Outputs.TaskExecutionRoleArn
-
+        LoggingBucketName: !Ref LoggingBucketName
+        
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:
