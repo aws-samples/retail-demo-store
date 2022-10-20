@@ -31,6 +31,7 @@
               :key="item.product.id"
               :product="item.product"
               :experiment="item.experiment"
+              :promotionName="item.promotionName"
               :feature="featureUserRecs"
             ></Product>
           </div>

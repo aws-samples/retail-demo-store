@@ -248,7 +248,7 @@ export default {
   @media(min-width: 992px) {
     .filters {
       width: 300px;
-    } 
+    }
 
     .products {
       align-self: flex-start;

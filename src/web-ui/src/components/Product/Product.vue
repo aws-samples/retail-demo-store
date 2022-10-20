@@ -9,7 +9,10 @@
       }"
     >
       <div>
-        <div><img :src="productImageURL" class="card-img-top" :alt="product.name" /></div>
+        <div class="position-relative">
+          <div v-if="promotionName != null" class="small promoted-product-banner">Promoted</div>
+          <img :src="productImageURL" class="card-img-top" :alt="product.name" />
+        </div>
 
         <div class="p-3">
           <div class="product-name">{{ product.name }}</div>
@@ -37,7 +40,6 @@ import { formatPrice } from '@/util/formatPrice';
 import FiveStars from '../../components/FiveStars/FiveStars.vue';
 import FenixList from '@/components/Fenix/FenixList';
 
-
 const getFullExperimentType = (type) => {
   switch (type) {
     case 'ab':
@@ -64,6 +66,7 @@ export default {
   props: {
     product: { type: Object, required: true },
     experiment: { type: Object, required: false },
+    promotionName: { type: String, required: false },
     feature: { type: String, required: true },
   },
 
@@ -73,7 +76,7 @@ export default {
     };
   },
   computed: {
-     fenixcurrentvariant(){
+    fenixcurrentvariant(){
       return this.product.id;
     },
     productImageURL() {
@@ -89,6 +92,9 @@ export default {
       if (!this.experiment) return null;
 
       return `${getFullExperimentType(this.experiment.type)}; Variation: ${this.experiment.variationIndex}`;
+    },
+    promotedProduct() {
+      return this.promotionName
     },
   },
 };
@@ -111,6 +117,17 @@ export default {
   border: 1px solid var(--grey-300);
   text-decoration: none;
   color: inherit;
+}
+
+.promoted-product-banner {
+  float: left;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  color: white;
+  background-color: var(--blue-500);
+  text-align: center;
 }
 
 .product-name {
