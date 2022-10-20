@@ -189,6 +189,8 @@ class PersonalizeRecommendationsResolver(Resolver):
             product_id - ID for the item to return similar products (required for related products recipes such as Similar-Items)
             num_results - maximum number of recommendations to return (optional)
             filter_arn - ARN for filter to exclude recommended items (overrides ctor filter_arn) (optional)
+            filter_values - values to use with filter_arn (optional)
+            promotion - dictionary containing required fields for a Personalize promotional filter (optional)
         """
         params = {}
 
@@ -218,6 +220,9 @@ class PersonalizeRecommendationsResolver(Resolver):
 
             if params.get('filterArn') and kwargs.get('filter_values'):
                 params['filterValues'] = kwargs.get('filter_values')
+
+        if kwargs.get('promotion'):
+            params['promotions'] = [ kwargs['promotion'] ]
 
         if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
 
