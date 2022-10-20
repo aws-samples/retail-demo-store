@@ -596,7 +596,6 @@ Resources:
         SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
         VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
         LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
-        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         FenixZipDetectUrl: !Ref FenixZipDetectUrl

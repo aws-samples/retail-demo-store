@@ -302,7 +302,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/cloudfront.yaml
       Parameters:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
-        LoggingBucketName: !Ref Buckets.Outputs.LoggingBucketName
+        LoggingBucketName: !GetAtt Buckets.Outputs.LoggingBucketName
 
   # Personalize Resources
   Personalize:

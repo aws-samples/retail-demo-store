@@ -327,7 +327,7 @@ Resources:
       Memory: !Ref ContainerMemory
       Cpu: !Ref ContainerCpu
       NetworkMode: awsvpc
-      ExecutionRoleArn: !Ref TaskExecutionRole
+      ExecutionRoleArn: !GetAtt 'TaskExecutionRole.Arn' #fix E3008 
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
         - Name: X-ray

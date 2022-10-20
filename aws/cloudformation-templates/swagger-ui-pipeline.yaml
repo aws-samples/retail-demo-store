@@ -191,7 +191,7 @@ Resources:
       AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
-     LoggingConfiguration:
+      LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
         LogFilePrefix: swaggerui-logs  
       BucketEncryption:
@@ -208,7 +208,7 @@ Resources:
       BucketName: !Ref ArtifactBucket
 
   CodeBuildProject:
-    Description: Retail Demo Store CodeBuild project for Swagger UI
+    #Description: Retail Demo Store CodeBuild project for Swagger UI
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Name: !Ref AWS::StackName

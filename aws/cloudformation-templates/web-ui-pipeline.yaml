@@ -103,10 +103,6 @@ Parameters:
     Type: String
     Default: none
 
-  OffersServiceExternalUrl:
-    Type: String
-    Default: none
-
   VideosServiceExternalUrl:
     Type: String
     Default: none
@@ -378,6 +374,9 @@ Resources:
       AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: artifactui-logs  
       BucketEncryption: 
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
