@@ -31,7 +31,8 @@ Resources:
                 # Empty the S3 bucket
                 s3 = boto3.resource('s3')
                 bucket = s3.Bucket(bucketName)
-                bucket.objects.all().delete()
+                # bucket.objects.all().delete()
+                bucket.object_versions.delete() #delete all versions of objects
 
                 responseData['Message'] = "Resource deletion succeeded"
 
