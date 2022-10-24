@@ -776,9 +776,16 @@ def update() -> bool:
         # Create filters
         all_filters_active = True
         for filter_conf in dataset_group_conf.get('filters', []):
-            _,filter_created = create_filter(dataset_group_conf['arn'], filter_conf)
-            if filter_created or filter_conf['status'] != 'ACTIVE':
-                all_filters_active = False
+            try:
+                _,filter_created = create_filter(dataset_group_conf['arn'], filter_conf)
+                if filter_created or filter_conf['status'] != 'ACTIVE':
+                    all_filters_active = False
+            except ClientError as e:
+                if e.response['Error']['Code'] == 'LimitExceededException':
+                    logger.warn('Too many filters being created; backing off and retrying...')
+                    break
+                else:
+                    raise e
 
         if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active:
             # All resources are active for the DSG. Set SSM params for filters, recommenders, and campaigns
