@@ -233,9 +233,10 @@ def _delete_filters(dataset_group_arn: str, wait_for_resources: bool = True):
 
     filters_response = personalize.list_filters(datasetGroupArn = dataset_group_arn, maxResults = 100)
     for filter in filters_response['Filters']:
-        logger.info('Deleting filter ' + filter['filterArn'])
-        personalize.delete_filter(filterArn = filter['filterArn'])
         filter_arns.append(filter['filterArn'])
+        if filter['status'] in ['ACTIVE', 'CREATE FAILED']:
+            logger.info('Deleting filter ' + filter['filterArn'])
+            personalize.delete_filter(filterArn = filter['filterArn'])
 
     max_time = time.time() + 30*60 # 30 mins
     while time.time() < max_time:
