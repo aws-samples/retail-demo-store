@@ -33,8 +33,9 @@ Resources:
       BucketEncryption: 
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
-              SSEAlgorithm: 'aws:kms'
-              KMSMasterKeyID: KMS-KEY-ARN
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
+         
 
   # Empties bucket when stack is deleted
   EmptyWebUIBucket:
@@ -103,8 +104,9 @@ Resources:
       BucketEncryption: 
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
-              SSEAlgorithm: 'aws:kms'
-              KMSMasterKeyID: KMS-KEY-ARN
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
+              
 
   # Empties bucket when stack is deleted
   EmptySwaggerUIBucket:
