@@ -207,8 +207,8 @@ Resources:
       ServiceToken: !Ref CleanupBucketLambdaArn
       BucketName: !Ref ArtifactBucket
 
+  # Retail Demo Store CodeBuild project for Swagger UI
   CodeBuildProject:
-    #Description: Retail Demo Store CodeBuild project for Swagger UI
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Name: !Ref AWS::StackName
