@@ -39,6 +39,7 @@ type Product struct {
 	Featured       string   `json:"featured,omitempty" yaml:"featured,omitempty"`
 	GenderAffinity string   `json:"gender_affinity,omitempty" yaml:"gender_affinity,omitempty"`
 	CurrentStock   int      `json:"current_stock" yaml:"current_stock"`
+	Promoted       string   `json:"promoted,omitempty" yaml:"promoted,omitempty"`
 }
 
 // Products Array
@@ -162,7 +163,7 @@ func loadData(s3bucket, s3file, ddbtable, datatype string) (string, error) {
 // HandleRequest - handles Lambda request
 func HandleRequest(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 
-    fmt.Printf("Received event: %s!", event )
+	fmt.Printf("Received event: %s!", event)
 
 	if event.RequestType == "Create" || event.RequestType == "Update" {
 		Bucket, _ := event.ResourceProperties["Bucket"].(string)

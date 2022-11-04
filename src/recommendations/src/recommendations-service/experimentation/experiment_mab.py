@@ -4,6 +4,7 @@
 import numpy as np
 import logging
 from datetime import datetime
+from typing import Dict
 
 from experimentation.experiment import BuiltInExperiment
 
@@ -14,7 +15,7 @@ class MultiArmedBanditExperiment(BuiltInExperiment):
     to exploring variations to identify and exploit the best performing variation
     """
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None, promotion: Dict = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -36,7 +37,8 @@ class MultiArmedBanditExperiment(BuiltInExperiment):
             'product_list': item_list,
             'num_results': num_results,
             'filter_values': filter_values,
-            'context': context
+            'context': context,
+            'promotion': promotion
         }
         items = variation.resolver.get_items(**resolve_params)
 

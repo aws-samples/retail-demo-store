@@ -4,6 +4,7 @@
 import hashlib
 import logging
 from datetime import datetime
+from typing import Dict
 
 from experimentation.experiment import BuiltInExperiment
 from experimentation.tracking import Tracker
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 class ABExperiment(BuiltInExperiment):
     """ Implements a traditional A/B/n test across 2 or more variations where users are randomly and consistently partitioned across n groups """
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker: Tracker = None, filter_values=None, context=None, timestamp: datetime = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker: Tracker = None, filter_values=None, context=None, timestamp: datetime = None, promotion: Dict = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -35,7 +36,8 @@ class ABExperiment(BuiltInExperiment):
             'product_list': item_list,
             'num_results': num_results,
             'filter_values': filter_values,
-            'context': context
+            'context': context,
+            'promotion': promotion
         }
         items = variation.resolver.get_items(**resolve_params)
 

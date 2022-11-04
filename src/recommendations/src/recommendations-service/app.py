@@ -53,6 +53,8 @@ filter_purchased_param_name = '/retaildemostore/personalize/filters/filter-purch
 filter_cstore_param_name = '/retaildemostore/personalize/filters/filter-cstore-arn'
 filter_purchased_cstore_param_name = '/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn'
 filter_include_categories_param_name = '/retaildemostore/personalize/filters/filter-include-categories-arn'
+promotion_filter_param_name = '/retaildemostore/personalize/filters/promoted-items-filter-arn'
+promotion_filter_no_cstore_param_name = '/retaildemostore/personalize/filters/promoted-items-no-cstore-filter-arn'
 offers_arn_param_name = '/retaildemostore/personalize/personalized-offers-arn'
 
 # -- Shared Functions
@@ -176,6 +178,7 @@ def fetch_product_details(item_ids: Union[str, List[str]], fully_qualify_image_u
 
 def get_products(feature, user_id, current_item_id, num_results, default_inference_arn_param_name,
                  default_filter_arn_param_name, filter_values=None, user_reqd_for_inference=False, fully_qualify_image_urls=False,
+                 promotion: Dict = None
                  ):
     """ Returns products given a UI feature, user, item/product.
 
@@ -194,6 +197,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
         filter_values: Values to pass at inference for the filter
         user_reqd_for_inference: Require a user ID to use Personalze - otherwise default
         fully_qualify_image_urls: Fully qualify image URLs n here
+        promotion: Personalize promotional filter configuration
     Returns:
         A prepared HTTP response object.
     """
@@ -218,7 +222,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
             num_results = num_results,
             tracker = tracker,
             filter_values = filter_values,
-            timestamp = get_timestamp_from_request()
+            timestamp = get_timestamp_from_request(),
+            promotion = promotion
         )
 
         resp_headers['X-Experiment-Name'] = experiment.name
@@ -242,7 +247,8 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
                 user_id = user_id,
                 product_id = current_item_id,
                 num_results = num_results,
-                filter_values = filter_values
+                filter_values = filter_values,
+                promotion = promotion
             )
 
             resp_headers['X-Personalize-Recipe'] = get_recipe(inference_arn)
@@ -448,6 +454,12 @@ def recommendations():
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
+    promotion = {
+        'name': 'promotedItem',
+        'percentPromotedItems': 25,
+        'filterArn': get_parameter_values(promotion_filter_param_name)[0]
+    }
+
     try:
         items, resp_headers = get_products(
             feature = feature,
@@ -456,7 +468,8 @@ def recommendations():
             num_results = num_results,
             default_inference_arn_param_name='/retaildemostore/personalize/recommended-for-you-arn',
             default_filter_arn_param_name=filter_ssm,
-            fully_qualify_image_urls = fully_qualify_image_urls
+            fully_qualify_image_urls = fully_qualify_image_urls,
+            promotion = promotion
         )
 
         response = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
@@ -504,6 +517,12 @@ def popular():
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
+    promotion = {
+        'name': 'promotedItem',
+        'percentPromotedItems': 25,
+        'filterArn': get_parameter_values(promotion_filter_no_cstore_param_name)[0]
+    }
+
     try:
         items, resp_headers = get_products(
             feature = feature,
@@ -512,7 +531,8 @@ def popular():
             num_results = num_results,
             default_inference_arn_param_name='/retaildemostore/personalize/popular-items-arn',
             default_filter_arn_param_name=filter_ssm,
-            fully_qualify_image_urls = fully_qualify_image_urls
+            fully_qualify_image_urls = fully_qualify_image_urls,
+            promotion = promotion
         )
 
         response = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)

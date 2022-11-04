@@ -3,6 +3,7 @@
 
 import random
 from datetime import datetime
+from typing import Dict
 import logging
 
 from experimentation.experiment import BuiltInExperiment
@@ -20,7 +21,7 @@ class InterleavingExperiment(BuiltInExperiment):
         super(InterleavingExperiment, self).__init__(table, **data)
         self.method = data.get('method', InterleavingExperiment.METHOD_BALANCED)
 
-    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
+    def get_items(self, user_id, current_item_id=None, item_list=None, num_results=10, tracker=None, filter_values=None, context=None, timestamp: datetime = None, promotion: Dict = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) < 2:
@@ -35,7 +36,8 @@ class InterleavingExperiment(BuiltInExperiment):
             'product_list': item_list,
             'num_results': num_results * 3,  # account for overlaps
             'filter_values': filter_values,
-            'context': context
+            'context': context,
+            'promotion': promotion
         }
 
         # Get recomended items for each variation

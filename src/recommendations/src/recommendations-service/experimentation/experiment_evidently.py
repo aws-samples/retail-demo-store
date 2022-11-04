@@ -6,7 +6,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 from . import experiment
 
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class EvidentlyExperiment(experiment.Experiment):
         self.variation_name = data.get('variation_name')
         self.project = data.get('project', os.environ.get('EVIDENTLY_PROJECT_NAME'))
 
-    def get_items(self, user_id: str, current_item_id: str = None, item_list: List = None, num_results: int = 10, tracker=None, filter_values=None, context=None, timestamp: datetime = None):
+    def get_items(self, user_id: str, current_item_id: str = None, item_list: List = None, num_results: int = 10, tracker=None, filter_values=None, context=None, timestamp: datetime = None, promotion: Dict = None):
         if not user_id:
             raise Exception('user_id is required')
         if len(self.variations) != 1:
@@ -37,7 +37,8 @@ class EvidentlyExperiment(experiment.Experiment):
             'product_list': item_list,
             'num_results': num_results,
             'filter_values': filter_values,
-            'context': context
+            'context': context,
+            'promotion': promotion
         }
 
         items = variation.resolver.get_items(**resolve_params)

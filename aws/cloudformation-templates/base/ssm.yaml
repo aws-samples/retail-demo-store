@@ -161,6 +161,22 @@ Resources:
       Value: "NONE"
       Description: "Retail Demo Store Filter to Include by Categories Arn Parameter"
 
+  ParameterPersonalizePromotedItemsFilterArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/promoted-items-filter-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Promotional Filter to Include Promoted Items Arn Parameter"
+
+  ParameterPersonalizePromotedItemsNoCStoreFilterArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/promoted-items-no-cstore-filter-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Promotional Filter to Include Promoted Non CStore Items Arn Parameter"
+
   ParameterPersonalizeEventTrackerId:
     Type: "AWS::SSM::Parameter"
     Properties:

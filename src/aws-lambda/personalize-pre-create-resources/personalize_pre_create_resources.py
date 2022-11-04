@@ -103,6 +103,10 @@ items_schema = {
             "name": "GENDER",
             "type": "string",
             "categorical": True
+        },
+        {
+            "name": "PROMOTED",
+            "type": "string"
         }
     ],
     "version": "1.0"
@@ -238,6 +242,18 @@ dataset_group_confs = [
                 'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ($CATEGORIES)',
                 'param': '/retaildemostore/personalize/filters/filter-include-categories-arn',
                 'paramDescription': 'Retail Demo Store Filter to Include by Categories Arn Parameter'
+            },
+            {
+                'name': 'retaildemostore-filter-promoted-items',
+                'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.PROMOTED IN ("Y")',
+                'param': '/retaildemostore/personalize/filters/promoted-items-filter-arn',
+                'paramDescription': 'Retail Demo Store Promotional Filter to Include Promoted Items Arn Parameter'
+            },
+            {
+                'name': 'retaildemostore-filter-promoted-items-no-cstore',
+                'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.PROMOTED IN ("Y") AND ITEMS.CATEGORY_L1 NOT IN ("cold dispensed", "hot dispensed", "salty snacks", "food service")',
+                'param': '/retaildemostore/personalize/filters/promoted-items-no-cstore-filter-arn',
+                'paramDescription': 'Retail Demo Store Promotional Filter to Include Promoted Non-CStore Items Arn Parameter'
             }
         ],
         'recommenders': [
@@ -458,7 +474,7 @@ def create_solution_version(dataset_group_arn: str, solution_conf: Dict) -> Tupl
             # Find first solution version matching the status in the following order.
             statuses = [ 'ACTIVE', 'CREATE PENDING', 'CREATE IN_PROGRESS', 'CREATE FAILED' ]
             for status in statuses:
-                if len(solution_versions_by_status.get(status)) > 0:
+                if status in solution_versions_by_status and len(solution_versions_by_status.get(status)) > 0:
                     solution_version = solution_versions_by_status[status][0]
                     logger.info('Using %s as solutionVersionArn with status of %s for solution %s', solution_version['solutionVersionArn'], solution_version['status'], solution_conf['arn'])
                     solution_conf['solutionVersionArn'] = solution_version['solutionVersionArn']
@@ -760,9 +776,16 @@ def update() -> bool:
         # Create filters
         all_filters_active = True
         for filter_conf in dataset_group_conf.get('filters', []):
-            _,filter_created = create_filter(dataset_group_conf['arn'], filter_conf)
-            if filter_created or filter_conf['status'] != 'ACTIVE':
-                all_filters_active = False
+            try:
+                _,filter_created = create_filter(dataset_group_conf['arn'], filter_conf)
+                if filter_created or filter_conf['status'] != 'ACTIVE':
+                    all_filters_active = False
+            except ClientError as e:
+                if e.response['Error']['Code'] == 'LimitExceededException':
+                    logger.warn('Too many filters being created; backing off and retrying...')
+                    break
+                else:
+                    raise e
 
         if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active:
             # All resources are active for the DSG. Set SSM params for filters, recommenders, and campaigns
