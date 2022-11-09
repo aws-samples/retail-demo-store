@@ -302,6 +302,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/cloudfront.yaml
       Parameters:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
+        LoggingBucketName: !GetAtt Buckets.Outputs.LoggingBucketName
 
   # Personalize Resources
   Personalize:
@@ -312,7 +313,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
-
+        
   # Evidently
   Evidently:
     Type: AWS::CloudFormation::Stack
@@ -341,8 +342,12 @@ Outputs:
     Value: !GetAtt Authentication.Outputs.IdentityPoolId
 
   StackBucketName:
-    Description: Notebook Instance Id.
+    Description: Stack Bucket
     Value: !GetAtt Buckets.Outputs.StackBucketName
+
+  LoggingBucketName:
+    Description: S3 Bucket For logging
+    Value: !GetAtt Buckets.Outputs.LoggingBucketName
 
   NotebookInstanceId:
     Description: Notebook Instance Id.

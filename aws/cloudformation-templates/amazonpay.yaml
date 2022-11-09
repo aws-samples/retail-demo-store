@@ -20,10 +20,6 @@ Parameters:
     Type: String
     Default: none
 
-  AmazonPayStoreId:
-    Type: String
-    Default: none
-
   AmazonPayPrivateKey:
     Type: String
     Default: "NONE"

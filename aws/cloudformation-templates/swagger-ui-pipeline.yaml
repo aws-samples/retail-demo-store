@@ -88,6 +88,10 @@ Parameters:
     Type: String
     Description: Lambda Arn for cleanup function
 
+  LoggingBucketName:
+    Type: String
+    Description: S3 Bucket For logging
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -185,6 +189,16 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: swaggerui-logs  
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
 
   # Empties bucket when stack is deleted
   EmptyArtifactBucket:
@@ -193,8 +207,8 @@ Resources:
       ServiceToken: !Ref CleanupBucketLambdaArn
       BucketName: !Ref ArtifactBucket
 
+  # Retail Demo Store CodeBuild project for Swagger UI
   CodeBuildProject:
-    Description: Retail Demo Store CodeBuild project for Swagger UI
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Name: !Ref AWS::StackName

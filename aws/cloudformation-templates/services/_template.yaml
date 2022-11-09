@@ -131,6 +131,10 @@ Parameters:
   ACMCertARN:
     Type: String
     Description: Self signed cert ARN
+    
+  LoggingBucketName:
+    Type: String
+    Description: S3 Bucket For logging
 
 Resources:
 
@@ -169,6 +173,7 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
+        LoggingBucketName: !Ref LoggingBucketName
 
   UsersService:
     Type: AWS::CloudFormation::Stack
@@ -203,7 +208,8 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
-
+        LoggingBucketName: !Ref LoggingBucketName
+        
   CartsService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -236,7 +242,8 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
-
+        LoggingBucketName: !Ref LoggingBucketName
+        
   OrdersService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -269,7 +276,8 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
-
+        LoggingBucketName: !Ref LoggingBucketName
+        
   SearchService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -303,6 +311,7 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
+        LoggingBucketName: !Ref LoggingBucketName
 
   LocationService:
     Type: AWS::CloudFormation::Stack
@@ -337,6 +346,7 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
+        LoggingBucketName: !Ref LoggingBucketName
 
   OffersService:
     Type: AWS::CloudFormation::Stack
@@ -371,6 +381,7 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
+        LoggingBucketName: !Ref LoggingBucketName
 
   RecommendationsService:
     Type: AWS::CloudFormation::Stack
@@ -407,6 +418,7 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
+        LoggingBucketName: !Ref LoggingBucketName
 
   VideosService:
     Type: AWS::CloudFormation::Stack
@@ -442,7 +454,8 @@ Resources:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
         ACMCertARN: !Ref ACMCertARN
-
+        LoggingBucketName: !Ref LoggingBucketName
+        
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
     Type: AWS::CloudFormation::Stack

@@ -26,6 +26,7 @@ set -e
 # 2. "private-s3" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true.
 # 3. "only-cfn-template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
 # 4. "skip-generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
+# 5. "skip_virtualenv" contains a boolean value to be used if stage.sh is called from inside a virtualenv 
 ########################################################################################################################################
 args=()
 private_s3=false
@@ -45,15 +46,20 @@ do
         if [ "$bool" == "private-s3" ]
         then
             private_s3=true
-            echo Recieved a \"--private-s3\" flag. Will upload object without public access.
+            echo Received a \"--private-s3\" flag. Will upload object without public access.
         elif [ "$bool" == "only-cfn-template" ]
         then
             only_cfn_template=true
-            echo Recieved a \"--only-cfn-template\" flag. Will only upload CloudFormation templates.
+            echo Received a \"--only-cfn-template\" flag. Will only upload CloudFormation templates.
         elif [ "$bool" == "skip-generators" ]
         then
             skip_generators=true
-            echo Recieved a \"--skip-generators\" flag. Will skip dataset generators.
+            echo Received a \"--skip-generators\" flag. Will skip dataset generators.
+        elif [ "$bool" == "skip_virtualenv" ]
+        then
+            # flag is to be used if the script is called from already a specific virtualenv
+            skip_virtualenv=true
+            echo Received a \"--skip_virtualenv\" flag. Will skip virtualenv inside this script.            
         else
             echo Received an unknown flag \"$bool\"
             exit 1
@@ -80,8 +86,9 @@ echo "=============================================="
 echo "BUCKET = ${BUCKET}"
 echo "S3PATH = ${S3PATH}"
 echo "private_s3 = ${private_s3}"
-echo "only_cfn_template = ${only_cfn_template}"
-echo "skip_generators = ${skip_generators}"
+echo "only-cfn-template = ${only_cfn_template}"
+echo "skip-generators = ${skip_generators}"
+echo "skip-virtualenv = ${skip_virtualenv}"
 echo "=============================================="
 ########################################################################################################################################
 
@@ -135,8 +142,10 @@ if [ "$only_cfn_template" = false ]; then
 
     if [ "$skip_generators" = false ]; then
         echo " + Generating CSVs for Personalize model pre-create training"
-        python3 -m venv .venv
-        . .venv/bin/activate
+        if [ "$skip_virtualenv" = false ]; then
+            python3 -m venv .venv
+            . .venv/bin/activate
+        fi
         pip install -r generators/requirements.txt
         PYTHONPATH=. python3 generators/generate_interactions_personalize.py
         PYTHONPATH=. python3 generators/generate_interactions_personalize_offers.py
@@ -175,3 +184,5 @@ fi
 echo " + Done s3://${BUCKET}/${S3PATH} "
 echo " Launch CloudFormation stack: https://console.aws.amazon.com/cloudformation/home?region=${BUCKET_LOCATION}#/stacks/create/review?templateURL=https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml&stackName=retaildemostore&param_ResourceBucket=${BUCKET}"
 echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudformation-templates/template.yaml"
+
+

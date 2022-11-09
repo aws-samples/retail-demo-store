@@ -120,6 +120,11 @@ Parameters:
   TaskExecutionRoleArn:
     Type: String
 
+  LoggingBucketName:
+    Type: String
+    Description: S3 Bucket For logging
+
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -264,7 +269,18 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
-
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: !Sub '/${FargateServiceName}-logs'
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
+              
   # Empties bucket when stack is deleted
   EmptyArtifactBucket:
     Type: Custom::EmptyArtifactBucket

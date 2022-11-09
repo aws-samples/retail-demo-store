@@ -8,7 +8,11 @@ Parameters:
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
-
+  LoggingBucketName:
+    Type: String
+    Description: S3 Bucket For logging
+    
+    
 Conditions:
   IADRegion: !Equals [!Ref "AWS::Region", "us-east-1"]
 
@@ -19,8 +23,19 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: webui-logs   
       WebsiteConfiguration:
         IndexDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
+         
 
   # Empties bucket when stack is deleted
   EmptyWebUIBucket:
@@ -79,8 +94,19 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: swaggerui-logs   
       WebsiteConfiguration:
         IndexDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true              
+              
 
   # Empties bucket when stack is deleted
   EmptySwaggerUIBucket:

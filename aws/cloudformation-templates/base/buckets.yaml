@@ -11,19 +11,54 @@ Parameters:
 
 Resources:
 
+  LoggingBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      AccessControl: LogDeliveryWrite
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+              
   StackBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
-
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: stack-logs      
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+              
   # Empties bucket when stack is deleted
   EmptyStackBucket:
     Type: Custom::EmptyStackBucket
     Properties:
       ServiceToken: !Ref CleanupBucketLambdaArn
       BucketName: !Ref StackBucket
+      
+  # Empties bucket when stack is deleted
+  EmptyLoggingBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref LoggingBucket
 
 Outputs:
 
   StackBucketName:
     Description: S3 Bucket For Stack.
     Value: !Ref StackBucket
+    
+  LoggingBucketName:
+    Description: S3 Bucket For logging.
+    Value: !Ref LoggingBucket

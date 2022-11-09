@@ -31,8 +31,7 @@ Resources:
                 # Empty the S3 bucket
                 s3 = boto3.resource('s3')
                 bucket = s3.Bucket(bucketName)
-                bucket.objects.all().delete()
-
+                bucket.object_versions.delete() #delete all versions of objects
                 responseData['Message'] = "Resource deletion succeeded"
 
             except Exception as e:
@@ -77,6 +76,7 @@ Resources:
                 Action:
                   - s3:List*
                   - s3:DeleteObject
+                  - s3:DeleteObjectVersion
                 Resource: '*'
 
 Outputs:
