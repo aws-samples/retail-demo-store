@@ -69,7 +69,7 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       Policies:
-        - PolicyName: CloudWatchAndPinpoint
+        - PolicyName: CloudWatchPinpointAndPersonalize
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -84,6 +84,11 @@ Resources:
                   - mobiletargeting:GetEndpoint
                 Resource:
                    - !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/endpoints/*'
+              - Effect: Allow
+                Action:
+                  - personalize:GetRecommendations
+                Resource:
+                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:recommender/retaildemostore-recommended-for-you'
 
   CustomizeRecommendationsFunction:
     Type: AWS::Lambda::Function
@@ -99,6 +104,7 @@ Resources:
       Environment:
         Variables:
           products_service_host: !Ref ProductsServiceDNSName
+          recommender_arn: !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:recommender/retaildemostore-recommended-for-you'
 
   CustomizeOffersRecommendationsFunction:
     Type: AWS::Lambda::Function
