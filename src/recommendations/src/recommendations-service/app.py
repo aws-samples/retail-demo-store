@@ -454,11 +454,14 @@ def recommendations():
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
-    promotion = {
-        'name': 'promotedItem',
-        'percentPromotedItems': 25,
-        'filterArn': get_parameter_values(promotion_filter_param_name)[0]
-    }
+    promotion = None
+    promotion_filter_arn = get_parameter_values(promotion_filter_param_name)[0]
+    if promotion_filter_arn:
+        promotion = {
+            'name': 'promotedItem',
+            'percentPromotedItems': 25,
+            'filterArn': promotion_filter_arn
+        }
 
     try:
         items, resp_headers = get_products(
@@ -517,11 +520,14 @@ def popular():
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
 
-    promotion = {
-        'name': 'promotedItem',
-        'percentPromotedItems': 25,
-        'filterArn': get_parameter_values(promotion_filter_no_cstore_param_name)[0]
-    }
+    promotion = None
+    promotion_filter_arn = get_parameter_values(promotion_filter_no_cstore_param_name)[0]
+    if promotion_filter_arn:
+        promotion = {
+            'name': 'promotedItem',
+            'percentPromotedItems': 25,
+            'filterArn': promotion_filter_arn
+        }
 
     try:
         items, resp_headers = get_products(
