@@ -59,7 +59,7 @@ const locationService = buildServiceDomain(
 const imageService = process.env.AWS_IMAGE_SERVICE_DOMAIN;
 
 module.exports = {
-  routes: "./layer0/routes.js",
+  routes: "./edgio/routes.js",
   includeFiles: {
     ".env": true,
   },

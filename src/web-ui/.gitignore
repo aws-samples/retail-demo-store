@@ -21,6 +21,6 @@ yarn-error.log*
 *.sln
 *.sw*
 
-# Layer0
+# Edgio
 .layer0/
 dist-layer0/

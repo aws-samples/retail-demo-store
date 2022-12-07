@@ -6,8 +6,8 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    browser: './layer0/browser.js',
-    'service-worker': './layer0/service-worker.js',
+    browser: './edgio/browser.js',
+    'service-worker': './edgio/service-worker.js',
   },
   mode: 'production',
   resolve: {
