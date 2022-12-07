@@ -7,7 +7,7 @@ const removeProtocol = (domain) => {
   try {
     return domain.replace(/https?:\/\//i, "");
   } catch (e) {
-    console.error("[layer0.config.js] Invalid domain: ", domain);
+    console.error("[edgio.config.js] Invalid domain: ", domain);
     throw new Error(e.message);
   }
 };

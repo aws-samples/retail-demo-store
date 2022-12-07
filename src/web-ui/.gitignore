@@ -22,5 +22,5 @@ yarn-error.log*
 *.sw*
 
 # Edgio
-.layer0/
-dist-layer0/
+.edgio/
+dist-edgio/

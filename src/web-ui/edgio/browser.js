@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import installDevtools from "@layer0/devtools/install";
-import install from "@layer0/prefetch/window/install";
+import installDevtools from "@edgio/devtools/install";
+import install from "@edgio/prefetch/window/install";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Register Edgio Service Worker

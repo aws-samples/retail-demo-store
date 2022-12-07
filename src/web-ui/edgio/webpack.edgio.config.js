@@ -15,7 +15,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '../dist-layer0'),
+    path: path.resolve(__dirname, '../dist-edgio'),
   },
   plugins: [
     new webpack.DefinePlugin({

@@ -7,15 +7,15 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "edgio:start": "concurrently \"npx webpack --watch --config edgio/webpack.layer0.config.js\" \"npx layer0 run --verbose\"",
-    "edgio:start:cache": "concurrently \"npx webpack --watch --config edgio/webpack.layer0.config.js\" \"npx layer0 run --cache\"",
-    "edgio:start:prod": "npx layer0 run --production",
-    "edgio:build": "npx webpack --progress --config edgio/webpack.layer0.config.js && npx layer0 build",
-    "edgio:deploy": "npx layer0 deploy --skip-build --site=layer0-aws-store-example --team=layer0-docs",
+    "edgio:start": "concurrently \"npx webpack --watch --config edgio/webpack.edgio.config.js\" \"npx edgio run --verbose\"",
+    "edgio:start:cache": "concurrently \"npx webpack --watch --config edgio/webpack.edgio.config.js\" \"npx edgio run --cache\"",
+    "edgio:start:prod": "npx edgio run --production",
+    "edgio:build": "npx webpack --progress --config edgio/webpack.edgio.config.js && npx edgio build",
+    "edgio:deploy": "npx edgio deploy --skip-build --site=edgio-aws-store-example --team=layer0-docs",
     "edgio:app:build": "npm run build && npm run edgio:build",
     "edgio:app:build:deploy": "npm run build && npm run edgio:build && npm run edgio:deploy",
     "edgio:build:deploy": "npm run edgio:build && npm run edgio:deploy",
-    "edgio:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
+    "edgio:update": "npm i -D @edgio/cli@latest && npm i @edgio/core@latest @edgio/prefetch@latest @edgio/devtools@latest"
   },
   "dependencies": {
     "@mparticle/web-sdk": "^2.17.0",
@@ -38,10 +38,10 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "devDependencies": {
-    "@layer0/cli": "^4.19.6",
-    "@layer0/core": "^4.19.6",
-    "@layer0/devtools": "^4.19.6",
-    "@layer0/prefetch": "^4.19.6",
+    "@edgio/cli": "^6.0.1",
+    "@edgio/core": "^6.0.1",
+    "@edgio/devtools": "^6.0.1",
+    "@edgio/prefetch": "^6.0.1",
     "@vue/cli-plugin-babel": "^4.5.19",
     "@vue/cli-plugin-eslint": "^4.5.19",
     "@vue/cli-service": "^4.5.19",

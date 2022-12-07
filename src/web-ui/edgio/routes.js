@@ -1,12 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Router } from "@layer0/core/router";
+import { Router } from "@edgio/core/router";
 import { CACHE_ASSETS, CACHE_PAGES } from "./cache";
 import transform from "./transform";
 
 const DIST_APP = "dist";
-const DIST_EDGIO = "dist-layer0";
+const DIST_EDGIO = "dist-edgio";
 
 const router = new Router();
 
