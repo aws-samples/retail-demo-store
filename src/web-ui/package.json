@@ -38,10 +38,10 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "devDependencies": {
-    "@layer0/cli": "^4.18.11",
-    "@layer0/core": "^4.18.11",
-    "@layer0/devtools": "^4.18.11",
-    "@layer0/prefetch": "^4.18.11",
+    "@layer0/cli": "^4.19.6",
+    "@layer0/core": "^4.19.6",
+    "@layer0/devtools": "^4.19.6",
+    "@layer0/prefetch": "^4.19.6",
     "@vue/cli-plugin-babel": "^4.5.19",
     "@vue/cli-plugin-eslint": "^4.5.19",
     "@vue/cli-service": "^4.5.19",
