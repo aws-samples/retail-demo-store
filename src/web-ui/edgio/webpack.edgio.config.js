@@ -6,8 +6,8 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    browser: './layer0/browser.js',
-    'service-worker': './layer0/service-worker.js',
+    browser: './edgio/browser.js',
+    'service-worker': './edgio/service-worker.js',
   },
   mode: 'production',
   resolve: {
@@ -15,7 +15,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '../dist-layer0'),
+    path: path.resolve(__dirname, '../dist-edgio'),
   },
   plugins: [
     new webpack.DefinePlugin({

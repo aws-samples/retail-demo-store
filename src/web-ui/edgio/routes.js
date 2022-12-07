@@ -1,12 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Router } from "@layer0/core/router";
+import { Router } from "@edgio/core/router";
 import { CACHE_ASSETS, CACHE_PAGES } from "./cache";
 import transform from "./transform";
 
 const DIST_APP = "dist";
-const DIST_LAYER0 = "dist-layer0";
+const DIST_EDGIO = "dist-edgio";
 
 const router = new Router();
 
@@ -16,14 +16,14 @@ router.prerender([
   "/",
 ]);
 
-// layer0 static files
+// Edgio static files
 router.get("/service-worker.js", ({ serviceWorker, cache }) => {
   cache(CACHE_PAGES);
-  serviceWorker(`${DIST_LAYER0}/service-worker.js`);
+  serviceWorker(`${DIST_EDGIO}/service-worker.js`);
 });
 router.get("/main.js", ({ serveStatic, cache }) => {
   cache(CACHE_PAGES);
-  serveStatic(`${DIST_LAYER0}/browser.js`);
+  serveStatic(`${DIST_EDGIO}/browser.js`);
 });
 
 // retail demo store services

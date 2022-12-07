@@ -52,8 +52,8 @@ printf 'VUE_APP_GOOGLE_ANALYTICS_ID=%s\n' "$GOOGLE_ANALYTICS_ID" >> .env
 printf 'VUE_APP_MPARTICLE_API_KEY=%s\n' "$MPARTICLE_API_KEY" >> .env
 printf 'VUE_APP_MPARTICLE_SECRET_KEY=%s\n' "$MPARTICLE_SECRET_KEY" >> .env
 
-# Layer0
-printf 'VUE_APP_LAYER0_ENABLED=false\n' >> .env
+# Edgio
+printf 'VUE_APP_EDGIO_ENABLED=false\n' >> .env
 
 # Fenix Settings variables
 printf 'VUE_APP_FENIX_TENANT_ID=%s\n' "$FENIX_TENANT_ID" >> .env
