@@ -38,10 +38,10 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "devDependencies": {
-    "@edgio/cli": "^6.0.1",
-    "@edgio/core": "^6.0.1",
-    "@edgio/devtools": "^6.0.1",
-    "@edgio/prefetch": "^6.0.1",
+    "@edgio/cli": "^6.0.3",
+    "@edgio/core": "^6.0.3",
+    "@edgio/devtools": "^6.0.3",
+    "@edgio/prefetch": "^6.0.3",
     "@vue/cli-plugin-babel": "^4.5.19",
     "@vue/cli-plugin-eslint": "^4.5.19",
     "@vue/cli-service": "^4.5.19",
