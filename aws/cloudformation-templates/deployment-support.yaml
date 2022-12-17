@@ -109,9 +109,26 @@ Conditions:
     - !Ref PreIndexOpenSearch
     - 'Yes'
 
-  DeployPreCreatePinpointWorkshop: !Equals
+  AutoCreatePinpointWorkshop: !Equals
     - !Ref PreCreatePinpointWorkshop
     - 'Yes'
+
+  AutoCreatePersonalizedOffersCampaign: !Equals
+    - !Ref DeployPersonalizedOffersCampaign
+    - 'Yes'
+  
+  # If the Personalize offers campaign isn't being pre-created then we can invoke the pinpoint-auto-workshop lambda immediately, 
+  # otherwise we have to wait until it completes.  See personalize_pre_create_resources.py.  When all the personalize resources are 
+  # created it writes the resource arn's in SSM parameter store.  To wait for the offers campaign we setup an eventbridge rule to  
+  # trigger the pinpoint-auto-workshop lambda when create/updates events are received for the respective SSM parameter.  
+
+  DeployPreCreatePinpointWorkshop: !And
+    - !Condition AutoCreatePinpointWorkshop
+    - !Not [!Condition AutoCreatePersonalizedOffersCampaign]
+
+  WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop: !And 
+    - !Condition AutoCreatePinpointWorkshop
+    - !Condition AutoCreatePersonalizedOffersCampaign
 
   CreateIVSResources: !Equals
     - !Ref UseDefaultIVSStreams
@@ -126,9 +143,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that uploads datasets, builds solutions, and creates campaigns in Amazon Personalize'
       Handler: personalize_pre_create_resources.lambda_handler
-      Role: !GetAtt
-        - PersonalizePreCreateLambdaExecutionRole
-        - Arn
+      Role: !GetAtt PersonalizePreCreateLambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-resources.zip'
@@ -144,8 +159,7 @@ Resources:
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
           PersonalizeRoleArn: !Ref PersonalizeRoleArn
-          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
-          PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop # Controls whether additional Personalize campaign needs to be created for Pinpoint
+          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources          
 
   PersonalizePreCreateLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -244,22 +258,16 @@ Resources:
       ScheduleExpression: rate(5 minutes)
       State: DISABLED
       Targets:
-        - Arn: !GetAtt
-            - PersonalizePreCreateLambdaFunction
-            - Arn
+        - Arn: !GetAtt PersonalizePreCreateLambdaFunction.Arn
           Id: TargetFunctionV1
 
   PersonalizePreCreatePermissionToInvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName:
-        Ref: "PersonalizePreCreateLambdaFunction"
+      FunctionName: !GetAtt PersonalizePreCreateLambdaFunction.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn:
-        Fn::GetAtt:
-          - "PersonalizePreCreateScheduledRule"
-          - "Arn"
+      SourceArn: !GetAtt PersonalizePreCreateScheduledRule.Arn
 
   CustomLaunchPersonalizePreCreateLambdaFunction:
     Type: Custom::CustomLambdaPersonalize
@@ -274,9 +282,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that creates IVS channels.'
       Handler: ivs-create-channels.lambda_handler
-      Role: !GetAtt
-        - IVSCreateChannelsLambdaExecutionRole
-        - Arn
+      Role: !GetAtt IVSCreateChannelsLambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/ivs-create-channels.zip'
@@ -363,9 +369,7 @@ Resources:
     Properties:
       Description: 'Retail Demo Store deployment utility function that indexes product catalog in Amazon OpenSearch'
       Handler: opensearch-pre-index.lambda_handler
-      Role: !GetAtt
-        - OpenSearchPreIndexLambdaExecutionRole
-        - Arn
+      Role: !GetAtt OpenSearchPreIndexLambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/opensearch-pre-index.zip'
@@ -434,14 +438,12 @@ Resources:
   ####################### Pre-Create Pinpoint Workshop #######################
 
   PinpointPreCreateLambdaFunction:
-    Condition: DeployPreCreatePinpointWorkshop
+    Condition: AutoCreatePinpointWorkshop
     Type: 'AWS::Lambda::Function'
     Properties:
       Description: 'Retail Demo Store deployment utility function that configures messaging templates, segments, and campaigns in Amazon Pinpoint'
       Handler: pinpoint-auto-workshop.lambda_handler
-      Role: !GetAtt
-        - PinpointPreCreateLambdaExecutionRole
-        - Arn
+      Role: !GetAtt PinpointPreCreateLambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-auto-workshop.zip'
@@ -460,7 +462,7 @@ Resources:
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
 
   PinpointPreCreateLambdaExecutionRole:
-    Condition: DeployPreCreatePinpointWorkshop
+    Condition: AutoCreatePinpointWorkshop
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -494,7 +496,7 @@ Resources:
                   - ssm:GetParameter
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               -
-                Effect: "Allow"
+                Effect: Allow
                 Action:
                   - mobiletargeting:*
                 Resource: "*"
@@ -505,9 +507,14 @@ Resources:
                   - events:DeleteRule
                 Resource:
                   - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PinpointPreCreateRule'
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Uid}-PinptP9e'
 
   PinpointPreCreateRule:
-    Condition: DeployPreCreatePinpointWorkshop
+    Condition: WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop
     Type: 'AWS::Events::Rule'
     Properties:
       Name: 'RetailDemoStore-PinpointPreCreateRule'
@@ -519,25 +526,27 @@ Resources:
           - "Parameter Store Change"
         detail:
           name:
-            - "/retaildemostore/personalize/user-personalization-arn"
+            - "/retaildemostore/personalize/personalized-offers-arn"
           operation:
             - "Update"
+            - "Create"
       State: ENABLED
       Targets:
-        - Arn: !GetAtt
-            - PinpointPreCreateLambdaFunction
-            - Arn
+        - Arn: !GetAtt PinpointPreCreateLambdaFunction.Arn
           Id: TargetFunctionV1
 
   PinpointPreCreatePermissionToInvokeLambda:
-    Condition: DeployPreCreatePinpointWorkshop
+    Condition: WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName:
-        Ref: "PinpointPreCreateLambdaFunction"
+      FunctionName: !GetAtt PinpointPreCreateLambdaFunction.Arn
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn:
-        Fn::GetAtt:
-          - "PinpointPreCreateRule"
-          - "Arn"
+      SourceArn: !GetAtt PinpointPreCreateRule.Arn
+
+  # Custom resource to launch pinpoint auto workshop
+  CustomLaunchPinpointPreCreateLambdaFunction:
+    Condition: DeployPreCreatePinpointWorkshop
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt PinpointPreCreateLambdaFunction.Arn

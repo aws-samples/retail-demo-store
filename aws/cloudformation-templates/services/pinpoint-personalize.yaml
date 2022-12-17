@@ -97,8 +97,8 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-recommender.zip'
       FunctionName: RetailDemoStorePinpointRecommender  # Function name used in notebook to lookup ARN
       Environment:
-        Variables:
-          products_service_host: !Ref ProductsServiceDNSName
+        Variables:          
+          recommendations_service_host: !Ref RecommendationsServiceDNSName
 
   CustomizeOffersRecommendationsFunction:
     Type: AWS::Lambda::Function
