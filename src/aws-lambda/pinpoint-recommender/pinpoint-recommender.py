@@ -15,26 +15,19 @@ personalize_runtime = boto3.client('personalize-runtime')
 
 def lambda_handler(event, context):
     ''' Called by Amazon Pinpoint campaign to retrieve recommendations from
-    the specified Amazon Personalize recommender
+    the Recommendations service
 
     This function 
-    uses the Retail Demo Store's Product service to retrieve details on each recommended
-    item/product.
+    uses the Retail Demo Store's Recommendations service to retrieve recommendations for each endpoint.
     ''' 
 
     logger.debug(event)
-    
-    products_service_host = os.environ.get('products_service_host')
-    if not products_service_host:
-        raise ValueError("Missing required environment value for 'products_service_host'")
 
-    logger.debug('Products service host: ' + products_service_host)
-
-    recommender_arn = os.environ.get('recommender_arn')
-    if not recommender_arn:
-        raise ValueError("Missing required environment value for 'recommender_arn'")
+    recommendations_service_host = os.environ.get('recommendations_service_host')
+    if not recommendations_service_host:
+        raise ValueError("Missing required environment value for 'recommendations_service_host'")
     
-    logger.debug('Recommender arn: ' + recommender_arn)
+    logger.debug('Recommendations service host: ' + recommendations_service_host)
     
     new_endpoints = dict()
 
@@ -55,34 +48,26 @@ def lambda_handler(event, context):
                 endpoint['Address'] = full_endpoint['EndpointResponse']['Address']
 
             user_id = endpoint['User']['UserId']
-            recommended_items_response = personalize_runtime.get_recommendations(
-                                                                recommenderArn = recommender_arn,
-                                                                userId = str(user_id),
-                                                                numResults = 4)
-            recommended_items = recommended_items_response['itemList']
-            
-            if recommended_items:
-                recommendations = {
-                    'Name': [''] * len(recommended_items),
-                    'URL': [''] * len(recommended_items),
-                    'Category': [''] * len(recommended_items),
-                    'Style': [''] * len(recommended_items),
-                    'Description': [''] * len(recommended_items),
-                    'Price': [''] * len(recommended_items),
-                    'ImageURL': [''] * len(recommended_items)
-                }
-                
-                for idx, item in enumerate(recommended_items):
-                    item_id = item['itemId']
-                    logger.debug('Looking up product information for product ' + item_id)
-                    
-                    url = f'http://{products_service_host}/products/id/{item_id}?fullyQualifyImageUrls=1'
-                    response = requests.get(url)
-                    
-                    if response.ok:
-                        product = response.json()
-                        logger.debug(product)
-                        
+            recommendations_request = f'http://{recommendations_service_host}/recommendations?userID={user_id}&numResults=4&fullyQualifyImageUrls=1'
+            response = requests.get(recommendations_request)
+
+            if response.ok:
+                recommended_items = response.json()
+                logger.debug(recommended_items)
+
+                if recommended_items:
+                    recommendations = {
+                        'Name': [''] * len(recommended_items),
+                        'URL': [''] * len(recommended_items),
+                        'Category': [''] * len(recommended_items),
+                        'Style': [''] * len(recommended_items),
+                        'Description': [''] * len(recommended_items),
+                        'Price': [''] * len(recommended_items),
+                        'ImageURL': [''] * len(recommended_items)
+                    }
+
+                    for idx, item in enumerate(recommended_items):
+                        product = recommended_items[idx]['product']
                         recommendations['Name'][idx] = product['name']
                         recommendations['URL'][idx] = product['url']
                         recommendations['Category'][idx] = product['category']
@@ -90,13 +75,13 @@ def lambda_handler(event, context):
                         recommendations['Description'][idx] = product['description']
                         recommendations['Price'][idx] = '$ {}'.format(product['price'])
                         recommendations['ImageURL'][idx] = product['image']
-                    else:
-                        logger.error(response)
-                        
-                endpoint['Recommendations'] = recommendations
-                new_endpoints[key] = endpoint
+
+                    endpoint['Recommendations'] = recommendations
+                    new_endpoints[key] = endpoint
+                else:
+                    logger.error('Endpoint {} does not have any Recommendations'.format(key))
             else:
-                logger.error('Endpoint {} does not have any RecommendationItems'.format(key))
+                logger.error(response)                                      
     else:
         logger.error('Event is missing Endpoints document')
 
