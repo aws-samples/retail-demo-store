@@ -23,11 +23,15 @@ Resources:
   OpenSearchDomain:
     Type: AWS::OpenSearchService::Domain
     Properties:
-      EngineVersion: OpenSearch_1.2
+      EngineVersion: OpenSearch_2.3
       ClusterConfig:
         InstanceCount: 1
         InstanceType: t3.small.search
         ZoneAwarenessEnabled: false
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       EBSOptions:
         EBSEnabled: true
         Iops: 0
@@ -43,6 +47,8 @@ Resources:
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
+      EncryptionAtRestOptions:
+        Enabled: true
       VPCOptions:
         SubnetIds:
           - !Ref Subnet1
