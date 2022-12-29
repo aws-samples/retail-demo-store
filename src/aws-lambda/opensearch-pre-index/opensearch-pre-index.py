@@ -17,7 +17,6 @@ helper = CfnResource()
 s3 = boto3.resource('s3')
 
 INDEX_NAME = 'products'
-TYPE_NAME = 'product'
 ID_FIELD = 'id'
 
 MAX_BULK_BATCH_SIZE = 100
@@ -80,7 +79,6 @@ def index_products(event):
                 bulk_data.append({
                     "index": {
                         "_index": INDEX_NAME,
-                        "_type": TYPE_NAME,
                         "_id": product[ID_FIELD]
                     }
                 })
