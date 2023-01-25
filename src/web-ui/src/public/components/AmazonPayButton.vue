@@ -18,7 +18,7 @@ export default {
             // a full HTTPS service on the Retail Demo Store.
             "checkoutReviewReturnUrl": 'https://developer.amazon.com/docs/amazon-pay-checkout/introduction.html'
           },
-          "storeId": process.env.VUE_APP_AMAZON_PAY_STORE_ID,
+          "storeId": import.meta.env.VITE_AMAZON_PAY_STORE_ID,
           "chargePermissionType": "OneTime"
         },
         payloadSignature: null
@@ -42,7 +42,7 @@ export default {
 
             // eslint-disable-next-line no-undef
             amazon.Pay.renderButton('#AmazonPayButton', {
-                merchantId: process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID,
+                merchantId: import.meta.env.VITE_AMAZON_PAY_MERCHANT_ID,
                 ledgerCurrency: 'USD',
                 sandbox: true,
                 checkoutLanguage: 'en_US',
@@ -52,7 +52,7 @@ export default {
                 createCheckoutSessionConfig: {
                     payloadJSON: JSON.stringify(this.payload),
                     signature: this.payloadSignature,
-                    publicKeyId: process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID
+                    publicKeyId: import.meta.env.VITE_AMAZON_PAY_PUBLIC_KEY_ID
                 }
             });
         },

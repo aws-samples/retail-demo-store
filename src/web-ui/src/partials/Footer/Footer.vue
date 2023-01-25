@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import PoweredByAWS from '@/components/PoweredByAWS/PoweredByAWS';
-import TermsAndConditions from '@/partials/TermsAndConditions/TermsAndConditions';
+import PoweredByAWS from '@/components/PoweredByAWS/PoweredByAWS.vue';
+import TermsAndConditions from '@/partials/TermsAndConditions/TermsAndConditions.vue';
 
 export default {
   name: 'Footer',

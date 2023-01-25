@@ -27,8 +27,8 @@
 <script>
 import { mapState } from 'vuex';
 
-import ConfirmationModalLayout from '../ConfirmationModalLayout/ConfirmationModalLayout';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import ConfirmationModalLayout from '../ConfirmationModalLayout/ConfirmationModalLayout.vue';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 export default {
   name: 'AbandonCartModal',

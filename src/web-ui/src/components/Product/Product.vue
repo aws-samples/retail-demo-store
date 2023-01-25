@@ -38,7 +38,7 @@ import { getProductImageUrl } from '@/util/getProductImageUrl';
 import { formatPrice } from '@/util/formatPrice';
 
 import FiveStars from '../../components/FiveStars/FiveStars.vue';
-import FenixList from '@/components/Fenix/FenixList';
+import FenixList from '@/components/Fenix/FenixList.vue';
 
 const getFullExperimentType = (type) => {
   switch (type) {
@@ -72,7 +72,7 @@ export default {
 
   data() {
     return {
-      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
+      fenixenablePDP : import.meta.env.VITE_FENIX_ENABLED_PDP,
     };
   },
   computed: {

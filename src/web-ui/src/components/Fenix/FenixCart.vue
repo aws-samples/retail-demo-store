@@ -17,8 +17,8 @@
 <script>
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-import FenixBranding from '@/components/Fenix/FenixBranding';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
+import FenixBranding from '@/components/Fenix/FenixBranding.vue';
 
 export default {
   name: 'FenixCart',
@@ -37,15 +37,15 @@ export default {
       fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=cart_Page',
       fenixResponse: "Getting Delivery estimates...",
       fenixCartItems : this.lineItems.items,
-      tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
-      xapikey: process.env.VUE_APP_FENIX_X_API_KEY,
+      tenantId: import.meta.env.VITE_FENIX_TENANT_ID,
+      xapikey: import.meta.env.VITE_FENIX_X_API_KEY,
       fenixSSIDCookie: Cookies.get('fenixSSID'),
-      endPointUrl: process.env.VUE_APP_FENIX_EDD_ENDPOINT,
+      endPointUrl: import.meta.env.VITE_FENIX_EDD_ENDPOINT,
       requestData: {
         sessionTrackId: this.fenixSSIDCookie || '',
         fenixSSID: this.fenixSSIDCookie || '',
         buyerZipCode: Cookies.get('fenixlocation') || '',
-        monetaryValue: process.env.VUE_APP_FENIX_MONETARY_VALUE,
+        monetaryValue: import.meta.env.VITE_FENIX_MONETARY_VALUE,
         pageType: 'CART',
         responseFormat: 'json',
         skus: [],

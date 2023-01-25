@@ -8,7 +8,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import {Credentials, Signer} from "@aws-amplify/core";
 import Location from "@/location/Location";
 
-const resourceName = process.env.VUE_APP_LOCATION_RESOURCE_NAME;
+const resourceName = import.meta.env.VITE_LOCATION_RESOURCE_NAME;
 const locationApi = new Location();
 
 export default {
@@ -224,7 +224,7 @@ export default {
 
       if (resourceType === 'Style' && newUrl.startsWith('geo://')) {
         const [, resourceName] = newUrl.split('geo://');
-        newUrl = `https://maps.geo.${process.env.VUE_APP_AWS_REGION}.amazonaws.com/maps/v0/maps/${resourceName}/style-descriptor`;
+        newUrl = `https://maps.geo.${import.meta.env.VITE_AWS_REGION}.amazonaws.com/maps/v0/maps/${resourceName}/style-descriptor`;
       }
 
       if (!newUrl.includes('amazonaws.com')) {

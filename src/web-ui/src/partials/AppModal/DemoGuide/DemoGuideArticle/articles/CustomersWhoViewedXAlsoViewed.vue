@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import ArticleLayout from '../ArticleLayout';
+import ArticleLayout from '../ArticleLayout.vue';
 
 export default {
   name: 'CustomersWhoViewedXAlsoViewed',

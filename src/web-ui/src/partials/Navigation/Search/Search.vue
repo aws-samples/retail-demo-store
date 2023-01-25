@@ -43,8 +43,8 @@ import { mapState, mapGetters } from 'vuex';
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-import SearchItem from './SearchItem/SearchItem';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import SearchItem from './SearchItem/SearchItem.vue';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 const SearchRepository = RepositoryFactory.get('search');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');

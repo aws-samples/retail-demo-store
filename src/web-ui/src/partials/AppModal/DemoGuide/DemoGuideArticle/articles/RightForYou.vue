@@ -66,9 +66,9 @@
 </template>
 
 <script>
-import ArticleLayout from '../ArticleLayout';
-import ArticleFeature from '../ArticleFeature/ArticleFeature';
-import Quote from '../Quote/Quote';
+import ArticleLayout from '../ArticleLayout.vue';
+import ArticleFeature from '../ArticleFeature/ArticleFeature.vue';
+import Quote from '../Quote/Quote.vue';
 
 export default {
   name: 'RightForYou',

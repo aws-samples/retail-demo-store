@@ -6,7 +6,7 @@ export default function transform(response, request) {
       let body = response.body.toString("utf-8");
       body = body.replace(
         /http(s)?:\/\/\w+\.\w+\.net/gim,
-        process.env.VUE_APP_IMAGE_ROOT_URL
+        import.meta.env.VITE_IMAGE_ROOT_URL
       );
 
       const newBuffer = Buffer.from(body, "utf-8");

@@ -1,22 +1,27 @@
+<script setup>
+  import { Authenticator } from "@aws-amplify/ui-vue";
+  import "@aws-amplify/ui-vue/styles.css";
+</script>
+
 <template>
   <SecondaryLayout>
-    <div v-if="showingSignUp" class="container text-left">
-      <p>We require you to enter an email address to send a code to verify your account.</p>
-      <p>Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.</p>
-    </div>
-    <AmplifyAuthenticator :authConfig="authConfig" ref="authenticator" />
+    <authenticator :sign-up-attributes="['username', 'password','email']" >
+      <template v-slot:sign-up-header>
+        <div style="padding: var(--amplify-space-large); text-align: left">
+          We require you to enter an email address to send a code to verify your account.<br/>
+          Passwords must contain at least 8 characters, including an uppercase letter, a lowercase letter, a special character, and a number.
+        </div>
+      </template>
+    </authenticator>    
   </SecondaryLayout>
 </template>
 
 <script>
-import { components, AmplifyEventBus } from 'aws-amplify-vue';
-import SecondaryLayout from '@/components/SecondaryLayout/SecondaryLayout';
-
+import SecondaryLayout from '@/components/SecondaryLayout/SecondaryLayout.vue';
 
 export default {
   name: 'Auth',
   components: {
-    AmplifyAuthenticator: components.Authenticator,
     SecondaryLayout
   },
   data() {
@@ -49,29 +54,6 @@ export default {
               required: true
             },
           ]
-        }
-      }
-    }
-  },
-  mounted() {
-    this.$refs.authenticator.$watch('displayMap', (newVal) => {
-      // since the first displayMap update happens asynchronously on mount,
-      // it may not have picked up the authState emit below. So in the
-      // very first update, check and pull the value from query if set
-      if (this.showingSignUp === undefined && this.$route.query.signup) {
-        this.showingSignUp = true
-        AmplifyEventBus.$emit('authState', 'signUp')
-      } else {
-        this.showingSignUp = newVal.showSignUp
-      }
-    })
-  },
-  watch: {
-    $route: {
-      immediate: true,
-      handler() {
-        if (this.$route.query.signup) {
-          AmplifyEventBus.$emit('authState', 'signUp')
         }
       }
     }

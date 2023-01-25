@@ -7,7 +7,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import CartIcon from './CartIcon';
+import CartIcon from './CartIcon.vue';
 
 export default {
   name: 'CartLink',

@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import Carousel from '@/components/Carousel/Carousel';
-import Product from '@/components/Product/Product';
+import Carousel from '@/components/Carousel/Carousel.vue';
+import Product from '@/components/Product/Product.vue';
 
 export default {
   name: 'ProductCarousel',

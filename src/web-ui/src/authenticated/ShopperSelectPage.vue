@@ -7,8 +7,8 @@
 </template>
 
 <script>
-import SecondaryLayout from '@/components/SecondaryLayout/SecondaryLayout';
-import ShopperSelect from '@/partials/ShopperSelect/ShopperSelect';
+import SecondaryLayout from '@/components/SecondaryLayout/SecondaryLayout.vue';
+import ShopperSelect from '@/partials/ShopperSelect/ShopperSelect.vue';
 
 export default {
   name: 'ShopperSelectPage',

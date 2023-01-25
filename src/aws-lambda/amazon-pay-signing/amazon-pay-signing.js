@@ -10,8 +10,8 @@
 const AWS = require('aws-sdk');
 const Client = require('@amazonpay/amazon-pay-api-sdk-nodejs');
 
-const amazonPayPublicKeyId = process.env.AmazonPayPublicKeyId;
-const amazonPaySecretArn = process.env.AmazonPayPrivateKeySecretArn;
+const amazonPayPublicKeyId = import.meta.env.AmazonPayPublicKeyId;
+const amazonPaySecretArn = import.meta.env.AmazonPayPrivateKeySecretArn;
 
 /**
  * Our Amazon Pay private key was saved in AWS Secrets Manager. Get it back.

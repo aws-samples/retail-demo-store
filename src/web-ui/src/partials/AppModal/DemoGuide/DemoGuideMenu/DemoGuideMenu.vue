@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import DemoGuideMenuSection from './DemoGuideMenuSection/DemoGuideMenuSection';
+import DemoGuideMenuSection from './DemoGuideMenuSection/DemoGuideMenuSection.vue';
 import { sections } from '../config';
 
 export default {

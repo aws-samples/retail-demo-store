@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-import ProductCarousel from './ProductCarousel/ProductCarousel';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
+import ProductCarousel from './ProductCarousel/ProductCarousel.vue';
 
 export default {
   name: 'RecommendedProductsSection',

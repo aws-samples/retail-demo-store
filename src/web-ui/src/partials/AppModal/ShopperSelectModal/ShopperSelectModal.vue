@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import Modal from '../Modal/Modal';
-import ShopperSelect from '@/partials/ShopperSelect/ShopperSelect';
+import Modal from '../Modal/Modal.vue';
+import ShopperSelect from '@/partials/ShopperSelect/ShopperSelect.vue';
 import { APP_MODAL_ID } from '../config';
 import { mapState } from 'vuex';
 

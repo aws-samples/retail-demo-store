@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 import { mapState, mapGetters } from 'vuex';
 
 export default {

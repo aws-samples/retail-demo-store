@@ -35,7 +35,7 @@
                 </div>
                 <button class="checkout-btn btn btn-outline-dark btn-block btn-lg btn-block" :disabled="!placeOrderEnabled" v-on:click="handleSubmitOrderButton">Place your order</button>
                 <div class="mt-3">
-                  <amazon-pay-button v-if="placeOrderEnabled && amazonPayEnabled" @click.native="finalizeAmazonPayOrder"/>
+                  <amazon-pay-button v-if="placeOrderEnabled && amazonPayEnabled" @click="finalizeAmazonPayOrder"/>
                 </div>
               </div>
             </div>
@@ -62,12 +62,13 @@
                     <label class="form-check-label" for="collectionOption1">Pickup at Store</label>
                   </p>
                   <div v-if="collection">
-                    <TheMask
-                      type="tel"
+                    <input
+                      v-maska data-maska="['+# (###) ### - ####', '+## (###) ### - ####']"
                       name="collectionPhone"
                       placeholder="Your phone number so we can contact you about your order"
+                      id="collectionPhone"
                       v-model="collectionPhone"
-                      :mask="['+# (###) ### - ####', '+## (###) ### - ####']"
+                      type="tel"
                       class="input py-1 px-2 mb-2"
                     />
                     <div class="consent d-flex align-items-start text-left">
@@ -111,7 +112,7 @@
                   <div class="input-group">
                     <input type="text" class="form-control" v-model="order.promo_code" placeholder="Promo code">
                     <div class="input-group-append">
-                      <button type="submit" class="btn btn-secondary">Apply</button>
+                      <button type="button" class="btn btn-secondary" @click="promoApplied">Apply</button>
                     </div>
                   </div>
                 </div>
@@ -136,11 +137,11 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import swal from 'sweetalert';
 
-import Layout from '@/components/Layout/Layout'
-import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton'
-import AmazonPayButton from "@/public/components/AmazonPayButton";
-import { TheMask } from 'vue-the-mask'
-import FenixCheckout from '@/components/Fenix/FenixCheckout';
+import Layout from '@/components/Layout/Layout.vue'
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton.vue'
+import AmazonPayButton from "@/public/components/AmazonPayButton.vue";
+import { vMaska } from "maska"
+import FenixCheckout from '@/components/Fenix/FenixCheckout.vue';
 
 const CartsRepository = RepositoryFactory.get('carts')
 const OrdersRepository = RepositoryFactory.get('orders')
@@ -151,9 +152,9 @@ export default {
     Layout,
     AbandonCartButton,
     AmazonPayButton,
-    TheMask,
     FenixCheckout
   },
+  directives: { maska: vMaska },
   data () {
     return {
       errors: [],
@@ -167,7 +168,7 @@ export default {
       },
       collection: false,
       hasConsentedPhone: false,
-      fenixenableCHECKOUT: process.env.VUE_APP_FENIX_ENABLED_CHECKOUT,
+      fenixenableCHECKOUT: import.meta.env.VITE_FENIX_ENABLED_CHECKOUT,
     }
   },
   async created () {
@@ -217,6 +218,15 @@ export default {
           zipcode: '98109'
         }
       }
+    },
+    promoApplied() {
+      swal({
+          title: "Promo Applied",
+          icon: "success",
+          buttons: {
+            cancel: "OK",
+          }
+        })
     },
     signIn () {
       this.$router.push('/auth')
@@ -269,9 +279,9 @@ export default {
       return !this.collection || this.hasConsentedPhone
     },
     amazonPayEnabled() {
-      const enabled = process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID && process.env.VUE_APP_AMAZON_PAY_PUBLIC_KEY_ID !== '' &&
-                      process.env.VUE_APP_AMAZON_PAY_STORE_ID && process.env.VUE_APP_AMAZON_PAY_STORE_ID !== '' &&
-                      process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID && process.env.VUE_APP_AMAZON_PAY_MERCHANT_ID !== ''
+      const enabled = import.meta.env.VITE_AMAZON_PAY_PUBLIC_KEY_ID && import.meta.env.VITE_AMAZON_PAY_PUBLIC_KEY_ID !== '' &&
+                      import.meta.env.VITE_AMAZON_PAY_STORE_ID && import.meta.env.VITE_AMAZON_PAY_STORE_ID !== '' &&
+                      import.meta.env.VITE_AMAZON_PAY_MERCHANT_ID && import.meta.env.VITE_AMAZON_PAY_MERCHANT_ID !== ''
       if(enabled) {
         console.log('Amazon Pay Button Enabled')
       }

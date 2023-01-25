@@ -13,16 +13,16 @@
 <script>
 import { mapState } from 'vuex';
 
-import Modal from '../Modal/Modal';
-import ModalHeader from '../Modal/ModalHeader/ModalHeader';
-import Welcome from './pages/Welcome';
-import Overview from './pages/Overview';
-import Shoppers from './pages/Shoppers';
-import DemoGuide from './pages/DemoGuide';
-import IntegratedUseCases from './pages/IntegratedUseCases';
-import PersonalizedRanking from './pages/PersonalizedRanking';
-import RelatedItemsRecommendations from './pages/RelatedItemsRecommendations';
-import Pinpoint from './pages/Pinpoint';
+import Modal from '../Modal/Modal.vue';
+import ModalHeader from '../Modal/ModalHeader/ModalHeader.vue';
+import Welcome from './pages/Welcome.vue';
+import Overview from './pages/Overview.vue';
+import Shoppers from './pages/Shoppers.vue';
+import DemoGuide from './pages/DemoGuide.vue';
+import IntegratedUseCases from './pages/IntegratedUseCases.vue';
+import PersonalizedRanking from './pages/PersonalizedRanking.vue';
+import RelatedItemsRecommendations from './pages/RelatedItemsRecommendations.vue';
+import Pinpoint from './pages/Pinpoint.vue';
 
 export default {
   name: 'DemoWalkthrough',

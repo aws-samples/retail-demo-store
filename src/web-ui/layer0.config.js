@@ -25,36 +25,36 @@ const buildServiceDomain = (domain, port) => {
 // When deployed, each service should have its domain defined to the
 //   ELB domain provided by AWS
 const productsService = buildServiceDomain(
-  process.env.AWS_PRODUCTS_SERVICE_DOMAIN,
-  process.env.VUE_APP_PRODUCTS_SERVICE_PORT
+  process.env.VITE_PRODUCTS_SERVICE_DOMAIN,
+  process.env.VITE_PRODUCTS_SERVICE_PORT
 );
 const recommendationsService = buildServiceDomain(
-  process.env.AWS_RECOMMENDATIONS_SERVICE_DOMAIN,
-  process.env.VUE_APP_RECOMMENDATIONS_SERVICE_PORT
+  process.env.VITE_RECOMMENDATIONS_SERVICE_DOMAIN,
+  process.env.VITE_RECOMMENDATIONS_SERVICE_PORT
 );
 const cartsService = buildServiceDomain(
-  process.env.AWS_CARTS_SERVICE_DOMAIN,
-  process.env.VUE_APP_CARTS_SERVICE_PORT
+  process.env.VITE_CARTS_SERVICE_DOMAIN,
+  process.env.VITE_CARTS_SERVICE_PORT
 );
 const usersService = buildServiceDomain(
-  process.env.AWS_USERS_SERVICE_DOMAIN,
-  process.env.VUE_APP_USERS_SERVICE_PORT
+  process.env.VITE_USERS_SERVICE_DOMAIN,
+  process.env.VITE_USERS_SERVICE_PORT
 );
 const ordersService = buildServiceDomain(
-  process.env.AWS_ORDERS_SERVICE_DOMAIN,
-  process.env.VUE_APP_ORDERS_SERVICE_PORT
+  process.env.VITE_ORDERS_SERVICE_DOMAIN,
+  process.env.VITE_ORDERS_SERVICE_PORT
 );
 const searchService = buildServiceDomain(
-  process.env.AWS_SEARCH_SERVICE_DOMAIN,
-  process.env.VUE_APP_SEARCH_SERVICE_PORT
+  process.env.VITE_SEARCH_SERVICE_DOMAIN,
+  process.env.VITE_SEARCH_SERVICE_PORT
 );
 const videosService = buildServiceDomain(
-  process.env.AWS_VIDEOS_SERVICE_DOMAIN,
-  process.env.VUE_APP_VIDEOS_SERVICE_PORT
+  process.env.VITE_VIDEOS_SERVICE_DOMAIN,
+  process.env.VITE_VIDEOS_SERVICE_PORT
 );
 const locationService = buildServiceDomain(
-  process.env.AWS_LOCATION_SERVICE_DOMAIN,
-  process.env.VUE_APP_LOCATION_SERVICE_PORT
+  process.env.VITE_LOCATION_SERVICE_DOMAIN,
+  process.env.VITE_LOCATION_SERVICE_PORT
 );
 const imageService = process.env.AWS_IMAGE_SERVICE_DOMAIN;
 
@@ -104,7 +104,7 @@ module.exports = {
       hostHeader: locationService,
       disableCheckCert: false,
     },
-    images: {
+    "images": {
       domainOrIp: imageService,
       hostHeader: imageService,
       disableCheckCert: false,

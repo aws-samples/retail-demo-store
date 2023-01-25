@@ -3,8 +3,8 @@
 
 import axios from "axios";
 
-const serviceDomain = process.env.VUE_APP_VIDEOS_SERVICE_DOMAIN;
-const servicePort = process.env.VUE_APP_VIDEOS_SERVICE_PORT;
+const serviceDomain = import.meta.env.VITE_VIDEOS_SERVICE_DOMAIN;
+const servicePort = import.meta.env.VITE_VIDEOS_SERVICE_PORT;
 const baseURL = `${serviceDomain}:${servicePort}`;
 
 const connection = axios.create({

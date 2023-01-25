@@ -19,7 +19,7 @@
           </tr>
           <tr v-for="order in orders" v-bind:key="order.id">
             <td>{{ order.id }}</td>
-            <td>{{ order.username}}
+            <td>{{ order.username}}</td>
             <td>
               <div v-for="item in order.items" v-bind:key="item.product_id">
                 Product {{ item.product_id }}: {{ item.quantity }} @ ${{ item.price }}
@@ -41,7 +41,7 @@ import { mapState } from 'vuex'
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 
-import Layout from '@/components/Layout/Layout'
+import Layout from '@/components/Layout/Layout.vue'
 
 const OrdersRepository = RepositoryFactory.get('orders')
 

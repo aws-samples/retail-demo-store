@@ -5,12 +5,12 @@
  * Centralized handling of all analytics calls for Pinpoint, Personalize
  * (event tracker), and partner integrations.
  */
-import Vue from 'vue';
 import AmplifyStore from '@/store/store';
 import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
+import { Auth } from 'aws-amplify';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const ProductsRepository = RepositoryFactory.get('products')
@@ -41,7 +41,7 @@ export const AnalyticsHandler = {
         var promise
 
         try {
-            const cognitoUser = await Vue.prototype.$Amplify.Auth.currentAuthenticatedUser()
+            const cognitoUser = await Auth.currentAuthenticatedUser()
             const endpointId = AmplifyAnalytics.getPluggable('AWSPinpoint')._config.endpointId;
             console.log('Pinpoint EndpointId Currently Active:');
             console.log(endpointId);
@@ -182,7 +182,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            Vue.prototype.$gtag.set({
+            this.$gtag.set({
                 "user_id": user.id,
                 "user_properties": {
                     "age": user.age,
@@ -206,7 +206,7 @@ export const AnalyticsHandler = {
             })
 
             if (this.googleAnalyticsEnabled()) {
-                Vue.prototype.$gtag.event("sign_up", {
+                this.$gtag.event("sign_up", {
                     "method": "Web"
                 });
             }
@@ -228,7 +228,7 @@ export const AnalyticsHandler = {
             })
 
             if (this.googleAnalyticsEnabled()) {
-                Vue.prototype.$gtag.event("login", {
+                this.$gtag.event("login", {
                     "method": "Web"
                 });
             }
@@ -258,7 +258,7 @@ export const AnalyticsHandler = {
             }
 
             if (this.googleAnalyticsEnabled()) {
-                Vue.prototype.$gtag.event("exp_" + experiment.feature, {
+                this.$gtag.event("exp_" + experiment.feature, {
                     "feature": experiment.feature,
                     "name": experiment.name,
                     "variation": experiment.variationIndex
@@ -372,7 +372,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            Vue.prototype.$gtag.event('add_to_cart', {
+            this.$gtag.event('add_to_cart', {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
@@ -406,9 +406,9 @@ export const AnalyticsHandler = {
             AmplifyAnalytics.updateEndpoint({
                 userId: user.id,
                 userAttributes: {
-                    WebsiteCartURL : [process.env.VUE_APP_WEB_ROOT_URL + '#/cart'],
-                    WebsiteLogoImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg'],
-                    WebsitePinpointImageURL : [process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
+                    WebsiteCartURL : [import.meta.env.VITE_WEB_ROOT_URL + '#/cart'],
+                    WebsiteLogoImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/RDS_logo_white.svg'],
+                    WebsitePinpointImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
                     ShoppingCartItemImageURL:  productImages,
                     ShoppingCartItemTitle :  productTitles,
                     ShoppingCartItemURL : productURLs,
@@ -436,9 +436,9 @@ export const AnalyticsHandler = {
                 let customAttributes = {
                    mpid: window.mParticle.Identity.getCurrentUser().getMPID(),
                    HasShoppingCart: cart.items.length > 0 ? true : false,
-                   WebsiteCartURL: process.env.VUE_APP_WEB_ROOT_URL + '#/cart',
-                   WebsiteLogoImageURL: process.env.VUE_APP_WEB_ROOT_URL + '/RDS_logo_white.svg',
-                   WebsitePinpointImageURL: process.env.VUE_APP_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg',
+                   WebsiteCartURL: import.meta.env.VITE_WEB_ROOT_URL + '#/cart',
+                   WebsiteLogoImageURL: import.meta.env.VITE_WEB_ROOT_URL + '/RDS_logo_white.svg',
+                   WebsitePinpointImageURL: import.meta.env.VITE_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg',
                    ShoppingCartItemImageURL: productImages,
                    ShoppingCartItemTitle: productTitles,
                    ShoppingCartItemURL: productURLs,
@@ -506,7 +506,7 @@ export const AnalyticsHandler = {
 
 
         if (this.googleAnalyticsEnabled()) {
-            Vue.prototype.$gtag.event('remove_from_cart', {
+            this.$gtag.event('remove_from_cart', {
                 "currency": "USD",
                 "value": +cartItem.price.toFixed(2),
                 "items": [
@@ -651,7 +651,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            Vue.prototype.$gtag.event('view_item', {
+            this.$gtag.event('view_item', {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
@@ -749,7 +749,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            Vue.prototype.$gtag.event('view_cart', {
+            this.$gtag.event('view_cart', {
                 "value": +cartTotal.toFixed(2),
                 "currency": "USD",
                 "items": gaItems
@@ -836,7 +836,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            Vue.prototype.$gtag.event('begin_checkout', {
+            this.$gtag.event('begin_checkout', {
                 "value": +cartTotal.toFixed(2),
                 "currency": "USD",
                 "items": gaItems
@@ -971,7 +971,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            Vue.prototype.$gtag.event('purchase', {
+            this.$gtag.event('purchase', {
                 "transaction_id": order.id.toString(),
                 "value": +order.total.toFixed(2),
                 "currency": "USD",
@@ -1028,30 +1028,30 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            Vue.prototype.$gtag.event('search', {
+            this.$gtag.event('search', {
                 "search_term": query
             });
         }
     },
 
     personalizeEventTrackerEnabled() {
-        return process.env.VUE_APP_PERSONALIZE_TRACKING_ID && process.env.VUE_APP_PERSONALIZE_TRACKING_ID != 'NONE';
+        return import.meta.env.VITE_PERSONALIZE_TRACKING_ID && import.meta.env.VITE_PERSONALIZE_TRACKING_ID != 'NONE';
     },
 
     segmentEnabled() {
-        return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
+        return import.meta.env.VITE_SEGMENT_WRITE_KEY && import.meta.env.VITE_SEGMENT_WRITE_KEY != 'NONE';
     },
 
     amplitudeEnabled() {
-        return process.env.VUE_APP_AMPLITUDE_API_KEY && process.env.VUE_APP_AMPLITUDE_API_KEY != 'NONE';
+        return import.meta.env.VITE_AMPLITUDE_API_KEY && import.meta.env.VITE_AMPLITUDE_API_KEY != 'NONE';
     },
 
     optimizelyEnabled() {
-        return !!process.env.VUE_APP_OPTIMIZELY_SDK_KEY && process.env.VUE_APP_OPTIMIZELY_SDK_KEY != 'NONE';
+        return !!import.meta.env.VITE_OPTIMIZELY_SDK_KEY && import.meta.env.VITE_OPTIMIZELY_SDK_KEY != 'NONE';
     },
 
     mParticleEnabled() {
-        return process.env.VUE_APP_MPARTICLE_API_KEY && process.env.VUE_APP_MPARTICLE_API_KEY != 'NONE';
+        return import.meta.env.VITE_MPARTICLE_API_KEY && import.meta.env.VITE_MPARTICLE_API_KEY != 'NONE';
     },
 
     isOptimizelyDatafileSynced(expectedRevisionNumber) {
@@ -1064,12 +1064,12 @@ export const AnalyticsHandler = {
 
     optimizelyClientInstance() {
         if (!this._optimizelyClientInstance && this.optimizelyEnabled()) {
-            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: process.env.VUE_APP_OPTIMIZELY_SDK_KEY });
+            this._optimizelyClientInstance = optimizelySDK.createInstance({ sdkKey: import.meta.env.VITE_OPTIMIZELY_SDK_KEY });
         }
         return this._optimizelyClientInstance;
     },
 
     googleAnalyticsEnabled() {
-        return process.env.VUE_APP_GOOGLE_ANALYTICS_ID && process.env.VUE_APP_GOOGLE_ANALYTICS_ID != 'NONE';
+        return import.meta.env.VITE_GOOGLE_ANALYTICS_ID && import.meta.env.VITE_GOOGLE_ANALYTICS_ID != 'NONE';
     },
 }

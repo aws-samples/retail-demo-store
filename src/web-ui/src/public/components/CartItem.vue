@@ -33,8 +33,8 @@
 
 <script>
 import { product } from '@/mixins/product';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-import ProductPrice from '@/components/ProductPrice/ProductPrice';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
+import ProductPrice from '@/components/ProductPrice/ProductPrice.vue';
 import {mapActions, mapState} from 'vuex';
 import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
 

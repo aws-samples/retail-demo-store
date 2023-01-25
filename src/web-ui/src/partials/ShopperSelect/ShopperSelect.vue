@@ -17,9 +17,9 @@
 <script>
 import { ShopperSelectPages } from './config';
 
-import GetStarted from './pages/GetStarted';
-import SelectShopper from './pages/SelectShopper';
-import ConfirmShopper from './pages/ConfirmShopper';
+import GetStarted from './pages/GetStarted.vue';
+import SelectShopper from './pages/SelectShopper.vue';
+import ConfirmShopper from './pages/ConfirmShopper.vue';
 
 export default {
   name: 'ShopperSelect',

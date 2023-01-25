@@ -24,14 +24,14 @@
 </template>
 
 <script>
-import AmplifyMap from "@/public/components/AmplifyMap";
+import AmplifyMap from "@/public/components/AmplifyMap.vue";
 import Location from "@/location/Location";
 import { Auth } from 'aws-amplify';
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import AmplifyStore from "@/store/store";
 import swal from 'sweetalert';
-import LocationDemoNavigation from "@/public/LocationDemoNavigation";
-import Layout from "@/components/Layout/Layout";
+import LocationDemoNavigation from "@/public/LocationDemoNavigation.vue";
+import Layout from "@/components/Layout/Layout.vue";
 
 const locationApi = new Location();
 const LocationRepository = RepositoryFactory.get('location');

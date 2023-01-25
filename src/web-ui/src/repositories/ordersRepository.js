@@ -5,9 +5,9 @@ import axios from "axios";
 import resolveBaseURL from './resolveBaseURL'
 
 const baseURL = resolveBaseURL(
-    process.env.VUE_APP_ORDERS_SERVICE_DOMAIN,
-    process.env.VUE_APP_ORDERS_SERVICE_PORT,
-    process.env.VUE_APP_ORDERS_SERVICE_PATH
+    import.meta.env.VITE_ORDERS_SERVICE_DOMAIN,
+    import.meta.env.VITE_ORDERS_SERVICE_PORT,
+    import.meta.env.VITE_ORDERS_SERVICE_PATH
 )
 
 const connection = axios.create({

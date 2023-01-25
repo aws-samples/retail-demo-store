@@ -51,7 +51,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
-import { AmplifyEventBus } from 'aws-amplify-vue';
+import { Hub } from 'aws-amplify';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 
@@ -91,7 +91,13 @@ export default {
 
       AnalyticsHandler.identify(user);
 
-      AmplifyEventBus.$emit('authState', 'profileChanged');
+      Hub.dispatch(
+        'user', 
+        {
+          event: 'profileChanged',
+          message: ''
+        }
+      );
 
       this.$emit('useDefaultProfile');
     },

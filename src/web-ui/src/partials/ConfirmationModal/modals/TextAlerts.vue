@@ -21,7 +21,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import ConfirmationModalLayout from '../ConfirmationModalLayout/ConfirmationModalLayout';
+import ConfirmationModalLayout from '../ConfirmationModalLayout/ConfirmationModalLayout.vue';
 
 export default {
   name: 'TextAlertsModal',

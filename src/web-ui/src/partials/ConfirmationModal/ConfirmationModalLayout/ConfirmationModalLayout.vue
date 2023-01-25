@@ -23,7 +23,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 
-import Progress from '../Progress/Progress';
+import Progress from '../Progress/Progress.vue';
 
 export default {
   name: 'ConfirmationModalLayout',
