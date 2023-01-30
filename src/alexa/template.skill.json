@@ -3,14 +3,14 @@
     "publishingInformation": {
       "locales": {
         "en-US": {
-          "summary": "The Alexa Skill for the C-Store Demo",
+          "summary": "The Alexa Skill for the Retail Demo Store Demo",
           "examplePhrases": [
-            "Alexa open Convenience Store Demonstration",
-            "Is there a convenience store nearby?"
+            "Alexa open Retail Demo Store Demonstration",
+            "Is there a Retail Demo Store nearby?"
           ],
           "keywords": [],
-          "name": "Location Service Convenience Store Demo",
-          "description": "The Alexa Skill for the C-Store Demo",
+          "name": "Retail Demo Store Demo",
+          "description": "The Alexa Skill for the Retail Demo Store Demo",
           "smallIconUri": "file://assets/images/en-US_smallIconUri.png",
           "largeIconUri": "file://assets/images/en-US_largeIconUri.png"
         }
@@ -19,7 +19,7 @@
         "isActive": false
       },
       "isAvailableWorldwide": true,
-      "testingInstructions": "Alexa, ask the C-Store Demo if there is a convenience store nearby",
+      "testingInstructions": "Alexa, ask the Retail Demo Store Demo if there is a Retail Demo Store nearby",
       "category": "SHOPPING",
       "distributionCountries": []
     },

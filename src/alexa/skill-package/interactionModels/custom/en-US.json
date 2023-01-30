@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "location service convenience store demo",
+      "invocationName": "retail demo store",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
