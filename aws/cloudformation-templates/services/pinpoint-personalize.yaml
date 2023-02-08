@@ -184,6 +184,39 @@ Resources:
                   - mobiletargeting:*
                 Resource: "*"
 
+  PinpointSnsTopicKmsKey:
+    Type: 'AWS::KMS::Key'
+    Properties:
+      Description: Symmetric encryption KMS key for Pinpoint SNS Topic
+      EnableKeyRotation: true
+      PendingWindowInDays: 7
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: sns-key-policy
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow Amazon Pinpoint to use this key
+            Effect: Allow
+            Principal:
+              Service: 'sms-voice.amazonaws.com'
+            Action: 
+              - kms:GenerateDataKey*
+              - kms:Decrypt
+            Resource: '*'
+          - Sid: Allow Amazon SNS to use this key
+            Effect: Allow
+            Principal:
+              Service: 'sns.amazonaws.com'
+            Action: 
+              - kms:GenerateDataKey*
+              - kms:Decrypt     
+            Resource: '*'
+
   PinpointIncomingTextAlertsSNSTopic:
     Type: 'AWS::SNS::Topic'
     Properties:
@@ -192,6 +225,7 @@ Resources:
             - PinpointSMSAlertsLambda
             - Arn
           Protocol: lambda
+      KmsMasterKeyId: !Ref PinpointSnsTopicKmsKey
 
   PinpointSMSAlertsLambdaInvokePermission:
     Type: 'AWS::Lambda::Permission'
