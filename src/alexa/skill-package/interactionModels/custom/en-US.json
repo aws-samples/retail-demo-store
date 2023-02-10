@@ -23,12 +23,12 @@
           "name": "FindStoreIntent",
           "slots": [],
           "samples": [
-            "take me to the nearest c store",
-            "i want to buy something from a c store",
-            "where is the nearest c store",
-            "where the nearest c store is",
-            "is there an c store nearby",
-            "is there a nearby c store",
+            "take me to the nearest store",
+            "i want to buy something from a store",
+            "where is the nearest store",
+            "where the nearest store is",
+            "is there a store nearby",
+            "is there a nearby store",
             "take me to the nearest convenience store",
             "i want to buy something from a convenience store",
             "where is the nearest convenience store",
@@ -36,8 +36,7 @@
             "is there an convenience store nearby",
             "is there a nearby convenience store",
             "convenience store please",
-            "c store please",
-            "c store",
+            "store please",            
             "convenience store",
             "store"
           ]

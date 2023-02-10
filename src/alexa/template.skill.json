@@ -3,14 +3,14 @@
     "publishingInformation": {
       "locales": {
         "en-US": {
-          "summary": "The Alexa Skill for the Retail Demo Store Demo",
+          "summary": "The Alexa Skill for the Retail Demo Store",
           "examplePhrases": [
-            "Alexa open Retail Demo Store Demonstration",
-            "Is there a Retail Demo Store nearby?"
+            "Alexa open Retail Demo Store",
+            "Is there a store nearby?"
           ],
           "keywords": [],
-          "name": "Retail Demo Store Demo",
-          "description": "The Alexa Skill for the Retail Demo Store Demo",
+          "name": "Retail Demo Store",
+          "description": "The Alexa Skill for the Retail Demo Store",
           "smallIconUri": "file://assets/images/en-US_smallIconUri.png",
           "largeIconUri": "file://assets/images/en-US_largeIconUri.png"
         }
@@ -19,7 +19,7 @@
         "isActive": false
       },
       "isAvailableWorldwide": true,
-      "testingInstructions": "Alexa, ask the Retail Demo Store Demo if there is a Retail Demo Store nearby",
+      "testingInstructions": "Alexa, ask the Retail Demo Store if there is a store nearby",
       "category": "SHOPPING",
       "distributionCountries": []
     },
