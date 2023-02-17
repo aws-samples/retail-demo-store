@@ -47,9 +47,6 @@ Parameters:
   LocationResourceName:
     Type: String
 
-  AmazonPayMerchantId:
-    Type: String
-
   AlexaDefaultSandboxEmail:
     Type: String
     Description: Fallback email for testing if no Cognito integration possible.
@@ -116,7 +113,6 @@ Resources:
           LocationServiceExternalUrl: !Ref LocationServiceExternalUrl
           PinpointAppId: !Ref PinpointAppId
           LocationResourceName: !Ref LocationResourceName
-          AmazonPayMerchantId: !Ref AmazonPayMerchantId
           AlexaDefaultSandboxEmail: !Ref AlexaDefaultSandboxEmail
 
   AlexaSkillFunctionEventPermission:

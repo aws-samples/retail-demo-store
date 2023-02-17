@@ -722,7 +722,6 @@ Resources:
             !GetAtt Location.Outputs.LocationResourceName,
             "NotDeployed",
           ]
-        AmazonPayMerchantId: !Ref AmazonPayMerchantId
         AlexaDefaultSandboxEmail: !Ref AlexaDefaultSandboxEmail
 
   # Deployment support
