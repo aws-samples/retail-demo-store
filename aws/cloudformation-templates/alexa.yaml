@@ -50,9 +50,9 @@ Parameters:
   AmazonPayMerchantId:
     Type: String
 
-  AlexaAmazonPayDefaultSandboxEmail:
+  AlexaDefaultSandboxEmail:
     Type: String
-    Description: Fallback email for testing if no Cognito integration possible (e.g. testing on Alexa web simulator).
+    Description: Fallback email for testing if no Cognito integration possible.
 
 
 Resources:
@@ -79,6 +79,10 @@ Resources:
                   Action:
                     - mobiletargeting:SendMessages
                   Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/messages"
+                - Effect: Allow
+                  Action:
+                    - mobiletargeting:GetEmailChannel
+                  Resource: !Sub "arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/channels/email"
                 - Effect: Allow
                   Action:
                     - geo:SearchPlaceIndexForPosition
@@ -113,7 +117,7 @@ Resources:
           PinpointAppId: !Ref PinpointAppId
           LocationResourceName: !Ref LocationResourceName
           AmazonPayMerchantId: !Ref AmazonPayMerchantId
-          AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
+          AlexaDefaultSandboxEmail: !Ref AlexaDefaultSandboxEmail
 
   AlexaSkillFunctionEventPermission:
     Type: AWS::Lambda::Permission

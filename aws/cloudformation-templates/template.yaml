@@ -54,7 +54,7 @@ Metadata:
           default: "Alexa Convenience Store Demo"
         Parameters:
           - AlexaSkillId
-          - AlexaAmazonPayDefaultSandboxEmail
+          - AlexaDefaultSandboxEmail
       - Label:
           default: "Optional Integrations"
         Parameters:
@@ -129,7 +129,7 @@ Metadata:
         default: "Private key associated with Amazon Pay sandbox account"
       AlexaSkillId:
         default: "ID of C-Store Demo Alexa skill to access Retail Demo Store"
-      AlexaAmazonPayDefaultSandboxEmail:
+      AlexaDefaultSandboxEmail:
         default: "An email to test Alexa integration in case you have not set up Cognito authorisation to link your Retail Demo Store account"
       IncludeSegmentDependencies:
         default: "Deploy Segment Resources"
@@ -346,16 +346,13 @@ Parameters:
       This Alexa skill with this SkillId will be allowed to invoke the back-end skill Lambda deployed as a part
       of this CloudFormation stack. The back-end Lambda supports the C-Store demo allowing hands-free location
       based searching with Location Service (if enabled), integration with the Retail Demo Store back-end, online recommendations,
-      and checkout with Amazon Pay (if enabled).
+      and checkout.
 
-  AlexaAmazonPayDefaultSandboxEmail:
+  AlexaDefaultSandboxEmail:
     Type: String
     Description: >
-      If you follow the steps in the workshop to enable Alexa to authenticate with Cognito and pull back your
-      user details, you probably do not need to set this. However, the Alexa web testing
-      tool does not allow you to do this authentication either, so to test with the Alexa simulator on the web
-      and get emails and Amazon Pay integration, you need to set this value so that a default test user is set up -
-      for Amazon Pay integration, the email should be from one of the test accounts you created on SellerCentral.
+      Fallback email address to receive order confirmation emails.  This will be used until the steps are followed to enable Alexa to authenticate with Cognito, 
+      after which it will be able to retrieve the user's details.
 
   IncludeSegmentDependencies:
     Type: String
@@ -726,7 +723,7 @@ Resources:
             "NotDeployed",
           ]
         AmazonPayMerchantId: !Ref AmazonPayMerchantId
-        AlexaAmazonPayDefaultSandboxEmail: !Ref AlexaAmazonPayDefaultSandboxEmail
+        AlexaDefaultSandboxEmail: !Ref AlexaDefaultSandboxEmail
 
   # Deployment support
   DeploymentSupport:

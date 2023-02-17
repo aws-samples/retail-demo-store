@@ -27,11 +27,6 @@
       "custom": {}
     },
     "manifestVersion": "1.0",
-    "permissions": [
-      {
-        "name": "payments:autopay_consent"
-      }
-    ],
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "locales": {

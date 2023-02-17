@@ -82,14 +82,9 @@
             "yes finish",
             "check out",
             "yes checkout",
-            "yes i\u0027m ready to pay",
-            "yes how much is it ",
-            "yes can i pay",
-            "can i pay",
-            "how much ",
-            "i\u0027m ready to pay ",
+            "yes i\u0027m ready",
+            "i\u0027m ready ",
             "Finish",
-            "Pay ",
             "Checkout"
           ]
         },
@@ -218,7 +213,7 @@
         "variations": [
           {
             "type": "PlainText",
-            "value": "Do you want to confirm your order and pay?"
+            "value": "Do you want to confirm your order?"
           }
         ]
       }
