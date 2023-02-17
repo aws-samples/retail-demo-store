@@ -897,7 +897,7 @@ class CheckoutIntentHandler(AbstractRequestHandler):
 
         order_response = submit_order(handler_input)
         send_order_confirm_email(handler_input, [order_response], False)
-        speak_output += f"Your order will be ready when you arrive" 
+        speak_output += f"It will be ready when you arrive" 
         if user_details['cognito_loaded']:            
             name = user_details.get('custom:profile_first_name', '')
             speak_output += f"  {name}"                   
