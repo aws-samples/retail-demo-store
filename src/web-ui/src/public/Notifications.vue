@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     async getCognitoUser() {
-      this.cognitoUser = await Auth.currentAuthenticatedUser()
+      this.cognitoUser = await Auth.currentAuthenticatedUser().catch(err => console.log(err))
     },
     openWebsocketConnection() {
 

@@ -90,12 +90,9 @@ Auth.currentAuthenticatedUser()
   .then((user) => {
     logger.debug('Current Authenticated User Info:');
     logger.debug(user);
+    return Auth.currentUserInfo()
   })
-  .catch(err => logger.debug(err))
-
-
-Auth.currentUserInfo()
-  .then(user => logger.debug(user))
+  .then((user) => logger.debug(user))
   .catch(err => logger.debug(err))
   
 const app = createApp(App)
