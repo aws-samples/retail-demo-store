@@ -5,9 +5,6 @@
 # Back-end handler for the C-store demonstration in Retail Demo Store.
 # Can make use of Cognito authenticated Retail Demo Store users
 # for retrieving user details, putting orders and sending emails.
-# Has Amazon Pay integration as well. As long as Amazon Pay is enabled on the
-# skill and the user is a sandbox user or developer account, we can test the integration.
-# See the workshop for more details.
 
 # Check the docstrings in the intents below for information on how each of them works
 # For background see
@@ -27,31 +24,16 @@ from ask_sdk_model.er.dynamic import Entity, EntityValueAndSynonyms, EntityListI
 from ask_sdk_model.slu.entityresolution import StatusCode
 
 from ask_sdk_model.interfaces.connections import SendRequestDirective
-from ask_sdk_model.interfaces.amazonpay.request.setup_amazon_pay_request import SetupAmazonPayRequest
-from ask_sdk_model.interfaces.amazonpay.request.charge_amazon_pay_request import ChargeAmazonPayRequest
-from ask_sdk_model.interfaces.amazonpay.model.request.authorize_attributes import AuthorizeAttributes
 from ask_sdk_model.ui import AskForPermissionsConsentCard
-from ask_sdk_model.interfaces.amazonpay.model.request.price import Price
-from ask_sdk_model.interfaces.amazonpay.model.request.payment_action import PaymentAction
-
-# We include the following imports for interest - they are types of data returned from the Amazon Pay SDK
-# or additional data that can be sent to the SDK that is not used in this demo
-from ask_sdk_model import Response
-from ask_sdk_model.interfaces.amazonpay.model.request.seller_order_attributes import SellerOrderAttributes
-from ask_sdk_model.interfaces.amazonpay.model.request.billing_agreement_attributes import BillingAgreementAttributes
-from ask_sdk_model.interfaces.amazonpay.model.request.seller_billing_agreement_attributes import \
-    SellerBillingAgreementAttributes
-from ask_sdk_model.interfaces.amazonpay.model.request.billing_agreement_type import BillingAgreementType
-from ask_sdk_model.interfaces.amazonpay.response.setup_amazon_pay_result import SetupAmazonPayResult
 
 import boto3
 import json
 import logging
 import os
 from typing import Tuple
-import uuid
 import random
 from urllib.request import Request, urlopen
+from botocore.exceptions import ClientError
 
 from dotenv import load_dotenv
 
@@ -72,10 +54,7 @@ LOCATION_PLACE_INDEX_NAME = os.environ.get('LocationResourceName')
 
 PRODUCT_CATEGORIES = ['food service', 'salty snacks', 'hot dispensed', 'cold dispensed']
 
-AMAZON_PAY_MERCHANT_ID = os.environ.get('AmazonPayMerchantId', '').strip()
-SANDBOX_CUSTOMER_EMAIL = os.environ.get('AlexaAmazonPayDefaultSandboxEmail', '').strip()
-FORCE_ASK_PAY_PERMISSIONS_ALWAYS = False
-ASK_PAY_PERMISSIONS_IF_NOT_GRANTED = True
+SANDBOX_CUSTOMER_EMAIL = os.environ.get('AlexaDefaultSandboxEmail', '').strip()
 
 pinpoint = boto3.client('pinpoint')
 location = boto3.client('location')
@@ -164,7 +143,7 @@ def get_cognito_user_details(handler_input):
     return user_details
 
 
-def send_email(to_email, subject, html_content, text_content):
+def send_email(to_email: str, subject: str, html_content: str, text_content: str) -> None:
     """
     Send a default email to the address. Pull pinpoint app ID and from address from env.
     More information about this service:
@@ -180,37 +159,66 @@ def send_email(to_email, subject, html_content, text_content):
         None
     """
 
-    pinpoint_app_id = PINPOINT_APP_ID
-    response = pinpoint.send_messages(
-        ApplicationId=pinpoint_app_id,
-        MessageRequest={
-            'Addresses': {
-                to_email: {
-                    'ChannelType': 'EMAIL'
-                }
-            },
-            'MessageConfiguration': {
-                'EmailMessage': {
-                    'SimpleEmail': {
-                        'Subject': {
-                            'Charset': "UTF-8",
-                            'Data': subject
-                        },
-                        'HtmlPart': {
-                            'Charset': "UTF-8",
-                            'Data': html_content
-                        },
-                        'TextPart': {
-                            'Charset': "UTF-8",
-                            'Data': text_content
+    email_enabled = is_pinpoint_email_channel_enabled()
+    if (email_enabled):
+        pinpoint_app_id = PINPOINT_APP_ID
+
+        response = pinpoint.send_messages(
+            ApplicationId=pinpoint_app_id,
+            MessageRequest={
+                'Addresses': {
+                    to_email: {
+                        'ChannelType': 'EMAIL'
+                    }
+                },
+                'MessageConfiguration': {
+                    'EmailMessage': {
+                        'SimpleEmail': {
+                            'Subject': {
+                                'Charset': "UTF-8",
+                                'Data': subject
+                            },
+                            'HtmlPart': {
+                                'Charset': "UTF-8",
+                                'Data': html_content
+                            },
+                            'TextPart': {
+                                'Charset': "UTF-8",
+                                'Data': text_content
+                            }
                         }
                     }
                 }
             }
-        }
-    )
-    logger.info(f'Message sent to {to_email} and response: {response}')
+        )
+        logger.info(f'Message sent to {to_email} and response: {response}')
+    else:
+        logger.info('Pinpoint Email Channel not setup, skipping sending email')
 
+def is_pinpoint_email_channel_enabled() -> bool:
+    """
+    Determines whether an email channel has been setup in Pinpoint
+
+    Returns:
+        bool: True if email channel is setup in Pinpoint, else False
+    """
+    if not PINPOINT_APP_ID:
+        logger.info('Pinpoint App ID not setup in Cloudformation Template')
+        return False
+
+    try:
+        email_channel_response = pinpoint.get_email_channel(ApplicationId=PINPOINT_APP_ID)
+    except ClientError as error:
+        logger.info('Unable to find Email Channel configured for Pinpoint application: {}'.format(error))
+        return False; 
+
+    email_channel_from_address = None
+    email_channel_enabled = False
+    if email_channel_response['EmailChannelResponse']:
+        email_channel_from_address = email_channel_response['EmailChannelResponse']['FromAddress']
+        email_channel_enabled = email_channel_response['EmailChannelResponse']['Enabled']
+
+    return email_channel_from_address is not None and email_channel_enabled
 
 def send_order_confirm_email(handler_input, orders, add_images=True):
     """
@@ -226,13 +234,18 @@ def send_order_confirm_email(handler_input, orders, add_images=True):
     session_attr = handler_input.attributes_manager.session_attributes
 
     user_email = get_cognito_user_details(handler_input)['email']
+    if not user_email:
+        logger.info("No email address configured against order.  If Cognito has not been configured, set AlexaDefaultSandboxEmail environment variable")
+        return
+    
+    logger.info(f"Constructing order confirmation email for: {user_email}")
 
     order_ids = ', '.join(['#' + str(order['id']) for order in orders])
 
     # Specify content:
     subject = "Your order has been received!"
     heading = "Welcome,"
-    subheading = f"Your order has been paid for with Amazon Pay."
+    subheading = f"Your order has been placed."
     intro_text = f"""We will meet you at your pump with the following order ({order_ids}):"""
     html_intro_text = intro_text.replace('\n', '</p><p>')
 
@@ -470,9 +483,9 @@ def get_customer_location():
 
 def location_search_cstore() -> Tuple[str, float]:
     """
-    From customer location, search for nearest c-store.
+    From customer location, search for nearest store.
     Returns:
-        str: Spoken address of nearest c-store.
+        str: Spoken address of nearest store.
         float: distance to it in miles
     """
     customer_position = get_customer_location()
@@ -658,8 +671,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
             Response
         """
         logger.info("Calling LaunchRequestHandler")
-        speak_output = ("Welcome to the C-Store Demo. Ask where your "
-                        "nearest convenience store is to start an order there.")
+        speak_output = ("Welcome to the Retail Demo Store. Ask where is your "
+                        "nearest convenience store to start an order there.")
 
         return (
             handler_input.response_builder
@@ -851,10 +864,8 @@ class ToCheckoutHandler(AbstractRequestHandler):
 
 
 class CheckoutIntentHandler(AbstractRequestHandler):
-    """Handler for the Checkout Intent. Set up Amazon Pay. This intent be accessed at any time - e.g. you can
-    shortcut a recommendation suggestion by just saying "checkout".
-    Note that we could have opted to set up Amazon Pay at a different part of the flow, but we wait till the
-    first checkout. After Amazon Pay is given permissions it will keep these permissions. This is all taken care of by Alexa."""
+    """Handler for the Checkout Intent. This intent can be accessed at any time - e.g. you can
+    shortcut a recommendation suggestion by just saying "checkout"."""
 
     def can_handle(self, handler_input):
         """
@@ -881,304 +892,23 @@ class CheckoutIntentHandler(AbstractRequestHandler):
 
         basket_total = get_cart_total(handler_input)
         user_details = get_cognito_user_details(handler_input)
-        user_email = user_details['email']
 
-        if len(AMAZON_PAY_MERCHANT_ID) == 0:
-
-            speak_output = f"Your total is ${basket_total}. "
-            # This happens if AMAZON_PAY_MERCHANT_ID not set up in .env file
-            speak_output += "This demo has no merchant set up so we'll just finish up now."
-
-            if user_details['cognito_loaded']:
-                name = user_details.get('custom:profile_first_name', '')
-                speak_output += f" Hope to see you again soon {name}. "
-            else:
-                speak_output += " Thanks for playing! "
-
-            return (
-                handler_input.response_builder
-                    .speak(speak_output)
-                    .set_should_end_session(True)
-                    .response
-            )
-
-        else:
-
-            """
-            Below is an example of further attributes you could specify, to override the default.
-
-            user_details = get_cognito_user_details(handler_input)
-            basket_id = get_basket_id(handler_input)
-
-            seller_billing_agreement_attributes=SellerBillingAgreementAttributes(
-                version="2",
-                seller_billing_agreement_id=user_details['username'] + '-' + basket_id,
-                store_name="C store demo",
-                custom_information="A demonstration of Alexa Pay integration"
-            )
-
-            billing_agreement_type = BillingAgreementType("CustomerInitiatedTransaction") # BillingAgreementType("MerchantInitiatedTransaction") #
-
-            billing_agreement_attributes = BillingAgreementAttributes(
-                version="2",
-                billing_agreement_type=billing_agreement_type, # EU/UK only
-                seller_note="C store demo payment sandbox only",
-                seller_billing_agreement_attributes=seller_billing_agreement_attributes
-            )
-            """
-
-            # Let us save our session as a token for Pay, because by handing over to Pay, the Alexa session has ended.
-            # Alternatively, you could save these in a backend DB.
-            correlation_token = json.dumps(handler_input.attributes_manager.session_attributes)
-
-            pay_request = SetupAmazonPayRequest(
-                version="2",
-                seller_id=AMAZON_PAY_MERCHANT_ID,
-                country_of_establishment="US",
-                ledger_currency="USD",
-                checkout_language="en-US",
-                sandbox_mode=True,
-                # Note that we also send an email ourselves according to that saved against the Cognito user.
-                # Here, for testing purposes, we allow you to specify the email of your testing account
-                # in the environment variables (see the README.md).
-                sandbox_customer_email_id=user_email,
-                # extra params could be added here: billing_agreement_attributes=billing_agreement_attributes,
-                need_amazon_shipping_address=False)
-
-            pay_setup_directive = SendRequestDirective(
-                name='Setup',
-                token=correlation_token,
-                payload=pay_request
-            )
-
-            logger.info(f"SendRequestDirective: {pay_setup_directive}")
-
-            response_builder = handler_input.response_builder
-            # We may need to ask the user for permissions to use Amazon Pay to make payments
-            # Alexa should do this automatically.
-            autopay = 'payments:autopay_consent'
-            permissions = handler_input.request_envelope.context.system.user.permissions
-            scopes = None if permissions is None else permissions.scopes
-
-            logger.info(f"Permissions: scopes: {scopes}")
-            if scopes is not None:
-                logger.info(f"Scopes autopay status: {scopes[autopay].status}")
-                logger.info(f"Status: name: {scopes[autopay].status.name} value: {scopes[autopay].status.value}")
-
-            if user_details['cognito_loaded']:
-                speak = ''
-            else:
-                speak = ('Not authenticated as a retail demo store user with a simulated profile chosen -'
-                         ' using configured default as Amazon Pay account. ')
-
-            permissions_not_granted = (scopes is None or
-                                       autopay not in scopes or
-                                       scopes[autopay].status.value!="GRANTED")
-
-            # Amazon Pay Setup will ask for permissions from the user, so this is not necessary.
-            # However, we can present the permissions card.
-            # See https://developer.amazon.com/en-US/docs/alexa/amazon-pay-alexa/integrate-skill-with-amazon-pay-v2.html#amazon-pay-permissions-and-voice-purchase-settings
-            if FORCE_ASK_PAY_PERMISSIONS_ALWAYS or (permissions_not_granted and ASK_PAY_PERMISSIONS_IF_NOT_GRANTED):
-                speak += "Please give permission to use Amazon Pay to check out. "
-                response_builder = response_builder.set_card(
-                    AskForPermissionsConsentCard(permissions=[autopay]))
-
-            response_builder = response_builder.speak(speak)
-            response_builder = response_builder.add_directive(pay_setup_directive)
-
-            return response_builder.response
-
-
-class AmazonPaySetupResponseHandler(AbstractRequestHandler):
-    """Handler for When Amazon Pay responds to our attempt to set up Amazon Pay,
-    after the user has started the checkout process. We'll use this as our cue to charge the user."""
-
-    def can_handle(self, handler_input):
-        """
-        Can this handler handle this intent?
-        Args:
-            handler_input (HandlerInput): The handler_input dict used to call the intent handler.
-        Returns:
-            bool
-        """
-        connection_response = ask_utils.is_request_type("Connections.Response")(handler_input)
-        if connection_response:
-            envelope = handler_input.request_envelope
-            logger.info(f"We have a connection response: {envelope}")
-            return (envelope.request.name == "Setup")
-        return False
-
-    def handle(self, handler_input):
-        """
-        Handle this intent. Results are provided using response_builder.
-        Args:
-            handler_input (HandlerInput): The handler_input dict used to call the intent handler.
-        Returns:
-            Response
-        """
-        logger.info(f"Calling AmazonPaySetupResponseHandler with input "
-                    f"{json.dumps(handler_input.request_envelope.to_dict(), default=str, indent=2)}")
-
-        action_response_payload = handler_input.request_envelope.request.payload
-        action_response_status_code = handler_input.request_envelope.request.status.code
-        correlation_token = handler_input.request_envelope.request.token
-
-        if int(action_response_status_code) != 200:
-
-            message = handler_input.request_envelope.request.status.message
-            logstr = f"Not an OK return status from Amazon Pay Setup: {action_response_status_code} " \
-                     f"with payload {action_response_payload} and message {message} "
-            speak_output = f"There was a problem with Amazon Pay Setup: {message} "
-            try:
-                speak_output += ' More detail: ' + action_response_payload.error_message
-                logstr += ' More detail: ' + action_response_payload.error_message
-            except:
-                pass
-            logger.error(logstr)
-            return (
-                handler_input.response_builder
-                    .speak(speak_output)
-                    .set_should_end_session(True)
-                    .response
-            )
-
-        if len(AMAZON_PAY_MERCHANT_ID) == 0:
-
-            speak_output = "This demo has no merchant set up! We hope you had fun."
-
-            return (
-                handler_input.response_builder
-                    .speak(speak_output)
-                    .set_should_end_session(True)
-                    .response
-            )
-
-        else:
-            # SetupAmazonPayResult()
-            billing_agreement_details = action_response_payload['billingAgreementDetails']
-            billing_agreement_id = billing_agreement_details['billingAgreementId']
-
-            # Because we handed over to Amazon Pay we lost our session and with it the attributes, but Pay allows
-            # us to send a token, which we used to save these. Alternatively, we could have saved them in the backend,
-            # keyed by, for example, seller_billing_agreement_id (sellerBillingAgreementId).
-            handler_input.attributes_manager.session_attributes = json.loads(correlation_token)
-
-            basket_total = get_cart_total(handler_input)
-            cart = get_cart(handler_input)
-
-            if basket_total == 0:
-                return (
-                    handler_input.response_builder
-                        .speak('Your basket is empty. Thank you for playing!')
-                        .set_should_end_session(True)
-                        .response
-                )
-
-            """If we wanted to we could add more information to our charge:""
-             seller_order_attributes = SellerOrderAttributes(
-                 version="2",
-                 seller_order_id=user_details['username'] + '-' + get_basket_id(handler_input),
-                 store_name="Retail Demo Store",
-                 custom_information="A Demo Transaction For Retail Demo Store",
-                 seller_note="Congratulations on your purchase via Alexa and Amazon Pay at the C-Store demo!"
-             )
-            """
-
-            authorization_amount = Price(
-                version="2",
-                amount=f"{basket_total:0.2f}",
-                currency_code="USD"
-            )
-
-            authorize_attributes = AuthorizeAttributes(
-                version="2",
-                authorization_reference_id=cart['id'],
-                authorization_amount=authorization_amount,
-                seller_authorization_note="Retail Demo Store Sandbox Transaction",
-            )
-
-            payment_action = PaymentAction('AuthorizeAndCapture')
-
-            charge_request = ChargeAmazonPayRequest(
-                version="2",
-                seller_id=AMAZON_PAY_MERCHANT_ID,
-                billing_agreement_id=billing_agreement_id,
-                payment_action=payment_action,
-                authorize_attributes=authorize_attributes,
-                # This is where we would add extra information: seller_order_attributes=seller_order_attributes
-            )
-
-            charge_directive = SendRequestDirective(
-                name='Charge',
-                token=correlation_token,
-                payload=charge_request
-            )
-
-            return (
-                handler_input.response_builder
-                    .add_directive(charge_directive)
-                    .set_should_end_session(True)
-                    .response
-            )
-
-
-class AmazonPayChargeResponseHandler(AbstractRequestHandler):
-    """Handler for When Amazon Pay responds to our attempt to charge the customer."""
-
-    def can_handle(self, handler_input):
-        """
-        Can this handler handle this intent?
-        Args:
-            handler_input (HandlerInput): The handler_input dict used to call the intent handler.
-        Returns:
-            bool
-        """
-        connection_response = ask_utils.is_request_type("Connections.Response")(handler_input)
-        if connection_response:
-            envelope = handler_input.request_envelope
-            return (envelope.request.name == "Charge")
-        return False
-
-    def handle(self, handler_input):
-        """
-        Handle this intent. Results are provided using response_builder.
-        Args:
-            handler_input (HandlerInput): The handler_input dict used to call the intent handler.
-        Returns:
-            Response
-        """
-        logger.info(f"Calling AmazonPayChargeResponseHandler with input "
-                    f"{json.dumps(handler_input.request_envelope.to_dict(), default=str, indent=2)}")
-
-        request = handler_input.request_envelope.request
-        action_response_status_code = request.status.code
-
-        if int(action_response_status_code) != 200:
-            message = request.status.message
-            logger.error(f"Not an OK return status from Amazon Pay Charge: {action_response_status_code} "
-                         f"and message {message}")
-            return (
-                handler_input.response_builder
-                    .speak(f"There was a problem with Amazon Pay Charge: {message}")
-                    .set_should_end_session(True)
-                    .response
-            )
-
-        # see above - we have kept our session attributes in a token
-        correlation_token = handler_input.request_envelope.request.token
-        handler_input.attributes_manager.session_attributes = json.loads(correlation_token)
+        speak_output = f"Your order total is ${basket_total}. "
 
         order_response = submit_order(handler_input)
         send_order_confirm_email(handler_input, [order_response], False)
-
-        speak_output = f"Your order will be ready when you arrive."
+        speak_output += f"It will be ready when you arrive" 
+        if user_details['cognito_loaded']:            
+            name = user_details.get('custom:profile_first_name', '')
+            speak_output += f"  {name}"                   
+        
+        speak_output += f". Hope to see you again soon."
         return (
             handler_input.response_builder
                 .speak(speak_output)
                 .set_should_end_session(True)
                 .response
         )
-
 
 class OrderProductHandler(AbstractRequestHandler):
     """We have asked "would you like to order something" so if the answer is yes, we delegate to the
@@ -1429,8 +1159,6 @@ sb.add_request_handler(CheckoutIntentHandler())
 sb.add_request_handler(OrderProductHandler())
 sb.add_request_handler(NoProductOrderHandler())
 sb.add_request_handler(ToCheckoutHandler())
-sb.add_request_handler(AmazonPaySetupResponseHandler())
-sb.add_request_handler(AmazonPayChargeResponseHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())

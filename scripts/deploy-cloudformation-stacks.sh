@@ -87,7 +87,7 @@ aws cloudformation deploy \
   ResourceBucket="${S3_BUCKET}" \
   SourceDeploymentType="CodeCommit" \
   AlexaSkillId="" \
-  AlexaAmazonPayDefaultSandboxEmail="" \
+  AlexaDefaultSandboxEmail="" \
   ResourceBucketRelativePath="" \
   mParticleSecretKey="" \
   AmazonPayPublicKeyId="" \

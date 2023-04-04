@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "location service convenience store demo",
+      "invocationName": "retail demo store",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -23,12 +23,12 @@
           "name": "FindStoreIntent",
           "slots": [],
           "samples": [
-            "take me to the nearest c store",
-            "i want to buy something from a c store",
-            "where is the nearest c store",
-            "where the nearest c store is",
-            "is there an c store nearby",
-            "is there a nearby c store",
+            "take me to the nearest store",
+            "i want to buy something from a store",
+            "where is the nearest store",
+            "where the nearest store is",
+            "is there a store nearby",
+            "is there a nearby store",
             "take me to the nearest convenience store",
             "i want to buy something from a convenience store",
             "where is the nearest convenience store",
@@ -36,8 +36,7 @@
             "is there an convenience store nearby",
             "is there a nearby convenience store",
             "convenience store please",
-            "c store please",
-            "c store",
+            "store please",            
             "convenience store",
             "store"
           ]
@@ -83,14 +82,9 @@
             "yes finish",
             "check out",
             "yes checkout",
-            "yes i\u0027m ready to pay",
-            "yes how much is it ",
-            "yes can i pay",
-            "can i pay",
-            "how much ",
-            "i\u0027m ready to pay ",
+            "yes i\u0027m ready",
+            "i\u0027m ready ",
             "Finish",
-            "Pay ",
             "Checkout"
           ]
         },
@@ -219,7 +213,7 @@
         "variations": [
           {
             "type": "PlainText",
-            "value": "Do you want to confirm your order and pay?"
+            "value": "Do you want to confirm your order?"
           }
         ]
       }

@@ -63,7 +63,7 @@ Resources:
         AmazonPayPublicKeyId: ""
         AmazonPayPrivateKey: ""
         AlexaSkillId: ""
-        AlexaAmazonPayDefaultSandboxEmail: ""
+        AlexaDefaultSandboxEmail: ""
         IncludeSegmentDependencies: "No" # Change to 'Yes' for Segment workshop
         SegmentWriteKey: "NONE"
         IncludemParticleDependencies: "Yes" # Change to 'Yes' for mParticle workshop
