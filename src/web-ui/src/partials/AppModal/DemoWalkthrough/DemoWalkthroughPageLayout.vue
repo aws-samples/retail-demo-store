@@ -196,7 +196,7 @@ export default {
     await this.initializeArrowDrawing();
     if (!this.isDestroyed) this.animateArrows();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.isDestroyed = true;
     this.cleanupArrowDrawings();
   },

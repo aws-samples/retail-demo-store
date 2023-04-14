@@ -66,7 +66,7 @@ export default {
     // eslint-disable-next-line no-undef
     $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper]).tooltip();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // eslint-disable-next-line no-undef
     $([this.$refs.autoSelectShopper, this.$refs.chooseAShopper]).tooltip('dispose');
   },

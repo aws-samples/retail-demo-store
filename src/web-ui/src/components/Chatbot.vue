@@ -153,6 +153,7 @@ export default {
 
 [class*="amplify-interactions"] {
     display: block;
+    text-align: left;
 }
 
 .amplify-interactions-container {

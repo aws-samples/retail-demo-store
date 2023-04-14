@@ -7,7 +7,7 @@
     <form @submit.prevent="onSubmit" class="mb-2 form">
       <div class="mb-2 d-flex justify-content-center align-items-stretch">
         <input
-          v-maska data-maska="['+1 (###) ### - ####']"
+          v-maska data-maska="['+# (###) ### - ####', '+## (###) ### - ####']"
           name="phoneNumber"
           id="phoneNumber"
           v-model="phoneNumber"

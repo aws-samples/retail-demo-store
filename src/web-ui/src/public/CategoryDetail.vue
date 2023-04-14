@@ -119,7 +119,7 @@ export default {
 
     this.mediaQueryList.addEventListener('change', this.listener);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.mediaQueryList.removeEventListener('change', this.listener);
   },
   methods: {

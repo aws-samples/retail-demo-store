@@ -59,7 +59,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .modal--mobile .modal-content {
   height: 100%;
   max-height: none;

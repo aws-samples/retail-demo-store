@@ -96,7 +96,7 @@ export default {
       },
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     document.body.style.removeProperty('--background-color');
   },
 };
