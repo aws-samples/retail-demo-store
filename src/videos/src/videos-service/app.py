@@ -27,6 +27,7 @@ from flask_cors import CORS
 
 # -- Environment variables - defined by CloudFormation when deployed
 VIDEO_BUCKET = os.environ.get('RESOURCE_BUCKET')
+IMAGE_ROOT_URL = os.environ.get('IMAGE_ROOT_URL') + 'videos/'
 SSM_VIDEO_CHANNEL_MAP_PARAM = os.environ.get('PARAMETER_IVS_VIDEO_CHANNEL_MAP', 'retaildemostore-ivs-video-channel-map')
 
 USE_DEFAULT_IVS_STREAMS = os.environ.get('USE_DEFAULT_IVS_STREAMS') == 'true'
@@ -61,7 +62,7 @@ def load_default_streams_config():
     config = json.loads(config_response['Body'].read().decode('utf-8'))
     for (key, entry) in config.items():
         app.logger.info(f"{key}, {entry}")
-        config[key] = {**entry, 'thumb_url': STATIC_URL_PATH + '/' + entry['thumb_fname']}
+        config[key] = {**entry, 'thumb_url': IMAGE_ROOT_URL + entry['thumb_fname']}
         config[key].pop('thumb_fname', None)
 
     app.logger.info("Pulled config:")
@@ -85,10 +86,7 @@ def download_video_file(s3_key):
     thumbnail_key = '.'.join(s3_key.split('.')[:-1]) + '.png'
     try:
         local_thumbnail_fname = thumbnail_key.split('/')[-1]
-        local_thumbnail_path = app.static_folder + '/' + local_thumbnail_fname
-        s3_client.download_file(Bucket=VIDEO_BUCKET, Key=thumbnail_key, Filename=local_thumbnail_path)
-        app.logger.info(f"File {thumbnail_key} downloaded from bucket {VIDEO_BUCKET} to {local_thumbnail_path}.")
-        thumbnail_path = app.static_url_path + '/' + local_thumbnail_fname
+        thumbnail_path = IMAGE_ROOT_URL + local_thumbnail_fname
     except Exception as e:
         app.logger.warning(f'No thumbnail available for {VIDEO_BUCKET}/{s3_key} as {VIDEO_BUCKET}/{thumbnail_key} - '
                            f'exception: {e}')
@@ -209,7 +207,7 @@ def stream(s3_video_key, ivs_channel_arn, channel_id):
     """
     video_filepath, thumb_url = download_video_file(s3_video_key)
     if thumb_url is None:
-        thumb_url = app.static_url_path + '/' + DEFAULT_THUMB_FNAME
+        thumb_url = IMAGE_ROOT_URL + DEFAULT_THUMB_FNAME
 
     channel_response = ivs_client.get_channel(arn=ivs_channel_arn)['channel']
     ingest_endpoint = channel_response['ingestEndpoint']

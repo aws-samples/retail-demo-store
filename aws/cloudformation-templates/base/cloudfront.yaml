@@ -173,7 +173,7 @@ Outputs:
   WebUICDNURL:
     Description: The URL for the web application
     Value: !Sub 
-      - 'http://${Domain}'
+      - 'https://${Domain}'
       - Domain: !GetAtt WebUICDN.DomainName    
 
   # Swagger UI outputs
@@ -190,5 +190,5 @@ Outputs:
   SwaggerUICDNURL:
     Description: The URL for the Swagger UI application
     Value: !Sub 
-      - 'http://${Domain}'
+      - 'https://${Domain}'
       - Domain: !GetAtt SwaggerUICDN.DomainName

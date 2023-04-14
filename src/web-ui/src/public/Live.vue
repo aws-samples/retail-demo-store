@@ -208,7 +208,7 @@ export default {
     },
     async loadPlayer () {
       const mediaPlayerScript = document.createElement("script");
-      mediaPlayerScript.src = "https://player.live-video.net/1.0.0/amazon-ivs-player.min.js";
+      mediaPlayerScript.src = "https://player.live-video.net/1.18.0/amazon-ivs-player.min.js";
       mediaPlayerScript.async = true;
       document.body.appendChild(mediaPlayerScript);
       mediaPlayerScript.onload = () => this.mediaPlayerScriptLoaded();

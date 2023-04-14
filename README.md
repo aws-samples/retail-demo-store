@@ -115,8 +115,6 @@ You can find the URL for the Retail Demo Store Web UI in the Outputs of your mai
 
 Look for the "WebURL" output parameter.
 
-**IMPORTANT NOTE: You must load the WebURL over HTTP and _not_ HTTPS.** The reason for this is that the microservice load balancers do not have SSL certificates configured by default and are therefore accessed by the web application over HTTP. Although the web application is served from CloudFront and CloudFront provides a default SSL certificate for the distribution, you will receive mixed content errors in the browser if you attempt to load and run the web application over HTTPS.
-
 You can read more [detailed instructions on how to demo the Retail Demo Store in the Demo section at the end of this document](#delivering-a-demo-of-the-retail-demo-store).
 
 # Accessing Workshops
@@ -145,7 +143,6 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 # Known Issues/Limitations
 
 * The application was written for demonstration and education purposes and not for production use.
-* You must access the web application over HTTP. If you load the web application over HTTPS, you will receive mixed content errors in the browser when it attempts to access any of the microservices over HTTP. If you see spinning load icons on the homepage when loading the app that never go away, this may be the reason.
 * You currently cannot deploy this project multiple times in the same AWS account and the same AWS region. However, you can deploy the project into separate supported regions within the same AWS account.
 * Make sure your CloudFormation stack name uses all lowercase letters.
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
@@ -159,7 +156,7 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 
 ***Q: When accessing the Retail Demo Store web application after deploying the project, the home page shows spinning icons and products are never loaded. What's wrong?***
 
-***A:*** The most likely cause is an error building or deploying one or more of the microservices. Sign in to the AWS account/region where the project was deployed and browse to CodePipeline. Verify that all of the Retail Demo Store pipelines have completed successfully. Inspect the details for any that have failed to determine the root cause. Sometimes just manually triggering a build/deploy will resolve the issue. If all pipelines were successful, make sure you're accessing the web application over HTTP and _not_ HTTPS.
+***A:*** The most likely cause is an error building or deploying one or more of the microservices. Sign in to the AWS account/region where the project was deployed and browse to CodePipeline. Verify that all of the Retail Demo Store pipelines have completed successfully. Inspect the details for any that have failed to determine the root cause. Sometimes just manually triggering a build/deploy will resolve the issue.
 
 ***Q: This project is expensive to run (or keep running). How can I reduce the running cost of a deployment?***
 

@@ -7,7 +7,8 @@ import resolveBaseURL from './resolveBaseURL'
 const baseURL = resolveBaseURL(
     import.meta.env.VITE_LOCATION_SERVICE_DOMAIN,
     import.meta.env.VITE_LOCATION_SERVICE_PORT,
-    import.meta.env.VITE_LOCATION_SERVICE_PATH)
+    import.meta.env.VITE_LOCATION_SERVICE_PATH
+)
 
 const connection = axios.create({
     baseURL

@@ -19,6 +19,12 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 Resources:
   SegmentPersonalizeEventsDestinationLambda:
     Type: 'AWS::Lambda::Function'
@@ -51,6 +57,10 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/segment-personalize-inference-destination.zip'
       Runtime: python3.8
       Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       FunctionName: SegmentPersonalizeInferenceDestination
       Environment:
         Variables:
@@ -99,6 +109,8 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:

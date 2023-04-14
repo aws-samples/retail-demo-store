@@ -163,7 +163,7 @@ paths:
             appllication/json:
               schema:
                 $ref: '#/components/schemas/User'
-  /users/unclaimed/:
+  /users/unclaimed:
     get:
       tags:
         - Users
@@ -206,7 +206,7 @@ paths:
             appllication/json:
               schema:
                 $ref: '#/components/schemas/User'
-  /users/random/:
+  /users/random:
     get:
       tags:
         - Users

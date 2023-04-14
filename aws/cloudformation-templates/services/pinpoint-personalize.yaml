@@ -27,6 +27,12 @@ Parameters:
   Uid:
     Type: String
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 Resources:
 
   # Allows Pinpoint to access Personalize solution and campaign
@@ -35,6 +41,8 @@ Resources:
     Properties:
       RoleName: !Sub ${Uid}-PinptP9e # Referenced by name in messaging notebook
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -61,6 +69,8 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -96,6 +106,10 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-recommender.zip'
       FunctionName: RetailDemoStorePinpointRecommender  # Function name used in notebook to lookup ARN
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       Environment:
         Variables:          
           recommendations_service_host: !Ref RecommendationsServiceDNSName
@@ -111,6 +125,10 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-offers-recommender.zip'
       FunctionName: RetailDemoStorePinpointOffersRecommender  # Function name used in notebook to lookup ARN
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       Environment:
         Variables:
           products_service_host: !Ref ProductsServiceDNSName

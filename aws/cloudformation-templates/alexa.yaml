@@ -51,6 +51,12 @@ Parameters:
     Type: String
     Description: Fallback email for testing if no Cognito integration possible.
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 
 Resources:
 
@@ -67,6 +73,8 @@ Resources:
               Action:
                 - sts:AssumeRole
         Path: /
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         Policies:
           - PolicyName: "AlexaLambdaExecutionPolicy"
             PolicyDocument:
@@ -104,6 +112,10 @@ Resources:
       Role: !GetAtt AlexaSkillIAMRole.Arn
       MemorySize: 512
       Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       Environment:
         Variables:
           OrdersServiceExternalUrl: !Ref OrdersServiceExternalUrl

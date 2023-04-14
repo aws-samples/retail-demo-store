@@ -543,6 +543,7 @@ Resources:
         StackBucketName: !GetAtt Base.Outputs.StackBucketName
         Subnets: !GetAtt Base.Outputs.Subnets
         VpcId: !GetAtt Base.Outputs.VpcId
+        VpcCidr: !GetAtt Base.Outputs.VpcCidr
         ClusterName: !GetAtt Base.Outputs.ClusterName
         ServiceDiscoveryNamespace: !GetAtt Base.Outputs.ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
@@ -562,9 +563,30 @@ Resources:
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         ParentStackName: !Ref AWS::StackName
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
-        ACMCertARN: !GetAtt Base.Outputs.ACMCertARN        
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
-        
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+
+  # Services Resources
+  ApiGateway:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/apigateway.yaml
+      Parameters:
+        ProductsServiceELBListener: !GetAtt Services.Outputs.ProductsServiceELBListener
+        UsersServiceELBListener: !GetAtt Services.Outputs.UsersServiceELBListener
+        CartsServiceELBListener: !GetAtt Services.Outputs.CartsServiceELBListener
+        OrdersServiceELBListener: !GetAtt Services.Outputs.OrdersServiceELBListener
+        RecommendationsServiceELBListener: !GetAtt Services.Outputs.RecommendationsServiceELBListener
+        VideosServiceELBListener: !GetAtt Services.Outputs.VideosServiceELBListener
+        SearchServiceELBListener: !GetAtt Services.Outputs.SearchServiceELBListener
+        LocationServiceELBListener: !GetAtt Services.Outputs.LocationServiceELBListener
+        Subnets: !GetAtt Base.Outputs.Subnets
+        VpcId: !GetAtt Base.Outputs.VpcId
+        VpcCidr: !GetAtt Base.Outputs.VpcCidr
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        CognitoUserPoolId: !GetAtt Base.Outputs.UserPoolId
+        CognitoAppClientId: !GetAtt Base.Outputs.UserPoolClientId
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -585,14 +607,7 @@ Resources:
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
-        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
-        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
-        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
-        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
-        VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
-        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
+        APIGatewayUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         FenixZipDetectUrl: !Ref FenixZipDetectUrl
@@ -645,15 +660,15 @@ Resources:
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
         GitHubUser: !Ref GitHubUser
-        ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
-        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        CartsServiceExternalUrl: !GetAtt Services.Outputs.CartsServiceUrl
-        OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
-        RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
-        SearchServiceExternalUrl: !GetAtt Services.Outputs.SearchServiceUrl
-        VideosServiceExternalUrl: !GetAtt Services.Outputs.VideosServiceUrl
-        LocationServiceExternalUrl: !GetAtt Services.Outputs.LocationServiceUrl
-        OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
+        ProductsServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        UsersServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        CartsServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        OrdersServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        RecommendationsServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        SearchServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        VideosServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        LocationServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
+        OffersServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
 
@@ -667,6 +682,8 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         RecommendationsServiceExternalUrl: !GetAtt Services.Outputs.RecommendationsServiceUrl
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
   # Amazon Location Resources
   Location:
@@ -687,6 +704,8 @@ Resources:
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
   AmazonPay:
     Type: AWS::CloudFormation::Stack
@@ -723,6 +742,8 @@ Resources:
             "NotDeployed",
           ]
         AlexaDefaultSandboxEmail: !Ref AlexaDefaultSandboxEmail
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
   # Deployment support
   DeploymentSupport:
@@ -769,6 +790,9 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+
 
   # mParticle Lambda Functions Kinesis and Roles
   mParticlePersonalize:
@@ -781,6 +805,8 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         mParticleOrgId: !Ref mParticleOrgId
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
 Outputs:
   UserPoolId:
@@ -870,14 +896,13 @@ Outputs:
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt Services.Outputs.OffersServiceUrl
+  
+  APIEndpoint:
+    Value: !GetAtt ApiGateway.Outputs.APIEndpoint
 
   EvidentlyProjectName:
     Description: ARN for the CloudWatch Evidently project
     Value: !GetAtt Base.Outputs.EvidentlyProjectName
-
-  ACMCertARN:
-    Description: ARN for selfsigned cert for ELB
-    Value: !GetAtt Base.Outputs.ACMCertARN
 
   ExportEnvVarScript:
     Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.
@@ -889,10 +914,8 @@ Outputs:
         WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
 
         # Recommendations service
-        PRODUCT_SERVICE_HOST="${Services.Outputs.ProductsServiceUrl}"
-        PRODUCT_SERVICE_PORT=80
-        OFFERS_SERVICE_HOST="${Services.Outputs.OffersServiceUrl}"
-        OFFERS_SERVICE_PORT=80
+        PRODUCT_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
+        OFFERS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
         AWS_XRAY_DAEMON_ADDRESS=xray:2000
 
         # Search service

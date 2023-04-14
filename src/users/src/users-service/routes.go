@@ -52,13 +52,13 @@ var routes = Routes{
 	Route{
 		"GetUnclaimedUsers",
 		"GET",
-		"/users/unclaimed/",
+		"/users/unclaimed",
 		GetUnclaimedUsers,
 	},
 	Route{
 		"GetRandomUser",
 		"GET",
-		"/users/random/",
+		"/users/random",
 		GetRandomUser,
 	},
 	Route{

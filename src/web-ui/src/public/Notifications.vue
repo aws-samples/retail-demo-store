@@ -22,11 +22,13 @@ export default {
     }
   },
   created () {
-    this.getCognitoUser().then(() => this.openWebsocketConnection());
+    this.getCognitoUser()
+      .then(() => this.openWebsocketConnection())
+      .catch(err => console.log(err));
   },
   methods: {
     async getCognitoUser() {
-      this.cognitoUser = await Auth.currentAuthenticatedUser().catch(err => console.log(err))
+      this.cognitoUser = await Auth.currentAuthenticatedUser()
     },
     openWebsocketConnection() {
 

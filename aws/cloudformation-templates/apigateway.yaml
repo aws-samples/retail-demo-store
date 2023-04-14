@@ -1,0 +1,657 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store API Gateway
+
+Parameters:
+  ProductsServiceELBListener:
+    Type: String
+  UsersServiceELBListener:
+    Type: String
+  CartsServiceELBListener:
+    Type: String
+  OrdersServiceELBListener:
+    Type: String
+  RecommendationsServiceELBListener:
+    Type: String
+  VideosServiceELBListener:
+    Type: String
+  SearchServiceELBListener:
+    Type: String
+  LocationServiceELBListener:
+    Type: String
+  Subnets:
+    Type: String
+  VpcId:
+    Type: String
+  VpcCidr:
+    Type: String
+  ResourceBucket:
+    Type: String
+  ResourceBucketRelativePath:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoAppClientId:
+    Type: String
+
+Resources:
+  LambdaAuthorizerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: /
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  LambdaAuthorizerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/apigw-authorizer.zip'
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt LambdaAuthorizerRole.Arn
+      MemorySize: 512
+      Timeout: 60
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoUserPoolId
+          CLIENT_ID: !Ref CognitoAppClientId
+
+  VpcLinkSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}/VPCLinkSecurityGroup
+      SecurityGroupIngress:
+        - CidrIp: !Ref VpcCidr
+          Description: Allow from within the VPC for port 80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      VpcId: !Ref VpcId
+
+  VpcLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties: 
+      Name: !Sub "${AWS::StackName}-VPCLink"
+      SecurityGroupIds: 
+        - !Ref VpcLinkSecurityGroup
+      SubnetIds: !Split [",", !Ref Subnets]
+
+  HttpAPI:
+    Type: 'AWS::ApiGatewayV2::Api'
+    DependsOn: VpcLink
+    Properties:
+      Name: !Sub "${AWS::StackName}-APIGateway"
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowMethods:
+          - "GET"
+          - "OPTIONS"
+          - "POST"
+          - "PUT"
+        AllowHeaders:
+          - "accept"
+          - "accept-encoding"
+          - "authorization"
+          - "content-length"
+          - "content-type"
+          - "x-csrf-token"
+        MaxAge: 600
+        AllowCredentials: false
+        AllowOrigins:
+          - "*"
+        ExposeHeaders:
+          - '*'
+
+  LambdaAuthorizer:
+    Type: 'AWS::ApiGatewayV2::Authorizer'
+    Properties:
+      Name: LambdaAuthorizer
+      ApiId: !Ref HttpAPI
+      AuthorizerPayloadFormatVersion: "2.0"
+      AuthorizerType: REQUEST
+      AuthorizerUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaAuthorizerFunction.Arn}/invocations"
+      EnableSimpleResponses: true
+
+  LambdaAuthorizerFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt LambdaAuthorizerFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/authorizers/${LambdaAuthorizer}"
+  
+  ProductsServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Product Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref ProductsServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+  
+  UsersServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Users Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref UsersServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  CartsServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Carts Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref CartsServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  OrdersServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Orders Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref OrdersServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+  
+  RecommendationsServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Recommendations Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref RecommendationsServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  VideosServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Videos Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref VideosServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  SearchServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Search Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref SearchServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  LocationServiceIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref HttpAPI
+      Description: Location Service Integration
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationMethod: ANY
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref LocationServiceELBListener
+      PassthroughBehavior: WHEN_NO_MATCH
+      PayloadFormatVersion: '1.0'
+
+  GetProduct:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /products/id/{id}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ProductsServiceIntegration
+
+  GetCategory:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /products/category/{name}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ProductsServiceIntegration
+
+  GetFeatured:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /products/featured'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ProductsServiceIntegration
+
+  GetCategories:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /categories/all'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ProductsServiceIntegration
+
+  CreateUser:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /users'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  GetUserById:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /users/id/{id}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  UpdateUser:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'PUT /users/id/{id}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  GetUserByUsername:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /users/username/{username}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  GetUnclaimedUser:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /users/unclaimed'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  GetRandomUser:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /users/random'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  ClaimUser:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'PUT /users/id/{userId}/claim'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  VerifyPhone:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'PUT /users/id/{userId}/verifyphone'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
+  CreateCart:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /carts'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref CartsServiceIntegration
+
+  GetCart:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /carts/{cartId}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref CartsServiceIntegration
+
+  UpdateCart:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'PUT /carts/{cartId}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref CartsServiceIntegration
+
+  Sign:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /sign'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref CartsServiceIntegration
+
+  CreateOrder:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /orders'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref OrdersServiceIntegration
+
+  GetOrders:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /orders/all'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref OrdersServiceIntegration
+
+  GetOrderById:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /orders/id/{orderId}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref OrdersServiceIntegration
+
+  GetOrderByUsername:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /orders/username/{username}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref OrdersServiceIntegration
+
+  GetRecommendations:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /recommendations'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  GetPopular:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /popular'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  GetRelated:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /related'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  Rerank:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /rerank'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  GetDiscounts:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /choose_discounted'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  GetCouponOffer:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /coupon_offer'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  RecordExperimentOutcome:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /experiment/outcome'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref RecommendationsServiceIntegration
+
+  VideoStream:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /stream_details'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref VideosServiceIntegration
+
+  SearchProducts:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /search/products'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref SearchServiceIntegration
+
+  GetStoreLocation:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /store_location'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref LocationServiceIntegration
+
+  GetCustomerRoute:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /customer_route'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref LocationServiceIntegration
+
+  GetCStoreLocation:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /cstore_location'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref LocationServiceIntegration
+
+  GetCStoreRoute:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /cstore_route'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref LocationServiceIntegration
+
+  HttpApiStage:
+    Type: 'AWS::ApiGatewayV2::Stage'
+    DependsOn:
+      - GetProduct
+    Properties:
+      StageName: '$default'
+      ApiId: !Ref HttpAPI
+      AutoDeploy: true
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey", "status":"$context.status","protocol":"$context.protocol", "integrationStatus": $context.integrationStatus, "integrationLatency": $context.integrationLatency, "responseLength":"$context.responseLength", "authorizerError": "$context.authorizer.error" }'
+
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName: !Sub "/${AWS::StackName}/APIAccessLogs"
+
+Outputs:
+  APIEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !GetAtt HttpAPI.ApiEndpoint

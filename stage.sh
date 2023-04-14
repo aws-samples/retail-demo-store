@@ -159,6 +159,8 @@ if [ "$only_cfn_template" = false ]; then
     aws s3 sync s3://retail-demo-store-code/datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.4"
     aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of local image dataset 1.4"
 
+    aws s3 sync ./src/videos/src/video-service/static s3://${BUCKET}/${S3PATH}images/videos/ $S3PUBLIC || echo "Skipping load of local video thumbnails"
+
     # Sync location data files
     echo " + Copying location location data"
     aws s3 sync ./location_services s3://${BUCKET}/${S3PATH}location_services --only-show-errors $S3PUBLIC
