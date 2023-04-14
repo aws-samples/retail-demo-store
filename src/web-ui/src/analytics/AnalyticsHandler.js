@@ -371,6 +371,12 @@ export const AnalyticsHandler = {
             }
         }
 
+        if (this.tealiumEnabled()) {
+            eventProperties.tealium_event = 'add_to_cart';
+            eventProperties.eventName = 'AddToCart'; 
+            window.utag.link(eventProperties);
+        }
+
         if (this.googleAnalyticsEnabled()) {
             Vue.prototype.$gtag.event('add_to_cart', {
                 "currency": "USD",
@@ -1012,6 +1018,10 @@ export const AnalyticsHandler = {
             window.analytics.track('Search', eventProperties);
         }
 
+        if (this.tealiumEnabled()) {
+            window.tealium.track('Search', eventProperties);
+        }
+
         if (this.mParticleEnabled()) {
             let customAttributes = {
                 resultCount: numResults,
@@ -1040,6 +1050,10 @@ export const AnalyticsHandler = {
 
     segmentEnabled() {
         return process.env.VUE_APP_SEGMENT_WRITE_KEY && process.env.VUE_APP_SEGMENT_WRITE_KEY != 'NONE';
+    },
+
+    tealiumEnabled() {
+        return process.env.VUE_APP_TEALIUM_ACCOUNT && process.env.VUE_APP_TEALIUM_PROFILE != 'NONE';
     },
 
     amplitudeEnabled() {

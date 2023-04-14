@@ -44,7 +44,7 @@ Metadata:
           - DeployLocationServices
           - DeployPersonalizedOffersCampaign
       - Label:
-          default: "Amazon Pay (optional)"
+          default: "Amazon Pay (Optional)"
         Parameters:
           - AmazonPayStoreId
           - AmazonPayMerchantId
@@ -56,21 +56,28 @@ Metadata:
           - AlexaSkillId
           - AlexaDefaultSandboxEmail
       - Label:
-          default: "Optional Integrations"
+          default: "Customer Data Platform (CDP) Integrations (Optional)"
         Parameters:
           - AmplitudeApiKey
-          - OptimizelySdkKey
-          - IncludeSegmentDependencies
-          - SegmentWriteKey
           - IncludemParticleDependencies
           - mParticleOrgId
           - mParticleApiKey
           - mParticleSecretKey
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
-          - GoogleAnalyticsMeasurementId
+          - IncludeSegmentDependencies
+          - SegmentWriteKey
+          - IncludeTealiumDependencies
+          - TealiumAccount
+          - TealiumProfile
+          - TealiumSourceID
       - Label:
-          default: "Fenix Commerce EDD Integration"
+          default: "Measurement Integrations (Optional)"
+        Parameters:
+          - GoogleAnalyticsMeasurementId
+          - OptimizelySdkKey
+      - Label:
+          default: "Fenix Commerce EDD Integration (Optional)"
         Parameters:
           - FenixZipDetectUrl
           - FenixTenantId
@@ -135,6 +142,12 @@ Metadata:
         default: "Deploy Segment Resources"
       SegmentWriteKey:
         default: "Segment Write Key"
+      TealiumAccount:
+        default: "Tealium account name"
+      TealiumProfile:
+        default: "Tealium account profile"
+      TealiumSourceID:
+        default: "Tealium source key"
       IncludemParticleDependencies:
         default: "Deploy mParticle Resources"
       mParticleOrgId:
@@ -369,6 +382,30 @@ Parameters:
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
 
+  IncludeTealiumDependencies:
+    Type: String
+    Description: >
+      Whether to deploy the resources required for the Tealium workshops.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
+  TealiumAccount:
+    Type: String
+    Description: >
+      Tealium account name from your Tealium IQ console
+
+  TealiumProfile:
+    Type: String
+    Description: >
+      Tealium account profile name from your Tealium IQ console.
+
+  TealiumSourceID:
+    Type: String
+    Description: >
+      Tealium source key for the web UI from your Tealium IQ console.
+
   IncludemParticleDependencies:
     Type: String
     Description: >
@@ -471,6 +508,10 @@ Conditions:
     - !Ref IncludeSegmentDependencies
     - "Yes"
 
+  DeployTealiumResources: !Equals
+    - !Ref IncludeTealiumDependencies
+    - "Yes"
+
   DeploymParticleResources: !Equals
     - !Ref IncludemParticleDependencies
     - 'Yes'
@@ -505,6 +546,9 @@ Resources:
         ParentStackName: !Ref AWS::StackName
         OptimizelySdkKey: !Ref OptimizelySdkKey
         SegmentWriteKey: !Ref SegmentWriteKey
+        TealiumAccount: !Ref TealiumAccount
+        TealiumProfile: !Ref TealiumProfile
+        TealiumSourceID: !Ref TealiumSourceID
         mParticleOrgId: !Ref mParticleOrgId
         mParticleApiKey: !Ref mParticleApiKey
         mParticleSecretKey: !Ref mParticleSecretKey
@@ -769,6 +813,17 @@ Resources:
       Parameters:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
+  # Tealium workshop resources
+  TealiumPersonalize:
+    Condition: DeployTealiumResources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/tealium.yaml
+      Parameters:
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
 
   # mParticle Lambda Functions Kinesis and Roles
   mParticlePersonalize:

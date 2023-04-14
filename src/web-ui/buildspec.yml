@@ -4,6 +4,9 @@ env:
   parameter-store:
     MPARTICLE_API_KEY: "/retaildemostore/webui/mparticle_api_key"
     MPARTICLE_SECRET_KEY: "/retaildemostore/webui/mparticle_secret_key"
+    TEALIUM_ACCOUNT: "/retaildemostore/webui/tealium_account"
+    TEALIUM_PROFILE: "/retaildemostore/webui/tealium_profile"
+    TEALIUM_SOURCE_ID: "/retaildemostore/webui/tealium_source_id"
 
 phases:
   install:
