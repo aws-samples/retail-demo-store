@@ -6,8 +6,8 @@
 import { mapState } from 'vuex';
 import { ConfirmationModals } from './config';
 
-import AbandonCart from './modals/AbandonCart';
-import TextAlerts from './modals/TextAlerts';
+import AbandonCart from './modals/AbandonCart.vue';
+import TextAlerts from './modals/TextAlerts.vue';
 
 export default {
   name: 'ConfirmationModal',

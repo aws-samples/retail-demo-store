@@ -128,7 +128,7 @@ echo " For CloudFormation : https://${BUCKET_DOMAIN}/${BUCKET}/${S3PATH}cloudfor
 if [ "$only_cfn_template" = false ]; then
     echo " + Packaging Source"
     [ -e "retaildemostore-source.zip" ] && rm retaildemostore-source.zip
-    zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip" "*/venv*" "*/.venv*"
+    zip -qr retaildemostore-source.zip ./src/ -x "*.DS_Store" "*__pycache__*" "*/aws-lambda/*" "*/node_modules/*" "*.zip" "*/venv*" "*/.venv*" "*/dist/*" "*/dist-layer0/*"
 
     echo " + Uploading Source"
     aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip $S3PUBLIC

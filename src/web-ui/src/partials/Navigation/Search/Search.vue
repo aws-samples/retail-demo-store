@@ -43,8 +43,8 @@ import { mapState, mapGetters } from 'vuex';
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
-import SearchItem from './SearchItem/SearchItem';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import SearchItem from './SearchItem/SearchItem.vue';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 const SearchRepository = RepositoryFactory.get('search');
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -91,16 +91,14 @@ export default {
       var comp = this;
       const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
       const { data } = await SearchRepository.searchProducts(val, size)
-        .catch(function (error) {
+        .catch((error) => {
           if (error.response) {
             if (error.response.status == 404) {
               comp.searchError = 'Search index not found. Please complete the search workshop.'
-            }
-            else {
+            } else {
               comp.searchError = `Unexpected error (${error.response.status}) encountered when performing search.`;
             }
-          }
-          else {
+          } else {
             comp.searchError = 'Unexpected error encountered when performing search.';
           }
         });
@@ -141,6 +139,8 @@ export default {
         this.searchError = null
         try {
           await this.search(val);
+        } catch(error) {
+          console.log("Unable to retrieve search results")
         } finally {
           this.isSearching = false;
         }

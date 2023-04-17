@@ -31,7 +31,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import DemoWalkthroughPageLayout from '../DemoWalkthroughPageLayout';
+import DemoWalkthroughPageLayout from '../DemoWalkthroughPageLayout.vue';
 
 export default {
   name: 'DemoWalkthroughIntegratedUseCasesPage',

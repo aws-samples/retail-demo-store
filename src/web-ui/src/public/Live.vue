@@ -116,12 +116,12 @@
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import { mapState, mapGetters } from 'vuex';
 
-import Layout from "@/components/Layout/Layout";
-import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection";
+import Layout from "@/components/Layout/Layout.vue";
+import RecommendedProductsSection from "@/components/RecommendedProductsSection/RecommendedProductsSection.vue";
 import {AnalyticsHandler} from "@/analytics/AnalyticsHandler";
 import {formatPrice} from "@/util/formatPrice";
 import {discountProductPrice} from "@/util/discountProductPrice";
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 
 import {getDemoGuideArticleFromPersonalizeARN} from '@/partials/AppModal/DemoGuide/config'
 

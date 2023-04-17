@@ -70,11 +70,11 @@ import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import { Modals } from '@/partials/AppModal/config';
 
-import Layout from '@/components/Layout/Layout';
-import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
-import Product from '@/components/Product/Product';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
+import Layout from '@/components/Layout/Layout.vue';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection.vue';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
+import Product from '@/components/Product/Product.vue';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 

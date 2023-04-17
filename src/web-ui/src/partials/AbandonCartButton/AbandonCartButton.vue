@@ -23,7 +23,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
@@ -32,7 +32,7 @@ export default {
   components: { DemoGuideBadge },
   data() {
     return {
-      pinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID,
+      pinpointEnabled: import.meta.env.VITE_PINPOINT_APP_ID,
       demoGuideBadgeArticle: Articles.PERSONALIZED_EMAILS,
       hasConsented: false,
     };

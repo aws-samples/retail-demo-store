@@ -23,7 +23,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 
-import Progress from '../Progress/Progress';
+import Progress from '../Progress/Progress.vue';
 
 export default {
   name: 'ConfirmationModalLayout',
@@ -41,7 +41,7 @@ export default {
     // eslint-disable-next-line no-undef
     $(this.$refs.modal).on('hidden.bs.modal', this.closeConfirmationModal);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // eslint-disable-next-line no-undef
     $(this.$refs.modal).modal('hide');
   },

@@ -28,15 +28,15 @@
 </template>
 
 <script>
-import LoadingFallback from '../LoadingFallback/LoadingFallback';
-import PreviousPageLink from './PreviousPageLink';
-import Footer from '@/partials/Footer/Footer';
-import TextAlerts from '@/partials/TextAlerts/TextAlerts';
-import Navigation from '@/partials/Navigation/Navigation';
-import AppModal from '@/partials/AppModal/AppModal';
-import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton';
-import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal';
-import Notifications from '@/public/Notifications'
+import LoadingFallback from '../LoadingFallback/LoadingFallback.vue';
+import PreviousPageLink from './PreviousPageLink.vue';
+import Footer from '@/partials/Footer/Footer.vue';
+import TextAlerts from '@/partials/TextAlerts/TextAlerts.vue';
+import Navigation from '@/partials/Navigation/Navigation.vue';
+import AppModal from '@/partials/AppModal/AppModal.vue';
+import DemoGuideButton from '@/partials/DemoGuideButton/DemoGuideButton.vue';
+import ConfirmationModal from '@/partials/ConfirmationModal/ConfirmationModal.vue';
+import Notifications from '@/public/Notifications.vue'
 
 export default {
   name: 'Layout',
@@ -96,7 +96,7 @@ export default {
       },
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     document.body.style.removeProperty('--background-color');
   },
 };

@@ -1,14 +1,11 @@
 <template>
-  <Agile :options="settings">
-    <template slot="prevButton"><i class="fas fa-chevron-left" aria-label="previous"></i></template>
-    <template slot="nextButton"><i class="fas fa-chevron-right" aria-label="next"></i></template>
-
+ <Agile :options="settings">
     <slot></slot>
   </Agile>
 </template>
 
 <script>
-import { VueAgile } from 'vue-agile';
+import {VueAgile} from 'vue-agile';
 
 export default {
   name: 'Carousel',

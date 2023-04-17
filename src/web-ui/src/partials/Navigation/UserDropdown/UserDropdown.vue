@@ -46,7 +46,6 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { AmplifyEventBus } from 'aws-amplify-vue';
 import { Auth } from 'aws-amplify';
 import swal from 'sweetalert';
 
@@ -98,7 +97,6 @@ export default {
     signOut() {
       Auth.signOut({ global: true })
         .then(() => {
-          AmplifyEventBus.$emit('authState', 'signedOut');
           swal('You have been logged out!');
         })
         .catch(swal);

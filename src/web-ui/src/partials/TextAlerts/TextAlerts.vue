@@ -6,15 +6,14 @@
     </p>
     <form @submit.prevent="onSubmit" class="mb-2 form">
       <div class="mb-2 d-flex justify-content-center align-items-stretch">
-        <TheMask
-          type="tel"
+        <input
+          v-maska data-maska="['+# (###) ### - ####', '+## (###) ### - ####']"
           name="phoneNumber"
-          placeholder="Enter cellphone number"
+          id="phoneNumber"
           v-model="phoneNumber"
-          mask="+1 (###) ### - ####"
+          type="tel"
           class="input py-1 px-2"
         />
-
         <button type="submit" class="submit btn" :disabled="!hasConsented">Submit</button>
       </div>
 
@@ -35,20 +34,20 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import { TheMask } from 'vue-the-mask';
+import { vMaska } from "maska"
 
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 import { Articles } from '@/partials/AppModal/DemoGuide/config';
 
 export default {
   name: 'TextAlerts',
   components: {
-    TheMask,
     DemoGuideBadge,
   },
+  directives: { maska: vMaska },
   data() {
     return {
-      isPinpointEnabled: process.env.VUE_APP_PINPOINT_APP_ID,
+      isPinpointEnabled: import.meta.env.VITE_PINPOINT_APP_ID,
       phoneNumber: '',
       hasConsented: false,
       demoGuideBadgeArticle: Articles.SMS_MESSAGING,

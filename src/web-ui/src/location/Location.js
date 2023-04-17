@@ -3,8 +3,8 @@
 
 import { RestClient } from '@aws-amplify/api-rest';
 
-const resourceName = process.env.VUE_APP_LOCATION_RESOURCE_NAME;
-const awsRegion = process.env.VUE_APP_AWS_REGION
+const resourceName = import.meta.env.VITE_LOCATION_RESOURCE_NAME;
+const awsRegion = import.meta.env.VITE_AWS_REGION
 
 class Location {
     region = awsRegion

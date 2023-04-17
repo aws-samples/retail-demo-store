@@ -21,7 +21,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import ModalHeader from '../../Modal/ModalHeader/ModalHeader';
+import ModalHeader from '../../Modal/ModalHeader/ModalHeader.vue';
 import { DEMO_GUIDE_TITLE_ID, getSectionIdFromArticleId, sectionHeadings, articleTitles } from '../config';
 import { Modals } from '../../config';
 

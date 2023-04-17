@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import SupportIcon from './SupportIcon';
+import SupportIcon from './SupportIcon.vue';
 
 export default {
   name: 'SupportLink',

@@ -36,7 +36,7 @@
 
       </div>
       <div v-if="changeZipDiv" id="fenix-zip" class="fenix-zip-div">
-          <input type="text" id="zip-inpt" v-model="requestData.buyerZipCode" value="" />
+          <input type="text" id="zip-inpt" v-model="requestData.buyerZipCode" />
           <button type="button" id="check-zip" v-on:click="updatezip" >Check Delivery</button>
       </div>
     <div v-if="invalidZip" class="zip-input-error" v-html="invalidZipMSG"></div>
@@ -52,8 +52,8 @@
 <script>
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import LoadingFallback from '@/components/LoadingFallback/LoadingFallback';
-import FenixBranding from '@/components/Fenix/FenixBranding';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
+import FenixBranding from '@/components/Fenix/FenixBranding.vue';
 export default {
   name: 'Fenix',
   components: {
@@ -84,9 +84,9 @@ export default {
       fenixData: '',
       fenixResponse: '',
       fenixutm: '?utm_source=AWS&utm_medium=Demo_store&utm_campaign=product_page',
-      tenantId: process.env.VUE_APP_FENIX_TENANT_ID,
-      xapikey: process.env.VUE_APP_FENIX_X_API_KEY,
-      ipinfoUrl: process.env.VUE_APP_FENIX_ZIP_DETECT_URL,
+      tenantId: import.meta.env.VITE_FENIX_TENANT_ID,
+      xapikey: import.meta.env.VITE_FENIX_X_API_KEY,
+      ipinfoUrl: import.meta.env.VITE_FENIX_ZIP_DETECT_URL,
       showAllOptions: false,
       fenixDataReceived: false,
       fenixDataReceived_other: true,
@@ -94,7 +94,7 @@ export default {
       invalidZip: false,
       invalidZipMSG: '',
       fenixSSIDCookie: Cookies.get('fenixSSID'),
-      endPointUrl:process.env.VUE_APP_FENIX_EDD_ENDPOINT,
+      endPointUrl:import.meta.env.VITE_FENIX_EDD_ENDPOINT,
       requestData: {
         sessionTrackId: this.fenixSSIDCookie || this.sesstiontrack(),
         fenixSSID: this.fenixSSIDCookie || this.sesstiontrack(),

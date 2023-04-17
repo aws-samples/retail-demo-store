@@ -24,10 +24,10 @@
 import { mapState } from 'vuex';
 import { DEMO_GUIDE_TITLE_ID } from './config';
 import { Modals } from '../config';
-import Modal from '../Modal/Modal';
-import DemoGuideHeader from './DemoGuideHeader/DemoGuideHeader';
-import DemoGuideMenu from './DemoGuideMenu/DemoGuideMenu';
-import DemoGuideArticle from './DemoGuideArticle/DemoGuideArticle';
+import Modal from '../Modal/Modal.vue';
+import DemoGuideHeader from './DemoGuideHeader/DemoGuideHeader.vue';
+import DemoGuideMenu from './DemoGuideMenu/DemoGuideMenu.vue';
+import DemoGuideArticle from './DemoGuideArticle/DemoGuideArticle.vue';
 
 export default {
   name: 'DemoGuide',

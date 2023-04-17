@@ -34,8 +34,8 @@
 
 <script>
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
-import LocationDemoNavigation from "@/public/LocationDemoNavigation";
-import Layout from "@/components/Layout/Layout";
+import LocationDemoNavigation from "@/public/LocationDemoNavigation.vue";
+import Layout from "@/components/Layout/Layout.vue";
 
 const OrdersRepository = RepositoryFactory.get('orders')
 

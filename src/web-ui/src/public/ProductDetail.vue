@@ -84,15 +84,15 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import { product } from '@/mixins/product';
 
-import Layout from '@/components/Layout/Layout';
-import ProductPrice from '@/components/ProductPrice/ProductPrice';
-import FiveStars from '@/components/FiveStars/FiveStars';
-import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection';
+import Layout from '@/components/Layout/Layout.vue';
+import ProductPrice from '@/components/ProductPrice/ProductPrice.vue';
+import FiveStars from '@/components/FiveStars/FiveStars.vue';
+import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection.vue';
 import { discountProductPrice } from '@/util/discountProductPrice';
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
-import Fenixmaster from '@/components/Fenix/Fenixmaster';
+import Fenixmaster from '@/components/Fenix/Fenixmaster.vue';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const MAX_RECOMMENDATIONS = 10;
@@ -125,7 +125,7 @@ export default {
       demoGuideBadgeArticle: null,
       experiment: null,
       fenixcurrentvariant: {},
-      fenixenablePDP : process.env.VUE_APP_FENIX_ENABLED_PDP,
+      fenixenablePDP : import.meta.env.VITE_FENIX_ENABLED_PDP,
     };
   },
   computed: {

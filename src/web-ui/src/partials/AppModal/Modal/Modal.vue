@@ -21,7 +21,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 
-import ModalHeader from './ModalHeader/ModalHeader';
+import ModalHeader from './ModalHeader/ModalHeader.vue';
 import { APP_MODAL_ID } from '../config';
 
 export default {
@@ -59,7 +59,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .modal--mobile .modal-content {
   height: 100%;
   max-height: none;

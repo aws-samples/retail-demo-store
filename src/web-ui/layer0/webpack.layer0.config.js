@@ -19,7 +19,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.DEBUG_SW': JSON.stringify(false),
+      'import.meta.env.DEBUG_SW': JSON.stringify(false),
     }),
   ],
 };

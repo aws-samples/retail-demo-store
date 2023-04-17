@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     async getCognitoUser() {
-      this.cognitoUser = await Auth.currentAuthenticatedUser()
+      this.cognitoUser = await Auth.currentAuthenticatedUser().catch(err => console.log(err))
     },
     openWebsocketConnection() {
 
@@ -34,7 +34,7 @@ export default {
         return
       }
 
-      this.connection = new WebSocket(`${process.env.VUE_APP_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
+      this.connection = new WebSocket(`${import.meta.env.VITE_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
 
       this.connection.onopen = (e) => {
         console.log(e)
@@ -115,7 +115,7 @@ export default {
       if (product.image.includes('://')) {
         return product.image
       } else {
-        let root_url = process.env.VUE_APP_IMAGE_ROOT_URL
+        let root_url = import.meta.env.VITE_IMAGE_ROOT_URL
         return root_url + product.category + '/' + product.image
       }
     }
@@ -131,7 +131,7 @@ export default {
       return AmplifyStore.state.user
     },
     notificationsEnabled() {
-      const enabled = process.env.VUE_APP_LOCATION_NOTIFICATION_URL && process.env.VUE_APP_LOCATION_NOTIFICATION_URL !== ''
+      const enabled = import.meta.env.VITE_LOCATION_NOTIFICATION_URL && import.meta.env.VITE_LOCATION_NOTIFICATION_URL !== ''
       if (enabled) {
         console.log('Websocket notifications are enabled')
       }

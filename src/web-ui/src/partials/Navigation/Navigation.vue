@@ -14,13 +14,13 @@
 </template>
 
 <script>
-import HomeLink from './HomeLink/HomeLink';
-import ShopDropdown from './ShopDropdown/ShopDropdown';
-import Search from './Search/Search';
-import SupportLink from './SupportLink/SupportLink';
-import NavSeparator from './NavSeparator/NavSeparator';
-import CartLink from './CartLink/CartLink';
-import UserDropdown from './UserDropdown/UserDropdown';
+import HomeLink from './HomeLink/HomeLink.vue';
+import ShopDropdown from './ShopDropdown/ShopDropdown.vue';
+import Search from './Search/Search.vue';
+import SupportLink from './SupportLink/SupportLink.vue';
+import NavSeparator from './NavSeparator/NavSeparator.vue';
+import CartLink from './CartLink/CartLink.vue';
+import UserDropdown from './UserDropdown/UserDropdown.vue';
 
 export default {
   name: 'Navigation',

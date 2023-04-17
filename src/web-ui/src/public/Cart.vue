@@ -47,11 +47,11 @@ import { mapState, mapGetters } from 'vuex';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 
 import CartItem from './components/CartItem.vue';
-import Layout from '@/components/Layout/Layout';
+import Layout from '@/components/Layout/Layout.vue';
 
-import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton';
+import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton.vue';
 
-import FenixCart from '@/components/Fenix/FenixCart';
+import FenixCart from '@/components/Fenix/FenixCart.vue';
 
 
 export default {
@@ -64,7 +64,7 @@ export default {
   },
   data() {
     return {
-      fenixenableCART : process.env.VUE_APP_FENIX_ENABLED_CART,
+      fenixenableCART : import.meta.env.VITE_FENIX_ENABLED_CART,
     };
   },
   created() {

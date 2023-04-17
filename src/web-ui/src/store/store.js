@@ -1,9 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import Vue from 'vue';
-import Vuex from 'vuex';
-
+import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,9 +13,7 @@ import { demoWalkthroughShown } from './modules/demoWalkthroughShown/demoWalkthr
 import { lastVisitedPage } from './modules/lastVisitedPage/lastVisitedPage';
 import { confirmationModal } from './modules/confirmationModal/confirmationModal';
 
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
+const store = createStore({
   modules: { welcomePageVisited, categories, cart, modal, demoWalkthroughShown, lastVisitedPage, confirmationModal },
   state: {
     user: null,
@@ -41,6 +37,9 @@ const store = new Vuex.Store({
     incrementSessionEventsRecorded(state) {
       state.sessionEventsRecorded += 1;
     },
+    setIdentityId(state, id) {
+      state.user.identity_id = id;
+    }
   },
   getters: {
     username: (state) => state.user?.username ?? 'guest',
@@ -73,7 +72,7 @@ const store = new Vuex.Store({
       ],
     }),
   ],
-  strict: process.env.NODE_ENV !== 'production',
+  strict: import.meta.env.NODE_ENV !== 'production',
 });
 
 manageResponsiveModalState(store);

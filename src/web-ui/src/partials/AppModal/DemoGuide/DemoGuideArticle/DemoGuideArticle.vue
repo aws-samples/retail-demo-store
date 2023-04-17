@@ -4,30 +4,30 @@
 
 <script>
 import { Articles } from '../config';
-import UserPersonalization from './articles/UserPersonalization';
-import SIMSRecommendations from './articles/SIMSRecommendations';
-import SimilarItemsRecommendations from './articles/SimilarItemsRecommendations';
-import PersonalizedRanking from './articles/PersonalizedRanking';
-import CustomersWhoViewedXAlsoViewed from './articles/CustomersWhoViewedXAlsoViewed';
-import FrequentlyBoughtTogether from './articles/FrequentlyBoughtTogether';
-import PopularByPurchases from './articles/PopularByPurchases';
-import PopularByViews from './articles/PopularByViews';
-import RecommendedForYou from './articles/RecommendedForYou';
-import MachineLearningUserSegmentation from './articles/MachineLearningUserSegmentation';
-import PersonalizedEmails from './articles/PersonalizedEmails';
-import TextMessaging from './articles/TextMessaging';
-import OmniChannel from './articles/OmniChannel';
-import UserSegmentation from './articles/UserSegmentation';
-import RightForYou from './articles/RightForYou';
-import DataToProvide from './articles/DataToProvide';
-import MetricsAndImpact from './articles/MetricsAndImpact';
-import RealTimePersonalization from './articles/RealTimePersonalization';
-import BatchRecommendations from './articles/BatchRecommendations';
-import AboutThisDemo from './articles/AboutThisDemo';
-import Datasets from './articles/Datasets';
-import ShopperPersonas from './articles/ShopperPersonas';
-import EnablingShopperProfiles from './articles/EnablingShopperProfiles';
-import LocationServices from './articles/LocationServices';
+import UserPersonalization from './articles/UserPersonalization.vue';
+import SIMSRecommendations from './articles/SIMSRecommendations.vue';
+import SimilarItemsRecommendations from './articles/SimilarItemsRecommendations.vue';
+import PersonalizedRanking from './articles/PersonalizedRanking.vue';
+import CustomersWhoViewedXAlsoViewed from './articles/CustomersWhoViewedXAlsoViewed.vue';
+import FrequentlyBoughtTogether from './articles/FrequentlyBoughtTogether.vue';
+import PopularByPurchases from './articles/PopularByPurchases.vue';
+import PopularByViews from './articles/PopularByViews.vue';
+import RecommendedForYou from './articles/RecommendedForYou.vue';
+import MachineLearningUserSegmentation from './articles/MachineLearningUserSegmentation.vue';
+import PersonalizedEmails from './articles/PersonalizedEmails.vue';
+import TextMessaging from './articles/TextMessaging.vue';
+import OmniChannel from './articles/OmniChannel.vue';
+import UserSegmentation from './articles/UserSegmentation.vue';
+import RightForYou from './articles/RightForYou.vue';
+import DataToProvide from './articles/DataToProvide.vue';
+import MetricsAndImpact from './articles/MetricsAndImpact.vue';
+import RealTimePersonalization from './articles/RealTimePersonalization.vue';
+import BatchRecommendations from './articles/BatchRecommendations.vue';
+import AboutThisDemo from './articles/AboutThisDemo.vue';
+import Datasets from './articles/Datasets.vue';
+import ShopperPersonas from './articles/ShopperPersonas.vue';
+import EnablingShopperProfiles from './articles/EnablingShopperProfiles.vue';
+import LocationServices from './articles/LocationServices.vue';
 
 export default {
   name: 'DemoGuideArticle',

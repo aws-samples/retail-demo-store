@@ -5,9 +5,9 @@
 <script>
 import { mapState } from 'vuex';
 
-import DemoGuide from './DemoGuide/DemoGuide';
-import DemoWalkthrough from './DemoWalkthrough/DemoWalkthrough';
-import ShopperSelectModal from './ShopperSelectModal/ShopperSelectModal';
+import DemoGuide from './DemoGuide/DemoGuide.vue';
+import DemoWalkthrough from './DemoWalkthrough/DemoWalkthrough.vue';
+import ShopperSelectModal from './ShopperSelectModal/ShopperSelectModal.vue';
 import { Modals } from './config';
 
 export default {

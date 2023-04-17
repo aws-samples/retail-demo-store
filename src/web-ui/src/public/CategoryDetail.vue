@@ -2,7 +2,7 @@
   <Layout :isLoading="!products.length">
       <!-- Product List -->
       <div class="container" v-if="products.length">
-        <h2 class="text-left">{{ this.display | capitalize }} <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></h2>
+        <h2 class="text-left">{{ capitalize(this.display) }} <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></h2>
         <div v-if="experiment" class="text-muted text-left">
           <small><em><i v-if="experiment" class="fa fa-balance-scale"></i> {{ experiment }}</em></small>
         </div>
@@ -46,7 +46,7 @@
                 <div class="p-1 pl-2" v-for="style in styles" v-bind:key="style">
                   <label class="mb-0">
                     <input class="mr-1" type="checkbox"  :value="style" v-model="selectedStyles">
-                    {{style | capitalize}}
+                    {{ capitalize(style) }}
                   </label>
                 </div>
               </div>
@@ -72,10 +72,11 @@ import {mapState, mapGetters} from 'vuex'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
-import Product from '@/components/Product/Product'
-import Layout from '@/components/Layout/Layout'
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge';
+import Product from '@/components/Product/Product.vue'
+import Layout from '@/components/Layout/Layout.vue'
+import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+import { capitalize } from '@/util/capitalize'
 
 const ProductsRepository = RepositoryFactory.get('products')
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -118,7 +119,7 @@ export default {
 
     this.mediaQueryList.addEventListener('change', this.listener);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.mediaQueryList.removeEventListener('change', this.listener);
   },
   methods: {
@@ -164,7 +165,8 @@ export default {
       }
 
       this.display = categoryName
-    }
+    },
+    capitalize
   },
   computed: {
     ...mapState({user: state => state.user, categories: state => state.categories.categories}),
@@ -179,7 +181,7 @@ export default {
     styles() {
       const styles = this.products.map(product => product.style)
       const uniqueStyles = styles.filter((style, index, styles) => styles.indexOf(style) === index).sort()
-      return uniqueStyles
+      return uniqueStyles;      
     },
     filteredProducts() {
       let products = this.products
@@ -196,13 +198,6 @@ export default {
       }
 
       return products
-    }
-  },
-  filters: {
-    capitalize: function (value) {
-      if (!value) return ''
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
     }
   },
   watch: {
@@ -254,4 +249,5 @@ export default {
       align-self: flex-start;
     }
   }
+
 </style>

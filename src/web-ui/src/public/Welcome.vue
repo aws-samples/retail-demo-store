@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import Layout from '@/components/Layout/Layout'
-import ServiceBadge from './components/ServiceBadge';
+import Layout from '@/components/Layout/Layout.vue'
+import ServiceBadge from './components/ServiceBadge.vue';
 
 export default {
   name: 'Welcome',

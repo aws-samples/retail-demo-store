@@ -15,7 +15,7 @@
 <script>
 import { mapActions } from 'vuex';
 
-import DemoWalkthroughPageLayout from '../DemoWalkthroughPageLayout';
+import DemoWalkthroughPageLayout from '../DemoWalkthroughPageLayout.vue';
 
 import { APP_MODAL_ID } from '../../config';
 

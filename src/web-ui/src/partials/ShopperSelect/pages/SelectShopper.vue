@@ -84,7 +84,7 @@ export default {
     // eslint-disable-next-line no-undef
     $(this.$refs.learnMore).tooltip();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // eslint-disable-next-line no-undef
     $(this.$refs.learnMore).tooltip('dispose');
   },
