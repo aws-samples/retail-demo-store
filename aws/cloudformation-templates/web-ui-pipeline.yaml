@@ -371,7 +371,6 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
