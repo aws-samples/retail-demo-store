@@ -22,7 +22,6 @@ Resources:
   WebUIBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: Private
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
         LogFilePrefix: webui-logs   
@@ -93,7 +92,6 @@ Resources:
   SwaggerUIBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: Private
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
         LogFilePrefix: swaggerui-logs   
