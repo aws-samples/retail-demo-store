@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: MIT-0
 
 import axios from "axios";
+import resolveBaseURL from './resolveBaseURL'
 
-const serviceDomain = import.meta.env.VITE_LOCATION_SERVICE_DOMAIN;
-const servicePort = import.meta.env.VITE_LOCATION_SERVICE_PORT;
-const baseURL = `${serviceDomain}:${servicePort}`;
+const baseURL = resolveBaseURL(
+    import.meta.env.VITE_LOCATION_SERVICE_DOMAIN,
+    import.meta.env.VITE_LOCATION_SERVICE_PORT,
+    import.meta.env.VITE_LOCATION_SERVICE_PATH)
 
 const connection = axios.create({
     baseURL
