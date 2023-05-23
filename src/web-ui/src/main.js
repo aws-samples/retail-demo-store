@@ -48,8 +48,6 @@ if (AmplifyStore.state.user?.id) {
     }
 }
 
-Analytics.addPluggable(new AWSPinpointProvider());
-
 // Only add Personalize event tracking if configured.
 if (import.meta.env.VITE_PERSONALIZE_TRACKING_ID && import.meta.env.VITE_PERSONALIZE_TRACKING_ID != 'NONE') {
   // Amazon Personalize event tracker.
