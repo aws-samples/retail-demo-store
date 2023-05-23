@@ -9,7 +9,7 @@ echo "Cleaning up intermediate files"
 [ -e "package" ] && rm -rf package
 
 echo "Installing Lambda dependencies"
-pip install --target ./package requests
+pip install --target ./package requests "urllib3<2"
 
 echo "Building Lambda deployment package"
 cd package

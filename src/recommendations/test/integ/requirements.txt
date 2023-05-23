@@ -1,5 +1,6 @@
 pytest==7.1.1
-requests==2.27.1
+requests==2.31.0
+urllib3<2
 jsonschema==4.4.0
 assertpy==1.1
 black==22.1.0
