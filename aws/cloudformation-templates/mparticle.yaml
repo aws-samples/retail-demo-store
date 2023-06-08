@@ -29,6 +29,12 @@ Parameters:
     Description: >
       The OrgID for your mParticle instance.  This will be used to enable assume role for mParticle to write to Kinesis.
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 Resources:
   mParticlePersonalizeEventsKinesisStream:
     Type: AWS::Kinesis::Stream
@@ -53,6 +59,10 @@ Resources:
       Runtime: nodejs12.x
       Timeout: 900
       FunctionName: !Sub '${Uid}-mPEventsLambda'
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
 
   mParticleKinesisCrossAccountRole:
     Type: 'AWS::IAM::Role'
@@ -100,6 +110,7 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole'
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:

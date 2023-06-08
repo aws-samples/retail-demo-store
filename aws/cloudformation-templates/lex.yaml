@@ -20,6 +20,12 @@ Parameters:
     Type: String
     Default: none
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 Resources:
   BotRecommendationsLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -34,6 +40,10 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/bot-intent-recommendations.zip'
       Runtime: python3.8
       Timeout: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       FunctionName: RetailDemoStore-Chat-Recommendations  # Referenced by name in Conversational AI workshop notebook
       Environment:
         Variables:
@@ -53,6 +63,8 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:

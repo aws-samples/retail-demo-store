@@ -54,6 +54,12 @@ Parameters:
     Type: String
     Default: none
 
+  LambdaVpcSecurityGroup:
+    Type: String
+  
+  LambdaVpcSubnets:
+    Type: String
+
 Conditions:
   DefaultGeofence: !Equals
       - !Ref DeployDefaultGeofence
@@ -204,6 +210,8 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -269,6 +277,10 @@ Resources:
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-geofence-event.zip'
       Runtime: python3.8
       Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       FunctionName: LocationNrfDemoGeofenceEventHandler
       Environment:
         Variables:

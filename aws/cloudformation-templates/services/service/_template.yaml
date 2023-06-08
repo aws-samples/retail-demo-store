@@ -73,6 +73,10 @@ Parameters:
   VpcId:
     Type: String
 
+  VpcCidr:
+    Type: String
+    Description: CIDR of the VPC (used for security groups)
+
   ClusterName:
     Type: String
 
@@ -214,10 +218,6 @@ Parameters:
     Type: String
     Description: Evidently project name
 
-  ACMCertARN:
-    Type: String
-    Description: Self signed cert ARN
-
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
@@ -232,7 +232,7 @@ Resources:
         ServiceName: !Ref ServiceName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
-        ACMCertARN: !Ref ACMCertARN
+        VpcCidr: !Ref VpcCidr
 
   Pipeline:
     Type: AWS::CloudFormation::Stack
@@ -318,3 +318,6 @@ Outputs:
   ServiceUrl:
     Description: URL of the load balancer for this service.
     Value: !GetAtt Loadbalancer.Outputs.ServiceUrl
+
+  ServiceELBListener:
+    Value: !GetAtt Loadbalancer.Outputs.LoadBalancerListener

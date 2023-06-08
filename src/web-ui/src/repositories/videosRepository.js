@@ -7,7 +7,8 @@ import resolveBaseURL from './resolveBaseURL'
 const baseURL = resolveBaseURL(
     import.meta.env.VITE_VIDEOS_SERVICE_DOMAIN,
     import.meta.env.VITE_VIDEOS_SERVICE_PORT,
-    import.meta.env.VITE_VIDEOS_SERVICE_PATH)
+    import.meta.env.VITE_VIDEOS_SERVICE_PATH
+)
 
 const connection = axios.create({
     baseURL
@@ -15,10 +16,6 @@ const connection = axios.create({
 
 export default {
     async get() {
-        let resp = await connection.get(`stream_details`)
-        for (let stream of resp.data.streams) {
-            stream['thumb_url'] = baseURL + '/' + stream['thumb_url'];
-        }
-        return resp;
+        return await connection.get(`stream_details`)
     },
 }

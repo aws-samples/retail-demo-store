@@ -225,6 +225,8 @@ Resources:
         VpcCIDR: 10.215.0.0/16
         Subnet1CIDR: 10.215.10.0/24
         Subnet2CIDR: 10.215.20.0/24
+        PublicSubnet1CIDR: 10.215.30.0/24
+        PublicSubnet2CIDR: 10.215.40.0/24
 
   # OpenSearch
   # Create role here rather than in OpenSearch nested template so role has time to become consistent
@@ -322,12 +324,6 @@ Resources:
       Parameters:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
-  # SelfSignedCertACM
-  SelfSignedCertACM:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/acm-cert.yaml
-
 Outputs:
   UserPoolId:
     Description: Authentication Cognito User Pool Id.
@@ -356,6 +352,10 @@ Outputs:
   VpcId:
     Description: VPC Id.
     Value: !GetAtt VPC.Outputs.VpcId
+  
+  VpcCidr:
+    Description: VPC CIDR block
+    Value: !GetAtt VPC.Outputs.VpcCidr
 
   Subnets:
     Description: Service Subnets.
@@ -368,6 +368,10 @@ Outputs:
   Subnet2:
     Description: Service Subnet2.
     Value: !GetAtt VPC.Outputs.Subnet2
+
+  PrivateVPCSecurityGroup:
+    Description: Default security for Lambda VPC
+    Value: !GetAtt VPC.Outputs.PrivateVPCSecurityGroup
 
   ClusterName:
     Description: ECS Cluster Name.
@@ -464,7 +468,3 @@ Outputs:
   EvidentlyProjectName:
     Description: Evidently project name
     Value: !GetAtt Evidently.Outputs.EvidentlyProjectName
-
-  ACMCertARN:
-    Description: selfsigned cert ARN
-    Value: !GetAtt SelfSignedCertACM.Outputs.ACMimportCertArn

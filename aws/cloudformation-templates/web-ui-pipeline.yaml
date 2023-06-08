@@ -75,35 +75,7 @@ Parameters:
   IdentityPoolId:
     Type: String
 
-  ProductsServiceExternalUrl:
-    Type: String
-    Default: none
-
-  UsersServiceExternalUrl:
-    Type: String
-    Default: none
-
-  CartsServiceExternalUrl:
-    Type: String
-    Default: none
-
-  OrdersServiceExternalUrl:
-    Type: String
-    Default: none
-
-  RecommendationsServiceExternalUrl:
-    Type: String
-    Default: none
-
-  LocationServiceExternalUrl:
-    Type: String
-    Default: none
-
-  SearchServiceExternalUrl:
-    Type: String
-    Default: none
-
-  VideosServiceExternalUrl:
+  APIGatewayUrl:
     Type: String
     Default: none
 
@@ -420,21 +392,21 @@ Resources:
           - Name: COGNITO_IDENTITY_POOL_ID
             Value: !Sub ${IdentityPoolId}
           - Name: PRODUCTS_SERVICE_URL
-            Value: !Sub ${ProductsServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: USERS_SERVICE_URL
-            Value: !Sub ${UsersServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: CARTS_SERVICE_URL
-            Value: !Sub ${CartsServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: ORDERS_SERVICE_URL
-            Value: !Sub ${OrdersServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: RECOMMENDATIONS_SERVICE_URL
-            Value: !Sub ${RecommendationsServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: LOCATION_SERVICE_URL
-            Value: !Sub ${LocationServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: SEARCH_SERVICE_URL
-            Value: !Sub ${SearchServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: VIDEOS_SERVICE_URL
-            Value: !Sub ${VideosServiceExternalUrl}
+            Value: !Ref APIGatewayUrl
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
           - Name: PINPOINT_APP_ID

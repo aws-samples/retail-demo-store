@@ -71,6 +71,10 @@ Parameters:
   VpcId:
     Type: String
 
+  VpcCidr:
+    Type: String
+    Description: CIDR of the VPC (used for security groups)
+
   ClusterName:
     Type: String
 
@@ -127,14 +131,13 @@ Parameters:
   EvidentlyProjectName:
     Type: String
     Description: Evidently project name
-
-  ACMCertARN:
-    Type: String
-    Description: Self signed cert ARN
     
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
+  
+  LambdaVpcSecurityGroup:
+    Type: String
 
 Resources:
 
@@ -158,6 +161,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
@@ -172,7 +176,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
 
   UsersService:
@@ -195,6 +198,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
@@ -207,7 +211,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
         
   CartsService:
@@ -230,6 +233,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
@@ -241,7 +245,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
         
   OrdersService:
@@ -264,6 +267,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
@@ -275,7 +279,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
         
   SearchService:
@@ -298,6 +301,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
@@ -310,7 +314,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
 
   LocationService:
@@ -333,6 +336,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
@@ -345,7 +349,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
 
   OffersService:
@@ -368,6 +371,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
@@ -380,7 +384,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
 
   RecommendationsService:
@@ -403,6 +406,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
@@ -417,7 +421,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
 
   VideosService:
@@ -440,6 +443,7 @@ Resources:
         StackBucketName: !Ref StackBucketName
         Subnets: !Ref Subnets
         VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
@@ -453,7 +457,6 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         EvidentlyProjectName: !Ref EvidentlyProjectName
-        ACMCertARN: !Ref ACMCertARN
         LoggingBucketName: !Ref LoggingBucketName
         
   # Pinpoint personalized messaging customization
@@ -469,6 +472,8 @@ Resources:
         OffersServiceDNSName: !GetAtt OffersService.Outputs.ServiceDNSName
         PinpointAppId: !Ref PinpointAppId
         Uid: !Sub ${ParentStackName}-${AWS::Region}
+        LambdaVpcSecurityGroup: !Ref LambdaVpcSecurityGroup
+        LambdaVpcSubnets: !Ref Subnets
 
   # Custom resources
   CustomResources:
@@ -562,37 +567,73 @@ Outputs:
     Description: Products load balancer URL.
     Value: !GetAtt ProductsService.Outputs.ServiceUrl
 
+  ProductsServiceELBListener:
+    Description: Products Service ELB Arn
+    Value: !GetAtt ProductsService.Outputs.ServiceELBListener
+
   UsersServiceUrl:
     Description: Users load balancer URL.
     Value: !GetAtt UsersService.Outputs.ServiceUrl
+  
+  UsersServiceELBListener:
+    Description: Users Service ELB Arn
+    Value: !GetAtt UsersService.Outputs.ServiceELBListener
 
   CartsServiceUrl:
     Description: Carts load balancer URL.
     Value: !GetAtt CartsService.Outputs.ServiceUrl
 
+  CartsServiceELBListener:
+    Description: Carts ELB Arn
+    Value: !GetAtt CartsService.Outputs.ServiceELBListener
+
   OrdersServiceUrl:
     Description: Orders load balancer URL.
     Value: !GetAtt OrdersService.Outputs.ServiceUrl
+
+  OrdersServiceELBListener:
+    Description: Orders ELB Arn
+    Value: !GetAtt OrdersService.Outputs.ServiceELBListener
 
   LocationServiceUrl:
     Description: Location load balancer URL.
     Value: !GetAtt LocationService.Outputs.ServiceUrl
 
+  LocationServiceELBListener:
+    Description: Location ELB Arn
+    Value: !GetAtt LocationService.Outputs.ServiceELBListener
+
   RecommendationsServiceUrl:
     Description: Recommendations load balancer URL.
     Value: !GetAtt RecommendationsService.Outputs.ServiceUrl
+
+  RecommendationsServiceELBListener:
+    Description: Recommendations ELB Arn
+    Value: !GetAtt RecommendationsService.Outputs.ServiceELBListener
 
   VideosServiceUrl:
     Description: Videos load balancer URL.
     Value: !GetAtt VideosService.Outputs.ServiceUrl
 
+  VideosServiceELBListener:
+    Description: Videos ELB Arn
+    Value: !GetAtt VideosService.Outputs.ServiceELBListener
+
   SearchServiceUrl:
     Description: Search load balancer URL.
     Value: !GetAtt SearchService.Outputs.ServiceUrl
 
+  SearchServiceELBListener:
+    Description: Search ELB Arn
+    Value: !GetAtt SearchService.Outputs.ServiceELBListener
+
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt OffersService.Outputs.ServiceUrl
+
+  OffersServiceELBListener:
+    Description: Offers ELB Arn
+    Value: !GetAtt OffersService.Outputs.ServiceELBListener
 
   PinpointPersonalizeRoleArn:
       Value: !GetAtt PinpointPersonalize.Outputs.PinpointPersonalizeRoleArn

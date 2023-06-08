@@ -14,23 +14,24 @@ Parameters:
   VpcId:
     Type: String
 
-  ACMCertARN:
+  VpcCidr:
     Type: String
 
 Resources:
   SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: !Sub ${AWS::StackName}-alb
+      GroupDescription: !Sub ${AWS::StackName}/ECS/${ServiceName}/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: "0.0.0.0/0"
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
       SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
+        - CidrIp: !Ref VpcCidr
+          Description: Allow from within the VPC for port 80
           FromPort: 80
+          IpProtocol: tcp
           ToPort: 80
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-          FromPort: 443
-          ToPort: 443 
       VpcId: !Ref VpcId
 
   LoadBalancer:
@@ -38,10 +39,10 @@ Resources:
     Properties:
       Subnets: !Ref Subnets
       LoadBalancerAttributes:
-        - Key : routing.http.drop_invalid_header_fields.enabled 
-          Value : true # scoutsuite 10-2022
-      SecurityGroups:
-        - !Ref SecurityGroup
+        - Key: deletion_protection.enabled
+          Value: "false"
+      Scheme: internal
+      Type: network
       Tags:
         -
           Key: RetailDemoStoreServiceName
@@ -52,49 +53,10 @@ Resources:
     Properties:
       LoadBalancerArn: !Ref LoadBalancer
       Port: 80
-      Protocol: HTTP
+      Protocol: TCP
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
-
-  LoadBalancerHTTPSListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref LoadBalancer
-      Port: 443
-      Protocol: HTTPS
-      Certificates:
-        - CertificateArn: !Ref ACMCertARN
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref TargetGroup
-
-  # Listener Rules
-  ListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      ListenerArn: !Ref LoadBalancerListener
-      Priority: 2
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - /
-      Actions:
-        - TargetGroupArn: !Ref TargetGroup
-          Type: forward
-
-  ListenerHTTPSRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      ListenerArn: !Ref LoadBalancerHTTPSListener
-      Priority: 2
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - /
-      Actions:
-        - TargetGroupArn: !Ref TargetGroup
-          Type: forward
 
   # Target Groups
   TargetGroup:
@@ -103,9 +65,7 @@ Resources:
     Properties:
       VpcId: !Ref VpcId
       Port: 80
-      Protocol: HTTP
-      Matcher:
-        HttpCode: 200-299
+      Protocol: TCP
       HealthCheckIntervalSeconds: 10
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
@@ -140,3 +100,7 @@ Outputs:
 
   SecurityGroup:
     Value: !Ref SecurityGroup
+  
+  LoadBalancerListener:
+    Description: Arn of the load balancer listener for this service
+    Value: !GetAtt LoadBalancerListener.ListenerArn

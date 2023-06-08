@@ -26,10 +26,10 @@ export default {
         return connection.get(`${resource}/all?offset=${offset}&count=${count}`)
     },
     getUnclaimedUser({primaryInterest, ageRange}) {
-        return connection.get(`${resource}/unclaimed/?primaryPersona=${primaryInterest}&ageRange=${ageRange}`)
+        return connection.get(`${resource}/unclaimed?primaryPersona=${primaryInterest}&ageRange=${ageRange}`)
     },
     getRandomUser() {
-        return connection.get(`${resource}/random/`)
+        return connection.get(`${resource}/random`)
     },
     getUserByID(userID) {
         if (!userID || userID.length == 0)
