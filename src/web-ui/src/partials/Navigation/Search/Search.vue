@@ -90,45 +90,54 @@ export default {
       // improve the relevancy of results.
       var comp = this;
       const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
-      const { data } = await SearchRepository.searchProducts(val, size)
+      await SearchRepository.searchProducts(val, size)
+        .then(response => this.rerank(response.data))
+        .then(response => this.lookupProducts(response))
+        .then(response => AnalyticsHandler.productSearched(this.user, val, response.length))
         .catch((error) => {
           if (error.response) {
             if (error.response.status == 404) {
               comp.searchError = 'Search index not found. Please complete the search workshop.'
             } else {
+              console.log(error)
               comp.searchError = `Unexpected error (${error.response.status}) encountered when performing search.`;
             }
           } else {
+            console.log(error)
             comp.searchError = 'Unexpected error encountered when performing search.';
           }
         });
-
-      await this.rerank(data);
-      if (this.results.length > 0) {
-        await this.lookupProducts(this.results);
-      }
-
-      AnalyticsHandler.productSearched(this.user, val, data.length);
     },
     async rerank(items) {
       if (this.personalizeRecommendationsForVisitor && items && items.length > 0) {
         const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
-        this.results = data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
+        return data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
       } else {
         this.isReranked = false;
-        this.results = items;
+        return items;
       }
     },
     async lookupProducts(items) {
-      const itemIds = items.map(item => item.itemId);
+      if (items && items.length > 0) {
+        const itemIds = items.map(item => item.itemId);
 
-      const { data } = await ProductsRepository.getProduct(itemIds);
-
-      this.results = items.map((item) => ({
-        ...item,
-        product: data.find(({id}) => id === item.itemId)
-      }));
+        const { data } = await ProductsRepository.getProduct(itemIds);
+        if (Array.isArray(data)) {
+          this.results = items.map((item) => ({
+            ...item,
+            product: data.find(({id}) => id === item.itemId)
+          }));          
+        } else {
+          this.results = [{
+            "itemId": data?.id,
+            "product": data
+          }]
+        } 
+      } else {
+        this.results = []
+      }
+      return this.results
     }
   },
   watch: {

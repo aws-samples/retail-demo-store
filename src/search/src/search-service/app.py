@@ -149,7 +149,7 @@ def search_products():
         app.logger.debug('Total hits across categories: %d', total_hits)
 
         cats_with_hits = len(results["hits"]["hits"])
-        avg_hits_cat = int(size / cats_with_hits)
+        avg_hits_cat = int(size / cats_with_hits) if cats_with_hits > 0 else 0
         app.logger.debug('Average hits per category: %d', avg_hits_cat)
         hits_for_cats = []
         accum_hits = 0

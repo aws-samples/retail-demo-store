@@ -14,7 +14,8 @@
 </template>
 
 <script>
-import { product } from '@/mixins/product';
+
+import { getProductImageUrl } from '../../../../util/getProductImageUrl';
 
 export default {
   name: 'SearchItem',
@@ -23,10 +24,12 @@ export default {
     feature: { type: String, required: true },
     experiment: { type: Object, required: false },
   },
-  mixins: [product],
   computed: {
     experimentCorrelationId() {
       return this.experiment?.correlationId;
+    },
+    productImageUrl() {
+      return getProductImageUrl(this.product);
     },
   },
 };
