@@ -24,7 +24,7 @@
     "@optimizely/optimizely-sdk": "^4.9.2",
     "amplitude-js": "^5.8.0",
     "autoprefixer": "^10.4.13",
-    "aws-amplify": "^5.0.25",
+    "aws-amplify": "^5.2.6",
     "axios": "^1.2.4",
     "jsonfile": "^6.1.0",
     "mapbox-gl": "^1.12.0",
