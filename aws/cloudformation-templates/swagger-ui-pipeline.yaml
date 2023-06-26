@@ -319,7 +319,7 @@ Resources:
               Configuration:
                 RepositoryName: retaildemostore-src
                 BranchName: main
-                PollForSourceChanges: 'true'
+                PollForSourceChanges: false
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
@@ -338,6 +338,57 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildProject
               RunOrder: 1
+
+  EventRole:
+    Condition: LinkToCodeCommit
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        -
+          PolicyName: eb-pipeline-execution
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action: codepipeline:StartPipelineExecution
+                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineCodeCommit ] ] 
+
+  EventRule:
+    Condition: LinkToCodeCommit
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codecommit
+        detail-type:
+          - 'CodeCommit Repository State Change'
+        resources:
+          - !Join [ '', [ 'arn:aws:codecommit:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', 'retaildemostore-src' ] ]
+        detail:
+          event:
+            - referenceCreated
+            - referenceUpdated
+          referenceType:
+            - branch
+          referenceName:
+            - main
+      Targets:
+        -
+          Arn: 
+            !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineCodeCommit ] ]
+          RoleArn: !GetAtt EventRole.Arn
+          Id: codepipeline-AppPipeline
 
 Outputs:
   PipelineForGitHubUrl:

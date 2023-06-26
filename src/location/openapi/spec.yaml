@@ -30,7 +30,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:
@@ -49,7 +49,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:
@@ -67,7 +67,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:
@@ -85,7 +85,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:

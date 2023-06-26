@@ -1,38 +1,38 @@
 {
   "products": {
     "domain": "$PRODUCTS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "users": {
     "domain": "$USERS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "carts": {
     "domain": "$CARTS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "orders": {
     "domain": "$ORDERS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "recommendations": {
     "domain": "$RECOMMENDATIONS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "search": {
     "domain": "$SEARCH_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "videos": {
     "domain": "$VIDEOS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "offers": {
     "domain": "$OFFERS_SERVICE_URL",
-    "port": 80
+    "port": 443
   },
   "location": {
     "domain": "$LOCATION_SERVICE_URL",
-    "port": 80
+    "port": 443
   }
 }

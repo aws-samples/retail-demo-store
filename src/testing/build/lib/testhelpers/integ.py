@@ -57,7 +57,7 @@ def post_request_assert(base, endpoint, request_file, validation_file, endpoint_
     """
     body = read_file(request_file, endpoint)
     r = requests.post(full_request_url(base, endpoint, endpoint_params), data=json.dumps(body),
-                      headers={"Content-Type": "application/json", "Accept": "appllication/json"})
+                      headers={"Content-Type": "application/json", "Accept": "application/json"})
     assertions(r, endpoint, validation_file)
     return r
 

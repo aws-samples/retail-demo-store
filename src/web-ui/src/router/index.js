@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: MIT-0
 
 import { createRouter,  createWebHistory} from 'vue-router'
-import Main from '@/public/Main.vue'
 
-import {Hub} from 'aws-amplify';
+import { Hub } from 'aws-amplify';
 import { Auth } from 'aws-amplify';
 import AmplifyStore from '@/store/store';
 
@@ -178,6 +177,7 @@ async function getUser() {
   return AmplifyStore.state.user;
 }
 
+const Main = () => import('@/public/Main.vue')
 const Welcome = () => import('@/public/Welcome.vue')
 const ProductDetail = () => import('@/public/ProductDetail.vue')
 const CategoryDetail = () => import('@/public/CategoryDetail.vue')

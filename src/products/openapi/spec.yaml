@@ -39,7 +39,7 @@ paths:
         '201':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Product'
   /products/all:
@@ -51,7 +51,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -72,7 +72,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Product'
     put:
@@ -90,7 +90,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Product'
     delete:
@@ -121,7 +121,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -135,7 +135,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -163,7 +163,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '404':
@@ -177,7 +177,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -199,7 +199,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Category'
         '404':
