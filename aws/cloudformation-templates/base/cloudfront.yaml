@@ -11,10 +11,6 @@ Parameters:
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
-    
-    
-Conditions:
-  IADRegion: !Equals [!Ref "AWS::Region", "us-east-1"]
 
 Resources:
   
@@ -25,8 +21,6 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
         LogFilePrefix: webui-logs   
-      WebsiteConfiguration:
-        IndexDocument: index.html
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption: 
@@ -49,19 +43,41 @@ Resources:
       Bucket: !Ref WebUIBucket
       PolicyDocument:
         Statement:
-          - Action: 's3:GetObject'
+          - Sid: 'AllowCloudFrontServicePrincipalReadOnly'
+            Action: 's3:GetObject'
             Effect: Allow
             Resource: !Sub 'arn:aws:s3:::${WebUIBucket}/*'
             Principal:
-              AWS: !Sub >-
-                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
-                ${WebUIBucketOriginAccessIdentity}
+              Service: 'cloudfront.amazonaws.com'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${WebUICDN}'
 
-  WebUIBucketOriginAccessIdentity:
-    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'OriginAccessIdentity for ${WebUIBucket}'
+  UIOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties: 
+      OriginAccessControlConfig:
+        Name: UIOriginAccessControl
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  
+  UICachePolicy:  
+    Type: AWS::CloudFront::CachePolicy
+    Properties: 
+      CachePolicyConfig:
+        DefaultTTL: 86400
+        MaxTTL: 31536000
+        MinTTL: 86400
+        Name: UICachePolicy
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: all
 
   WebUICDN:
     Type: 'AWS::CloudFront::Distribution'
@@ -71,22 +87,17 @@ Resources:
         Comment: !Sub 'Retail Demo Store CDN for ${WebUIBucket}'
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
-        HttpVersion: http2
+        HttpVersion: http2and3
         Origins:
-          - DomainName: !Join
-              - ''
-              - - !Sub '${WebUIBucket}.s3'
-                - !If [IADRegion, '', !Sub '-${AWS::Region}']
-                - '.amazonaws.com'
+          - DomainName: !GetAtt WebUIBucket.RegionalDomainName
             Id: S3
             S3OriginConfig:
-              OriginAccessIdentity: !Sub >-
-                origin-access-identity/cloudfront/${WebUIBucketOriginAccessIdentity}
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !Ref UIOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3
-          ViewerProtocolPolicy: allow-all
-          ForwardedValues:
-            QueryString: 'true'
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: !Ref UICachePolicy
 
   # Swagger UI infrastructure
   SwaggerUIBucket:
@@ -95,8 +106,6 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
         LogFilePrefix: swaggerui-logs   
-      WebsiteConfiguration:
-        IndexDocument: index.html
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption: 
@@ -123,15 +132,10 @@ Resources:
             Effect: Allow
             Resource: !Sub 'arn:aws:s3:::${SwaggerUIBucket}/*'
             Principal:
-              AWS: !Sub >-
-                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
-                ${SwaggerUIBucketOriginAccessIdentity}
-
-  SwaggerUIBucketOriginAccessIdentity:
-    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'OriginAccessIdentity for ${SwaggerUIBucket}'
+              Service: 'cloudfront.amazonaws.com'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}'
 
   SwaggerUICDN:
     Type: 'AWS::CloudFront::Distribution'
@@ -141,22 +145,17 @@ Resources:
         Comment: !Sub 'Swagger UI CDN for ${SwaggerUIBucket}'
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
-        HttpVersion: http2
+        HttpVersion: http2and3
         Origins:
-          - DomainName: !Join
-              - ''
-              - - !Sub '${SwaggerUIBucket}.s3'
-                - !If [IADRegion, '', !Sub '-${AWS::Region}']
-                - '.amazonaws.com'
+          - DomainName: !GetAtt SwaggerUIBucket.RegionalDomainName
             Id: S3
             S3OriginConfig:
-              OriginAccessIdentity: !Sub >-
-                origin-access-identity/cloudfront/${SwaggerUIBucketOriginAccessIdentity}
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !Ref UIOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3
-          ViewerProtocolPolicy: allow-all
-          ForwardedValues:
-            QueryString: 'true'
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: !Ref UICachePolicy
 
 Outputs:
   # Web UI outputs

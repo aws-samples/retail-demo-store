@@ -45,7 +45,7 @@ paths:
         '201':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/User'
         '502':
@@ -77,7 +77,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -100,7 +100,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/User'
     put: 
@@ -118,7 +118,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/User'
         '422':
@@ -139,7 +139,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -160,7 +160,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/User'
   /users/unclaimed:
@@ -203,7 +203,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/User'
   /users/random:
@@ -225,7 +225,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -247,7 +247,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: boolean
                 example: true

@@ -78,7 +78,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -112,7 +112,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -143,7 +143,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -170,7 +170,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -206,7 +206,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -231,7 +231,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:
@@ -256,7 +256,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:
@@ -266,7 +266,7 @@ paths:
         '400':
           description: Invalid input
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: object
                 properties:

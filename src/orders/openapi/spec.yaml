@@ -37,7 +37,7 @@ paths:
         '201':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Order'
   /orders/all:
@@ -49,7 +49,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
@@ -71,7 +71,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Order'
     put:
@@ -97,7 +97,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/Order'
   /orders/username/{username}:
@@ -116,7 +116,7 @@ paths:
         '200':
           description: Successful
           content:
-            appllication/json:
+            application/json:
               schema:
                 type: array
                 items:
