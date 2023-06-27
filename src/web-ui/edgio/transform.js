@@ -1,5 +1,5 @@
 export default function transform(response, request) {
-  console.log("[LAYER0 TRANSFORM]", response);
+  console.log("[EDGIO TRANSFORM]", response);
 
   if (response.body) {
     try {

@@ -1,11 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Prefetcher } from "@layer0/prefetch/sw";
-import { prefetch } from "@layer0/prefetch/window";
+import { Prefetcher } from "@edgio/prefetch/sw";
+import { prefetch } from "@edgio/prefetch/window";
 import { clientsClaim, skipWaiting } from "workbox-core";
 import { precacheAndRoute } from "workbox-precaching";
-import DeepFetchPlugin from "@layer0/prefetch/sw/DeepFetchPlugin";
+import DeepFetchPlugin from "@edgio/prefetch/sw/DeepFetchPlugin";
 
 skipWaiting();
 clientsClaim();
