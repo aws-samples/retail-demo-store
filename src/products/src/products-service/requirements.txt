@@ -1,0 +1,6 @@
+flask
+flask_cors
+boto3
+pyyaml
+requests
+uuid

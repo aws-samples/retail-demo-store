@@ -20,6 +20,10 @@ CATEGORIES_TABLE_NAME is the DynamoDB table name for categories
 CATEGORIES_FILE is the location on your local machine where the categories.yaml is located (defaults to src/products-service/data/categories.yaml)
 PRODUCTS_TABLE_NAME is the DynamoDB table name for products
 PRODUCTS_FILE is the location on your local machine where the products.yaml is located (defaults to src/products-service/data/products.yaml)
+truncate is a flag that will truncate the table before loading data (defaults to False)
+endpoint-url is the endpoint URL for the DynamoDB service (defaults to 'http://localhost:3001')
+
+Examples:
 
 The script will only truncate (optional) and load the table(s) specified.
 
@@ -28,9 +32,14 @@ Your AWS credentials are discovered from your current environment.
 
 import sys
 import getopt
+import time
+import requests
 import yaml
 import boto3
 from decimal import Decimal
+from botocore.exceptions import ClientError
+
+
 
 def truncate_table(table):
     print('Truncating table...')
@@ -57,6 +66,36 @@ def truncate_table(table):
             else:
                 break
     print(f"Deleted {counter} items")
+    
+def  create_table(resource, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+    try: 
+        resource.create_table(
+            TableName=ddb_table_name,
+            KeySchema=key_schema,
+            AttributeDefinitions=attribute_definitions,
+            GlobalSecondaryIndexes=global_secondary_indexes or [],
+            BillingMode="PAY_PER_REQUEST",
+        )
+        print(f'Created table: {ddb_table_name}')
+    except ClientError  as e:
+        if e.response["Error"]["Code"] == "ResourceInUseException":
+            print(f'Table {ddb_table_name} already exists; continuing...')
+        else:
+            raise e
+        
+def verify_local_ddb_running(endpoint):
+    print(f"Verifying that local DynamoDB is running at: {endpoint}")
+    for _ in range(5):
+        try:
+            response = requests.get(endpoint)
+            if response.status_code >= 200:
+                print("Received HTTP response from local DynamoDB service!")
+                return
+        except requests.ConnectionError:
+            print("Local DynamoDB service is not ready yet... pausing before trying again")
+            time.sleep(2)
+    print("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
+    exit(1)
 
 if __name__=="__main__":
     categories_table_name = None
@@ -64,16 +103,17 @@ if __name__=="__main__":
     products_table_name = None
     products_file = 'src/products-service/data/products.yaml'
     truncate = False
+    endpoint_url = 'http://localhost:3001'
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate'])
+        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate', 'endpoint-url='])
     except getopt.GetoptError:
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]')
+        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] [--endpoint-url ENDPOINT_URL]')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]')
+            print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] [--endpoint-url ENDPOINT_URL]')
             sys.exit()
         elif opt in ('--categories-table-name'):
             categories_table_name = arg
@@ -85,18 +125,45 @@ if __name__=="__main__":
             products_file = arg
         elif opt in ('--truncate'):
             truncate = True
+        elif opt in ('--endpoint-url'):
+            endpoint_url = arg
+            print(f'Using endpoint_url: {endpoint_url}')
 
     if not categories_table_name and not products_table_name:
         print('--categories-table-name and/or --products-table-name are required')
         print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]')
         sys.exit(1)
 
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint_url)
 
     if categories_table_name:
         print(f'Loading categories from {categories_file} into table {categories_table_name}')
         table = dynamodb.Table(categories_table_name)
-
+       
+        create_table(
+            ddb_table_name=categories_table_name,
+            resource=dynamodb,
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "name", "AttributeType": "S"},
+                ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+                ],
+            global_secondary_indexes=[
+                {
+                    "IndexName": "name-index",
+                    "KeySchema": [{"AttributeName": "name", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                }
+            ]
+        )
+        table = dynamodb.Table(categories_table_name)
+        
         if truncate:
             truncate_table(table)
 
@@ -113,8 +180,43 @@ if __name__=="__main__":
 
     if products_table_name:
         print(f'Loading products from {products_file} into table {products_table_name}')
+        
+        create_table(
+            ddb_table_name=products_table_name,
+            resource=dynamodb,
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "category", "AttributeType": "S"},
+                {"AttributeName": "featured", "AttributeType": "S"},
+                ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+                ],
+            global_secondary_indexes=[
+                {
+                    "IndexName": "category-index",
+                    "KeySchema": [{"AttributeName": "category", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                },
+                {
+                    "IndexName": "featured-index",
+                    "KeySchema": [{"AttributeName": "featured", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                }
+            ]
+                    
+        )
+        
         table = dynamodb.Table(products_table_name)
-
+        
         if truncate:
             truncate_table(table)
 
