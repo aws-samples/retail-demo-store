@@ -55,6 +55,30 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  CartsTable:
+    DependsOn: ProductsTable
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "username"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
+
   ExperimentStrategyTable:
     Type: AWS::DynamoDB::Table
     DependsOn: "ProductsTable"
@@ -96,6 +120,10 @@ Outputs:
   CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !Ref CategoriesTable
+
+  CartsTable:
+    Description: DynamoDB Table for Carts
+    Value: !Ref CartsTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies

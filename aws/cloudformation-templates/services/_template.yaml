@@ -96,6 +96,10 @@ Parameters:
     Type: String
     Default: none
 
+  CartsTable:
+    Type: String
+    Default: none
+
   ExperimentStrategyTable:
     Type: String
     Default: none
@@ -166,6 +170,7 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
+        CartsTable: !Ref CartsTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
@@ -411,6 +416,7 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
+        CartsTable: !Ref CartsTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
@@ -485,6 +491,7 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
+        CartsTable: !Ref CartsTable
 
   ####################### Delete Repository Custom Resource #######################
 

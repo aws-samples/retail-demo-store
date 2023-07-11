@@ -18,6 +18,9 @@ Parameters:
   CategoriesTable:
     Type: String
 
+  CartsTable:
+    Type: String
+
 Resources:
 
   LoadDataLambdaRole:
@@ -43,6 +46,7 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
         - PolicyName: S3
           PolicyDocument:
             Version: '2012-10-17'

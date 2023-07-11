@@ -11,6 +11,7 @@ COPY src/carts-service/app.py .
 COPY src/carts-service/routes.py .
 COPY src/carts-service/services.py .
 COPY src/carts-service/handlers.py .
+COPY src/carts-service/dynamo_setup.py .
 
 EXPOSE 80
 
