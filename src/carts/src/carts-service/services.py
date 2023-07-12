@@ -126,8 +126,8 @@ class CartService:
         return cart
 
     @classmethod
-    def update_cart(cls, cart_id):
-        cart = cls.update_cart_template(request.get_json())
+    def update_cart(cls):
+        cart = cls.update_cart_template(request.get_json(force=True))
         app.logger.info('Marshalling cart for dynamodb')
         marshalled_cart = cls.marshal_item(cart)
         cls.execute_and_log(

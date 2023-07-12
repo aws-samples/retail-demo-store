@@ -92,6 +92,9 @@ def validate_schema(json_str, endpoint, validation_file):
     """
     Validate a JSON response body against a schema.
     """
-    schema = read_file(validation_file, endpoint.split('?', 1)[0])
+    if endpoint.startswith("/carts"):
+        schema = read_file(validation_file, endpoint)
+    else:
+        schema = read_file(validation_file, endpoint.split('?', 1)[0])
     jsonschema.validate(json.loads(json_str), schema)
     return True
