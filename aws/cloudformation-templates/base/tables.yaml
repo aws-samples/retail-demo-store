@@ -56,7 +56,6 @@ Resources:
             ProjectionType: ALL
 
   CartsTable:
-    DependsOn: ProductsTable
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:

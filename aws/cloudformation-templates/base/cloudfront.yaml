@@ -78,15 +78,19 @@ Resources:
             HeaderBehavior: none
           QueryStringsConfig:
             QueryStringBehavior: all
-
+            
   UIOriginRequestPolicy:
     Type: AWS::CloudFront::OriginRequestPolicy
     Properties: 
       OriginRequestPolicyConfig:
-        CookiesConfig: none
-        HeadersConfig: none
+        CookiesConfig: 
+          CookieBehavior: none
+        HeadersConfig: 
+          HeaderBehavior: none
         Name: WebUIOriginRequestPolicy
-        QueryStringsConfig: all
+        QueryStringsConfig: 
+          QueryStringBehavior: all
+
 
 
   WebUICDN:
