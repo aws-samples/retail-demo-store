@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/python:3.11-slim-bullseye
+FROM public.ecr.aws/docker/library/python:3.10-slim-bullseye
 
 WORKDIR /src/
 RUN apt-get update && apt-get install -y g++
