@@ -6,7 +6,7 @@ import os
 from server import app
 
 # Set up logging
-logging.basicConfig(filename='app.log', level=logging.INFO)
+logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 
 # Log a message at the start of the script
 app.logger.info('Starting app.py')
