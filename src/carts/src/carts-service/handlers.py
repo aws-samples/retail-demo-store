@@ -14,6 +14,7 @@ def handle_bad_request(e):
 @app.errorhandler(BotoCoreError)
 def handle_boto_core_error(e):
     app.logger.error(f'BotoCoreError: {str(e)}')
+    print(str(e))
     return jsonify({"error": "Internal server error"}), 500
 
 @app.errorhandler(KeyError)
@@ -24,4 +25,5 @@ def handle_key_error(e):
 @app.errorhandler(500)
 def handle_internal_error(e):
     app.logger.error(f'InternalServerError: {str(e)}')
+    print(str(e))
     return jsonify({"error": "Internal server error"}), 500
