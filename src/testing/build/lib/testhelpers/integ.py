@@ -9,11 +9,14 @@ def full_request_url(base, text, wildcards={}):
     Build a full request URL from the API URL and endpoint.
     Any URL parameters will be replaced with the value set in the environment variables.
     """
-    for key in wildcards.keys():
-        text = text.replace(key, str(wildcards[key]))
-    print(f'########')
-    print(str(base) + str(text))
-    return str(base) + str(text)
+    return str(base) + str(evaluate_wildcards(text, wildcards))
+
+
+def evaluate_wildcards(text, wildcards={}):
+    if wildcards:
+        for key in wildcards.keys():
+            text = text.replace(key, str(wildcards[key]))
+    return text
 
 
 def absolute_file_path(cwd, filename):
@@ -23,12 +26,13 @@ def absolute_file_path(cwd, filename):
     return os.path.join(cwd, filename)
 
 
-def read_file(path, key):
+def read_file(path, key, params={}):
     """
     Read a json file and return the part of the body linked to a key
     """
     with open(path) as f:
-        body = json.loads(f.read())[key]
+        contents = evaluate_wildcards(f.read(), params)
+        body = json.loads(contents)[key]
     return body
 
 
@@ -55,7 +59,7 @@ def post_request_assert(base, endpoint, request_file, validation_file, endpoint_
     """
     Send a POST request and assert response meets expectations.
     """
-    body = read_file(request_file, endpoint)
+    body = read_file(request_file, endpoint, endpoint_params)
     r = requests.post(full_request_url(base, endpoint, endpoint_params), data=json.dumps(body),
                       headers={"Content-Type": "application/json", "Accept": "application/json"})
     assertions(r, endpoint, validation_file)
@@ -79,6 +83,8 @@ def assertions(r, endpoint, schemas_path):
     if r.headers["Content-Type"].startswith("application/json") or r.headers["Content-Type"].startswith("text/plain"):
         assert validate_schema(r.text, endpoint, schemas_path) is True
     else:
+        print('### Header does NOT contain expected Content-Type, response object = ')
+        print(r)
         assert False
 
 
@@ -86,6 +92,9 @@ def validate_schema(json_str, endpoint, validation_file):
     """
     Validate a JSON response body against a schema.
     """
-    schema = read_file(validation_file, endpoint.split('?', 1)[0])
+    if endpoint.startswith("/carts"):
+        schema = read_file(validation_file, endpoint)
+    else:
+        schema = read_file(validation_file, endpoint.split('?', 1)[0])
     jsonschema.validate(json.loads(json_str), schema)
     return True
