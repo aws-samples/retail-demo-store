@@ -18,7 +18,7 @@ To get your local Web UI container to make calls to other Retail Demo Store web 
 Once your `.env` is setup, run Docker Compose **from the `../src` directory** as described in the [local development instructions](../) to build and run the Web UI container locally.
 
 ```console
-foo@bar:~$ docker-compose up --build web-ui
+foo@bar:~$ docker compose up --build web-ui
 ```
 
 Once the container is up and running, you can access it in your browser at [http://localhost:8080](http://localhost:8080).
