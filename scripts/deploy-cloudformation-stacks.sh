@@ -105,6 +105,7 @@ aws cloudformation deploy \
   OptimizelySdkKey="" \
   GitHubToken="" \
   AmplitudeApiKey="" \
+  CreateOpenSearchServiceLinkedRole="No" \
   PreCreatePersonalizeResources="${param_personalize}" \
   PreIndexElasticsearch="${param_elasticsearch}"
 
