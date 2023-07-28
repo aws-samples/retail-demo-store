@@ -14,7 +14,7 @@
             "product_id": {"type": "string"},
             "product_name": {"type": "string"},
             "quantity": {"type": "integer"},
-            "price": {"type": "number"}
+            "price": {"type": "string"}
           }
         }
       }
@@ -36,8 +36,8 @@
             "properties": {
               "product_id": {"type": "string"},
               "product_name": {"type": "string"},
-              "quantity": {"type": "integer"},
-              "price": {"type": "number"}
+              "quantity": {"type": "string"},
+              "price": {"type": "string"}
             }
           }
         }
@@ -58,8 +58,8 @@
           "properties": {
             "product_id": {"type": "string"},
             "product_name": {"type": "string"},
-            "quantity": {"type": "integer"},
-            "price": {"type": "number"}
+            "quantity": {"type": ["string","number"]},
+            "price": {"type": "string"}
           }
         }
       }

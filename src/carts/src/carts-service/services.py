@@ -24,6 +24,19 @@ class CartService:
     
     serializer = TypeSerializer()
     deserializer = TypeDeserializer()
+    
+    @staticmethod
+    def deserialize_item(item):
+        """
+        Deserializes a DynamoDB item.
+
+        Args:
+            item: The item to be deserialized.
+
+        Returns:
+            The deserialized item.
+        """
+        return {k: CartService.deserializer.deserialize(v) for k, v in item.items()}
 
     @staticmethod
     def get_cart_template():
@@ -94,7 +107,7 @@ class CartService:
             'Error retrieving carts',
             TableName=cls.ddb_table_carts
         )
-        unmarshalled_carts = [cls.deserializer.deserialize(cart) for cart in response['Items']]
+        unmarshalled_carts = [cls.deserialize_item(cart) for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
         return unmarshalled_carts
     
@@ -117,7 +130,7 @@ class CartService:
             KeyConditionExpression='username = :username',
             ExpressionAttributeValues={':username': {'S': username}}
         )
-        unmarshalled_carts = [cls.deserializer.deserialize({'M': cart}) for cart in response['Items']]
+        unmarshalled_carts = [cls.deserialize_item(cart)  for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
         return unmarshalled_carts
 
@@ -188,7 +201,7 @@ class CartService:
             Key={'id': {'S': cart_id}}
         )
         if 'Item' in response:
-            result = cls.deserializer.deserialize({'M': response['Item']})
+            result = cls.deserialize_item(response['Item'])
             app.logger.info(f'Unmarshalled cart: {result}')
             return result
         else:
