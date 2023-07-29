@@ -28,7 +28,7 @@ class CartService:
     @staticmethod
     def deserialize_item(item):
         """
-        Deserializes a DynamoDB item.
+        Deserializes a cart after retrieval from dynamodb
 
         Args:
             item: The item to be deserialized.
@@ -51,7 +51,7 @@ class CartService:
     @staticmethod
     def serialize_item(item):
         """
-        Serializes a DynamoDB item.
+        Serializes a cart to be compatible with dynamodb before put
         
         Args:
             item: The item to be serialized.
@@ -79,7 +79,7 @@ class CartService:
     @staticmethod
     def update_cart_template(cart):
         """
-        Updates a shopping cart template with new data before push to dynamo
+        Updates a shopping cart template with necessary data before put to dynamo
 
         Args:
             cart: The cart to be updated.
