@@ -36,7 +36,35 @@ class CartService:
         Returns:
             The deserialized item.
         """
-        return {k: CartService.deserializer.deserialize(v) for k, v in item.items()}
+        def deserialize_value(k,v):
+            if k == 'price':
+                return float(CartService.deserializer.deserialize(v))
+            elif k == 'quantity':
+                return int(CartService.deserializer.deserialize(v))
+            else:
+                return CartService.deserializer.deserialize(v)
+            
+        return {k: [{k2: deserialize_value(k2, v2) for k2, v2 in i['M'].items()} for i in v['L']] if k == 'items'
+            else CartService.deserializer.deserialize(v) for k, v in item.items()}
+        
+        
+    @staticmethod
+    def serialize_item(item):
+        """
+        Serializes a DynamoDB item.
+        
+        Args:
+            item: The item to be serialized.
+
+        Returns:
+            The serialized item.
+        """
+        if isinstance(item, list):
+            return {'L': [{'M': {k: CartService.serializer.serialize(Decimal(str(v))) if k=='price' or k=='quantity'
+                     else CartService.serializer.serialize(v) for k, v in i.items()}} for i in item]}
+        else:
+            return {k: CartService.serialize_item(v) if k=='items'
+                    else CartService.serializer.serialize(v) for k, v in item.items()} 
 
     @staticmethod
     def get_cart_template():
@@ -51,7 +79,7 @@ class CartService:
     @staticmethod
     def update_cart_template(cart):
         """
-        Updates a shopping cart template with new data.
+        Updates a shopping cart template with new data before push to dynamo
 
         Args:
             cart: The cart to be updated.
@@ -61,12 +89,13 @@ class CartService:
         """
         if 'items' not in cart or not cart['items']:
             cart['items'] = []
-        else:
-            cart['items'] = [{k: Decimal(str(v)) if isinstance(v, float) else v for k, v in item.items()} for item in cart['items']]
         cart['id'] = cart['id']
         cart['ttl'] = int((datetime.utcnow() + timedelta(days=CartService.cart_ttl_days)).timestamp())
         return cart
-
+    
+    
+   
+        
     @classmethod
     def execute_and_log(cls, operation, success_message, error_message, **kwargs):
         """
@@ -107,6 +136,7 @@ class CartService:
             'Error retrieving carts',
             TableName=cls.ddb_table_carts
         )
+        app.logger.info(f'Retrieved all carts: {response["Items"]}')
         unmarshalled_carts = [cls.deserialize_item(cart) for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
         return unmarshalled_carts
@@ -130,6 +160,7 @@ class CartService:
             KeyConditionExpression='username = :username',
             ExpressionAttributeValues={':username': {'S': username}}
         )
+        app.logger.info(f'Retrieved  carts: {response["Items"]}')
         unmarshalled_carts = [cls.deserialize_item(cart)  for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
         return unmarshalled_carts
@@ -144,17 +175,16 @@ class CartService:
         """
         cart = cls.get_cart_template()
         cart.update(request.get_json())
-        cart = cls.update_cart_template(cart)
         app.logger.info(f'Cart to create: {cart}')
         app.logger.info('Marshalling cart for dynamodb')
-        marshalled_cart = cls.serializer.serialize(cart)
-        app.logger.info(f'Marshalled cart:{marshalled_cart["M"]}')
+        marshalled_cart = cls.serialize_item(cart)
+        app.logger.info(f'Marshalled cart:{marshalled_cart}')
         cls.execute_and_log(
             cls.dynamo_client.put_item,
             f'Cart created with id: {cart["id"]}',
             'Error creating cart',
             TableName=cls.ddb_table_carts,
-            Item=marshalled_cart['M']
+            Item=marshalled_cart
         )
         return cart
 
@@ -168,13 +198,13 @@ class CartService:
         """
         cart = cls.update_cart_template(request.get_json(force=True))
         app.logger.info('Marshalling cart for dynamodb')
-        marshalled_cart = cls.serializer.serialize(cart)
+        marshalled_cart = cls.serialize_item(cart)
         cls.execute_and_log(
             cls.dynamo_client.put_item,
             f'Cart updated with id: {cart["id"]}',
             'Error updating cart',
             TableName=cls.ddb_table_carts,
-            Item=marshalled_cart['M']
+            Item=marshalled_cart
         )
         return cart
 
@@ -201,6 +231,7 @@ class CartService:
             Key={'id': {'S': cart_id}}
         )
         if 'Item' in response:
+            app.logger.info(f'Retrieved cart: {response["Item"]}')
             result = cls.deserialize_item(response['Item'])
             app.logger.info(f'Unmarshalled cart: {result}')
             return result
