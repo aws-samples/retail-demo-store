@@ -101,15 +101,14 @@ def enable_ttl_on_table(resource, table_name, ttl_attribute):
     except ClientError as e:
         print(f'Error enabling TTL: {e}')
         
-def verify_local_ddb_running(endpoint):
+def verify_local_ddb_running(endpoint,dynamodb):
     print(f"Verifying that local DynamoDB is running at: {endpoint}")
     for _ in range(5):
         try:
-            response = requests.get(endpoint)
-            if response.status_code >= 200:
-                print("Received HTTP response from local DynamoDB service!")
-                return
-        except requests.ConnectionError:
+            dynamodb.tables.all()
+            print("DynamoDB local is responding!")
+            return
+        except Exception as e:
             print("Local DynamoDB service is not ready yet... pausing before trying again")
             time.sleep(2)
     print("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
@@ -185,7 +184,7 @@ if __name__=="__main__":
                 }
             ]
         )
-        table = dynamodb.Table(categories_table_name) # type: ignore
+        table = dynamodb.Table(categories_table_name)
         
         if truncate:
             truncate_table(table)
@@ -238,7 +237,7 @@ if __name__=="__main__":
                     
         )
         
-        table = dynamodb.Table(products_table_name) # type: ignore
+        table = dynamodb.Table(products_table_name)
         
         if truncate:
             truncate_table(table)
@@ -258,7 +257,6 @@ if __name__=="__main__":
         print(f'Products loaded: {len(products)}')
         
     if carts_table_name:
-        verify_local_ddb_running(endpoint_url)
         print(f'Creating carts table {carts_table_name}')
             
         create_table(
@@ -285,19 +283,3 @@ if __name__=="__main__":
                     
         )
     enable_ttl_on_table(dynamodb, carts_table_name, ttl_attribute='ttl')
-    
-    """ table = dynamodb.Table(carts_table_name) # type: ignore
-    
-    print(f'Loading carts from {carts_file} into table {carts_table_name}')
-    with open(carts_file, 'r') as f:
-        carts = yaml.safe_load(f)
-
-    print(f'Updating carts in table {carts_table_name}')
-    for cart in carts:
-        cart['id'] = str(cart['id'])
-        
-        if cart.get('items'):
-            cart['items'] = []
-        table.put_item(Item=cart)
-
-    print(f'Carts loaded: {len(carts)}') """
