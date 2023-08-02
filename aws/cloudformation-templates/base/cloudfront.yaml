@@ -57,7 +57,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig:
-        Name: !Sub "${AWS::StackName}-UIOriginAccessControl"
+        Name: !Ref AWS::StackName
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -69,7 +69,7 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         MinTTL: 86400
-        Name: !Sub "${AWS::StackName}-UICachePolicy"
+        Name: !Ref AWS::StackName
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
