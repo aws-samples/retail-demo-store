@@ -189,24 +189,34 @@ class CartService:
         return cart
 
     @classmethod
-    def update_cart(cls):
+    def update_cart(cls,cart_id):
         """
         Updates an existing shopping cart.
 
         Returns:
             The updated shopping cart.
         """
-        cart = cls.update_cart_template(request.get_json(force=True))
-        app.logger.info('Marshalling cart for dynamodb')
-        marshalled_cart = cls.serialize_item(cart)
-        cls.execute_and_log(
-            cls.dynamo_client.put_item,
-            f'Cart updated with id: {cart["id"]}',
-            'Error updating cart',
+        cart_id = cart_id.lower()
+        response = cls.execute_and_log(
+            cls.dynamo_client.get_item,
+            f'Retrieved cart with id: {cart_id}',
+            f'Error retrieving cart with id: {cart_id}',
             TableName=cls.ddb_table_carts,
-            Item=marshalled_cart
+            Key={'id': {'S': cart_id}}
         )
-        return cart
+        if 'Item' in response:
+            cart = cls.update_cart_template(request.get_json(force=True))
+            app.logger.info('Marshalling cart for dynamodb')
+            marshalled_cart = cls.serialize_item(cart)
+            cls.execute_and_log(
+                cls.dynamo_client.put_item,
+                f'Cart updated with id: {cart["id"]}',
+                'Error updating cart',
+                TableName=cls.ddb_table_carts,
+                Item=marshalled_cart)
+            return cart
+        else:
+            raise KeyError('Cart does not exist')
 
     @classmethod
     def get_cart_by_id(cls, cart_id):

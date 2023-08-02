@@ -40,7 +40,7 @@ def cart_operations(cart_id):
     if request.method == 'OPTIONS':
         return _build_cors_preflight_response()
     elif request.method == 'PUT':
-        return jsonify(cart_service.update_cart()), 200
+        return jsonify(cart_service.update_cart(cart_id)), 200
     return jsonify(cart_service.get_cart_by_id(cart_id)), 200
 
 @app.route('/sign', methods=['POST', 'OPTIONS'])
