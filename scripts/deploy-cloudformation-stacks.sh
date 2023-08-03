@@ -114,3 +114,12 @@ aws cloudformation deploy \
 aws cloudformation wait stack-create-complete \
   --region "${REGION}" \
   --stack-name "${STACK_NAME}"
+
+
+[ $? -eq 255 ] && {
+  echo "timeout aws cloudformation wait stack-create-complete.. waiting another iteration..."
+  # Wait until stack creation completes
+  aws cloudformation wait stack-create-complete \
+    --region "${REGION}" \
+    --stack-name "${STACK_NAME}"
+}
