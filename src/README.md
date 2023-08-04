@@ -46,7 +46,7 @@ Docker compose will still pick variables set in your shell when building and lau
 The following command will build and launch all Retail Demo Store web services in your local Docker engine.
 
 ```console
-foo@bar:~$ docker-compose up --build
+foo@bar:~$ docker compose up --build
 ```
 
 ## Run Specific Services
@@ -54,7 +54,7 @@ foo@bar:~$ docker-compose up --build
 You can also choose to run specific services locally by appending the service names to the above command. For example, the following command builds and launches the [products](./products) and [web-ui](./web-ui) services only. Note that some configuration of the [web-ui](./web-ui) environment will likely be needed to match your configuration.
 
 ```console
-foo@bar:~$ docker-compose up --build products web-ui
+foo@bar:~$ docker compose up --build products web-ui
 ```
 
 For instructions specific to each Retail Demo Store web service, view the README page in each service sub-directory.
