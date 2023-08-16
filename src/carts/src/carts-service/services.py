@@ -12,6 +12,7 @@ from dynamo_setup import dynamo_client, ddb_table_carts
 
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from decimal import Decimal
+from werkzeug.exceptions import BadRequest, NotFound
 
 
 class CartService:
@@ -47,6 +48,18 @@ class CartService:
         return {k: [{k2: deserialize_value(k2, v2) for k2, v2 in i['M'].items()} for i in v['L']] if k == 'items'
             else CartService.deserializer.deserialize(v) for k, v in item.items()}
         
+    @staticmethod
+    def validate_cart(cart):
+        """
+        Validates a cart before put to dynamodb
+
+        Args:
+            cart: The cart to be validated.
+        """
+        allowed_keys = ['id', 'items', 'ttl', 'username']
+        if not all(key in allowed_keys for key in cart.keys()):
+            raise BadRequest
+        
         
     @staticmethod
     def serialize_item(item):
@@ -75,6 +88,7 @@ class CartService:
             A dictionary representing a new shopping cart.
         """
         return {'items': [], 'id': str(uuid4()), 'ttl': int((datetime.utcnow() + timedelta(days=CartService.cart_ttl_days)).timestamp())}
+    
 
     @staticmethod
     def update_cart_template(cart):
@@ -89,7 +103,6 @@ class CartService:
         """
         if 'items' not in cart or not cart['items']:
             cart['items'] = []
-        cart['id'] = cart['id']
         cart['ttl'] = int((datetime.utcnow() + timedelta(days=CartService.cart_ttl_days)).timestamp())
         return cart
     
@@ -160,6 +173,8 @@ class CartService:
             KeyConditionExpression='username = :username',
             ExpressionAttributeValues={':username': {'S': username}}
         )
+        if 'Items' not in response or not response['Items']:
+            raise NotFound
         app.logger.info(f'Retrieved  carts: {response["Items"]}')
         unmarshalled_carts = [cls.deserialize_item(cart)  for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
@@ -174,7 +189,8 @@ class CartService:
             The newly created shopping cart.
         """
         cart = cls.get_cart_template()
-        cart.update(request.get_json())
+        cart.update(request.get_json(force=True))
+        cls.validate_cart(cart)
         app.logger.info(f'Cart to create: {cart}')
         app.logger.info('Marshalling cart for dynamodb')
         marshalled_cart = cls.serialize_item(cart)
@@ -206,6 +222,9 @@ class CartService:
         )
         if 'Item' in response:
             cart = cls.update_cart_template(request.get_json(force=True))
+            cls.validate_cart(cart)
+            if cart['id'] != cart_id:
+                raise BadRequest
             app.logger.info('Marshalling cart for dynamodb')
             marshalled_cart = cls.serialize_item(cart)
             cls.execute_and_log(
@@ -216,7 +235,7 @@ class CartService:
                 Item=marshalled_cart)
             return cart
         else:
-            raise KeyError('Cart does not exist')
+            raise KeyError
 
     @classmethod
     def get_cart_by_id(cls, cart_id):

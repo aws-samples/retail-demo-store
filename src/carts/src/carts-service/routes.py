@@ -30,7 +30,6 @@ def carts_index():
         response.status_code = 201
         response.content_type = 'application/json'
         return response
-    #return jsonify(cart_service.cart_index()), 200
     return jsonify(cart_service.get_cart_by_username()), 200
 
 
