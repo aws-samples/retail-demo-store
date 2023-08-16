@@ -32,7 +32,7 @@ The command also pre-encodes the video in a format designed to reduce the CPU & 
 The Videos service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
-foo@bar:~$ docker-compose up --build videos
+foo@bar:~$ docker compose up --build videos
 ```
 
 Once the container is up and running, you can access it in your browser or with a utility such as [Postman](https://www.postman.com/) at [http://localhost:8007](http://localhost:8007).

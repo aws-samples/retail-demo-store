@@ -9,7 +9,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Products serv
 The Products service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. Since the Products service has a dependency on DynamoDB as its datastore, you can either connect to DynamoDB in your AWS account or run DynamoDB [locally](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) (default). The [docker-compose.yml](../docker-compose.yml) and template `.env` ([.env.template](../.env.template)) is already setup to run DynamoDB locally in Docker. If you want to connect to the real DynamoDB instead, you will need to configure your AWS credentials and comment the `DDB_ENDPOINT_OVERRIDE` environment variable since it is checked first. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
-foo@bar:~$ docker-compose up --build products
+foo@bar:~$ docker compose up --build products
 ```
 
 Once the container is up and running, you can access it in your browser or with a utility such as [Postman](https://www.postman.com/) at [http://localhost:8001](http://localhost:8001).
