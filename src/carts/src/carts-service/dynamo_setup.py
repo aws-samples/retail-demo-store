@@ -9,7 +9,8 @@ import json
 from server import app
 
 
-
+#get region
+region = os.environ.get('AWS_DEFAULT_REGION')
 
 # DynamoDB table names passed via environment
 ddb_table_carts = os.getenv("DDB_TABLE_CARTS")
@@ -48,13 +49,6 @@ def setup():
         verify_local_ddb_running(ddb_endpoint_override,dynamo_client)
     else:
         running_local = False
-        try:
-            response = requests.get("http://169.254.170.2/v2/metadata", timeout=1)
-            metadata = json.loads(response.text)
-            region = metadata['AvailabilityZone'][:-1]
-        except Exception as e:
-            app.logger.warning("Could not fetch ECS metadata, defaulting region to 'us-east-1'")
-            region = 'us-east-1'
         dynamo_client = boto3.client('dynamodb', region_name=region)
 
 setup()

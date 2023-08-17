@@ -399,6 +399,8 @@ Resources:
               Value: !Ref PinpointAppId
             - Name: EVIDENTLY_PROJECT_NAME
               Value: !Ref EvidentlyProjectName
+            - Name: AWS_DEFAULT_REGION
+              Value: !Ref "AWS::Region"
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
