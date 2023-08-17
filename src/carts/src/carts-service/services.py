@@ -173,8 +173,6 @@ class CartService:
             KeyConditionExpression='username = :username',
             ExpressionAttributeValues={':username': {'S': username}}
         )
-        if ('Items' not in response or not response['Items']) and username != 'guest':
-            raise NotFound
         app.logger.info(f'Retrieved  carts: {response["Items"]}')
         unmarshalled_carts = [cls.deserialize_item(cart)  for cart in response['Items']]
         app.logger.info(f'Unmarshalled carts: {unmarshalled_carts}')
