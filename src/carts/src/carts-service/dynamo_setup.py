@@ -9,9 +9,6 @@ import json
 from server import app
 
 
-#get region
-region = os.environ.get('AWS_DEFAULT_REGION')
-
 # DynamoDB table names passed via environment
 ddb_table_carts = os.getenv("DDB_TABLE_CARTS")
 
@@ -49,6 +46,6 @@ def setup():
         verify_local_ddb_running(ddb_endpoint_override,dynamo_client)
     else:
         running_local = False
-        dynamo_client = boto3.client('dynamodb', region_name=region)
+        dynamo_client = boto3.client('dynamodb')
 
 setup()
