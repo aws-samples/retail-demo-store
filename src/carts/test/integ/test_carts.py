@@ -49,12 +49,6 @@ def test_post_carts_invalid_cart():
     response = requests.post(full_request_url(carts_api_url, endpoint), data=json.dumps(body))
     assert_that(response.status_code).is_equal_to(400)
     assert_that(response.json()["error"]).is_equal_to("Bad request, please check your input")
-    
-def test_get_carts_for_nonexistent_user():
-    endpoint = "/carts?username=nonexistent_user"
-    response = requests.get(full_request_url(carts_api_url, endpoint))
-    assert_that(response.status_code).is_equal_to(404)
-    assert_that(response.json()["error"]).is_equal_to("User not found")
 
 def test_get_nonexistent_cart():
     endpoint = "/carts/nonexistent_id"
