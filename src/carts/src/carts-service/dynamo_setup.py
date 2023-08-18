@@ -96,7 +96,9 @@ def setup():
         dynamo_client = boto3.client(
             'dynamodb',
             endpoint_url=ddb_endpoint_override,
-            region_name='us-west-2'
+            region_name='us-west-2',
+            aws_access_key_id='XXXX',
+            aws_secret_access_key='XXXX'
         )
         verify_local_ddb_running(ddb_endpoint_override, dynamo_client)
     else:
