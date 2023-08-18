@@ -6,11 +6,6 @@ When deployed to AWS, CodePipeline is used to build and deploy the Carts service
 
 ## Local Development
 
-The Carts service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, 
-1. Add the following lines to your .env file:
-AWS_ACCESS_KEY_ID="placeholder"
-AWS_SECRET_ACCESS_KEY="placeholder"
-2. run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker compose up --build -d carts
@@ -20,16 +15,6 @@ Once the container is up and running, you can access it in your browser or with 
 
 ## Testing
 To run integration tests for the carts service a Python virtual environment and local dynamodb is required. You must have Python 3.8+ installed on your system to run the commands below. The commands are written to be ran from the test directory of the carts service (`src/carts/test`).
-### Setup
-After building and running your carts service and dependencies(local dynamodb) you must create tables in your local dynamodb service.
-
-```console
-cd <your products folder>
-export AWS_ACCESS_KEY_ID="placeholder"
-export AWS_DEFAULT_REGION="us-west-2"
-export AWS_SECRET_ACCESS_KEY="placeholder"
-```
-now run the load_catalog.py script to populate dynamodb with tables.
 
 ### Run Tests
 To run integration tests for the carts service a Python virtual environment is required. You must have Python 3.8+ installed on your system to run the commands below. The commands are written to be ran from the test directory of the carts service (`src/carts/test`).

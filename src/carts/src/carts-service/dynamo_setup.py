@@ -8,6 +8,37 @@ import requests
 import json
 from server import app
 
+def create_table(client, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+    try: 
+        client.create_table(
+            TableName=ddb_table_name,
+            KeySchema=key_schema,
+            AttributeDefinitions=attribute_definitions,
+            GlobalSecondaryIndexes=global_secondary_indexes or [],
+            BillingMode="PAY_PER_REQUEST",
+        )
+        print(f'Created table: {ddb_table_name}')
+    except Exception as e:
+        if e.response["Error"]["Code"] == "ResourceInUseException":
+            app.logger.info(f'Table {ddb_table_name} already exists; continuing...')
+        else:
+            raise e
+
+def enable_ttl_on_table(client, table_name, ttl_attribute):
+    try:
+        response = client.update_time_to_live(
+            TableName=table_name,
+            TimeToLiveSpecification={
+                'Enabled': True,
+                'AttributeName': ttl_attribute
+            }
+        )
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            print(f'TTL has been enabled on {table_name} for attribute {ttl_attribute}')
+        else:
+            print(f'Failed to enable TTL on {table_name} for attribute {ttl_attribute}')
+    except Exception as e:
+        app.logger.info(f'Error enabling TTL: {e}')
 
 # DynamoDB table names passed via environment
 ddb_table_carts = os.getenv("DDB_TABLE_CARTS")
@@ -18,13 +49,35 @@ running_local = False
 
 dynamo_client = None
 
-def verify_local_ddb_running(endpoint,dynamo_client):
+def verify_local_ddb_running(endpoint, dynamo_client):
     app.logger.info(f"Verifying that local DynamoDB is running at: {endpoint}")
     for _ in range(5):
         try:
-            response= dynamo_client.list_tables()
+            response = dynamo_client.list_tables()
             if response['TableNames'] == []:
-                raise Exception("No tables found in local DynamoDB, check credentials(AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY='placeholder') used during catalog load(load_catalog.py) are consistent with those in .env file")
+                create_table(
+                    ddb_table_name=ddb_table_carts,
+                    client=dynamo_client,
+                    attribute_definitions=[
+                        {"AttributeName": "id", "AttributeType": "S"},
+                        {"AttributeName": "username", "AttributeType": "S"}
+                    ],
+                    key_schema=[
+                        {"AttributeName": "id", "KeyType": "HASH"},
+                    ],
+                    global_secondary_indexes=[
+                        {
+                            "IndexName": "username-index",
+                            "KeySchema": [{"AttributeName": "username", "KeyType": "HASH"}],
+                            "Projection": {"ProjectionType": "ALL"},
+                            "ProvisionedThroughput": {
+                                "ReadCapacityUnits": 5,
+                                "WriteCapacityUnits": 5,
+                            }
+                        }
+                    ]
+                )
+                enable_ttl_on_table(dynamo_client, ddb_table_carts, ttl_attribute='ttl')
             app.logger.info("DynamoDB local is responding!")
             return
         except Exception as e:
@@ -33,10 +86,9 @@ def verify_local_ddb_running(endpoint,dynamo_client):
             time.sleep(2)
     app.logger.error("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
     exit(1)
-    
+
 def setup():
     global dynamo_client, running_local
-    
 
     if ddb_endpoint_override:
         running_local = True
@@ -46,7 +98,7 @@ def setup():
             endpoint_url=ddb_endpoint_override,
             region_name='us-west-2'
         )
-        verify_local_ddb_running(ddb_endpoint_override,dynamo_client)
+        verify_local_ddb_running(ddb_endpoint_override, dynamo_client)
     else:
         running_local = False
         dynamo_client = boto3.client('dynamodb')
