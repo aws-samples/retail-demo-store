@@ -152,9 +152,9 @@ if __name__=="__main__":
         elif opt in ('--carts-file-name'):
             carts_file = arg
 
-    if not categories_table_name and not products_table_name:
-        print('--categories-table-name and/or --products-table-name are required')
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]')
+    if (not categories_table_name and not products_table_name and not carts_table_name):
+        print('"--categories-table-name and/or --products-table-name and/or carts_table_name" are required')
+        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
         sys.exit(1)
 
     dynamodb = resource('dynamodb', endpoint_url=endpoint_url)
@@ -282,4 +282,5 @@ if __name__=="__main__":
             ]
                     
         )
-    enable_ttl_on_table(dynamodb, carts_table_name, ttl_attribute='ttl')
+        
+        enable_ttl_on_table(dynamodb, carts_table_name, ttl_attribute='ttl')
