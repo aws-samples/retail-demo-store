@@ -8,7 +8,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Carts service
 
 The Carts service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, 
 1. Add the following lines to your .env file:
-AWS_ACCESS_KEY_ID = "placeholder"
+AWS_ACCESS_KEY_ID="placeholder"
 AWS_SECRET_ACCESS_KEY="placeholder"
 2. run the following command to build and deploy the service locally.
 
