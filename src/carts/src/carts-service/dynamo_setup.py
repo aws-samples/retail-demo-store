@@ -24,7 +24,7 @@ def verify_local_ddb_running(endpoint,dynamo_client):
         try:
             response= dynamo_client.list_tables()
             if response['TableNames'] == []:
-                raise Exception("No tables found in local DynamoDB, check credentials used during catalog load(load_catalog.py) are consistent")
+                raise Exception("No tables found in local DynamoDB, check credentials(AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY='placeholder') used during catalog load(load_catalog.py) are consistent with those in .env file")
             app.logger.info("DynamoDB local is responding!")
             return
         except Exception as e:
