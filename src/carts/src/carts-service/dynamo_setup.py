@@ -22,10 +22,13 @@ def verify_local_ddb_running(endpoint,dynamo_client):
     app.logger.info(f"Verifying that local DynamoDB is running at: {endpoint}")
     for _ in range(5):
         try:
-            dynamo_client.list_tables()
+            response= dynamo_client.list_tables()
+            if response['TableNames'] == []:
+                raise Exception("No tables found in local DynamoDB, check credentials used during catalog load(load_catalog.py) are consistent")
             app.logger.info("DynamoDB local is responding!")
             return
         except Exception as e:
+            app.logger.info(e)
             app.logger.info("Local DynamoDB service is not ready yet... pausing before trying again")
             time.sleep(2)
     app.logger.error("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
