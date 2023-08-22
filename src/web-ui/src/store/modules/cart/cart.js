@@ -38,27 +38,35 @@ export const cart = {
     createCart: async ({ commit, getters }) => {
       console.log('Creating cart with username ' + getters.username.toString())
       const { data } = await CartsRepository.createCart(getters.username);
+      let newCart = parseCart(data);
+      newCart.username = getters.username;
+      commit({ type: 'setCart', cart: newCart });
+  },
 
-      commit({ type: 'setCart', cart: parseCart(data) });
-    },
     getCart: async ({ state, commit, dispatch, getters }) => {
       // Since cart service holds carts in memory, they can be lost on restarts.
       // Make sure our cart was returned. Otherwise create a new one.
-      if (!state.cart || !state.cart.id) return dispatch('createCart');
-
-      console.log('Looking up your cart by ID: ' + state.cart.id.toString())
-      const { data } = await CartsRepository.getCartByID(state.cart.id);
-
-      if (data.id !== state.cart.id) {
-        console.warn(`Cart ${state.cart.id} not found. Creating new cart. Was cart service restarted?`);
-        return dispatch('createCart');
+      if (!state.cart || !state.cart.id) {
+        console.log('Looking up your cart by username: ' + getters.username.toString())
+        const { data } = await CartsRepository.getCartByUsername(getters.username);
+        if (data.length > 0) {
+          commit({ type: 'setCart', cart: parseCart(data[0]) });
+        } else {
+          return dispatch('createCart');
+        }
+      } else {
+        console.log('Looking up your cart by ID: ' + state.cart.id.toString())
+        const { data } = await CartsRepository.getCartByID(state.cart.id);
+        if (data.id !== state.cart.id) {
+          console.warn(`Cart ${state.cart.id} not found. Creating new cart. Was cart service restarted?`);
+          return dispatch('createCart');
+        }
+        commit({ type: 'setCart', cart: parseCart(data) });
+        maybeUpdateUsername(state, commit, dispatch, getters);
       }
-
-      commit({ type: 'setCart', cart: parseCart(data) });
-      maybeUpdateUsername(state, commit, dispatch, getters);
-
       console.log("Retrieved cart with id "+state.cart.id+" and username "+state.cart.username);
     },
+  
 
     updateCart: async ({ state, commit, dispatch, getters }) => {
       maybeUpdateUsername(state, commit, dispatch, getters);

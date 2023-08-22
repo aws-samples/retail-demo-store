@@ -78,6 +78,20 @@ Resources:
             HeaderBehavior: none
           QueryStringsConfig:
             QueryStringBehavior: all
+            
+  UIOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties: 
+      OriginRequestPolicyConfig:
+        CookiesConfig: 
+          CookieBehavior: none
+        HeadersConfig: 
+          HeaderBehavior: none
+        Name: WebUIOriginRequestPolicy
+        QueryStringsConfig: 
+          QueryStringBehavior: all
+
+
 
   WebUICDN:
     Type: 'AWS::CloudFront::Distribution'
@@ -98,6 +112,8 @@ Resources:
           TargetOriginId: S3
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: !Ref UICachePolicy
+          OriginRequestPolicyId: !Ref UIOriginRequestPolicy
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c # id for the SimpleCORS AWS Managed response header policies:https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html#managed-response-headers-policies-cors
 
   # Swagger UI infrastructure
   SwaggerUIBucket:
@@ -156,6 +172,8 @@ Resources:
           TargetOriginId: S3
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: !Ref UICachePolicy
+          OriginRequestPolicyId: !Ref UIOriginRequestPolicy
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
 
 Outputs:
   # Web UI outputs

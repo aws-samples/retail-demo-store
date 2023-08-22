@@ -1,0 +1,36 @@
+{
+  "/carts": {
+    "id": "a2433611-5033-4e6d-b03d-9db2c49dc939",
+    "username": "user1344",
+    "items": [
+      {
+        "product_id": "abcd",
+        "product_name": "Test Product",
+        "quantity": 1,
+        "price": 10.0,
+        "aliases": [
+          "test",
+          "product",
+          "theTest"
+        ]
+      }
+    ]
+  },
+  "/carts/:cart_id": {
+    "id": "a2433611-5033-4e6d-b03d-9db2c49dc939",
+    "username": "user1344",
+    "items": [
+      {
+        "product_id": "abcd",
+        "product_name": "Test Product",
+        "quantity": 2,
+        "price": 10.0,
+        "aliases": [
+          "test",
+          "product",
+          "theTest"
+        ]
+      }
+    ]
+  }
+}

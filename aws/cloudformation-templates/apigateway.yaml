@@ -405,6 +405,18 @@ Resources:
         - - integrations
           - !Ref CartsServiceIntegration
 
+  GetCartbyUsername:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'GET /carts'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref CartsServiceIntegration
+
   UpdateCart:
     Type: 'AWS::ApiGatewayV2::Route'
     Properties:

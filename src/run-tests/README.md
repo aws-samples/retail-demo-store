@@ -28,6 +28,8 @@ You can find the list in `<root_project_folder>/.env.template`. All of them have
 
 The important variables are the `<SERVICE>_API_URL`. They are used to redirect the tests to run against different URLs.
 
+NB: For local development you may need to set up dependencies like local dynamodb before testing. Refer to individual service test READMEs for more detailed info on local dependencies
+
 ## Targets
 
 ### `make`
