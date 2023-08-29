@@ -100,6 +100,10 @@ Parameters:
     Type: String
     Default: none
 
+  OrdersTable:
+    Type: String
+    Default: none
+
   ExperimentStrategyTable:
     Type: String
     Default: none
@@ -170,7 +174,6 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
-        CartsTable: !Ref CartsTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
@@ -283,6 +286,7 @@ Resources:
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
+        OrdersTable: !Ref OrdersTable
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         Uid: !Sub ${ParentStackName}-${AWS::Region}
@@ -419,7 +423,6 @@ Resources:
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
-        CartsTable: !Ref CartsTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey

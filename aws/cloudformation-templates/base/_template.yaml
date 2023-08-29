@@ -425,6 +425,10 @@ Outputs:
     Description: DynamoDB Table for Carts
     Value: !GetAtt Tables.Outputs.CartsTable
 
+  OrdersTable:
+    Description: DynamoDB Table for Orders
+    Value: !GetAtt Tables.Outputs.OrdersTable
+
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiments
     Value: !GetAtt Tables.Outputs.ExperimentStrategyTable

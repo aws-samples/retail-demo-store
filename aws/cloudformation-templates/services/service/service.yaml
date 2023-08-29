@@ -122,6 +122,10 @@ Parameters:
     Type: String
     Default: none
 
+  OrdersTable:
+    Type: String
+    Default: none
+
   ExperimentStrategyTable:
     Type: String
     Default: none
@@ -180,10 +184,12 @@ Resources:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
         - PolicyName: PinpointSMS
           PolicyDocument:
@@ -389,6 +395,8 @@ Resources:
               Value: !Ref CategoriesTable
             - Name: DDB_TABLE_CARTS
               Value: !Ref CartsTable
+            - Name: DDB_TABLE_ORDERS
+              Value: !Ref OrdersTable
             - Name: WEB_ROOT_URL
               Value: !Ref WebRootUrl
             - Name: IMAGE_ROOT_URL
