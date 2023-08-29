@@ -1,0 +1,239 @@
+openapi: '3.0.2'
+info:
+  title: Orders API
+  version: v1
+  description: |- 
+    The Orders web service provides a RESTful API for creating and retrieving orders. The [Web UI](../../web-ui) makes calls to this service when a user goes through the checkout process or when viewing their orders.
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Orders
+    description: Orders API
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8004' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /orders:
+    post:
+      tags:
+        - Orders
+      description: Create a new order
+      requestBody:
+        description: Details for creating order and email of the user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequestBody'
+      responses:
+        '201':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /orders/all:
+    get:
+      tags:
+        - Orders
+      description: Return an array of orders of all users
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+  /orders/id/{orderId}:
+    get:
+      tags:
+        - Orders
+      description: Return an order of a given order id
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    put:
+      tags:
+        - Orders
+      description: Return an order of a given order id
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+      requestBody:
+        description: Details for order to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequestBody'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /orders/username/{username}:
+    get:
+      tags:
+        - Orders
+      description: Return an array of orders from a given username
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 'user1344'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+  
+components:
+  schemas:
+    Order:
+      type: object
+      required:
+        - id
+        - username
+        - items
+        - total
+        - billing_address
+        - shipping_address
+        - delivery_type
+        - delivery_complete
+        - channel
+        - channel_detail
+      properties:
+        id:
+          type: string
+          example: '1'
+        username:
+          type: string   
+          example: 'user1344'
+        "items":
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          type: number
+          example: 7.98
+        billing_address:
+          $ref: '#/components/schemas/Address'
+        shipping_address:
+          $ref: '#/components/schemas/Address'
+        collection_phone:
+          type: string
+          example: '+123456780973'
+        delivery_type:
+          type: string
+          enum: [DELIVERY, COLLECTION]
+        delivery_status:
+          type: string
+        delivery_complete:
+          type: boolean
+          example: false
+        channel:
+          type: string
+          example: 'WEB'
+          enum: [WEB]
+        channel_detail:
+          $ref: '#/components/schemas/Channel'
+    OrderRequestBody:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          required:
+            - email
+          properties:
+            email:
+              type: string
+              example: 'nicholas.white@example.com'
+    Product:
+      type: object
+      properties:
+        product_id:
+          type: string
+          example: 'a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec'
+        product_name:
+          type: string
+          example: 'Kiwi'
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+        price:
+          type: number
+          example: 3.99
+    Address:
+      type: object
+      properties:
+        first_name: 
+          type: string
+          example: 'Nicholas'
+        last_name:
+          type: string
+          example: 'White'
+        address1:
+          type: string
+          example: '690 Melissa Estate'
+        address2:
+          type: string
+          example: ''
+        country:
+          type: string
+          example: 'US'
+        city:
+          type: string
+          example: 'East Robertshire'
+        state:
+          type: string
+          example: 'DC'
+        zipcode:
+          type: string
+          example: '20037'
+        default:
+          type: boolean
+          example: true
+    Channel:
+      type: object
+      properties:
+        channel_id: 
+          type: integer
+          example: 0
+        channel_geo:
+          type: string

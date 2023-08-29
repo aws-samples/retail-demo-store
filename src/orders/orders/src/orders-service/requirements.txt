@@ -1,0 +1,4 @@
+flask
+flask_cors
+boto3
+requests
