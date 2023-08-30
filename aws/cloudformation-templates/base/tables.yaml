@@ -144,6 +144,10 @@ Outputs:
     Description: DynamoDB Table for Carts
     Value: !Ref CartsTable
 
+  OrdersTable:
+    Description: DynamoDB Table for Carts
+    Value: !Ref OrdersTable
+
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies
     Value: !Ref ExperimentStrategyTable
