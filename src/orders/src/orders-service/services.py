@@ -11,6 +11,7 @@ from dynamo_setup import dynamo_client, ddb_table_orders
 
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from decimal import Decimal
+from werkzeug.exceptions import BadRequest
 
 
 class OrderService:
@@ -22,6 +23,11 @@ class OrderService:
     
     serializer = TypeSerializer()
     deserializer = TypeDeserializer()
+    
+    ALLOWED_KEYS = {'id', 'items', 'channel_detail', 'total', 'username', 
+                'billing_address', 'shipping_address', 'collection_phone',
+                'delivery_type', 'delivery_status', 'delivery_complete',
+                'channel', 'email'}
     
     @staticmethod
     def deserialize_item(item):
@@ -70,6 +76,23 @@ class OrderService:
                     else OrderService.serializer.serialize(v) if isinstance(v,bool)
                     else OrderService.serializer.serialize(Decimal(str(v))) if isinstance(v,float) or isinstance(v,int)
                     else OrderService.serializer.serialize(v) for k, v in item.items()}
+           
+    @staticmethod
+    def validate_order(order):
+        """
+        Validates an order.
+
+        Args:
+            order: The order to be validated.
+
+        Returns:
+            True if the order is valid, False otherwise.
+        """
+        invalid_keys = set(order.keys()) - OrderService.ALLOWED_KEYS
+        if invalid_keys:
+            app.logger.info(f'Invalid keys: {invalid_keys}')
+            raise BadRequest
+            
         
     @staticmethod
     def get_order_template():
@@ -177,6 +200,7 @@ class OrderService:
         """
         order = cls.get_order_template()
         order.update(request.get_json())
+        cls.validate_order(order)
         app.logger.info(f'Order to create: {order}')
         app.logger.info('Marshalling order for dynamodb')
         marshalled_order = cls.serialize_item(order)
@@ -208,6 +232,7 @@ class OrderService:
         )
         if 'Item' in response:
             order = cls.update_order_template(request.get_json(force=True))
+            cls.validate_order(order)
             app.logger.info('Marshalling order for dynamodb')
             marshalled_order = cls.serialize_item(order)
             cls.execute_and_log(

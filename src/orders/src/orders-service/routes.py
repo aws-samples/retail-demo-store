@@ -50,4 +50,3 @@ def order_update(order_id):
     if request.method == 'OPTIONS':
         return _build_cors_preflight_response()
     return jsonify(order_service.update_order(order_id)), 200
-

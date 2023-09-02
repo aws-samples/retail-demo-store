@@ -5,13 +5,14 @@ from random import randint
 import pytest
 from dotenv import load_dotenv
 import requests
+from assertpy import assert_that
 
 load_dotenv()
 
 DEFAULT_LOCAL_API_URL = "http://localhost:8004"
 
 orders_api_url = os.getenv("ORDERS_API_URL", DEFAULT_LOCAL_API_URL)
-test_order_id = os.getenv("TEST_ORDER_ID", 1)
+test_order_id = os.getenv("TEST_ORDER_ID", '209673d6-46a5-11ee-be56-0242ac120002')
 test_username = os.getenv("TEST_USERNAME", "user1344")
 
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -66,3 +67,34 @@ def test_get_orders_username():
     endpoint = "/orders/username/:username"
     params = {":username": test_username}
     integhelpers.get_request_assert(orders_api_url, endpoint, schemas_path, params)
+    
+def test_get_nonexistent_orders_id():
+    endpoint = "/orders/id/nonexistent_id"
+    response = requests.get(integhelpers.full_request_url(orders_api_url, endpoint))
+    assert_that(response.status_code).is_equal_to(404)
+    assert_that(response.text).contains("Not found")
+    
+def test_post_invalid_orders():
+    endpoint = "/orders"
+    body = integhelpers.read_file(request_bodies_path, endpoint)
+    body['invalid_key'] = 'invalid_value'
+    response = requests.post(
+        integhelpers.full_request_url(orders_api_url, endpoint),
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+    )
+    assert_that(response.status_code).is_equal_to(400)
+    assert_that(response.text).contains("Bad request, please check your input")
+
+def test_put_invalid_orders():
+    endpoint = "/orders/id/:order_id"
+    body = integhelpers.read_file(request_bodies_path, endpoint)
+    body['invalid_key'] = 'invalid_value'
+    endpoint = f"/orders/id/{test_order_id}"
+    response = requests.put(
+        integhelpers.full_request_url(orders_api_url, endpoint),
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+    assert_that(response.status_code).is_equal_to(400)
+    assert_that(response.text).contains("Bad request, please check your input")
