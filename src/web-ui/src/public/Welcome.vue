@@ -1,7 +1,7 @@
 <template>
   <Layout :showNav="false" :showFooter="false" :showTextAlerts="false" :showDemoGuide="false" backgroundColor="var(--aws-squid-ink)">
     <div class="container mb-2 text-left">
-      <h1 class="heading my-5 text-center">Welcome to the Retail Demo Store!</h1>
+      <h1 class="heading my-5 text-center">Welcome to me!</h1>
 
       <p>
         The Retail Demo Store is a demo platform to demonstrate how AWS infrastructure and services can be used to build
