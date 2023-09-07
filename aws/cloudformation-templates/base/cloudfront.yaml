@@ -87,7 +87,7 @@ Resources:
           CookieBehavior: none
         HeadersConfig: 
           HeaderBehavior: none
-        Name: WebUIOriginRequestPolicy
+        Name: !Ref AWS::StackName
         QueryStringsConfig: 
           QueryStringBehavior: all
 
