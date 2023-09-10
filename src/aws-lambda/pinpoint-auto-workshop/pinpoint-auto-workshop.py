@@ -91,7 +91,8 @@ def create_email_template(template_name, template_fname_root, subject, descripti
         except pinpoint.exceptions.BadRequestException:
             try:
                 pinpoint.delete_email_template(TemplateName=template_name)
-            except:
+            except BaseException as error:
+                logger.info('An exception occurred: {}'.format(error))
                 pass
             backoff_seconds = 30
             logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
@@ -136,7 +137,8 @@ def create_sms_template(template_name, body, description, recommender_id=None):
         except pinpoint.exceptions.BadRequestException:
             try:
                 pinpoint.delete_sms_template(TemplateName=template_name)
-            except:
+            except BaseException as error:
+                logger.info('An exception occurred: {}'.format(error))
                 pass
             backoff_seconds = 30
             logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
