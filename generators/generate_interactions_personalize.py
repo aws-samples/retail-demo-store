@@ -157,7 +157,8 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     average_product_price = int(products_df.price.mean())
     print('Average product price: ${:.2f}'.format(average_product_price))
 
-    if seconds_increment <= 0: raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
+    if seconds_increment <= 0: 
+        raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
 
     print('Minimum interactions to generate: {}'.format(min_interactions))
     print('Starting timestamp: {} ({})'.format(next_timestamp,

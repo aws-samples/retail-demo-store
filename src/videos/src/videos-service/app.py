@@ -6,10 +6,6 @@ from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
 
-patch_all()
-
-xray_recorder.begin_segment("Videos-init")
-
 import logging
 import json
 import os
@@ -23,6 +19,11 @@ import boto3
 import srt
 from flask import Flask, jsonify, Response
 from flask_cors import CORS
+
+
+patch_all()
+
+xray_recorder.begin_segment("Videos-init")
 
 
 # -- Environment variables - defined by CloudFormation when deployed
@@ -252,8 +253,10 @@ def stream(s3_video_key, ivs_channel_arn, channel_id):
                     send_text = ''
                     while True:
                         text = next(lines).strip()
-                        if len(text) == 0: break
-                        if len(send_text)>0: send_text+='\n'
+                        if len(text) == 0: 
+                            break
+                        if len(send_text)>0: 
+                            send_text+='\n'
                         send_text += text
                     put_ivs_metadata(ivs_channel_arn, send_text)
                 except StopIteration:
