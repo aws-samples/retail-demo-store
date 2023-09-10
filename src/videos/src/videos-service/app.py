@@ -114,7 +114,7 @@ def get_featured_products(video_filepath, channel_id):
     """
     subtitle_path = pathlib.Path(video_filepath).with_suffix('.srt')
     get_subs_command = get_ffmpeg_subs_cmd(video_filepath, subtitle_path)
-    process = subprocess.run(
+    subprocess.run(
                     get_subs_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
     with open(subtitle_path) as f:
         subtitle_content = srt.parse(f)
@@ -247,7 +247,7 @@ def stream(s3_video_key, ivs_channel_arn, channel_id):
                 try:
                     int(next(lines).strip())
                     time_range = next(lines).strip()
-                    if not '-->' in time_range:
+                    if "-->" not in time_range:
                         raise ValueError(f'Expected a time range instead of {time_range}')
                     send_text = ''
                     while True:

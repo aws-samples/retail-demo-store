@@ -2,12 +2,8 @@
 # SPDX-License-Identifier: MIT-0
 
 import random
-import datetime
-import uuid
 import json
-import numpy as np
 import gzip
-import codecs
 import bisect
 from faker import Faker
 from faker.providers import internet
@@ -130,7 +126,7 @@ class UserPool:
 
 class User:
   def __init__(self, category_preference_personas, selectable_user, id_string=None):
-    if(id_string != None):
+    if(id_string is not None):
       self.id = id_string
     else:
       self.id = str(random.randint(1000000000, 99999999999))
@@ -196,7 +192,7 @@ class User:
     ]
     
   def set_traits(self, traits):
-    if traits != None:
+    if traits is not None:
       for (k,v) in traits.items():
         self.traits[k] = random.choice(v)
   

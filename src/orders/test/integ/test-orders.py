@@ -1,7 +1,6 @@
 import testhelpers.integ as integhelpers
 import json
 import os
-from random import randint
 import pytest
 from dotenv import load_dotenv
 import requests

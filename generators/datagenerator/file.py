@@ -21,5 +21,5 @@ class FileEvent:
     output = f'{self.event},{self.timestamp},{self.user_id},{self.anonymous_id},{self.platform}'
     if len(self.traits) > 0:
       output += self.traits
-    output += f'\n'
+    output += '\n'
     return output

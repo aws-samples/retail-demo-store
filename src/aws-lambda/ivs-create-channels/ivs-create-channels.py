@@ -167,7 +167,7 @@ def create_ivs_channels(event, _):
                     Type='String',
                     Overwrite=True
                 )
-        except botocore.exceptions.EndpointConnectionError as ex:
+        except botocore.exceptions.EndpointConnectionError:
             logger.error("Could not create any IVS channels - probably because IVS is not supported in region. "
                          f"Channel name: {channel_name}. Region: {ivs_client.meta.region_name}")
 
@@ -209,7 +209,7 @@ def delete_all_channels(event, _):
     """
         Deletes all IVS channels referenced in the SSM_VIDEO_CHANNEL_MAP_PARAM.
     """
-    logger.info(f"Deleting all IVS channels in stack")
+    logger.info("Deleting all IVS channels in stack")
     if is_ssm_parameter_set(SSM_VIDEO_CHANNEL_MAP_PARAM):
         video_channel_param_value = ssm_client.get_parameter(Name=SSM_VIDEO_CHANNEL_MAP_PARAM)['Parameter']['Value']
         video_channel_map = json.loads(video_channel_param_value)

@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 
 import requests
 import boto3
-import json
 import urllib.parse
 import logging
 

@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 # Initialize the Amazon Personalize events boto object
 personalize_events = boto3.client('personalize-events')
 
-if not 'personalize_tracking_id' in os.environ or os.environ['personalize_tracking_id'] == '':
+if 'personalize_tracking_id' not in os.environ or os.environ['personalize_tracking_id'] == '':
     logger.error("Missing personalize_tracking_id environment variable in lambda configuration.")
     raise Exception('personalize_tracking_id not configured as environment variable')
 else:
@@ -37,7 +37,7 @@ def lambda_handler(event, context):
             # Make sure this event contains an itemId since this is required for the Retail Demo Store
             # dataset - you can also check for specific event names here if needed, and only pass the ones
             # that you want to use in the training dataset
-            if (not 'productId' in event['properties']):
+            if ('productId' not in event['properties']):
                 logger.debug("Got event with no productId, discarding.")
                 return
 
@@ -78,12 +78,12 @@ def lambda_handler(event, context):
 
             logger.debug('put_events parameters: {}'.format(json.dumps(params, indent = 2)))
             # Call put_events
-            response = personalize_events.put_events(**params)
+            personalize_events.put_events(**params)
         else:
             logger.debug("Segment event does not contain required fields (anonymousId and sku)")
-    except ValueError as ve:
+    except ValueError:
         logger.error("Invalid JSON format received, check your event sources.")
-    except KeyError as ke:
+    except KeyError:
         logger.error("Invalid configuration for Personalize, most likely.")
     except ClientError as ce:
         logger.error("ClientError: ")

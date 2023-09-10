@@ -494,7 +494,7 @@ def send_pickup_sms(all_orders, add_order_details=False):
     Returns:
         Nothing but sends an SMS.
     """
-    logger.info(f"Collecting phone numbers to send SMSs")
+    logger.info("Collecting phone numbers to send SMSs")
 
     phone_to_orders = defaultdict(list)
     for order in all_orders:
@@ -543,7 +543,7 @@ def remove_browser_notification_connections(user_id, connection_ids):
         UpdateExpression='DELETE connectionIds :c',
         ExpressionAttributeValues=dynamo_update_expression
     )
-    logger.info(f"Gone connections deleted")
+    logger.info("Gone connections deleted")
 
 
 def send_browser_notification(user_id, data):

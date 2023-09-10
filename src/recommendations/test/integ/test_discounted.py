@@ -1,4 +1,3 @@
-import sys
 import os
 from assertpy import assert_that
 from testhelpers.integ import (

@@ -35,7 +35,6 @@ Your AWS credentials are discovered from your current environment.
 import sys
 import getopt
 import time
-import requests
 import yaml
 from boto3 import resource
 from decimal import Decimal
@@ -108,7 +107,7 @@ def verify_local_ddb_running(endpoint,dynamodb):
             dynamodb.tables.all()
             print("DynamoDB local is responding!")
             return
-        except Exception as e:
+        except Exception:
             print("Local DynamoDB service is not ready yet... pausing before trying again")
             time.sleep(2)
     print("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")

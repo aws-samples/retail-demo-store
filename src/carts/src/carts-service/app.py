@@ -11,8 +11,6 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 # Log a message at the start of the script
 app.logger.info('Starting app.py')
 
-import handlers
-import routes
 
 if __name__ == '__main__':
     try:

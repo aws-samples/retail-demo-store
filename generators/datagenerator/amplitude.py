@@ -1,10 +1,8 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import datagenerator
 import json
 import requests
-import yaml
 
 # Amplitude event support
 # This follows the Amplitude V2 HTTP Bulk API spec, here:

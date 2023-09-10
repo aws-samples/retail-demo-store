@@ -4,8 +4,6 @@
 import os
 import time
 import boto3
-import requests
-import json
 from server import app
 
 def create_table(client, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):

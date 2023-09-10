@@ -16,15 +16,12 @@ import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
-from ask_sdk_core.handler_input import HandlerInput
 
 from ask_sdk_model.dialog import ElicitSlotDirective, DynamicEntitiesDirective, DelegateDirective
 from ask_sdk_model.dialog_state import DialogState
 from ask_sdk_model.er.dynamic import Entity, EntityValueAndSynonyms, EntityListItem, UpdateBehavior
 from ask_sdk_model.slu.entityresolution import StatusCode
 
-from ask_sdk_model.interfaces.connections import SendRequestDirective
-from ask_sdk_model.ui import AskForPermissionsConsentCard
 
 import boto3
 import json
@@ -117,7 +114,7 @@ def get_cognito_user_details(handler_input):
         logger.info(f"Got user info from Cognito: {user_details}")
 
         if 'custom:profile_user_id' not in user_details:
-            logger.warning(f"Profile user has not been selected for Cognito user")
+            logger.warning("Profile user has not been selected for Cognito user")
             raise Exception("Must use default user because simulation user not selected.")
         else:
             user_details['cognito_loaded'] = True
@@ -210,7 +207,7 @@ def is_pinpoint_email_channel_enabled() -> bool:
         email_channel_response = pinpoint.get_email_channel(ApplicationId=PINPOINT_APP_ID)
     except ClientError as error:
         logger.info('Unable to find Email Channel configured for Pinpoint application: {}'.format(error))
-        return False; 
+        return False 
 
     email_channel_from_address = None
     email_channel_enabled = False
@@ -245,7 +242,7 @@ def send_order_confirm_email(handler_input, orders, add_images=True):
     # Specify content:
     subject = "Your order has been received!"
     heading = "Welcome,"
-    subheading = f"Your order has been placed."
+    subheading = "Your order has been placed."
     intro_text = f"""We will meet you at your pump with the following order ({order_ids}):"""
     html_intro_text = intro_text.replace('\n', '</p><p>')
 
@@ -897,12 +894,12 @@ class CheckoutIntentHandler(AbstractRequestHandler):
 
         order_response = submit_order(handler_input)
         send_order_confirm_email(handler_input, [order_response], False)
-        speak_output += f"It will be ready when you arrive" 
+        speak_output += "It will be ready when you arrive" 
         if user_details['cognito_loaded']:            
             name = user_details.get('custom:profile_first_name', '')
             speak_output += f"  {name}"                   
         
-        speak_output += f". Hope to see you again soon."
+        speak_output += ". Hope to see you again soon."
         return (
             handler_input.response_builder
                 .speak(speak_output)

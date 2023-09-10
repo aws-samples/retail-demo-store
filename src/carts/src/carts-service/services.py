@@ -12,7 +12,7 @@ from dynamo_setup import dynamo_client, ddb_table_carts
 
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from decimal import Decimal
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest
 
 
 class CartService:
