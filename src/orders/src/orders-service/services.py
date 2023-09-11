@@ -234,6 +234,7 @@ class OrderService:
             order = cls.update_order_template(request.get_json(force=True))
             cls.validate_order(order)
             app.logger.info('Marshalling order for dynamodb')
+            order['id'] = order_id
             marshalled_order = cls.serialize_item(order)
             cls.execute_and_log(
                 cls.dynamo_client.put_item,
@@ -273,7 +274,7 @@ class OrderService:
             app.logger.info(f'Unmarshalled order: {result}')
             return result
         else:
-            raise KeyError('Order does not exist')
+            raise KeyError
 
     @classmethod
     def delete_order(cls, order_id):

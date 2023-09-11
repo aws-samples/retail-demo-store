@@ -98,3 +98,15 @@ def test_put_invalid_orders():
         )
     assert_that(response.status_code).is_equal_to(400)
     assert_that(response.text).contains("Bad request, please check your input")
+    
+def test_update_nonexistent_orders_id():
+    endpoint = "/orders/id/:order_id"
+    body = integhelpers.read_file(request_bodies_path, endpoint)
+    body['id'] = 'nonexistent_id'
+    response = requests.put(
+        integhelpers.full_request_url(orders_api_url, endpoint),
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        )
+    assert_that(response.status_code).is_equal_to(404)
+    assert_that(response.text).contains("Not found")

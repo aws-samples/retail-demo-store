@@ -54,7 +54,8 @@ def verify_local_ddb_running(endpoint, dynamo_client):
     for _ in range(5):
         try:
             response = dynamo_client.list_tables()
-            if response['TableNames'] == []:
+            #if does not contain ddb_table_carts, then create table
+            if ddb_table_carts not in response['TableNames']  :
                 create_table(
                     ddb_table_name=ddb_table_carts,
                     client=dynamo_client,
