@@ -199,7 +199,7 @@ class OrderService:
             The newly created order.
         """
         order = cls.get_order_template()
-        order.update(request.get_json())
+        order.update(request.get_json(force=True))
         cls.validate_order(order)
         app.logger.info(f'Order to create: {order}')
         app.logger.info('Marshalling order for dynamodb')

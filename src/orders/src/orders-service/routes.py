@@ -1,12 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-from flask import make_response, jsonify
+from flask import make_response, jsonify, Blueprint
 from server import app
 from services import *
 from flask import request
 
-
+routes_bp = Blueprint('routes', __name__)
 
 order_service = OrderService()
 
