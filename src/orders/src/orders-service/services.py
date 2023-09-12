@@ -25,7 +25,7 @@ class OrderService:
     ALLOWED_KEYS = {'id', 'items', 'channel_details', 'total', 'username', 
                 'billing_address', 'shipping_address', 'collection_phone',
                 'delivery_type', 'delivery_status', 'delivery_complete',
-                'channel', 'email', 'ttl'}
+                'channel', 'email', 'ttl', 'channel_detail'}
     
     @staticmethod
     def deserialize_item(item):
