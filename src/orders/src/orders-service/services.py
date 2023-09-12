@@ -24,10 +24,10 @@ class OrderService:
     serializer = TypeSerializer()
     deserializer = TypeDeserializer()
     
-    ALLOWED_KEYS = {'id', 'items', 'channel_detail', 'total', 'username', 
+    ALLOWED_KEYS = {'id', 'items', 'channel_details', 'total', 'username', 
                 'billing_address', 'shipping_address', 'collection_phone',
                 'delivery_type', 'delivery_status', 'delivery_complete',
-                'channel', 'email'}
+                'channel', 'email', 'ttl'}
     
     @staticmethod
     def deserialize_item(item):
