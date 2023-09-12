@@ -1,10 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-from flask import jsonify
+from flask import jsonify,Blueprint
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound
 from botocore.exceptions import BotoCoreError
 from server import app
+
+handler_bp = Blueprint('handler_bp', __name__)
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
