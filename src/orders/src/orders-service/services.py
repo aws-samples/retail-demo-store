@@ -22,7 +22,7 @@ class OrderService:
     serializer = TypeSerializer()
     deserializer = TypeDeserializer()
     
-    ALLOWED_KEYS = {'id', 'items', 'channel_details', 'total', 'username', 
+    ALLOWED_KEYS = {'id', 'items', 'total', 'username', 
                 'billing_address', 'shipping_address', 'collection_phone',
                 'delivery_type', 'delivery_status', 'delivery_complete',
                 'channel', 'email', 'ttl', 'channel_detail'}
