@@ -42,6 +42,7 @@ export default {
             channel_id: 1,
             channel_geo: 'US'
         }
+        delete order.ttl
 
         return connection.post(`${resource}`, order)
     },  
