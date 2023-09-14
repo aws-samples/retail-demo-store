@@ -32,6 +32,15 @@ services:
 
   orders:
     container_name: orders
+    depends_on:
+      - ddb
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - DDB_TABLE_ORDERS
+      - DDB_ENDPOINT_OVERRIDE
     build:
       context: ./orders
     networks:
