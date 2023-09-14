@@ -26,6 +26,8 @@ class CartService:
     serializer = TypeSerializer()
     deserializer = TypeDeserializer()
     
+    ALLOWED_KEYS = {'id', 'items', 'ttl', 'username'}
+    
     @staticmethod
     def deserialize_item(item):
         """
@@ -56,8 +58,9 @@ class CartService:
         Args:
             cart: The cart to be validated.
         """
-        allowed_keys = ['id', 'items', 'ttl', 'username']
-        if not all(key in allowed_keys for key in cart.keys()):
+        invalid_keys = set(cart.keys()) - CartService.ALLOWED_KEYS
+        if invalid_keys:
+            app.logger.info(f"Invalid keys in cart: {invalid_keys}")
             raise BadRequest
         
         

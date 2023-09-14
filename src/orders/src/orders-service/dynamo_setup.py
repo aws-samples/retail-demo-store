@@ -6,7 +6,10 @@ import time
 import boto3
 from server import app
 
-def create_table(client, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+def create_table(client, ddb_table_name, 
+                 attribute_definitions, 
+                 key_schema, 
+                 global_secondary_indexes=None):
     try: 
         client.create_table(
             TableName=ddb_table_name,
@@ -22,24 +25,9 @@ def create_table(client, ddb_table_name, attribute_definitions, key_schema, glob
         else:
             raise e
 
-def enable_ttl_on_table(client, table_name, ttl_attribute):
-    try:
-        response = client.update_time_to_live(
-            TableName=table_name,
-            TimeToLiveSpecification={
-                'Enabled': True,
-                'AttributeName': ttl_attribute
-            }
-        )
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-            print(f'TTL has been enabled on {table_name} for attribute {ttl_attribute}')
-        else:
-            print(f'Failed to enable TTL on {table_name} for attribute {ttl_attribute}')
-    except Exception as e:
-        app.logger.info(f'Error enabling TTL: {e}')
 
 # DynamoDB table names passed via environment
-ddb_table_carts = os.getenv("DDB_TABLE_CARTS")
+ddb_table_orders = os.getenv("DDB_TABLE_ORDERS")
 
 # Allow DDB endpoint to be overridden to support amazon/dynamodb-local
 ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
@@ -52,10 +40,9 @@ def verify_local_ddb_running(endpoint, dynamo_client):
     for _ in range(5):
         try:
             response = dynamo_client.list_tables()
-            #if does not contain ddb_table_carts, then create table
-            if ddb_table_carts not in response['TableNames']  :
+            if ddb_table_orders not in response["TableNames"]:
                 create_table(
-                    ddb_table_name=ddb_table_carts,
+                    ddb_table_name=ddb_table_orders,
                     client=dynamo_client,
                     attribute_definitions=[
                         {"AttributeName": "id", "AttributeType": "S"},
@@ -67,7 +54,9 @@ def verify_local_ddb_running(endpoint, dynamo_client):
                     global_secondary_indexes=[
                         {
                             "IndexName": "username-index",
-                            "KeySchema": [{"AttributeName": "username", "KeyType": "HASH"}],
+                            "KeySchema": [{
+                                "AttributeName": "username", 
+                                "KeyType": "HASH"}],
                             "Projection": {"ProjectionType": "ALL"},
                             "ProvisionedThroughput": {
                                 "ReadCapacityUnits": 5,
@@ -76,14 +65,18 @@ def verify_local_ddb_running(endpoint, dynamo_client):
                         }
                     ]
                 )
-                enable_ttl_on_table(dynamo_client, ddb_table_carts, ttl_attribute='ttl')
             app.logger.info("DynamoDB local is responding!")
             return
         except Exception as e:
             app.logger.info(e)
-            app.logger.info("Local DynamoDB service is not ready yet... pausing before trying again")
+            app.logger.info(
+                "Local DynamoDB service is not ready yet... pausing before trying again"
+                )
             time.sleep(2)
-    app.logger.error("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
+    app.logger.error(
+        "Local DynamoDB service not responding;\
+        verify that your docker-compose .env file is setup correctly"
+        )
     exit(1)
 
 def setup():
@@ -91,7 +84,8 @@ def setup():
 
     if ddb_endpoint_override:
         running_local = True
-        app.logger.info("Creating DDB client with endpoint override: " + ddb_endpoint_override)
+        app.logger.info("Creating DDB client with endpoint override: " 
+                        + ddb_endpoint_override)
         dynamo_client = boto3.client(
             'dynamodb',
             endpoint_url=ddb_endpoint_override,

@@ -78,6 +78,26 @@ Resources:
         AttributeName: "ttl"
         Enabled: true
 
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "username"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+
   ExperimentStrategyTable:
     Type: AWS::DynamoDB::Table
     DependsOn: "ProductsTable"
@@ -123,6 +143,10 @@ Outputs:
   CartsTable:
     Description: DynamoDB Table for Carts
     Value: !Ref CartsTable
+
+  OrdersTable:
+    Description: DynamoDB Table for Carts
+    Value: !Ref OrdersTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies
