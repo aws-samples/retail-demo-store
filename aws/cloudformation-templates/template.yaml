@@ -551,6 +551,7 @@ Resources:
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         CartsTable: !GetAtt Base.Outputs.CartsTable
+        OrdersTable: !GetAtt Base.Outputs.OrdersTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
@@ -922,6 +923,10 @@ Outputs:
         # Carts service
         CARTS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
         DDB_TABLE_CARTS=${Base.Outputs.CartsTable}
+
+        # Orders service
+        ORDERS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
+        DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
 
         # Search service
         OPENSEARCH_DOMAIN_SCHEME=https

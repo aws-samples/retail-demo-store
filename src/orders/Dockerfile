@@ -1,10 +1,21 @@
-FROM public.ecr.aws/s5z3t2n9/golang:1.11-alpine AS build
-WORKDIR /src/
-COPY src/orders-service/*.* /src/
-RUN apk add --no-cache git
-RUN CGO_ENABLED=0 go build -o /bin/orders-service
+FROM public.ecr.aws/docker/library/python:3.10-slim-bullseye
 
-FROM scratch
-COPY --from=build /bin/orders-service /bin/orders-service
+WORKDIR /src/
+
+RUN apt-get update && apt-get install -y g++
+
+COPY src/orders-service/requirements.txt .
+
+RUN python3 -m pip install -r requirements.txt
+
+COPY src/orders-service/server.py .
+COPY src/orders-service/app.py .
+COPY src/orders-service/routes.py .
+COPY src/orders-service/services.py .
+COPY src/orders-service/handlers.py .
+COPY src/orders-service/dynamo_setup.py .
+
 EXPOSE 80
-ENTRYPOINT ["/bin/orders-service"]
+
+ENTRYPOINT ["python"]
+CMD ["app.py"]

@@ -19,7 +19,7 @@
     "delivery_complete": false,
     "delivery_type": "COLLECTION",
     "email": "nicholas.white@example.com",
-    "id": "1",
+    "id": "209673d6-46a5-11ee-be56-0242ac120002",
     "items": [
       {
         "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
@@ -70,7 +70,7 @@
     "delivery_complete": false,
     "delivery_type": "DELIVERY",
     "email": "nicholas.white@example.com",
-    "id": "1",
+    "id": "209673d6-46a5-11ee-be56-0242ac120002",
     "items": [
       {
         "product_id": "a31ad4b3-f9a8-4a9b-a8b3-3034af7bacec",
