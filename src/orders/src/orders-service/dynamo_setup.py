@@ -6,7 +6,10 @@ import time
 import boto3
 from server import app
 
-def create_table(client, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+def create_table(client, ddb_table_name, 
+                 attribute_definitions, 
+                 key_schema, 
+                 global_secondary_indexes=None):
     try: 
         client.create_table(
             TableName=ddb_table_name,
@@ -51,7 +54,9 @@ def verify_local_ddb_running(endpoint, dynamo_client):
                     global_secondary_indexes=[
                         {
                             "IndexName": "username-index",
-                            "KeySchema": [{"AttributeName": "username", "KeyType": "HASH"}],
+                            "KeySchema": [{
+                                "AttributeName": "username", 
+                                "KeyType": "HASH"}],
                             "Projection": {"ProjectionType": "ALL"},
                             "ProvisionedThroughput": {
                                 "ReadCapacityUnits": 5,
@@ -64,9 +69,14 @@ def verify_local_ddb_running(endpoint, dynamo_client):
             return
         except Exception as e:
             app.logger.info(e)
-            app.logger.info("Local DynamoDB service is not ready yet... pausing before trying again")
+            app.logger.info(
+                "Local DynamoDB service is not ready yet... pausing before trying again"
+                )
             time.sleep(2)
-    app.logger.error("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
+    app.logger.error(
+        "Local DynamoDB service not responding;\
+        verify that your docker-compose .env file is setup correctly"
+        )
     exit(1)
 
 def setup():
@@ -74,7 +84,8 @@ def setup():
 
     if ddb_endpoint_override:
         running_local = True
-        app.logger.info("Creating DDB client with endpoint override: " + ddb_endpoint_override)
+        app.logger.info("Creating DDB client with endpoint override: " 
+                        + ddb_endpoint_override)
         dynamo_client = boto3.client(
             'dynamodb',
             endpoint_url=ddb_endpoint_override,
