@@ -15,9 +15,6 @@ app.register_blueprint(routes_bp)
 # Log a message at the start of the script
 app.logger.info('Starting app.py')
 
-import handlers
-import routes
-
 if __name__ == '__main__':
     try:
         port = os.getenv('PORT', '80')

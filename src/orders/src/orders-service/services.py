@@ -46,8 +46,10 @@ class OrderService:
             else:
                 return OrderService.deserializer.deserialize(v)
             
-        return {k: [{k2: deserialize_value(k2, v2) for k2, v2 in i['M'].items()} for i in v['L']] if k == 'items'
-                else {k2: deserialize_value(k2, v2) for k2, v2 in v['M'].items()} if k == 'channel_detail'
+        return {k: [{k2: deserialize_value(k2, v2) for k2, v2 in i['M'].items()} 
+                    for i in v['L']] if k == 'items'
+                else {k2: deserialize_value(k2, v2) 
+                      for k2, v2 in v['M'].items()} if k == 'channel_detail'
                 else float(OrderService.deserializer.deserialize(v)) if k == 'total'
                 else OrderService.deserializer.deserialize(v) for k, v in item.items()}
         
@@ -64,15 +66,21 @@ class OrderService:
             The serialized item.
         """
         if isinstance(item, list):
-            return {'L': [{'M': {k: OrderService.serializer.serialize(Decimal(str(v))) if k=='price' or k=='quantity'
-                     else OrderService.serializer.serialize(v) for k, v in i.items()}} for i in item]}
+            return {'L': [{'M': {k: OrderService.serializer.serialize(Decimal(str(v))) 
+                                 if k=='price' or k=='quantity'
+                     else OrderService.serializer.serialize(v) 
+                     for k, v in i.items()}} for i in item]}
         if isinstance(item, dict) and item.get('channel_id') is not None:
-            return {'M': {k: OrderService.serializer.serialize(Decimal(str(v))) if isinstance(v,float) or isinstance(v,int)
-                     else OrderService.serializer.serialize(v) for k, v in item.items()}}
+            return {'M': {k: OrderService.serializer.serialize(Decimal(str(v))) 
+                          if isinstance(v,float) or isinstance(v,int)
+                     else OrderService.serializer.serialize(v) 
+                     for k, v in item.items()}}
         else:
-            return {k: OrderService.serialize_item(v) if k=='items' or k=='channel_detail'
+            return {k: OrderService.serialize_item(v) 
+                    if k=='items' or k=='channel_detail'
                     else OrderService.serializer.serialize(v) if isinstance(v,bool)
-                    else OrderService.serializer.serialize(Decimal(str(v))) if isinstance(v,float) or isinstance(v,int)
+                    else OrderService.serializer.serialize(Decimal(str(v))) 
+                    if isinstance(v,float) or isinstance(v,int)
                     else OrderService.serializer.serialize(v) for k, v in item.items()}
            
     @staticmethod
@@ -161,7 +169,8 @@ class OrderService:
             TableName=cls.ddb_table_orders
         )
         app.logger.info(f'Retrieved all orders: {response["Items"]}')
-        unmarshalled_orders = [cls.deserialize_item(order) for order in response['Items']]
+        unmarshalled_orders = [cls.deserialize_item(order) 
+                               for order in response['Items']]
         app.logger.info(f'Unmarshalled orders: {unmarshalled_orders}')
         return unmarshalled_orders
     
@@ -184,7 +193,8 @@ class OrderService:
             ExpressionAttributeValues={':username': {'S': username}}
         )
         app.logger.info(f'Retrieved  orders: {response["Items"]}')
-        unmarshalled_orders = [cls.deserialize_item(order)  for order in response['Items']]
+        unmarshalled_orders = [cls.deserialize_item(order) 
+                               for order in response['Items']]
         app.logger.info(f'Unmarshalled orders: {unmarshalled_orders}')
         return unmarshalled_orders
 
