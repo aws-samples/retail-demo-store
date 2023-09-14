@@ -3,7 +3,7 @@
 
 from flask import make_response, jsonify, Blueprint
 from server import app
-from services import *
+from services import OrderService
 from flask import request
 
 routes_bp = Blueprint('routes', __name__)
