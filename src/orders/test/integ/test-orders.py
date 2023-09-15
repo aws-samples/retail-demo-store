@@ -54,12 +54,19 @@ def test_get_orders_id(created_order):
 def test_put_orders_id():
     endpoint = "/orders/id/:order_id"
     params = {":order_id": test_order_id}
-    integhelpers.put_request_assert(orders_api_url, endpoint, request_bodies_path, schemas_path, params)
+    integhelpers.put_request_assert(orders_api_url, 
+                                    endpoint, 
+                                    request_bodies_path, 
+                                    schemas_path, 
+                                    params)
 
 
 def test_post_orders():
     endpoint = "/orders"
-    integhelpers.post_request_assert(orders_api_url, endpoint, request_bodies_path, schemas_path)
+    integhelpers.post_request_assert(orders_api_url, 
+                                     endpoint, 
+                                     request_bodies_path, 
+                                     schemas_path)
 
 
 def test_get_orders_username():
