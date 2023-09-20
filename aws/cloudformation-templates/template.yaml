@@ -466,6 +466,10 @@ Parameters:
     Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
     NoEcho: true
 
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -523,6 +527,7 @@ Resources:
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
+        ACMCertificateArn: !Ref ACMCertificateArn
 
   # Services Resources
   Services:
