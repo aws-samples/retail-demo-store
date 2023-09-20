@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 
 import requests
 import boto3
-import json
 import urllib.parse
 import logging
 
@@ -224,7 +223,8 @@ class PersonalizeRecommendationsResolver(Resolver):
         if kwargs.get('promotion'):
             params['promotions'] = [ kwargs['promotion'] ]
 
-        if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
+        if 'context' in kwargs and kwargs['context'] is not None: 
+            params['context'] = kwargs['context']
 
         if item_id:
             params['itemId'] = item_id
@@ -351,7 +351,8 @@ class PersonalizeRankingResolver(Resolver):
         if params.get('filterArn') and kwargs.get('filter_values'):
             params['filterValues'] = kwargs.get('filter_values')
 
-        if 'context' in kwargs and kwargs['context'] is not None: params['context'] = kwargs['context']
+        if 'context' in kwargs and kwargs['context'] is not None: 
+            params['context'] = kwargs['context']
 
         log.debug('PersonalizeRankingResolver - getting personalized ranking %s', params)
 

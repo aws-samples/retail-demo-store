@@ -4,9 +4,8 @@
 import random
 import numpy as np
 import datetime
-import inspect
 from datagenerator.output import OutputFormatter
-from collections.abc import Mapping, Iterable
+from collections.abc import Iterable
 
 class Funnel:
   def __init__(self, timestamp, funnel, user):

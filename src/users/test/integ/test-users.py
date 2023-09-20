@@ -1,5 +1,4 @@
 import testhelpers.integ as integhelpers
-import time
 import requests
 import os
 from dotenv import load_dotenv

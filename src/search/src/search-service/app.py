@@ -5,8 +5,6 @@ from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
 
-patch_all()
-
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
@@ -15,6 +13,9 @@ from opensearchpy import OpenSearch, NotFoundError
 import json
 import os
 import pprint
+
+patch_all()
+
 
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
 

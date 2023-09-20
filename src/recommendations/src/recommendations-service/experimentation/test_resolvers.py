@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT-0
 
 import unittest
-import json
 import botocore
 import logging
 

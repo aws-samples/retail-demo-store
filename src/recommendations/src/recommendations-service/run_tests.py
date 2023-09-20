@@ -1,7 +1,9 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import os, sys, unittest
+import os
+import sys
+import unittest
 
 os.environ['EVIDENTLY_PROJECT_NAME'] = 'retaildemostore'
 

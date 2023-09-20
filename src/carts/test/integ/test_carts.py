@@ -71,7 +71,7 @@ def test_update_with_id_mismatch():
     assert_that(response.json()["error"]).is_equal_to("Bad request, please check your input")
     
 def test_update_with_nonexistent_cart():
-    endpoint = f"/carts/nonexistent_id"
+    endpoint = "/carts/nonexistent_id"
     body = {"id": "invalid_value"}
     response = requests.put(full_request_url(carts_api_url, endpoint), data=json.dumps(body))
     assert_that(response.status_code).is_equal_to(404)

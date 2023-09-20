@@ -87,7 +87,7 @@ class SegmentSender:
     }
 
     key = self.config_keys[platform]
-    if key != None:
+    if key is not None:
       events_str = json.dumps(batch_events, default=lambda x: x.__dict__) 
       #print(f'Batch length bytes: {len(events_str)}')
       if debug:

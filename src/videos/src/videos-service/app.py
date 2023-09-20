@@ -6,10 +6,6 @@ from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
 
-patch_all()
-
-xray_recorder.begin_segment("Videos-init")
-
 import logging
 import json
 import os
@@ -23,6 +19,11 @@ import boto3
 import srt
 from flask import Flask, jsonify, Response
 from flask_cors import CORS
+
+
+patch_all()
+
+xray_recorder.begin_segment("Videos-init")
 
 
 # -- Environment variables - defined by CloudFormation when deployed
@@ -114,7 +115,7 @@ def get_featured_products(video_filepath, channel_id):
     """
     subtitle_path = pathlib.Path(video_filepath).with_suffix('.srt')
     get_subs_command = get_ffmpeg_subs_cmd(video_filepath, subtitle_path)
-    process = subprocess.run(
+    subprocess.run(
                     get_subs_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
     with open(subtitle_path) as f:
         subtitle_content = srt.parse(f)
@@ -247,13 +248,15 @@ def stream(s3_video_key, ivs_channel_arn, channel_id):
                 try:
                     int(next(lines).strip())
                     time_range = next(lines).strip()
-                    if not '-->' in time_range:
+                    if "-->" not in time_range:
                         raise ValueError(f'Expected a time range instead of {time_range}')
                     send_text = ''
                     while True:
                         text = next(lines).strip()
-                        if len(text) == 0: break
-                        if len(send_text)>0: send_text+='\n'
+                        if len(text) == 0: 
+                            break
+                        if len(send_text)>0: 
+                            send_text+='\n'
                         send_text += text
                     put_ivs_metadata(ivs_channel_arn, send_text)
                 except StopIteration:

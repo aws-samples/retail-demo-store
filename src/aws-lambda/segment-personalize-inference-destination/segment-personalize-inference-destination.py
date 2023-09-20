@@ -17,12 +17,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Check that the Segment env variables are set correctly
-if not 'segment_personas_write_key' in os.environ or os.environ['segment_personas_write_key'] == '':
+if 'segment_personas_write_key' not in os.environ or os.environ['segment_personas_write_key'] == '':
     raise Exception('segment_personas_write_key is null or not defined.')
 else:
     analytics.write_key = os.environ['segment_personas_write_key']
 
-if not 'recommendations_service_url' in os.environ or os.environ['recommendations_service_url'] == '':
+if 'recommendations_service_url' not in os.environ or os.environ['recommendations_service_url'] == '':
     raise Exception('recommendations_service_url not configured as environment variable')
 else:
     recommendations_service_url = os.environ['recommendations_service_url']
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
                 logger.debug(recommendations)
                 # Send the user recommendations to Segment
                 analytics.identify(user_id, { 'personalized_recommendations': recommendations })
-    except ValueError as ve:
+    except ValueError:
         logger.error("Invalid JSON format received, check your event sources.")
-    except KeyError as ke:
+    except KeyError:
         logger.error("Invalid configuration for Personalize, most likely.")
