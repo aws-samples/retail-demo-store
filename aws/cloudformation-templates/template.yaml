@@ -69,6 +69,7 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+          - ACMCertificateArn
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -414,6 +415,10 @@ Parameters:
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
 
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN (Optional, only needed for custom domain in CloudFront)
+
   FenixZipDetectUrl:
     Type: String
     Description: Fenix Commerce Zipcode Detect URL
@@ -429,7 +434,6 @@ Parameters:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
     Default: 'https://platform.api.fenixcommerce.com/awsretaildemostore/fenixdelest/api/v2/deliveryestimates'
-
 
   FenixMonetaryValue:
     Type: String
@@ -523,6 +527,7 @@ Resources:
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
+        ACMCertificateArn: !Ref ACMCertificateArn
 
   # Services Resources
   Services:

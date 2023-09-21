@@ -11,6 +11,13 @@ Parameters:
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN
+
+Conditions:
+  ACMCertificateArnExists: 
+    !Not [!Equals [!Ref ACMCertificateArn, '']]
 
 Resources:
   
@@ -114,6 +121,14 @@ Resources:
           CachePolicyId: !Ref UICachePolicy
           OriginRequestPolicyId: !Ref UIOriginRequestPolicy
           ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c # id for the SimpleCORS AWS Managed response header policies:https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html#managed-response-headers-policies-cors
+        ViewerCertificate:
+          !If 
+            - ACMCertificateArnExists
+            - AcmCertificateArn: !Ref ACMCertificateArn
+              MinimumProtocolVersion: "TLSv1.2_2021"
+              SslSupportMethod: "sni-only"
+            - CloudFrontDefaultCertificate: true
+              MinimumProtocolVersion: "TLSv1"   
 
   # Swagger UI infrastructure
   SwaggerUIBucket:
