@@ -9,5 +9,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18.x"
+      - run: cd src/web-ui
       - run: npm ci
-      - run: layer0:app:build
+      - run: npm run layer0:app:build
