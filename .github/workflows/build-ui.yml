@@ -13,4 +13,6 @@ jobs:
         with:
           node-version: "18.x"
       - run: npm ci
+        run: chmod a+x *.sh
+      - run: ./gen_env.sh
       - run: npm run build
