@@ -13,4 +13,4 @@ jobs:
         with:
           node-version: "18.x"
       - run: npm ci
-      - run: npm run layer0:app:build
+      - run: npm run build
