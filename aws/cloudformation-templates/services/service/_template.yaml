@@ -151,7 +151,7 @@ Parameters:
     Type: String
     Default: search.retaildemostore.local
 
-  EnvSerchServiceInternalPort:
+  EnvSearchServiceInternalPort:
     Type: String
     Default: 80
 
