@@ -106,6 +106,7 @@ aws cloudformation deploy \
   GitHubToken="" \
   AmplitudeApiKey="" \
   CreateOpenSearchServiceLinkedRole="No" \
+  ACMCertificateArn="" \
   PreCreatePersonalizeResources="${param_personalize}" \
   PreIndexElasticsearch="${param_elasticsearch}"
 
