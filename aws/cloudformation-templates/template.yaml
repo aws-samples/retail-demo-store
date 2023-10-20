@@ -69,6 +69,10 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+      - Label:
+          default: "Custom Cloudfront domain name (optional)"
+        Parameters:
+          - CloudfrontCustomDomain
           - ACMCertificateArn
       - Label:
           default: "Fenix Commerce EDD Integration"
@@ -418,6 +422,12 @@ Parameters:
   ACMCertificateArn:
     Type: String
     Description: ACM Certificate ARN for CloudFront WebUICDN (Optional, only needed for custom domain in CloudFront)
+    Default: ''
+
+  CloudfrontCustomDomain:
+    Type: String
+    Description : OPTIONAL only enter if you plan to use a custom domain named (linked to ACMCertificateArn)
+    Default: ''
 
   FenixZipDetectUrl:
     Type: String
@@ -492,6 +502,9 @@ Conditions:
       - !Not [!Equals [!Ref AmazonPayPublicKeyId, ""]]
 
   DeployAlexaEndpoint: !Not [!Equals [!Ref AlexaSkillId, ""]]
+
+  ConditionCustomDomain: !Not
+    - !Equals [!Ref CloudfrontCustomDomain, ""]
 
 Resources:
   # Base Resources
@@ -710,7 +723,12 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        WebURL: 
+          !If [
+            ConditionCustomDomain,
+            CloudfrontCustomDomain,
+            !GetAtt Base.Outputs.WebUICDNURL
+          ]
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
