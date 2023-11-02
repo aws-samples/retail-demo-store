@@ -13,11 +13,8 @@ This function will be executed every time any user wishes to opt in for text mes
 
 import json
 import boto3
-import botocore
 import logging
 import os
-from datetime import datetime, timedelta
-from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

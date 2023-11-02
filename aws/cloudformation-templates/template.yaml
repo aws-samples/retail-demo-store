@@ -69,6 +69,7 @@ Metadata:
           - mParticleS2SApiKey
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
+          - ACMCertificateArn
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -414,6 +415,10 @@ Parameters:
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
 
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN (Optional, only needed for custom domain in CloudFront)
+
   FenixZipDetectUrl:
     Type: String
     Description: Fenix Commerce Zipcode Detect URL
@@ -429,7 +434,6 @@ Parameters:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
     Default: 'https://platform.api.fenixcommerce.com/awsretaildemostore/fenixdelest/api/v2/deliveryestimates'
-
 
   FenixMonetaryValue:
     Type: String
@@ -523,6 +527,7 @@ Resources:
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
+        ACMCertificateArn: !Ref ACMCertificateArn
 
   # Services Resources
   Services:
@@ -550,6 +555,8 @@ Resources:
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
+        CartsTable: !GetAtt Base.Outputs.CartsTable
+        OrdersTable: !GetAtt Base.Outputs.OrdersTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
@@ -917,6 +924,14 @@ Outputs:
         PRODUCT_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
         OFFERS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
         AWS_XRAY_DAEMON_ADDRESS=xray:2000
+
+        # Carts service
+        CARTS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
+        DDB_TABLE_CARTS=${Base.Outputs.CartsTable}
+
+        # Orders service
+        ORDERS_SERVICE_HOST="${ApiGateway.Outputs.APIEndpoint}"
+        DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
 
         # Search service
         OPENSEARCH_DOMAIN_SCHEME=https

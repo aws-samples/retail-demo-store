@@ -5,14 +5,19 @@ version: "3.7"
 services:
   carts:
     container_name: carts
-    build:
-      context: ./carts
-    networks:
-      - dev-net
+    depends_on:
+      - ddb
     environment:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
+      - AWS_REGION
+      - DDB_TABLE_CARTS
+      - DDB_ENDPOINT_OVERRIDE
+    build:
+      context: ./carts
+    networks:
+      - dev-net
     ports:
       - "8003:80"
 
@@ -27,6 +32,15 @@ services:
 
   orders:
     container_name: orders
+    depends_on:
+      - ddb
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - DDB_TABLE_ORDERS
+      - DDB_ENDPOINT_OVERRIDE
     build:
       context: ./orders
     networks:

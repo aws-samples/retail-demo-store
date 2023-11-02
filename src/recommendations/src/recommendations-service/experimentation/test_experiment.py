@@ -5,7 +5,6 @@ import unittest
 import uuid
 import json
 
-from unittest.mock import patch
 from experimentation.resolvers import ResolverFactory, PersonalizeRecommendationsResolver, DefaultProductResolver
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment

@@ -175,6 +175,14 @@ Parameters:
     Type: String
     Default: none
 
+  CartsTable:
+    Type: String
+    Default: none
+
+  OrdersTable:
+    Type: String
+    Default: none
+
   ExperimentStrategyTable:
     Type: String
     Default: none
@@ -303,6 +311,8 @@ Resources:
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
+        CartsTable: !Ref CartsTable
+        OrdersTable: !Ref OrdersTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl

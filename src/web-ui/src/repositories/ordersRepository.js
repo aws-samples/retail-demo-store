@@ -38,10 +38,11 @@ export default {
         if (!order)
             throw "order required"
         order.channel = 'WEB'
-        order.channel_details = {
+        order.channel_detail = {
             channel_id: 1,
             channel_geo: 'US'
         }
+        delete order.ttl
 
         return connection.post(`${resource}`, order)
     },  

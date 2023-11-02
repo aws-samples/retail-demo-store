@@ -11,6 +11,13 @@ Parameters:
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN
+
+Conditions:
+  ACMCertificateArnExists: 
+    !Not [!Equals [!Ref ACMCertificateArn, '']]
 
 Resources:
   
@@ -57,7 +64,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig:
-        Name: UIOriginAccessControl
+        Name: !Ref AWS::StackName
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -69,7 +76,7 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         MinTTL: 86400
-        Name: UICachePolicy
+        Name: !Ref AWS::StackName
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
@@ -78,6 +85,20 @@ Resources:
             HeaderBehavior: none
           QueryStringsConfig:
             QueryStringBehavior: all
+            
+  UIOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties: 
+      OriginRequestPolicyConfig:
+        CookiesConfig: 
+          CookieBehavior: none
+        HeadersConfig: 
+          HeaderBehavior: none
+        Name: !Ref AWS::StackName
+        QueryStringsConfig: 
+          QueryStringBehavior: all
+
+
 
   WebUICDN:
     Type: 'AWS::CloudFront::Distribution'
@@ -98,6 +119,16 @@ Resources:
           TargetOriginId: S3
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: !Ref UICachePolicy
+          OriginRequestPolicyId: !Ref UIOriginRequestPolicy
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c # id for the SimpleCORS AWS Managed response header policies:https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html#managed-response-headers-policies-cors
+        ViewerCertificate:
+          !If 
+            - ACMCertificateArnExists
+            - AcmCertificateArn: !Ref ACMCertificateArn
+              MinimumProtocolVersion: "TLSv1.2_2021"
+              SslSupportMethod: "sni-only"
+            - CloudFrontDefaultCertificate: true
+              MinimumProtocolVersion: "TLSv1"   
 
   # Swagger UI infrastructure
   SwaggerUIBucket:
@@ -156,6 +187,8 @@ Resources:
           TargetOriginId: S3
           ViewerProtocolPolicy: redirect-to-https
           CachePolicyId: !Ref UICachePolicy
+          OriginRequestPolicyId: !Ref UIOriginRequestPolicy
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
 
 Outputs:
   # Web UI outputs

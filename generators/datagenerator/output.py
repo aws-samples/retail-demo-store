@@ -59,7 +59,7 @@ class OutputWriter:
         batch.append(event)
       if len(batch) > 0:
         response = sender.send_batch(funnel.platform, batch, debug)
-        if response != None and response.status_code > 200:
+        if response is not None and response.status_code > 200:
           print(f'Error sending to Amplitude: {response.text}')
     print(f'Processed {count} funnels...') 
 
@@ -80,6 +80,6 @@ class OutputWriter:
         batch.append(event)
       if len(batch) > 0:
         response = sender.send_batch(funnel.platform, batch, debug)
-        if response != None and response.status_code > 200:
+        if response is not None and response.status_code > 200:
           print(f'Error sending to Segment: {response.text}')
     print(f'Processed {count} funnels...')

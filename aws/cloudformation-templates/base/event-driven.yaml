@@ -1,0 +1,98 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template deploys the Event-Driven Architecture shared components for the Retail Demo Store. Remember - rules belong to consumers!
+
+Parameters:
+  Uid:
+    Type: String
+    Default: "retaildemostore"
+
+Resources:
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub "${Uid}-eventbus"
+
+  CatchAllRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: "CatchAllRetailDemoStoreEventsToCloudWatchLogs"
+      EventBusName: !Ref EventBus
+      EventPattern:
+        source:
+          - "*"
+      State: DISABLED
+      RoleArn: !GetAtt IAMEventsToCloudWatch.Arn
+      Targets:
+        - Arn: !GetAtt CatchAllEventsLogGroup.Arn
+          Id: "CatchAll-RetailDemoStore-Events"
+
+  CatchAllEventsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${Uid}-events-log"
+      RetentionInDays: 120
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+
+  IAMEventsToCloudWatch:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: EventBridgeToCloudWatchLogs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: !GetAtt CatchAllEventsLogGroup.Arn
+
+  EventArchive:
+    Type: AWS::Events::Archive
+    Properties:
+      ArchiveName: !Sub "${Uid}-event-archive"
+      RetentionDays: 120
+      SourceArn: !GetAtt EventBus.Arn
+      Description: "Holds a 120 day archive of events from the Retail Demo store event bus"
+    DeletionPolicy: Delete
+
+  EventDiscoverer:
+    Type: AWS::EventSchemas::Discoverer
+    Properties:
+      SourceArn: !GetAtt EventBus.Arn
+
+  SSMParamForEventBus:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: "The Name of the Retail Demo Store application EventBridge event bus"
+      Name: "RetailDemoStore-eventbus"
+      Type: String
+      Value: !Ref EventBus
+
+Outputs:
+  EventBusName:
+    Description: "The name of the EventBridge event bus"
+    Value: !Ref EventBus
+    Export:
+      Name: !Sub "${Uid}-eventbus"
+  SSMParameterForEventBus:
+    Description: "SSM Parameter storing the EventBridge event bus name for services to use"
+    Value: !Ref SSMParamForEventBus
+  LoggingInformation:
+    Description: "Information on catch-all logging"
+    Value: !Sub "The catch-all rule named 'CatchAllRetailDemoStoreEventsToCloudWatchLogs' is disabled by default. When enabled, all events will log to the '${CatchAllEventsLogGroup}' CloudWatch Log Group."

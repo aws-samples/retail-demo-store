@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 from flask import Flask
-from flask import abort, jsonify, request
+from flask import abort, jsonify
 from flask_cors import CORS
 
 import json

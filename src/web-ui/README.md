@@ -18,7 +18,11 @@ To get your local Web UI container to make calls to other Retail Demo Store web 
 Once your `.env` is setup, run Docker Compose **from the `../src` directory** as described in the [local development instructions](../) to build and run the Web UI container locally.
 
 ```console
-foo@bar:~$ docker-compose up --build web-ui
+foo@bar:~$ docker compose up --build web-ui
 ```
 
 Once the container is up and running, you can access it in your browser at [http://localhost:8080](http://localhost:8080).
+
+If you chose to deploy the location services, by selecting 'yes' for the CloudFormation parameter 'DeployLocationServices', then you will need to update the Lambda Authorizer used by the Location Services API Gateway.  This is because the Lambda Authorizer performs an origin check on the 'connect' request, and by default it will use the CloudFront domain as the expected origin.
+To locate the Authorizer, go to API Gateway in the AWS console and select the LocationNrfDemo API.  Click on 'Authorizers' in the left hand menu and copy the name of the Lambda function.  Next, go to Lambda in the AWS console and search for the Labda function copied in the previous step.  
+Select the Lambda function and then click on the Configuration tab, and select 'Environment variable'.  Finally, update the ALLOWED_ORIGIN environment value to your local origin, e.g. ```http://localhost:8080```.

@@ -114,8 +114,8 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
                                                             'promoted': 'PROMOTED'})
     # Since GENDER column requires a value for all rows, default all nulls to "Any"
     products_dataset_df['GENDER'].fillna(GENDER_ANY, inplace = True)
-    products_dataset_df.loc[products_dataset_df['PROMOTED'] == True, 'PROMOTED'] = 'Y'
-    products_dataset_df['PROMOTED'].fillna(NOT_PROMOTED, inplace = True)
+    products_dataset_df['PROMOTED'].fillna(False, inplace = True)
+    products_dataset_df['PROMOTED'] = products_dataset_df['PROMOTED'].replace({True: 'Y', False: 'N'})
     products_dataset_df.to_csv(out_items_filename, index=False)
 
     users_dataset_df = users_df[['id', 'age', 'gender']]
@@ -157,7 +157,8 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     average_product_price = int(products_df.price.mean())
     print('Average product price: ${:.2f}'.format(average_product_price))
 
-    if seconds_increment <= 0: raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
+    if seconds_increment <= 0: 
+        raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
 
     print('Minimum interactions to generate: {}'.format(min_interactions))
     print('Starting timestamp: {} ({})'.format(next_timestamp,
@@ -275,7 +276,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
                     first_prod = user_category_to_first_prod[usercat_key]
                     prods_subset_df = product_affinities_bycatgender[(category, gender)][first_prod]
 
-                if not usercat_key in user_category_to_first_prod:
+                if usercat_key not in user_category_to_first_prod:
                     # If the user has not yet selected a first product for this category
                     # we do it by choosing between all products for gender.
 
@@ -296,7 +297,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
 
             user_to_product[user['id']].add(product['id'])
 
-            if not usercat_key in user_category_to_first_prod:
+            if usercat_key not in user_category_to_first_prod:
                 user_category_to_first_prod[usercat_key] = product['id']
 
             # Decide if the product the user is interacting with is discounted

@@ -7,7 +7,7 @@ Description: >
 Conditions:
   CreateOpenSearchServiceLinkedRole: !Equals
     - !Ref CreateOpenSearchServiceLinkedRole
-    - 'Yes'
+    - "Yes"
 
 Parameters:
   ResourceBucket:
@@ -105,18 +105,18 @@ Parameters:
   FenixZipDetectUrl:
     Type: String
     Description: Fenix Commerce Zipcode Detect URL
-    Default: 'https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0'
+    Default: "https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0"
 
   FenixTenantId:
     Type: String
     Description: Fenix Commerce Demo Env TenantID
-    Default: 'ec6ea3439489426ba09cf6c906ead8d5'
+    Default: "ec6ea3439489426ba09cf6c906ead8d5"
     NoEcho: true
 
   FenixEddEndpoint:
     Type: String
     Description: Fenix Commerce Estimated Delivery Date Endpoint URL
-    Default: 'https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates'
+    Default: "https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates"
 
   FenixMonetaryValue:
     Type: String
@@ -127,32 +127,35 @@ Parameters:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on PDP
     AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
+      - "TRUE"
+      - "FALSE"
+    Default: "TRUE"
 
   FenixEnabledCart:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on CART
     AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
+      - "TRUE"
+      - "FALSE"
+    Default: "TRUE"
 
   FenixEnabledCheckout:
     Type: String
     Description: Fenix Commerce Flag to enable EDD on checkout
     AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'TRUE'
+      - "TRUE"
+      - "FALSE"
+    Default: "TRUE"
 
   FenixXapiKey:
     Type: String
     Description: Fenix Commerce Demo Env x-api-key
-    Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
+    Default: "nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd"
     NoEcho: true
 
+  ACMCertificateArn:
+    Type: String
+    Description: ACM Certificate ARN for CloudFront WebUICDN
 
 Resources:
   # Authentication
@@ -248,7 +251,12 @@ Resources:
   OpenSearchRoleWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
     Properties:
-      Handle: !If [CreateOpenSearchServiceLinkedRole, !Ref OpenSearchRoleWaitHandle, !Ref WaitHandle]
+      Handle:
+        !If [
+          CreateOpenSearchServiceLinkedRole,
+          !Ref OpenSearchRoleWaitHandle,
+          !Ref WaitHandle,
+        ]
       Timeout: "1"
       Count: 0
 
@@ -305,6 +313,7 @@ Resources:
       Parameters:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         LoggingBucketName: !GetAtt Buckets.Outputs.LoggingBucketName
+        ACMCertificateArn: !Ref ACMCertificateArn
 
   # Personalize Resources
   Personalize:
@@ -315,12 +324,20 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
-        
+
   # Evidently
   Evidently:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/evidently.yaml
+      Parameters:
+        Uid: !Sub ${ParentStackName}-${AWS::Region}
+
+  # Event-Driven Architecture
+  EventDrivenArchitecture:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/event-driven.yaml
       Parameters:
         Uid: !Sub ${ParentStackName}-${AWS::Region}
 
@@ -352,7 +369,7 @@ Outputs:
   VpcId:
     Description: VPC Id.
     Value: !GetAtt VPC.Outputs.VpcId
-  
+
   VpcCidr:
     Description: VPC CIDR block
     Value: !GetAtt VPC.Outputs.VpcCidr
@@ -408,6 +425,14 @@ Outputs:
   CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !GetAtt Tables.Outputs.CategoriesTable
+
+  CartsTable:
+    Description: DynamoDB Table for Carts
+    Value: !GetAtt Tables.Outputs.CartsTable
+
+  OrdersTable:
+    Description: DynamoDB Table for Orders
+    Value: !GetAtt Tables.Outputs.OrdersTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiments
@@ -468,3 +493,7 @@ Outputs:
   EvidentlyProjectName:
     Description: Evidently project name
     Value: !GetAtt Evidently.Outputs.EvidentlyProjectName
+
+  EventBusName:
+    Description: EventBridge event bus name
+    Value: !GetAtt EventDrivenArchitecture.Outputs.EventBusName

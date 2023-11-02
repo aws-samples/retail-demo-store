@@ -1,5 +1,6 @@
 import os
 from assertpy import assert_that
+import validators
 from testhelpers.integ import (
     absolute_file_path,
     get_request_assert
@@ -64,4 +65,4 @@ def test_get_related_with_fullyQualifyImageUrls_should_return_image_url():
     recommendation_resp_obj = response.json()
     image_field = recommendation_resp_obj[0]["product"]["image"]
 
-    assert_that(image_field).starts_with('http://')
+    assert_that(validators.url(image_field))

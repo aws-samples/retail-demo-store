@@ -15,7 +15,7 @@ The Users service comes preloaded with 5,000 fake user profiles. The [generate_u
 The Users service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
-foo@bar:~$ docker-compose up --build users
+foo@bar:~$ docker compose up --build users
 ```
 
 Once the container is up and running, you can access it in your browser or with a utility such as [Postman](https://www.postman.com/) at [http://localhost:8002](http://localhost:8002).

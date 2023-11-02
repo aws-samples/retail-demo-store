@@ -30,7 +30,7 @@ mkdir -p bin
 
 echo "building..."
 cd bin
-GOARCH=amd64 GOOS=linux go build ../src/main.go
+GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build ../src/main.go
 echo "packaging..."
 
 zip retaildemostore-lambda-load-products.zip main

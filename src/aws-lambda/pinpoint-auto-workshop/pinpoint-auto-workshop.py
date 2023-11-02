@@ -88,10 +88,11 @@ def create_email_template(template_name, template_fname_root, subject, descripti
                 TemplateName=template_name
             )
             break
-        except pinpoint.exceptions.BadRequestException as e:
+        except pinpoint.exceptions.BadRequestException:
             try:
-                delete_response = pinpoint.delete_email_template(TemplateName=template_name)
-            except:
+                pinpoint.delete_email_template(TemplateName=template_name)
+            except BaseException as error:
+                logger.info('An exception occurred: {}'.format(error))
                 pass
             backoff_seconds = 30
             logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
@@ -133,10 +134,11 @@ def create_sms_template(template_name, body, description, recommender_id=None):
                 TemplateName=template_name
             )
             break
-        except pinpoint.exceptions.BadRequestException as e:
+        except pinpoint.exceptions.BadRequestException:
             try:
-                delete_response = pinpoint.delete_sms_template(TemplateName=template_name)
-            except:
+                pinpoint.delete_sms_template(TemplateName=template_name)
+            except BaseException as error:
+                logger.info('An exception occurred: {}'.format(error))
                 pass
             backoff_seconds = 30
             logger.info(f"Waiting for old template to delete: {template_name} - waiting {backoff_seconds} seconds")
@@ -275,7 +277,7 @@ def create_all_email_users_segment(application_id):
     Returns:
     Segment config. Returns even if already exists.
     """
-    segment_name = f'AllEmailUsers'
+    segment_name = 'AllEmailUsers'
     segment_config = get_segment(application_id, segment_name)
 
     if not segment_config:

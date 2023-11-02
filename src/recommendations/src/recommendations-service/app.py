@@ -6,7 +6,6 @@ from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 from aws_xray_sdk.core import patch_all
 
-patch_all()
 
 from typing import Dict, List, Tuple, Union
 from flask import Flask, jsonify, Response
@@ -27,6 +26,9 @@ import requests
 import random
 import logging
 from datetime import datetime
+
+# X-ray setup
+patch_all()
 
 NUM_DISCOUNTS = 2
 
@@ -366,8 +368,10 @@ def related():
     # The default filter includes products from the same category as the current item.
     filter_ssm = request.args.get('filter', filter_include_categories_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    if filter_ssm == 'cstore': 
+        filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': 
+        filter_ssm = filter_purchased_param_name
     app.logger.info("Filter SSM for /related: %s", filter_ssm)
 
     filter_values = None
@@ -448,8 +452,10 @@ def recommendations():
     # The default filter is the not-already-purchased filter
     filter_ssm = request.args.get('filter', filter_purchased_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_param_name
+    if filter_ssm == 'cstore': 
+        filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': 
+        filter_ssm = filter_purchased_param_name
     app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']
@@ -514,8 +520,10 @@ def popular():
     # The default filter is the exclude already purchased and c-store products filter
     filter_ssm = request.args.get('filter', filter_purchased_cstore_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': filter_ssm = filter_purchased_cstore_param_name
+    if filter_ssm == 'cstore': 
+        filter_ssm = filter_cstore_param_name
+    elif filter_ssm == 'purchased': 
+        filter_ssm = filter_purchased_cstore_param_name
     app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
 
     fully_qualify_image_urls = request.args.get('fullyQualifyImageUrls', '0').lower() in [ 'true', 't', '1']

@@ -23,6 +23,11 @@ export default {
         if (!cartID || cartID.length == 0)
             throw "cartID required"
         return connection.get(`${resource}/${cartID}`)
+    },
+    getCartByUsername(username) {
+        if (!username || username.length == 0)
+            throw "username required"
+        return connection.get(`${resource}`, { params: { username: username } })
     },    
     createCart(username) {
 

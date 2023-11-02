@@ -338,7 +338,7 @@ def _delete_dataset_group(dataset_group_arn: str, wait_for_resources: bool = Tru
             logger.info('Waiting for dataset group to be deleted')
             time.sleep(20)
         else:
-            raise ResourcePending(f'Dataset group still being deleted')
+            raise ResourcePending('Dataset group still being deleted')
 
 def delete_dataset_groups(dataset_group_names: List[str], region: str = None, wait_for_resources: bool = True):
     min_botocore_version = '1.23.15' # As of re:Invent 2021 when domain recommenders were added to the API
