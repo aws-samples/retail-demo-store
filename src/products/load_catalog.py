@@ -13,13 +13,15 @@ You can override the file location on the command-line.
 
 Usage:
 
-python load_catalog.py --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]
+python load_catalog.py --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] --endpoint-url ENDPOINT_URL] --endpoint-url ENDPOINT_URL
 
 Where:
 CATEGORIES_TABLE_NAME is the DynamoDB table name for categories
 CATEGORIES_FILE is the location on your local machine where the categories.yaml is located (defaults to src/products-service/data/categories.yaml)
 PRODUCTS_TABLE_NAME is the DynamoDB table name for products
 PRODUCTS_FILE is the location on your local machine where the products.yaml is located (defaults to src/products-service/data/products.yaml)
+CARTS_TABLE_NAME is the DynamoDB table name for carts
+CARTS_FILE is the location on your local machine where the carts.yaml is located (defaults to src/products-service/data/carts.yaml)
 truncate is a flag that will truncate the table before loading data (defaults to False)
 endpoint-url is the endpoint URL for the DynamoDB service (defaults to 'http://localhost:3001')
 
@@ -33,9 +35,8 @@ Your AWS credentials are discovered from your current environment.
 import sys
 import getopt
 import time
-import requests
 import yaml
-import boto3
+from boto3 import resource
 from decimal import Decimal
 from botocore.exceptions import ClientError
 
@@ -83,15 +84,30 @@ def  create_table(resource, ddb_table_name, attribute_definitions, key_schema, g
         else:
             raise e
         
-def verify_local_ddb_running(endpoint):
+def enable_ttl_on_table(resource, table_name, ttl_attribute):
+    try:
+        response = resource.meta.client.update_time_to_live(
+            TableName=table_name,
+            TimeToLiveSpecification={
+                'Enabled': True,
+                'AttributeName': ttl_attribute
+            }
+        )
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            print(f'TTL has been enabled on {table_name} for attribute {ttl_attribute}')
+        else:
+            print(f'Failed to enable TTL on {table_name} for attribute {ttl_attribute}')
+    except ClientError as e:
+        print(f'Error enabling TTL: {e}')
+        
+def verify_local_ddb_running(endpoint,dynamodb):
     print(f"Verifying that local DynamoDB is running at: {endpoint}")
     for _ in range(5):
         try:
-            response = requests.get(endpoint)
-            if response.status_code >= 200:
-                print("Received HTTP response from local DynamoDB service!")
-                return
-        except requests.ConnectionError:
+            dynamodb.tables.all()
+            print("DynamoDB local is responding!")
+            return
+        except Exception:
             print("Local DynamoDB service is not ready yet... pausing before trying again")
             time.sleep(2)
     print("Local DynamoDB service not responding; verify that your docker-compose .env file is setup correctly")
@@ -102,18 +118,20 @@ if __name__=="__main__":
     categories_file = 'src/products-service/data/categories.yaml'
     products_table_name = None
     products_file = 'src/products-service/data/products.yaml'
+    carts_table_name = None
+    carts_file = 'src/products-service/data/carts.yaml'
     truncate = False
     endpoint_url = 'http://localhost:3001'
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate', 'endpoint-url='])
+        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate', 'endpoint-url=', 'carts-table-name=', 'carts-file='])
     except getopt.GetoptError:
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] [--endpoint-url ENDPOINT_URL]')
+        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] [--endpoint-url ENDPOINT_URL]')
+            print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
             sys.exit()
         elif opt in ('--categories-table-name'):
             categories_table_name = arg
@@ -128,17 +146,20 @@ if __name__=="__main__":
         elif opt in ('--endpoint-url'):
             endpoint_url = arg
             print(f'Using endpoint_url: {endpoint_url}')
+        elif opt in ('--carts-table-name'):
+            carts_table_name = arg
+        elif opt in ('--carts-file-name'):
+            carts_file = arg
 
-    if not categories_table_name and not products_table_name:
-        print('--categories-table-name and/or --products-table-name are required')
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate]')
+    if (not categories_table_name and not products_table_name and not carts_table_name):
+        print('"--categories-table-name and/or --products-table-name and/or carts_table_name" are required')
+        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
         sys.exit(1)
 
-    dynamodb = boto3.resource('dynamodb', endpoint_url=endpoint_url)
+    dynamodb = resource('dynamodb', endpoint_url=endpoint_url)
 
     if categories_table_name:
         print(f'Loading categories from {categories_file} into table {categories_table_name}')
-        table = dynamodb.Table(categories_table_name)
        
         create_table(
             ddb_table_name=categories_table_name,
@@ -233,3 +254,32 @@ if __name__=="__main__":
             table.put_item(Item=product)
 
         print(f'Products loaded: {len(products)}')
+        
+    if carts_table_name:
+        print(f'Creating carts table {carts_table_name}')
+            
+        create_table(
+            ddb_table_name=carts_table_name,
+            resource=dynamodb,
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "username", "AttributeType": "S"}
+                ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+                ],
+            global_secondary_indexes=[
+                {
+                    "IndexName": "username-index",
+                    "KeySchema": [{"AttributeName": "username", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                }
+            ]
+                    
+        )
+        
+        enable_ttl_on_table(dynamodb, carts_table_name, ttl_attribute='ttl')
