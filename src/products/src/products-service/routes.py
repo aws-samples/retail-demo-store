@@ -1,10 +1,10 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-
+import os
 from decimal import Decimal
 from flask import  jsonify,Blueprint
 from server import app
-from services import *
+from services import ProductService
 from flask import request, abort, Response
 from typing import List, Dict, Any
 from http import HTTPStatus

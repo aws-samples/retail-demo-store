@@ -176,6 +176,5 @@ def setup():
         verify_local_ddb_running(ddb_endpoint_override, dynamo_resource)
     else:
         running_local = False
-        dynamo_client = boto3.client('dynamodb')
 
 setup()

@@ -199,8 +199,8 @@ class ProductService:
         
         response = cls.execute_and_log(
             cls.dynamo_client.query,
-            f'Retrieved featured products',
-            f'Error retrieving featured products',
+            'Retrieved featured products',
+            'Error retrieving featured products',
             TableName=cls.ddb_table_products,
             IndexName='featured-index',
             ExpressionAttributeValues= {
@@ -228,8 +228,8 @@ class ProductService:
         
         response = cls.execute_and_log(
             cls.dynamo_client.scan,
-            f'Retrieved all categories',
-            f'Error retrieving all categories',
+            'Retrieved all categories',
+            'Error retrieving all categories',
             TableName=cls.ddb_table_categories
         )
         if 'Items' in response:
@@ -245,8 +245,8 @@ class ProductService:
         
         response = cls.execute_and_log(
             cls.dynamo_client.scan,
-            f'Retrieved all products',
-            f'Error retrieving all products',
+            'Retrieved all products',
+            'Error retrieving all products',
             TableName=cls.ddb_table_products
         )
         if 'Items' in response:

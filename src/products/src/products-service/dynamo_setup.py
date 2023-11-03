@@ -1,6 +1,5 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-
 import os
 import time
 import boto3
@@ -56,7 +55,7 @@ def setup():
             region = metadata['AvailabilityZone'][:-1]
         except Exception as e:
             app.logger.warning("Could not fetch ECS metadata, defaulting region to 'us-east-1'")
-            region = 'us-east-1'
+            raise e
         dynamo_client = boto3.client('dynamodb', region_name=region)
 
 setup()

@@ -4,3 +4,4 @@ boto3
 pyyaml
 requests
 uuid
+langchain
