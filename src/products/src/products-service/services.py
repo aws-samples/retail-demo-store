@@ -1,25 +1,27 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-from flask import request
 from server import app
 import os
-from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
-from boto3.dynamodb.types import TypeDeserializer
+from boto3.dynamodb.types import TypeDeserializer,TypeSerializer
 from uuid import uuid4
-from aws import dynamo_client, ddb_table_products, ddb_table_categories
+from dynamo_setup import dynamo_client, ddb_table_products, ddb_table_categories
 import ast
 from decimal import Decimal
 
-
 class ProductService:
+    
     def __init__(self):
         self.dynamo_client = dynamo_client
         self.ddb_table_products = ddb_table_products
         self.ddb_table_categories = ddb_table_categories
         self.MAX_BATCH_GET_ITEM = 100
         self.web_root_url = os.getenv("WEB_ROOT_URL")
+        self.serializer = TypeSerializer()
+        self.deserializer = TypeDeserializer()
+        
+    
         
     def set_product_url(self, product):
         if self.web_root_url:
@@ -33,7 +35,7 @@ class ProductService:
     
     
     def unmarshal_items(self, dynamodb_items):
-        deserializer = TypeDeserializer()
+        
         
         def is_number_string(s):
             return isinstance(s, str) and s.replace('.', '', 1).isdigit()
@@ -57,7 +59,7 @@ class ProductService:
              else convert_decimal(float(v)) if is_number_string(v)
              else convert_boolean(v) if isinstance(v, bool)
              else convert_decimal(v) 
-             for k, v in {k: deserializer.deserialize(v) for k, v in item.items()}.items()}
+             for k, v in {k: self.deserializer.deserialize(v) for k, v in item.items()}.items()}
             for item in dynamodb_items
         ]
         
@@ -70,7 +72,6 @@ class ProductService:
         }
     
     def unmarshal_items_categories(self, dynamodb_items):
-        deserializer = TypeDeserializer()
 
         def is_string_list(s):
             return isinstance(s, str) and s.startswith("[") and s.endswith("]")
@@ -84,7 +85,7 @@ class ProductService:
                 else True if is_boolean_string(v) and v.lower() == "true"
                 else False if is_boolean_string(v) and v.lower() == "false"
                 else v
-                for k, v in {k: deserializer.deserialize(v) for k, v in item.items()}.items()
+                for k, v in {k: self.deserializer.deserialize(v) for k, v in item.items()}.items()
             }
             for item in dynamodb_items
         ]
@@ -410,3 +411,4 @@ class ProductService:
             return e
         
         return None
+

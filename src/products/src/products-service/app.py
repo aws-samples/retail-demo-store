@@ -1,17 +1,14 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import logging
 import os
 from server import app
+from routes import route_bp
 
-# Set up logging
-logging.basicConfig(filename='app.log', level=logging.INFO)
 
+app.register_blueprint(route_bp)
 # Log a message at the start of the script
 app.logger.info('Starting app.py')
-
-import routes
 
 if __name__ == '__main__':
     try:

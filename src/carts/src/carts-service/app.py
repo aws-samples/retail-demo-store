@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: MIT-0
 
 import logging
+# Set up logging
+logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 import os
 from server import app
 from handlers import handler_bp
 from routes import route_bp
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
+
 app.register_blueprint(handler_bp)
 app.register_blueprint(route_bp)
 # Log a message at the start of the script
