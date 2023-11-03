@@ -13,7 +13,7 @@ Resources:
   EventBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: !Sub "${Uid}-eventbus"
+      Name: !Sub "${Uid}-bus"
 
   CatchAllRule:
     Type: AWS::Events::Rule
@@ -32,7 +32,7 @@ Resources:
   CatchAllEventsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "${Uid}-events-log"
+      LogGroupName: !Sub "${Uid}-log"
       RetentionInDays: 120
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
@@ -65,7 +65,7 @@ Resources:
   EventArchive:
     Type: AWS::Events::Archive
     Properties:
-      ArchiveName: !Sub "${Uid}-event-archive"
+      ArchiveName: !Sub "${Uid}-arch"
       RetentionDays: 120
       SourceArn: !GetAtt EventBus.Arn
       Description: "Holds a 120 day archive of events from the Retail Demo store event bus"
@@ -89,7 +89,7 @@ Outputs:
     Description: "The name of the EventBridge event bus"
     Value: !Ref EventBus
     Export:
-      Name: !Sub "${Uid}-eventbus"
+      Name: !Sub "${Uid}-bus"
   SSMParameterForEventBus:
     Description: "SSM Parameter storing the EventBridge event bus name for services to use"
     Value: !Ref SSMParamForEventBus
