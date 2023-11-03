@@ -45,9 +45,6 @@ Parameters:
   IdentityPoolId:
     Type: String
 
-  StackBucketName:
-    Type: String
-
   FargateServiceName:
     Type: String
 

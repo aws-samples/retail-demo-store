@@ -532,14 +532,6 @@ Resources:
         LocationResourcePrefix: !Ref AWS::StackName
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
-        FenixZipDetectUrl: !Ref FenixZipDetectUrl
-        FenixTenantId: !Ref FenixTenantId
-        FenixEddEndpoint: !Ref FenixEddEndpoint
-        FenixMonetaryValue: !Ref FenixMonetaryValue
-        FenixEnabledPdp: !Ref FenixEnabledPdp
-        FenixEnabledCart: !Ref FenixEnabledCart
-        FenixEnabledCheckout: !Ref FenixEnabledCheckout
-        FenixXapiKey: !Ref FenixXapiKey
         ACMCertificateArn: !Ref ACMCertificateArn
 
   # Services Resources
@@ -558,7 +550,6 @@ Resources:
         UserPoolId: !GetAtt Base.Outputs.UserPoolId
         UserPoolClientId: !GetAtt Base.Outputs.UserPoolClientId
         IdentityPoolId: !GetAtt Base.Outputs.IdentityPoolId
-        StackBucketName: !GetAtt Base.Outputs.StackBucketName
         Subnets: !GetAtt Base.Outputs.Subnets
         VpcId: !GetAtt Base.Outputs.VpcId
         VpcCidr: !GetAtt Base.Outputs.VpcCidr
@@ -581,7 +572,6 @@ Resources:
         ImageRootUrl: !Sub
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
-        ParentStackName: !Ref AWS::StackName
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
@@ -670,8 +660,6 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/swagger-ui-pipeline.yaml
       Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         SwaggerUICDN: !GetAtt Base.Outputs.SwaggerUICDN
         SwaggerUIBucketName: !GetAtt Base.Outputs.SwaggerUIBucketName
         SwaggerUIRootUrl: !GetAtt Base.Outputs.SwaggerUICDNURL
@@ -772,7 +760,6 @@ Resources:
 
   # Deployment support
   DeploymentSupport:
-    DependsOn: [Services, Base] # Delay towards end of deployment so that ES domain and DNS changes become consistent
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/deployment-support.yaml

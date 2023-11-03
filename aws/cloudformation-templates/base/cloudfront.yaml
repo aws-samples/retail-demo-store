@@ -53,18 +53,18 @@ Resources:
           - Sid: 'AllowCloudFrontServicePrincipalReadOnly'
             Action: 's3:GetObject'
             Effect: Allow
-            Resource: !Sub 'arn:aws:s3:::${WebUIBucket}/*'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucket}/*'
             Principal:
               Service: 'cloudfront.amazonaws.com'
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${WebUICDN}'
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${WebUICDN}'
 
   UIOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig:
-        Name: !Ref AWS::StackName
+        Name: !Sub 'Retaildemostore-${AWS::Region}'
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -76,7 +76,7 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         MinTTL: 86400
-        Name: !Ref AWS::StackName
+        Name: !Sub 'Retaildemostore-${AWS::Region}'
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
@@ -94,7 +94,7 @@ Resources:
           CookieBehavior: none
         HeadersConfig: 
           HeaderBehavior: none
-        Name: !Ref AWS::StackName
+        Name: !Sub 'Retaildemostore-${AWS::Region}'
         QueryStringsConfig: 
           QueryStringBehavior: all
 
@@ -161,12 +161,12 @@ Resources:
         Statement:
           - Action: 's3:GetObject'
             Effect: Allow
-            Resource: !Sub 'arn:aws:s3:::${SwaggerUIBucket}/*'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${SwaggerUIBucket}/*'
             Principal:
               Service: 'cloudfront.amazonaws.com'
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}'
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}'
 
   SwaggerUICDN:
     Type: 'AWS::CloudFront::Distribution'
