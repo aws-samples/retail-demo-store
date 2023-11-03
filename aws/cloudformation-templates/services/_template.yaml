@@ -458,7 +458,7 @@ Resources:
         RecommendationsServiceDNSName: !GetAtt RecommendationsService.Outputs.ServiceDNSName
         OffersServiceDNSName: !GetAtt OffersService.Outputs.ServiceDNSName
         PinpointAppId: !Ref PinpointAppId
-        Uid: !Sub ${ParentStackName}-${AWS::Region}
+        Uid: !Sub ${AWS::StackName}-${AWS::Region}
         LambdaVpcSecurityGroup: !Ref LambdaVpcSecurityGroup
         LambdaVpcSubnets: !Ref Subnets
 
