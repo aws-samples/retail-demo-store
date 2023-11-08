@@ -2,7 +2,6 @@ import os
 from server import app
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from uuid import uuid4
-from decimal import Decimal
 from dynamo_setup import ddb_table_categories, ddb_table_products, dynamo_resource
 
 class ProductService:

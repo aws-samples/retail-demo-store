@@ -8,7 +8,6 @@ from services import ProductService
 from flask import request, abort, Response
 from typing import List, Dict, Any
 from http import HTTPStatus
-from werkzeug.exceptions import HTTPException
 import json
 
 
