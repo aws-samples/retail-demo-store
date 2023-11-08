@@ -4,7 +4,9 @@
 import os
 from server import app
 from routes import route_bp
+import logging
 
+logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 
 app.register_blueprint(route_bp)
 # Log a message at the start of the script

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 import os
 from decimal import Decimal
-from flask import  jsonify,Blueprint
+from flask import  jsonify, Blueprint
 from server import app
 from services import ProductService
 from flask import request, abort, Response
@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 from http import HTTPStatus
 from werkzeug.exceptions import HTTPException
 import json
+
 
 route_bp = Blueprint('route_bp', __name__)
 product_service = ProductService()
@@ -57,22 +58,6 @@ def custom_serializer(obj):
     if isinstance(obj, Decimal):
         return float(obj)
     raise TypeError("Type not serializable")    
-  
-def validate_product(product):
-    if not product['name']:
-        raise HTTPException('Product name is required', 422)
-
-    if product['price'] < 0:
-        raise HTTPException('Product price cannot be a negative value', 422)
-
-    if product['current_stock'] < 0:
-        raise HTTPException('Product current stock cannot be a negative value', 422)
-
-    if product['category']:
-        category = product_service.find_category_by_name(product['category'])
-        if not category:
-            raise HTTPException('Invalid product category; does not exist', 422)
-
 
 @app.route('/')
 def index():
@@ -82,7 +67,7 @@ def index():
 @app.route('/products/all', methods=['GET'])
 def get_all_products():
     app.logger.info('Processing get all products request')
-    products = product_service.find_all_products()
+    products = product_service.get_all_products()
     set_fully_qualified_product_image_urls(products)
     return Response(json.dumps(products, default=custom_serializer), mimetype='application/json'), 200
 
@@ -94,12 +79,12 @@ def get_products_by_id(product_ids):
         if len(product_ids) > product_service.MAX_BATCH_GET_ITEM:
             return jsonify({"error": f"Maximum number of product IDs per request is {product_service.MAX_BATCH_GET_ITEM}"}), HTTPStatus.UNPROCESSABLE_ENTITY
         if len(product_ids) > 1:
-            products = product_service.find_products(product_ids)
+            products = product_service.get_products_by_ids(product_ids)
             set_fully_qualified_product_image_urls(products)
             return jsonify(products), 200
             
         else:
-            product = product_service.find_product(product_ids[0])
+            product = product_service.get_product_by_id(product_ids[0])
             if not product:
                 abort(HTTPStatus.NOT_FOUND)
             set_fully_qualified_product_image_url(product)
@@ -108,13 +93,8 @@ def get_products_by_id(product_ids):
     elif request.method == 'PUT':
         app.logger.info('Processing update products by ID request')
         product = request.get_json(force=True)
-        app.logger.info(f"Validating product: {product}")
-        try:
-            validate_product(product)
-        except HTTPException as e:
-            return jsonify({"error": e.description}), e.code
         app.logger.info(f"retrieving existing product with id: {product_ids}")
-        existing_product = product_service.find_product(product_ids)
+        existing_product = product_service.get_product_by_id(product_ids)
         
         if not existing_product:
             return jsonify({"error": "Product does not exist"}), 404
@@ -122,14 +102,14 @@ def get_products_by_id(product_ids):
         try:
             product_service.update_product(existing_product, product)
         except Exception as e:
-            return jsonify({"error": e.description}), 422
+            return jsonify({"error": e}), 422
         
         set_fully_qualified_product_image_url(existing_product)
         return jsonify(existing_product), 200
     elif request.method == 'DELETE':
         app.logger.info('Processing delete product by ID request')
         
-        product = product_service.find_product(product_ids)
+        product = product_service.get_product_by_id(product_ids)
         
         if not product:
             return jsonify({"error": "Product does not exist"}), 404
@@ -142,14 +122,14 @@ def get_products_by_id(product_ids):
 @app.route('/products/featured', methods=['GET'])
 def get_featured_products():
     app.logger.info('Processing get featured products request')
-    products = product_service.find_featured_products()
+    products = product_service.get_featured_products()
     set_fully_qualified_product_image_urls(products)
     return jsonify(products), 200
 
 @app.route('/products/category/<category_name>', methods=['GET'])
 def get_products_by_category(category_name):
     app.logger.info('Processing get products by category request')
-    products = product_service.find_product_by_category(category_name)
+    products = product_service.get_product_by_category(category_name)
     set_fully_qualified_product_image_urls(products)
     return jsonify(products), 200
 
@@ -157,12 +137,6 @@ def get_products_by_category(category_name):
 def create_product():
     app.logger.info('Processing create product request')
     product = request.get_json()
-    
-    try:
-        validate_product(product)
-    except HTTPException as e:
-        return jsonify({"error": e.description}), e.code
-    
     try:
         product_service.add_product(product)
     except Exception as e:
@@ -177,7 +151,7 @@ def update_product_inventory(product_id):
     inventory = request.get_json()
     app.logger.info(f"UpdateInventory --> {inventory}")
     
-    product = product_service.find_product(product_id)
+    product = product_service.get_product_by_id(product_id)
     
     if not product:
         return jsonify({"error": "Product does not exist"}), 404
@@ -195,7 +169,7 @@ def update_product_inventory(product_id):
 @app.route('/categories/all', methods=['GET'])
 def get_all_categories():
     app.logger.info('Processing get all categories request')
-    categories = product_service.find_all_categories()
+    categories = product_service.get_all_categories()
     set_fully_qualified_category_image_urls(categories)
     return jsonify(categories), 200
 
@@ -204,7 +178,7 @@ def get_categories_by_id(category_id):
     app.logger.info('Processing get category by ID request')
     
     try:
-        category = product_service.find_category(category_id)
+        category = product_service.get_category_by_id(category_id)
     except Exception as e:
         return jsonify({"error": e.description}), 422
     
