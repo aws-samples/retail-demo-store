@@ -9,23 +9,35 @@ import json
 
 class PersonalisedDescriptionGenerator():
     
-    users_api_url = os.environ.get("USERS_API_URL")
-    users_service_host = os.environ.get('USERS_SERVICE_HOST')
-    users_service_port = os.environ.get('USERS_SERVICE_PORT', 80)
+    users_api_url = os.getenv("USERS_API_URL")
+    users_service_host = os.getenv('USERS_SERVICE_HOST')
+    users_service_port = os.getenv('USERS_SERVICE_PORT', 80)
     dynamo_client = dynamo_resource.meta.client
     bedrock = None
     
-    @classmethod
-    def initialise_bedrock(cls):
-        if not cls.bedrock:
-            session = boto3.Session()
-            cls.bedrock = session.client('bedrock-runtime')
     
-    @classmethod
-    def set_user_service_host_and_port(cls):
-        if not cls.users_api_url:
+    def initialise_bedrock(self):
+        app.logger.info("Initialising bedrock client...")
+        if self.bedrock:
+            app.logger.info("Bedrock client already initialised.")
+            return
+        try:
+            session = boto3.Session()
+            self.bedrock = session.client('bedrock-runtime')
+            app.logger.info("Bedrock client initialised successfully.")
+        except Exception as e:
+            app.logger.error(f"Exception during bedrock initialisation: {e}")
+            raise e
+    
+    def set_user_service_host_and_port(self):
+        if self.users_api_url:
+            app.logger.info(f"USERS_API_URL found in env variables: {self.users_api_url}")
+            self.users_api_url = self.users_api_url.replace("localhost","users")
+            self.users_api_url = self.users_api_url.replace("8002","80")
+            app.logger.info(f"USERS_API_URL changed to: {self.users_api_url}")
+        else:
             app.logger.info("USERS_API_URL not found in env variables- if developping locally please check .env")
-            if not cls.users_service_host:
+            if not self.users_service_host:
                 servicediscovery = boto3.client('servicediscovery')
                 try:
                     response = servicediscovery.discover_instances(
@@ -37,35 +49,33 @@ class PersonalisedDescriptionGenerator():
                 except Exception as e:
                     app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
                     raise
-                cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
-            cls.users_api_url = f'http://{cls.users_service_host}:{cls.users_service_port}'
+                self.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+            self.users_api_url = f'http://{self.users_service_host}:{self.users_service_port}'
     
-    @classmethod
-    def setup(cls):
+    def setup(self):
         try:
-            cls.initialise_bedrock()
+            self.initialise_bedrock()
         except Exception as e:
             app.logger.info(f"Error initialising bedrock: {e}")
         try:
-            cls.set_user_service_host_and_port()
+            self.set_user_service_host_and_port()
         except Exception as e:
             app.logger.info(f"Error setting user service host and port: {e}")
             
-    @classmethod
-    def get_user(cls, user_id):
-        url = f"{cls.users_api_url}/users/{user_id}"
+    def get_user(self, user_id):
+        url = f"{self.users_api_url}/users/id/{user_id}"
+        app.logger.info(f"Retrieving user info from {url}")
         response = requests.get(url)
         if response.ok:
             return response.json()
         app.logger.info(f"Error retrieving user info from {url}")
         return None
     
-    @classmethod
-    def get_product(cls, product_id):
+    def get_product(self, product_id):
         product_id = str(product_id.lower())
         app.logger.info(f"Retrieving product with id: {product_id}")
         try:
-            response = cls.dynamo_client.get_item(
+            response = self.dynamo_client.get_item(
                 TableName=ddb_table_products,
                 Key={
                     'id': product_id
@@ -78,8 +88,8 @@ class PersonalisedDescriptionGenerator():
         if 'Item' in response:
             return response['Item']
         
-    @classmethod
-    def generate_prompt(cls, product, user) -> str:
+    @staticmethod
+    def generate_prompt(product, user) -> str:
         description = product.get('description', '')
         product_name = product.get('name', '')
         product_category = product.get('category', '')
@@ -123,17 +133,15 @@ class PersonalisedDescriptionGenerator():
             if age < limit:
                 return label
 
-    @classmethod
-    def generate_key(cls, user) -> str:
+    def generate_key(self, user) -> str:
         user_age = int(user.get('age', ''))
-        age_range = cls.getAgeRange(user_age)
+        age_range = self.getAgeRange(user_age)
         user_persona = user.get('persona', '')
         return f"{user_persona}-{age_range}"
     
-    @classmethod
-    def check_ddb_cache(cls, persona_key):
+    def check_ddb_cache(self, persona_key):
         try:
-            response = cls.dynamo_client.get_item(
+            response = self.dynamo_client.get_item(
                 TableName=ddb_table_personalised_product_descriptions,
                 Key={
                     'id': persona_key
@@ -145,10 +153,9 @@ class PersonalisedDescriptionGenerator():
         if 'Item' in response:
             return response['Item']['generated_description']
     
-    @classmethod
-    def cache_generated_description(cls, persona_key, generated_description):
+    def cache_generated_description(self, persona_key, generated_description):
         try:
-            cls.dynamo_client.put_item(
+            self.dynamo_client.put_item(
                 TableName=ddb_table_personalised_product_descriptions,
                 Item={
                     'id': persona_key,
@@ -159,15 +166,14 @@ class PersonalisedDescriptionGenerator():
             app.logger.info(f"Error caching generated description for user: {persona_key}")
             raise e
     
-    @classmethod
-    def generate_personalised_description(cls, productid, userid) -> str:
-        product = cls.get_product(productid)
-        user = cls.get_user(userid)
-        persona_key = cls.generate_key(user)
-        cached_description = cls.check_ddb_cache(persona_key)
+    def generate_personalised_description(self, productid, userid) -> str:
+        product = self.get_product(productid)
+        user = self.get_user(userid)
+        persona_key = self.generate_key(user)
+        cached_description = self.check_ddb_cache(persona_key)
         if cached_description:
             return cached_description
-        prompt = cls.generate_prompt(product, user)
+        prompt = self.generate_prompt(product, user)
         claude_prompt = f"\n\nHuman:{prompt}\n\nAssistant:"
         body = json.dumps({
             "prompt": claude_prompt,
@@ -180,7 +186,7 @@ class PersonalisedDescriptionGenerator():
         modelId = 'anthropic.claude-v2'
         accept = 'application/json'
         contentType = 'application/json'
-        response = cls.bedrock.invoke_model(
+        response = self.bedrock.invoke_model(
             body=body,
             modelId=modelId,
             accept=accept,
@@ -191,7 +197,7 @@ class PersonalisedDescriptionGenerator():
             return ''
     
         generated_description = ' '.join(response_body.get('completion').split('\n',2)[2:])
-        cls.cache_generated_description(
+        self.cache_generated_description(
             persona_key=persona_key,
             generated_description=generated_description
             )

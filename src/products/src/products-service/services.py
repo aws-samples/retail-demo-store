@@ -19,12 +19,11 @@ class ProductService:
         }
         
     
-    @staticmethod
-    def validate_product(product):
-        invalid_keys = set(product.keys()) - ProductService.ALLOWED_PRODUCT_KEYS
+    def validate_product(self,product):
+        invalid_keys = set(product.keys()) - self.ALLOWED_PRODUCT_KEYS
         if invalid_keys:
             raise ValueError(f'Invalid keys: {invalid_keys}')
-        category = ProductService.get_category_by_name(product['category'])
+        category = self.get_category_by_name(product['category'])
         if not category:
             raise ValueError(f'Category {product["category"]} not found')
         product['price'] = str(product['price'])
@@ -49,8 +48,8 @@ class ProductService:
             product['promoted'] = str(product['promoted'])
         return product
         
-    @classmethod
-    def execute_and_log(cls, func, success_message, error_message, **kwargs):
+    @staticmethod
+    def execute_and_log(func, success_message, error_message, **kwargs):
         try:
             app.logger.info('Executing operation')
             response = func(**kwargs)
@@ -60,25 +59,22 @@ class ProductService:
             app.logger.error(f'Execution error, {error_message}: {str(e)}')
             raise
     
-    @classmethod
-    def set_product_url(cls, product):
-        if cls.web_root_url:
-            product["url"] = f"{cls.web_root_url}/#/product/{product['id']}"
+    def set_product_url(self, product):
+        if self.web_root_url:
+            product["url"] = f"{self.web_root_url}/#/product/{product['id']}"
             
-    @classmethod
-    def set_category_url(cls, category):
-        if cls.web_root_url:
-            category["url"] = f"{cls.web_root_url}/#/category/{category['id']}"
+    def set_category_url(self, category):
+        if self.web_root_url:
+            category["url"] = f"{self.web_root_url}/#/category/{category['id']}"
             
-    @classmethod
-    def get_product_by_id(cls, product_id):
+    def get_product_by_id(self, product_id):
         product_id = str(product_id.lower())
-        app.logger.info(f'Finding product with id: {product_id}, {cls.ddb_table_products}')
-        response = cls.execute_and_log(
-            cls.dynamo_client.get_item,
+        app.logger.info(f'Finding product with id: {product_id}, {self.ddb_table_products}')
+        response = self.execute_and_log(
+            self.dynamo_client.get_item,
             f'Retrieved product with id: {product_id}',
             f'Error retrieving product with id: {product_id}',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             Key={
                 'id': product_id
             }
@@ -86,27 +82,26 @@ class ProductService:
         if 'Item' in response:
             app.logger.info(f'Retrieved product: {response["Item"]}')
             product = response['Item']
-            cls.set_product_url(product)
-            cls.update_product_template(product)
+            self.set_product_url(product)
+            self.update_product_template(product)
             app.logger.info(f"Found product: {product}, category: {product['category']}")
             return product
         else:
             raise KeyError
         
-    @classmethod
-    def get_products_by_ids(cls, product_ids):
-        if len(product_ids) > cls.MAX_BATCH_GET_ITEM:
+    def get_products_by_ids(self, product_ids):
+        if len(product_ids) > self.MAX_BATCH_GET_ITEM:
             raise Exception("Cannot query more than 100 items at a time")
         
-        app.logger.info(f"Finding products with ids: {product_ids}, {cls.ddb_table_products}")
+        app.logger.info(f"Finding products with ids: {product_ids}, {self.ddb_table_products}")
         
         request_items = {
-            cls.ddb_table_products: {
+            self.ddb_table_products: {
                 'Keys': [{'id': product_id} for product_id in product_ids]
             }
         }
-        response = cls.execute_and_log(
-            cls.dynamo_client.batch_get_item,
+        response = self.execute_and_log(
+            self.dynamo_client.batch_get_item,
             f'Retrieved products with ids: {product_ids}',
             f'Error retrieving products with ids: {product_ids}',
             RequestItems=request_items
@@ -114,33 +109,31 @@ class ProductService:
         products = response['Items']
         return products
     
-    @classmethod
-    def get_category_by_id(cls, category_id):
+    def get_category_by_id(self, category_id):
         category_id = category_id.lower()
-        app.logger.info(f"Finding category with id: {category_id}, {cls.ddb_table_categories}")
-        response = cls.execute_and_log(
-            cls.dynamo_client.get_item,
+        app.logger.info(f"Finding category with id: {category_id}, {self.ddb_table_categories}")
+        response = self.execute_and_log(
+            self.dynamo_client.get_item,
             f'Retrieved category with id: {category_id}',
             f'Error retrieving category with id: {category_id}',
-            TableName=cls.ddb_table_categories,
+            TableName=self.ddb_table_categories,
             Key={'id': category_id}
         )
         if 'Item' in response:
             category = response['Item']
-            cls.set_category_url(category)
+            self.set_category_url(category)
             app.logger.info(f"Found category: {category}")
             return category
         else:
             raise KeyError
         
-    @classmethod
-    def get_category_by_name(cls, category_name):
-        app.logger.info(f"Finding category with name: {category_name}, {cls.ddb_table_categories}")
-        response = cls.execute_and_log(
-            cls.dynamo_client.query,
+    def get_category_by_name(self, category_name):
+        app.logger.info(f"Finding category with name: {category_name}, {self.ddb_table_categories}")
+        response = self.execute_and_log(
+            self.dynamo_client.query,
             f'Retrieved category with name: {category_name}',
             f'Error retrieving category with name: {category_name}',
-            TableName=cls.ddb_table_categories,
+            TableName=self.ddb_table_categories,
             IndexName='name-index',
             ExpressionAttributeValues= {
                 ':category_name': category_name
@@ -151,21 +144,20 @@ class ProductService:
         )
         if 'Items' in response:
             category = response['Items'][0]
-            cls.set_category_url(category)
+            self.set_category_url(category)
             app.logger.info(f"Found category: {category}")
             return category
         else:
             raise KeyError
         
-    @classmethod
-    def get_product_by_category(cls, category):
-        app.logger.info(f"Finding products by category: {category}, {cls.ddb_table_products}")
+    def get_product_by_category(self, category):
+        app.logger.info(f"Finding products by category: {category}, {self.ddb_table_products}")
         
-        response = cls.execute_and_log(
-            cls.dynamo_client.query,
+        response = self.execute_and_log(
+            self.dynamo_client.query,
             f'Retrieved products by category: {category}',
             f'Error retrieving products by category: {category}',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             IndexName='category-index',
             ExpressionAttributeValues= {
                 ':category': category
@@ -180,21 +172,20 @@ class ProductService:
         if 'Items' in response:
             products = response['Items']
             for product in products:
-                cls.set_product_url(product)
-                cls.update_product_template(product)
+                self.set_product_url(product)
+                self.update_product_template(product)
             app.logger.info(f"Found products: {products}")
             return products
         
-    @classmethod
-    def get_featured_products(cls):
-        app.logger.info(f"Finding featured products, {cls.ddb_table_products} | featured=true")
+    def get_featured_products(self):
+        app.logger.info(f"Finding featured products, {self.ddb_table_products} | featured=true")
         
         
-        response = cls.execute_and_log(
-            cls.dynamo_client.query,
+        response = self.execute_and_log(
+            self.dynamo_client.query,
             'Retrieved featured products',
             'Error retrieving featured products',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             IndexName='featured-index',
             ExpressionAttributeValues= {
                 ':featured': 'true'
@@ -209,64 +200,60 @@ class ProductService:
         if 'Items' in response:
             products = response['Items']
             for product in products:
-                cls.set_product_url(product)
-                cls.update_product_template(product)
+                self.set_product_url(product)
+                self.update_product_template(product)
                 product['featured'] = 'true'
                 app.logger.info(f"Found featured product: {product}")
             return products
         
-    @classmethod
-    def get_all_categories(cls):
-        app.logger.info(f"Finding all categories, {cls.ddb_table_categories}")
+    def get_all_categories(self):
+        app.logger.info(f"Finding all categories, {self.ddb_table_categories}")
         
-        response = cls.execute_and_log(
-            cls.dynamo_client.scan,
+        response = self.execute_and_log(
+            self.dynamo_client.scan,
             'Retrieved all categories',
             'Error retrieving all categories',
-            TableName=cls.ddb_table_categories
+            TableName=self.ddb_table_categories
         )
         if 'Items' in response:
             app.logger.info(f"Found {len(response['Items'])} categories")
             categories = response['Items']
             for category in categories:
-                cls.set_category_url(category)
+                self.set_category_url(category)
             return categories
     
-    @classmethod
-    def get_all_products(cls):
-        app.logger.info(f"Finding all products, {cls.ddb_table_products}")
+    def get_all_products(self):
+        app.logger.info(f"Finding all products, {self.ddb_table_products}")
         
-        response = cls.execute_and_log(
-            cls.dynamo_client.scan,
+        response = self.execute_and_log(
+            self.dynamo_client.scan,
             'Retrieved all products',
             'Error retrieving all products',
-            TableName=cls.ddb_table_products
+            TableName=self.ddb_table_products
         )
         if 'Items' in response:
             app.logger.info(f"Found {len(response['Items'])} products")
             products = response['Items']
             for product in response['Items']:
-                cls.set_product_url(product)
-                cls.update_product_template(product)
+                self.set_product_url(product)
+                self.update_product_template(product)
             app.logger.info(f"Found products: {products[0:2]}")
             return products
         
-    @classmethod
-    def update_product(cls, original_product, updated_product):
+    def update_product(self, original_product, updated_product):
         updated_product['id'] = original_product['id']
-        cls.set_product_url(updated_product)
-        cls.validate_product(updated_product)
+        self.set_product_url(updated_product)
+        self.validate_product(updated_product)
         app.logger.info(f"Updating product: {original_product} to {updated_product}")
-        cls.execute_and_log(
-            cls.dynamo_client.put_item,
+        self.execute_and_log(
+            self.dynamo_client.put_item,
             f'Updated product: {updated_product}',
             f'Error updating product: {updated_product}',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             Item=updated_product
         )
         
-    @classmethod
-    def update_inventory_delta(cls, product, stock_delta):
+    def update_inventory_delta(self, product, stock_delta):
         app.logger.info(f"Updating inventory delta for product: {product['name']}")
         
         if product['current_stock'] + stock_delta < 0:
@@ -287,37 +274,35 @@ class ProductService:
             'ReturnValues': 'UPDATED_NEW'      
         }
         
-        cls.execute_and_log(
-            cls.dynamo_client.update_item,
+        self.execute_and_log(
+            self.dynamo_client.update_item,
             f'Updated product: {product}',
             f'Error updating product: {product}',
             **params)
         
         product['current_stock'] += stock_delta
         
-    @classmethod
-    def add_product(cls, product):
-        product_temp = cls.get_product_template()
+    def add_product(self, product):
+        product_temp = self.get_product_template()
         product.update(product_temp)
-        cls.set_product_url(product)
-        cls.validate_product(product)
+        self.set_product_url(product)
+        self.validate_product(product)
         app.logger.info(f"Adding product: {product}")
-        cls.execute_and_log(
-            cls.dynamo_client.put_item,
+        self.execute_and_log(
+            self.dynamo_client.put_item,
             f'Added product: {product}',
             f'Error adding product: {product}',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             Item=product
         )
         
-    @classmethod
-    def delete_product(cls, product):
+    def delete_product(self, product):
         app.logger.info(f"Deleting product: {product['name']}")
         
-        cls.execute_and_log(
-            cls.dynamo_client.delete_item,
+        self.execute_and_log(
+            self.dynamo_client.delete_item,
             f'Deleted product: {product}',
             f'Error deleting product: {product}',
-            TableName=cls.ddb_table_products,
+            TableName=self.ddb_table_products,
             Key={'id': product['id'], 'category': product['category']}
         )

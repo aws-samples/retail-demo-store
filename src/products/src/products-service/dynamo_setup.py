@@ -19,14 +19,16 @@ products_file = "dynamo-data/products.yaml"
 categories_file = "dynamo-data/categories.yaml"
 
 def create_table(resource, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+    table_params = {
+        "TableName": ddb_table_name,
+        "KeySchema": key_schema,
+        "AttributeDefinitions": attribute_definitions,
+        "BillingMode": "PAY_PER_REQUEST",
+    }
+    if global_secondary_indexes:
+        table_params["GlobalSecondaryIndexes"] = global_secondary_indexes
     try: 
-        resource.create_table(
-            TableName=ddb_table_name,
-            KeySchema=key_schema,
-            AttributeDefinitions=attribute_definitions,
-            GlobalSecondaryIndexes=global_secondary_indexes or [],
-            BillingMode="PAY_PER_REQUEST",
-        )
+        resource.create_table(**table_params)
         app.logger.info(f'Created table: {ddb_table_name}')
     except Exception as e:
         if e.response["Error"]["Code"] == "ResourceInUseException":

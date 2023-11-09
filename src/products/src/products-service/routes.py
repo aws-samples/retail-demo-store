@@ -14,6 +14,7 @@ import json
 
 route_bp = Blueprint('route_bp', __name__)
 product_service = ProductService()
+
 personalised_product_descriptions_service = PersonalisedDescriptionGenerator()
 personalised_product_descriptions_service.setup()
 image_root_url = os.getenv('IMAGE_ROOT_URL')
@@ -92,6 +93,7 @@ def get_products_by_id(product_ids):
             set_fully_qualified_product_image_url(product)
             app.logger.info(f"retrieved product: {product}")
             return jsonify(product), 200
+        app.logger.info(f"retrieving description for user with id: {user}")
         generated_description = personalised_product_descriptions_service.generate_personalised_description(product_ids[0], user)
         return jsonify(generated_description), 200
     elif request.method == 'PUT':
