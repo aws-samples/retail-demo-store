@@ -79,7 +79,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-resource-stack.zip'
-      Runtime: python3.8
+      Runtime: python3.10
       Timeout: 900
       FunctionName: LocationNrfDemoLocationResourceStack
       Environment:
