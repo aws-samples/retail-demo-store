@@ -106,8 +106,6 @@ class PersonalisedDescriptionGenerator():
             f"- A compelling opening sentence\n"
             f"- Key features\n"
             f"- Benefits\n"
-            f"- Usage instructions\n"
-            f"- Pricing information\n\n"
         )
         app.logger.info(f"Generated prompt: {template}")
         return template
