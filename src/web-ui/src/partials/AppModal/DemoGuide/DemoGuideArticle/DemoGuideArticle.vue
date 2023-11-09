@@ -28,6 +28,7 @@ import Datasets from './articles/Datasets.vue';
 import ShopperPersonas from './articles/ShopperPersonas.vue';
 import EnablingShopperProfiles from './articles/EnablingShopperProfiles.vue';
 import LocationServices from './articles/LocationServices.vue';
+import PersonalizedProductDescriptions from './articles/PersonalizedProductDescriptions.vue'
 
 export default {
   name: 'DemoGuideArticle',
@@ -85,6 +86,8 @@ export default {
           return EnablingShopperProfiles
         case Articles.LOCATION_SERVICES:
           return LocationServices
+        case Articles.PERSONALIZED_PRODUCT:
+          return PersonalizedProductDescriptions
       }
 
       throw new Error(`Invalid article id: ${this.article}`);

@@ -70,6 +70,7 @@ Metadata:
           - mParticleS2SSecretKey
           - GoogleAnalyticsMeasurementId
           - ACMCertificateArn
+          - BedrockProductPersonalization
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -166,6 +167,8 @@ Metadata:
         default: "Fenix Commerce enable EDD on Checkoutpage"
       FenixXapiKey:
         default: "Fenix Commerce X-Api-Key"
+      BedrockProductPersonalization:
+        default: "Enable Amazon Bedrock product personalization"
 
 Parameters:
   ResourceBucket:
@@ -470,6 +473,14 @@ Parameters:
     Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
     NoEcho: true
 
+  BedrockProductPersonalization:
+    Type: String
+    Description: Flag to enable product personalization in web-ui feature driven by Bedrock
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'FALSE'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -625,6 +636,7 @@ Resources:
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
+        BedrockProductPersonalization: !Ref BedrockProductPersonalization
 
         LocationResourceName:
           !If [

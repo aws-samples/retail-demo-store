@@ -18,6 +18,7 @@ import { Articles } from '@/partials/AppModal/DemoGuide/config';
 const Services = {
   Pinpoint: 'Pinpoint',
   Personalize: 'Personalize',
+  Bedrock: 'Bedrock',
 };
 
 export default {
@@ -45,6 +46,8 @@ export default {
         case Articles.ECOMM_POPULAR_BY_VIEWS:
         case Articles.ECOMM_RFY:
           return Services.Personalize;
+        case Articles.PERSONALIZED_PRODUCT:
+          return Services.Bedrock;
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');
@@ -55,6 +58,8 @@ export default {
           return '/pinpoint.svg';
         case Services.Personalize:
           return '/personalize.svg';
+        case Services.Bedrock:
+          return '/bedrock.svg'; 
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');
@@ -83,6 +88,8 @@ export default {
           return 'Learn more about recommended for you';
         case Articles.PERSONALIZED_EMAILS:
           return 'Learn more about the abandoned shopping cart email notifications';
+        case Articles.PERSONALIZED_PRODUCT:
+          return 'Learn more about personalized product descriptions';
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');
@@ -93,6 +100,8 @@ export default {
           return 'Amazon Pinpoint';
         case Services.Personalize:
           return 'Amazon Personalize';
+        case Services.Bedrock:
+          return 'Amazon Bedrock';
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');

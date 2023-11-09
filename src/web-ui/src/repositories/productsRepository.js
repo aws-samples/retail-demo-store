@@ -22,12 +22,17 @@ export default {
     getFeatured() {
         return connection.get(`${resource}/featured`)
     },
-    getProduct(productID) {
+    getProduct(productID, user) {
         if (!productID || productID.length == 0)
             throw "productID required"
         if (Array.isArray(productID))
             productID = productID.join()
-        return connection.get(`${resource}/id/${productID}`)
+
+        let params = {}
+        if (user) {
+            params['user'] = user
+        }
+        return connection.get(`${resource}/id/${productID}`, { params: params })
     },
     getProductsByCategory(categoryName) {
         if (!categoryName || categoryName.length == 0)
