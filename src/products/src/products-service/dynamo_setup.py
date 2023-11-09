@@ -12,6 +12,9 @@ from decimal import Decimal
 # DynamoDB table names passed via environment
 ddb_table_products = os.getenv("DDB_TABLE_PRODUCTS")
 ddb_table_categories = os.getenv("DDB_TABLE_CATEGORIES")
+bedrock_product_personalization = os.getenv("BEDROCK_PRODUCT_PERSONALIZATION")
+
+ddb_table_personalised_product_descriptions = os.getenv("DDB_TABLE_PERSONALISED_PRODUCT_DESCRIPTIONS")
 products_file = "dynamo-data/products.yaml"
 categories_file = "dynamo-data/categories.yaml"
 
@@ -147,6 +150,21 @@ def verify_local_ddb_running(endpoint, dynamo_resource):
                 except Exception as e:
                     app.logger.error(f"Failed to initialize category table: {str(e)}")
                     exit(1)
+            if (bedrock_product_personalization) == "TRUE" and (ddb_table_personalised_product_descriptions not in response['TableNames']):
+                try:
+                    create_table(
+                        resource=dynamo_resource,
+                        ddb_table_name=ddb_table_personalised_product_descriptions,
+                        attribute_definitions=[
+                            {"AttributeName": "id", "AttributeType": "S"},
+                        ],
+                        key_schema=[
+                            {"AttributeName": "id", "KeyType": "HASH"},
+                        ]
+                    )
+                except Exception as e:
+                    app.logger.error(f"Failed to initialize personalised product description table: {str(e)}")
+                    exit(1)
             app.logger.info("DynamoDB local is responding!")
             return
         except Exception as e:
@@ -163,7 +181,6 @@ dynamo_resource = None
 def setup():
     global dynamo_resource, running_local
     
-    print("Setting up ProductServicev2...")
     if ddb_endpoint_override:
         running_local = True
         app.logger.info("Creating DDB client with endpoint override: " + ddb_endpoint_override)
