@@ -8,36 +8,31 @@ import requests
 import json
 
 class PersonalisedDescriptionGenerator():
-    
     users_api_url = os.getenv("USERS_API_URL")
     users_service_host = os.getenv('USERS_SERVICE_HOST')
     users_service_port = os.getenv('USERS_SERVICE_PORT', 80)
     dynamo_client = dynamo_resource.meta.client
-    bedrock = None
     
-    
-    def initialise_bedrock(self):
+    def initialise_bedrock():
         app.logger.info("Initialising bedrock client...")
-        if self.bedrock:
-            app.logger.info("Bedrock client already initialised.")
-            return
         try:
-            session = boto3.Session()
-            self.bedrock = session.client('bedrock-runtime')
+            bedrock = boto3.client('bedrock-runtime',region_name=os.getenv('AWS_REGION'))
             app.logger.info("Bedrock client initialised successfully.")
+            return bedrock
         except Exception as e:
             app.logger.error(f"Exception during bedrock initialisation: {e}")
             raise e
-    
-    def set_user_service_host_and_port(self):
-        if self.users_api_url:
-            app.logger.info(f"USERS_API_URL found in env variables: {self.users_api_url}")
-            self.users_api_url = self.users_api_url.replace("localhost","users")
-            self.users_api_url = self.users_api_url.replace("8002","80")
-            app.logger.info(f"USERS_API_URL changed to: {self.users_api_url}")
+        
+    @classmethod
+    def set_user_service_host_and_port(cls):
+        if cls.users_api_url:
+            app.logger.info(f"USERS_API_URL found in env variables: {cls.users_api_url}")
+            cls.users_api_url = cls.users_api_url.replace("localhost","users")
+            cls.users_api_url = cls.users_api_url.replace("8002","80")
+            app.logger.info(f"USERS_API_URL changed to: {cls.users_api_url}")
         else:
             app.logger.info("USERS_API_URL not found in env variables- if developping locally please check .env")
-            if not self.users_service_host:
+            if not cls.users_service_host:
                 servicediscovery = boto3.client('servicediscovery')
                 try:
                     response = servicediscovery.discover_instances(
@@ -49,14 +44,13 @@ class PersonalisedDescriptionGenerator():
                 except Exception as e:
                     app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
                     raise
-                self.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
-            self.users_api_url = f'http://{self.users_service_host}:{self.users_service_port}'
+                cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+            cls.users_api_url = f'http://{cls.users_service_host}:{cls.users_service_port}' 
+    
+    bedrock = initialise_bedrock()
+    
     
     def setup(self):
-        try:
-            self.initialise_bedrock()
-        except Exception as e:
-            app.logger.info(f"Error initialising bedrock: {e}")
         try:
             self.set_user_service_host_and_port()
         except Exception as e:
