@@ -109,6 +109,7 @@ class PersonalisedDescriptionGenerator():
             f"- Usage instructions\n"
             f"- Pricing information\n\n"
         )
+        app.logger.info(f"Generated prompt: {template}")
         return template
     
     @staticmethod
