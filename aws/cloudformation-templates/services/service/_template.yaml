@@ -187,6 +187,10 @@ Parameters:
     Type: String
     Default: none
 
+  PersonalisedProductDescriptionsTable:
+    Type: String
+    Default: none
+
   ParameterPersonalizeEventTrackerId:
     Type: String
     Description: SSM parameter name for the Personalize event tracking ID
@@ -314,6 +318,7 @@ Resources:
         CartsTable: !Ref CartsTable
         OrdersTable: !Ref OrdersTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
+        PersonalisedProductDescriptionsTable: !Ref PersonalisedProductDescriptionsTable
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl

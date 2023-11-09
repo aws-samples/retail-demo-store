@@ -130,6 +130,10 @@ Parameters:
     Type: String
     Default: none
 
+  PersonalisedProductDescriptionsTable:
+    Type: String
+    Default: none
+
   Uid:
     Type: String
 
@@ -182,11 +186,13 @@ Resources:
                   - dynamodb:*
                 Resource:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PersonalisedProductDescriptionsTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PersonalisedProductDescriptionsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
@@ -206,6 +212,15 @@ Resources:
                 Action:
                   - mobiletargeting:PhoneNumberValidate
                 Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
+        - PolicyName: Bedrock
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource:
+                  - !Sub 'arn:aws:bedrock:*::foundation-model/anthropic.claude-v2'
         - PolicyName: others
           PolicyDocument:
             Version: '2012-10-17'
@@ -391,6 +406,8 @@ Resources:
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
+            - Name: DDB_TABLE_PERSONALISED_PRODUCT_DESCRIPTIONS
+              Value: !Ref PersonalisedProductDescriptionsTable
             - Name: DDB_TABLE_CATEGORIES
               Value: !Ref CategoriesTable
             - Name: DDB_TABLE_CARTS
