@@ -5,6 +5,7 @@ from decimal import Decimal
 from flask import  jsonify, Blueprint
 from server import app
 from services import ProductService
+from personalised_product_descriptions import PersonalisedDescriptionGenerator
 from flask import request, abort, Response
 from typing import List, Dict, Any
 from http import HTTPStatus
@@ -13,7 +14,8 @@ import json
 
 route_bp = Blueprint('route_bp', __name__)
 product_service = ProductService()
-
+personalised_product_descriptions_service = PersonalisedDescriptionGenerator()
+personalised_product_descriptions_service.setup()
 image_root_url = os.getenv('IMAGE_ROOT_URL')
 missing_image_file = "product_image_coming_soon.png"
 
@@ -82,13 +84,16 @@ def get_products_by_id(product_ids):
             set_fully_qualified_product_image_urls(products)
             return jsonify(products), 200
             
-        else:
+        user =request.args.get('user')
+        if not user:
             product = product_service.get_product_by_id(product_ids[0])
             if not product:
                 abort(HTTPStatus.NOT_FOUND)
             set_fully_qualified_product_image_url(product)
             app.logger.info(f"retrieved product: {product}")
             return jsonify(product), 200
+        generated_description = personalised_product_descriptions_service.generate_personalised_description(product_ids[0], user)
+        return jsonify(generated_description), 200
     elif request.method == 'PUT':
         app.logger.info('Processing update products by ID request')
         product = request.get_json(force=True)

@@ -1,14 +1,13 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-
-from dynamo_setup import dynamo_resource, ddb_table_products, ddb_table_personalised_product_descriptions
-import app
+from dynamo_setup import dynamo_resource,ddb_table_personalised_product_descriptions,ddb_table_products
+from server import app
 import os
 import boto3
 import requests
 import json
 
-class PersonalisedDescriptionGenerator:
+class PersonalisedDescriptionGenerator():
     
     users_api_url = os.environ.get("USERS_API_URL")
     users_service_host = os.environ.get('USERS_SERVICE_HOST')
@@ -47,12 +46,10 @@ class PersonalisedDescriptionGenerator:
             cls.initialise_bedrock()
         except Exception as e:
             app.logger.info(f"Error initialising bedrock: {e}")
-            raise
         try:
             cls.set_user_service_host_and_port()
         except Exception as e:
             app.logger.info(f"Error setting user service host and port: {e}")
-            raise
             
     @classmethod
     def get_user(cls, user_id):

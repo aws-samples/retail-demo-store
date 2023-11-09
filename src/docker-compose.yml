@@ -59,9 +59,11 @@ services:
       - AWS_SESSION_TOKEN
       - DDB_TABLE_PRODUCTS
       - DDB_TABLE_CATEGORIES
+      - DDB_TABLE_PERSONALISED_PRODUCT_DESCRIPTIONS
       - DDB_ENDPOINT_OVERRIDE
       - IMAGE_ROOT_URL
       - WEB_ROOT_URL
+      - USERS_API_URL
     build:
       context: ./products
     networks:
