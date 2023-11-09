@@ -64,8 +64,6 @@ services:
       - WEB_ROOT_URL
     build:
       context: ./products
-      args:
-        - GOPROXY_OVERRIDE
     networks:
       - dev-net
     ports:
