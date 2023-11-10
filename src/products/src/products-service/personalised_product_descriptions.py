@@ -33,6 +33,7 @@ class PersonalisedDescriptionGenerator():
         else:
             app.logger.info("USERS_API_URL not found in env variables- if developping locally please check .env")
             if not cls.users_service_host:
+                app.logger.info("Retrieving user url from namespace")
                 servicediscovery = boto3.client('servicediscovery')
                 try:
                     response = servicediscovery.discover_instances(
@@ -46,6 +47,7 @@ class PersonalisedDescriptionGenerator():
                     raise
                 cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
             cls.users_api_url = f'http://{cls.users_service_host}:{cls.users_service_port}' 
+            app.logger.info(f"USERS_API_URL set to: {cls.users_api_url}")
     
     bedrock = initialise_bedrock()
     
