@@ -61,7 +61,7 @@ class PersonalisedDescriptionGenerator():
             app.logger.info(f"Error setting user service host and port: {e}")
             
     def get_user(self, user_id):
-        url = f"http://users/users/id/{user_id}"
+        url = f"{self.users_api_url}/users/id/{user_id}"
         app.logger.info(f"Retrieving user info from {url}")
         response = requests.get(url)
         print(f"Retrieved user info from {url}: {response}")
