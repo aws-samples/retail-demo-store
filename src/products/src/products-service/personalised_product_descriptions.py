@@ -32,25 +32,23 @@ class PersonalisedDescriptionGenerator():
             app.logger.info(f"USERS_API_URL changed to: {cls.users_api_url}")
         else:
             app.logger.info("USERS_API_URL not found in env variables- if developping locally please check .env")
-            if not cls.users_service_host:
-                app.logger.info("Retrieving user url from namespace")
-                servicediscovery = boto3.client('servicediscovery')
-                try:
-                    response = servicediscovery.discover_instances(
-                    NamespaceName='retaildemostore.local',
-                    ServiceName='users',
-                    MaxResults=1,
-                    HealthStatus='HEALTHY'
-                    )
-                    print(f"Retrieved users service: {response}")
-                    app.logger.info(f"Retrieved users service: {response}")
-                except Exception as e:
-                    app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
-                    raise
-                cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+            app.logger.info("Retrieving user url from namespace")
+            servicediscovery = boto3.client('servicediscovery')
+            try:
+                response = servicediscovery.discover_instances(
+                NamespaceName='retaildemostore.local',
+                ServiceName='users',
+                MaxResults=1,
+                HealthStatus='HEALTHY'
+                )
+                print(f"Retrieved users service: {response}")
+                app.logger.info(f"Retrieved users service: {response}")
+            except Exception as e:
+                app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
+                raise
+            cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
             cls.users_api_url = f'http://{cls.users_service_host}:{cls.users_service_port}' 
             app.logger.info(f"USERS_API_URL set to: {cls.users_api_url}")
-            return response
     
     bedrock = initialise_bedrock()
     
