@@ -127,11 +127,10 @@ class PersonalisedDescriptionGenerator():
             if age < limit:
                 return label
 
-    def generate_key(self, user,product) -> str:
+    def generate_key(self, user,product_id) -> str:
         user_age = int(user.get('age', ''))
         age_range = self.getAgeRange(user_age)
         user_persona = user.get('persona', '')
-        product_id = product.get('id', '')
         return f"{user_persona}-{age_range}-{product_id}"
     
     def check_ddb_cache(self, persona_key):
@@ -145,6 +144,7 @@ class PersonalisedDescriptionGenerator():
         except Exception as e:
             app.logger.info(f"Error retrieving personalised product description from DDB: {e}")
             raise e
+        print(response)
         if 'Item' in response:
             return response['Item']['generated_description']
     
@@ -164,7 +164,7 @@ class PersonalisedDescriptionGenerator():
     def generate_personalised_description(self, productid, userid) -> str:
         product = self.get_product(productid)
         user = self.get_user(userid)
-        persona_key = self.generate_key(user,product)
+        persona_key = self.generate_key(user,productid)
         cached_description = self.check_ddb_cache(persona_key)
         if cached_description:
             return cached_description
