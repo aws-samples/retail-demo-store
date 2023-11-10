@@ -108,6 +108,9 @@ class ProductService:
         )
         print(response)
         products = response['Responses'][self.ddb_table_products]
+        for product in products:
+            self.set_product_url(product)
+            self.update_product_template(product)
         return products
     
     def get_category_by_id(self, category_id):
