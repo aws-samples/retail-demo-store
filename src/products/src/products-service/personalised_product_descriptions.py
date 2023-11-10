@@ -24,12 +24,13 @@ class PersonalisedDescriptionGenerator():
             raise e
         
  
-    def set_user_service_host_and_port(self):
+    def get_user_service_host_and_port(self):
         if self.users_api_url:
             app.logger.info(f"USERS_API_URL found in env variables: {self.users_api_url}")
-            self.users_api_url = self.users_api_url.replace("localhost","users")
-            self.users_api_url = self.users_api_url.replace("8002","80")
-            app.logger.info(f"USERS_API_URL changed to: {self.users_api_url}")
+            temp = self.users_api_url.replace("localhost","users")
+            temp = temp.replace("8002","80")
+            app.logger.info(f"USERS_API_URL changed to: {temp}")
+            return temp
         else:
             app.logger.info("USERS_API_URL not found in env variables- if developping locally please check .env")
             app.logger.info("Retrieving user url from namespace")
@@ -46,23 +47,17 @@ class PersonalisedDescriptionGenerator():
             except Exception as e:
                 app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
                 raise
-            self.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
-            self.users_api_url = f'http://{self.users_service_host}:{self.users_service_port}' 
-            app.logger.info(f"USERS_API_URL set to: {self.users_api_url}")
+            temp_users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+            temp_users_api_url = f'http://{temp_users_service_host}:{self.users_service_port}' 
+            app.logger.info(f"USERS_API_URL set to: {temp_users_api_url}")
+            return temp_users_api_url
     
     bedrock = initialise_bedrock()
     
-    
-    def setup(self):
-        try:
-           test = self.set_user_service_host_and_port()
-           return test
-        except Exception as e:
-            app.logger.info(f"Error setting user service host and port: {e}")
             
     def get_user(self, user_id):
-        self.set_user_service_host_and_port()
-        url = f"{self.users_api_url}/users/id/{user_id}"
+        user_service_api_url = self.get_user_service_host_and_port()
+        url = f"{user_service_api_url}/users/id/{user_id}"
         app.logger.info(f"Retrieving user info from {url}")
         response = requests.get(url)
         print(f"Retrieved user info from {url}: {response}")
