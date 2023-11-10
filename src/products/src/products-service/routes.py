@@ -96,7 +96,6 @@ def get_products_by_id(product_ids):
             app.logger.info(f"retrieved product: {product}")
             return jsonify(product), 200
         app.logger.info(f"retrieving personalised description for user with id: {user}")
-        personalised_product_descriptions_service.setup()
         generated_description = personalised_product_descriptions_service.generate_personalised_description(product_ids[0], user)
         return jsonify(generated_description), 200
     elif request.method == 'PUT':
