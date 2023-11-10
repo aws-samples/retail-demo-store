@@ -107,7 +107,7 @@ class ProductService:
             RequestItems=request_items
         )
         print(response)
-        products = response['Item']
+        products = response['Responses'][self.ddb_table_products]
         return products
     
     def get_category_by_id(self, category_id):
