@@ -106,7 +106,8 @@ class ProductService:
             f'Error retrieving products with ids: {product_ids}',
             RequestItems=request_items
         )
-        products = response['Items']
+        print(response)
+        products = response['Item']
         return products
     
     def get_category_by_id(self, category_id):

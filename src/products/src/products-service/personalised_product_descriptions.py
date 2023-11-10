@@ -42,6 +42,7 @@ class PersonalisedDescriptionGenerator():
                     MaxResults=1,
                     HealthStatus='HEALTHY'
                     )
+                    print(response)
                     app.logger.info(f"Retrieved users service: {response}")
                 except Exception as e:
                     app.logger.info(f"Error retrieving users host using servicediscovery: {e}")
