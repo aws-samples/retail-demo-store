@@ -17,8 +17,6 @@ product_service = ProductService()
 
 personalised_product_descriptions_service = PersonalisedDescriptionGenerator()
 
-personalised_product_descriptions_service.setup()
-
 image_root_url = os.getenv('IMAGE_ROOT_URL')
 missing_image_file = "product_image_coming_soon.png"
 
