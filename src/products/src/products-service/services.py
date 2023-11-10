@@ -80,11 +80,11 @@ class ProductService:
             }
         )
         if 'Item' in response:
-            app.logger.info(f'Retrieved product: {response["Item"]}')
+            app.logger.debug(f'Retrieved product: {response["Item"]}')
             product = response['Item']
             self.set_product_url(product)
             self.update_product_template(product)
-            app.logger.info(f"Found product: {product}, category: {product['category']}")
+            app.logger.debug(f"Found product: {product}, category: {product['category']}")
             return product
         else:
             raise KeyError
@@ -106,7 +106,6 @@ class ProductService:
             f'Error retrieving products with ids: {product_ids}',
             RequestItems=request_items
         )
-        print(response)
         products = response['Responses'][self.ddb_table_products]
         for product in products:
             self.set_product_url(product)
@@ -149,7 +148,7 @@ class ProductService:
         if 'Items' in response:
             category = response['Items'][0]
             self.set_category_url(category)
-            app.logger.info(f"Found category: {category}")
+            app.logger.debug(f"Found category: {category}")
             return category
         else:
             raise KeyError
@@ -178,7 +177,7 @@ class ProductService:
             for product in products:
                 self.set_product_url(product)
                 self.update_product_template(product)
-            app.logger.info(f"Found products: {products}")
+            app.logger.debug(f"Found products: {products}")
             return products
         
     def get_featured_products(self):
@@ -207,7 +206,7 @@ class ProductService:
                 self.set_product_url(product)
                 self.update_product_template(product)
                 product['featured'] = 'true'
-                app.logger.info(f"Found featured product: {product}")
+                app.logger.debug(f"Found featured product: {product}")
             return products
         
     def get_all_categories(self):
@@ -241,14 +240,14 @@ class ProductService:
             for product in response['Items']:
                 self.set_product_url(product)
                 self.update_product_template(product)
-            app.logger.info(f"Found products: {products[0:2]}")
+            app.logger.debug(f"Found products: {products[0:2]}")
             return products
         
     def update_product(self, original_product, updated_product):
         updated_product['id'] = original_product['id']
         self.set_product_url(updated_product)
         self.validate_product(updated_product)
-        app.logger.info(f"Updating product: {original_product} to {updated_product}")
+        app.logger.debug(f"Updating product: {original_product} to {updated_product}")
         self.execute_and_log(
             self.dynamo_client.put_item,
             f'Updated product: {updated_product}',
@@ -291,7 +290,7 @@ class ProductService:
         product.update(product_temp)
         self.set_product_url(product)
         self.validate_product(product)
-        app.logger.info(f"Adding product: {product}")
+        app.logger.debug(f"Adding product: {product}")
         self.execute_and_log(
             self.dynamo_client.put_item,
             f'Added product: {product}',
