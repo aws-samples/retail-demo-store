@@ -199,4 +199,4 @@ class PersonalisedDescriptionGenerator():
             persona_key=persona_key,
             generated_description=generated_description
             )
-        return generated_description
+        return {'description':generated_description}
