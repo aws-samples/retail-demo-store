@@ -64,6 +64,7 @@ class PersonalisedDescriptionGenerator():
         url = f"{self.users_api_url}/users/id/{user_id}"
         app.logger.info(f"Retrieving user info from {url}")
         response = requests.get(url)
+        print(f"Retrieved user info from {url}: {response}")
         if response.ok:
             return response.json()
         app.logger.info(f"Error retrieving user info from {url}")
