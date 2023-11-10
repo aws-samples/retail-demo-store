@@ -16,7 +16,8 @@ route_bp = Blueprint('route_bp', __name__)
 product_service = ProductService()
 
 personalised_product_descriptions_service = PersonalisedDescriptionGenerator()
-personalised_product_descriptions_service.setup()
+test = personalised_product_descriptions_service.setup()
+print(f"Response from user-service discovery is: {test}")
 image_root_url = os.getenv('IMAGE_ROOT_URL')
 missing_image_file = "product_image_coming_soon.png"
 

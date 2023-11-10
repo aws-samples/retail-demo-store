@@ -50,13 +50,15 @@ class PersonalisedDescriptionGenerator():
                 cls.users_service_host = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
             cls.users_api_url = f'http://{cls.users_service_host}:{cls.users_service_port}' 
             app.logger.info(f"USERS_API_URL set to: {cls.users_api_url}")
+            return response
     
     bedrock = initialise_bedrock()
     
     
     def setup(self):
         try:
-            self.set_user_service_host_and_port()
+           test = self.set_user_service_host_and_port()
+           return test
         except Exception as e:
             app.logger.info(f"Error setting user service host and port: {e}")
             
