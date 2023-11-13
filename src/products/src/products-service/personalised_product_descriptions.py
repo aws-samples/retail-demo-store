@@ -145,9 +145,7 @@ class PersonalisedDescriptionGenerator():
         except Exception as e:
             app.logger.info(f"Error retrieving personalised product description from DDB: {e}")
             raise e
-        print(response)
-        if 'Item' in response:
-            return response['Item']['generated_description']
+        return response.get('Item',{}).get('generated_description',None)
     
     def cache_generated_description(self, persona_key, generated_description):
         try:
