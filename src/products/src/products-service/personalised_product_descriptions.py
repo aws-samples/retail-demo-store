@@ -107,6 +107,7 @@ class PersonalisedDescriptionGenerator():
             f"- A compelling opening sentence\n"
             f"- Key features\n"
             f"- Benefits\n"
+            f"- Each paragraph generated should be in xml format, like so: <p>Paragraph here</p>\n"
         )
         app.logger.info(f"Generated prompt: {template}")
         return template
@@ -166,6 +167,7 @@ class PersonalisedDescriptionGenerator():
         user = self.get_user(userid)
         persona_key = self.generate_key(user,productid)
         cached_description = self.check_ddb_cache(persona_key)
+        print(f"Cached description found is {cached_description}")
         if cached_description:
             return cached_description
         prompt = self.generate_prompt(product, user)
