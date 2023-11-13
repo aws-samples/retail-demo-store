@@ -145,7 +145,7 @@ class PersonalisedDescriptionGenerator():
         except Exception as e:
             app.logger.info(f"Error retrieving personalised product description from DDB: {e}")
             raise e
-        return response.get('Item',{}).get('generated_description',None)
+        return response
     
     def cache_generated_description(self, persona_key, generated_description):
         try:
@@ -165,9 +165,9 @@ class PersonalisedDescriptionGenerator():
         user = self.get_user(userid)
         persona_key = self.generate_key(user,productid)
         cached_description = self.check_ddb_cache(persona_key)
-        print(f"Cached description found is {cached_description}")
-        if cached_description:
-            return cached_description
+        if cached_description.get('Item') is not None:
+            print(f"Cached description found is {cached_description}")
+            return cached_description.get('Item').get('generated_description')
         prompt = self.generate_prompt(product, user)
         claude_prompt = f"\n\nHuman:{prompt}\n\nAssistant:"
         body = json.dumps({
