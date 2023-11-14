@@ -158,9 +158,20 @@ Parameters:
     Type: String
     Description: S3 Bucket For logging
 
+  ResourceBucketImages:
+    Type: String
+    Description: >
+      (Leave empty in most cases) only specify if your product images are stored in a different bucket
+
+  ResourceBucketImagesPrefix:
+    Type: String
+    Description: >
+      (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+  CustomResourceBucketImages: !Not !Equals [!Ref ResourceBucketImages, ""]
 
 Resources:
   CopyImagesLambdaFunction:
@@ -219,8 +230,18 @@ Resources:
     Type: Custom::CopyImagesToWebUI
     Properties:
       ServiceToken: !GetAtt CopyImagesLambdaFunction.Arn
-      SourceBucket: !Ref ResourceBucket
-      SourceBucketPath: !Sub '${ResourceBucketRelativePath}images'
+      SourceBucket: 
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImages,
+            !Ref ResourceBucket
+          ]
+      SourceBucketPath: 
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImagesPrefix,
+            !Ref ResourceBucketRelativePath
+          ]
       TargetBucket: !Ref WebUIBucketName
       ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
