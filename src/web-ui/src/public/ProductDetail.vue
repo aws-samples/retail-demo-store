@@ -59,7 +59,7 @@
               </button>
               <LoadingFallback v-if="loadingPersonalizedProductDescription" class="col my-4 text-center"></LoadingFallback>
             </div>
-            <p>{{ product.description }}</p>
+            <p v-html="product.description"></p>
             
           </div>
 
