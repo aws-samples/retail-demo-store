@@ -64,7 +64,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig:
-        Name: !Sub 'Retaildemostore-${AWS::Region}'
+        Name: !Sub 'retaildemostore-${AWS::Region}'
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -76,7 +76,7 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         MinTTL: 86400
-        Name: !Sub 'Retaildemostore-${AWS::Region}'
+        Name: !Sub 'retaildemostore-${AWS::Region}'
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
@@ -94,7 +94,7 @@ Resources:
           CookieBehavior: none
         HeadersConfig: 
           HeaderBehavior: none
-        Name: !Sub 'Retaildemostore-${AWS::Region}'
+        Name: !Sub 'retaildemostore-${AWS::Region}'
         QueryStringsConfig: 
           QueryStringBehavior: all
 
