@@ -82,35 +82,6 @@ class PersonalisedDescriptionGenerator():
             raise e
         if 'Item' in response:
             return response['Item']
-        
-    @staticmethod
-    def generate_prompt(product, user) -> str:
-        description = product.get('description', '')
-        product_name = product.get('name', '')
-        product_category = product.get('category', '')
-        product_style = product.get('style', '')
-        user_age = user.get('age', '')
-        user_persona = user.get('persona', '')
-        template = (
-            f"Given the following user details:\n"
-            f"- User Age: {user_age}\n"
-            f"- User Interests: {user_persona}\n"
-            f"Given the following product details:\n"
-            f"- Original Description: {description}\n"
-            f"- Product Name: {product_name}\n"
-            f"- Product Category: {product_category}\n"
-            f"- Product Style: {product_style}\n"
-            f"Please generate an enhanced and product description personalised for the user"  
-            f"that incorporates all the above elements while ensuring "
-            f"high-quality language and factual coherence. Make the description rich in relevant details "
-            f"and present it in a format that includes:\n"
-            f"- A compelling opening sentence\n"
-            f"- Key features\n"
-            f"- Benefits\n"
-        )
-        app.logger.info(f"Generated prompt: {template}")
-        return template
-    
     @staticmethod
     def getAgeRange(age: int) -> str:
         age_ranges = [
@@ -125,14 +96,37 @@ class PersonalisedDescriptionGenerator():
     
         for limit, label in age_ranges:
             if age < limit:
-                return label
+                return label  
+    @staticmethod
+    def generate_prompt(product, user_persona,user_age_range) -> str:
+        description = product.get('description', '')
+        product_name = product.get('name', '')
+        product_category = product.get('category', '')
+        product_style = product.get('style', '')
+        template = (
+            f"Given the following user details:\n"
+            f"- User Age Range: {user_age_range}\n"
+            f"- User Interests: {user_persona}\n"
+            f"Given the following product details:\n"
+            f"- Original Description: {description}\n"
+            f"- Product Name: {product_name}\n"
+            f"- Product Category: {product_category}\n"
+            f"- Product Style: {product_style}\n"
+            f"Please generate an enhanced and product description personalised for the user"  
+            f"that incorporates all the above elements while ensuring "
+            f"high-quality language and factual coherence. Make the description rich in relevant details "
+            f"and present it in a format that includes:\n"
+            f"- A compelling opening sentence\n"
+            f"- Key features\n"
+            f"- Benefits\n"
+            f"- Each paragraph generated should be in xml format, like so: <p>Paragraph here</p>\n"
+        )
+        app.logger.info(f"Generated prompt: {template}")
+        return template
+    
 
-    def generate_key(self, user,product) -> str:
-        user_age = int(user.get('age', ''))
-        age_range = self.getAgeRange(user_age)
-        user_persona = user.get('persona', '')
-        product_id = product.get('id', '')
-        return f"{user_persona}-{age_range}-{product_id}"
+    def generate_key(self,user_persona, user_age_range,product_id) -> str:
+        return f"{user_persona}-{user_age_range}-{product_id}"
     
     def check_ddb_cache(self, persona_key):
         try:
@@ -145,8 +139,7 @@ class PersonalisedDescriptionGenerator():
         except Exception as e:
             app.logger.info(f"Error retrieving personalised product description from DDB: {e}")
             raise e
-        if 'Item' in response:
-            return response['Item']['generated_description']
+        return response
     
     def cache_generated_description(self, persona_key, generated_description):
         try:
@@ -164,11 +157,15 @@ class PersonalisedDescriptionGenerator():
     def generate_personalised_description(self, productid, userid) -> str:
         product = self.get_product(productid)
         user = self.get_user(userid)
-        persona_key = self.generate_key(user,product)
+        user_age_range = self.getAgeRange(user.get('age'))
+        user_persona = user.get('persona')
+        persona_key = self.generate_key(user_persona,user_age_range,productid)
         cached_description = self.check_ddb_cache(persona_key)
-        if cached_description:
-            return cached_description
-        prompt = self.generate_prompt(product, user)
+        if cached_description.get('Item') is not None:
+            print(f"Cached description found is {cached_description}")
+            generated_description = cached_description.get('Item').get('generated_description')
+            return {'description':generated_description}
+        prompt = self.generate_prompt(product, user_persona,user_age_range)
         claude_prompt = f"\n\nHuman:{prompt}\n\nAssistant:"
         body = json.dumps({
             "prompt": claude_prompt,
