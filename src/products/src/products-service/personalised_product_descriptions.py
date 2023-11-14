@@ -164,12 +164,10 @@ class PersonalisedDescriptionGenerator():
         product = self.get_product(productid)
         user = self.get_user(userid)
         persona_key = self.generate_key(user,productid)
-        print(f"Generated key is {persona_key}")
         cached_description = self.check_ddb_cache(persona_key)
         if cached_description.get('Item') is not None:
             print(f"Cached description found is {cached_description}")
             generated_description = cached_description.get('Item').get('generated_description')
-            #cached_description = None
             return {'description':generated_description}
         prompt = self.generate_prompt(product, user)
         claude_prompt = f"\n\nHuman:{prompt}\n\nAssistant:"
