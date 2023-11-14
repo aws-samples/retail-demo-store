@@ -111,6 +111,9 @@ By Default, AWS Accounts have  [emails set up in a sandbox environement](https:/
 A dedicated [long code](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-sms-awssupport-long-code.html) (i.e. a phone number) obtained for Amazon Pinpoint to send and receive messages at. You also need to enable [two way SMS](https://docs.aws.amazon.com/pinpoint/latest/userguide/channels-sms-two-way.html) for this long code using Pinpoint. Follow steps 2 and 3 in the *Enable Pinpoint SMS Channel & Obtain Dedicated Long Code* section of the [Pinpoint workshop](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/4-Messaging/4.1-Pinpoint.ipynb) to get a long code and enable two way SMS for it.
 When deploying Retail Demo Store, enter the number as a parameter. The number should be formatted along with the country code and without any spaces or brackets. For Example: enter “+1XXXXXXXXXX” for a long code based in the United States.
 
+##### Amazon Bedrock Demos
+Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Instructions on enabling model access can be found [here](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html). Amazon Bedrock is currently available in 5 regions globally, US East (N. Virginia), US West (Oregon), Asia Pacific (Tokyo), Europe (Frankfurt) and Asia Pacific (Singapore).
+
 ## Step 4 - Using the Retail Demo Store Web Application
 
 Once you launch the CloudFormation stack, all of the services will go through a build and deployment cycle and deploy the Retail Demo Store.

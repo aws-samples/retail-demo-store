@@ -178,11 +178,16 @@ class PersonalisedDescriptionGenerator():
         modelId = 'anthropic.claude-v2'
         accept = 'application/json'
         contentType = 'application/json'
-        response = self.bedrock.invoke_model(
-            body=body,
-            modelId=modelId,
-            accept=accept,
-            contentType=contentType)
+        try:
+            response = self.bedrock.invoke_model(
+                body=body,
+                modelId=modelId,
+                accept=accept,
+                contentType=contentType
+            )
+        except Exception as e:
+            app.logger.info(f"Error invoking model: {e}")
+            return {'description':''}
         response_body = json.loads(response.get('body').read())
         if 'Sorry' in response_body.get('completion'):
             app.logger.info('No description can be generated for product')
