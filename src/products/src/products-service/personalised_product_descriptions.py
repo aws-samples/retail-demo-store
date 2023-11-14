@@ -82,18 +82,30 @@ class PersonalisedDescriptionGenerator():
             raise e
         if 'Item' in response:
             return response['Item']
-        
     @staticmethod
-    def generate_prompt(product, user) -> str:
+    def getAgeRange(age: int) -> str:
+        age_ranges = [
+            (18, ""),
+            (25, "18-24"),
+            (35, "25-34"),
+            (45, "35-44"),
+            (55, "45-54"),
+            (70, "55-69"),
+            (float('inf'), "70-and-above"),
+        ]
+    
+        for limit, label in age_ranges:
+            if age < limit:
+                return label  
+    @staticmethod
+    def generate_prompt(product, user_persona,user_age_range) -> str:
         description = product.get('description', '')
         product_name = product.get('name', '')
         product_category = product.get('category', '')
         product_style = product.get('style', '')
-        user_age = user.get('age', '')
-        user_persona = user.get('persona', '')
         template = (
             f"Given the following user details:\n"
-            f"- User Age: {user_age}\n"
+            f"- User Age Range: {user_age_range}\n"
             f"- User Interests: {user_persona}\n"
             f"Given the following product details:\n"
             f"- Original Description: {description}\n"
@@ -112,27 +124,9 @@ class PersonalisedDescriptionGenerator():
         app.logger.info(f"Generated prompt: {template}")
         return template
     
-    @staticmethod
-    def getAgeRange(age: int) -> str:
-        age_ranges = [
-            (18, ""),
-            (25, "18-24"),
-            (35, "25-34"),
-            (45, "35-44"),
-            (55, "45-54"),
-            (70, "55-69"),
-            (float('inf'), "70-and-above"),
-        ]
-    
-        for limit, label in age_ranges:
-            if age < limit:
-                return label
 
-    def generate_key(self, user,product_id) -> str:
-        user_age = int(user.get('age', ''))
-        age_range = self.getAgeRange(user_age)
-        user_persona = user.get('persona', '')
-        return f"{user_persona}-{age_range}-{product_id}"
+    def generate_key(self,user_persona, user_age_range,product_id) -> str:
+        return f"{user_persona}-{user_age_range}-{product_id}"
     
     def check_ddb_cache(self, persona_key):
         try:
@@ -163,13 +157,15 @@ class PersonalisedDescriptionGenerator():
     def generate_personalised_description(self, productid, userid) -> str:
         product = self.get_product(productid)
         user = self.get_user(userid)
-        persona_key = self.generate_key(user,productid)
+        user_age_range = self.getAgeRange(user.get('age'))
+        user_persona = user.get('persona')
+        persona_key = self.generate_key(user_persona,user_age_range,productid)
         cached_description = self.check_ddb_cache(persona_key)
         if cached_description.get('Item') is not None:
             print(f"Cached description found is {cached_description}")
             generated_description = cached_description.get('Item').get('generated_description')
             return {'description':generated_description}
-        prompt = self.generate_prompt(product, user)
+        prompt = self.generate_prompt(product, user_persona,user_age_range)
         claude_prompt = f"\n\nHuman:{prompt}\n\nAssistant:"
         body = json.dumps({
             "prompt": claude_prompt,
