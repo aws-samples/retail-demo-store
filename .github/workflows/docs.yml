@@ -2,7 +2,7 @@ name: ci
 on:
   push:
     branches:
-      - master
+      - dairiley/mkdocs
 permissions:
   contents: write
 jobs:
