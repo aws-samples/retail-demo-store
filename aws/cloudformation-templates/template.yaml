@@ -184,6 +184,17 @@ Parameters:
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
 
+  ResourceBucketImages:
+    Type: String
+    Description: >
+      (Leave empty in most cases) only specify if your product images are stored in a different bucket
+
+  ResourceBucketImagesPrefix:
+    Type: String
+    Description: >
+      (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
+
+
   CreateOpenSearchServiceLinkedRole:
     Type: String
     Description: >
@@ -653,6 +664,8 @@ Resources:
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
+        ResourceBucketImages: !Ref ResourceBucketImages
+        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
 
   # Swagger UI Pipeline
   SwaggerUIPipeline:
