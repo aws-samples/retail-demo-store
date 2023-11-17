@@ -102,57 +102,6 @@ Parameters:
     Type: String
     Description: The GitHub branch used for deployment.
 
-  FenixZipDetectUrl:
-    Type: String
-    Description: Fenix Commerce Zipcode Detect URL
-    Default: "https://ipapi.co/json?key=cKGC3jQbSIoXYmI2KtXObugsKfosD9Yr0HnkHhPUu1SM2wQhE0"
-
-  FenixTenantId:
-    Type: String
-    Description: Fenix Commerce Demo Env TenantID
-    Default: "ec6ea3439489426ba09cf6c906ead8d5"
-    NoEcho: true
-
-  FenixEddEndpoint:
-    Type: String
-    Description: Fenix Commerce Estimated Delivery Date Endpoint URL
-    Default: "https://awsretaildemo.delest.fenixcommerce.com/fenixdelest/api/v2/deliveryestimates"
-
-  FenixMonetaryValue:
-    Type: String
-    Description: Fenix Commerce Default monetary value to control free shipping above $100 default for demo
-    Default: 100
-
-  FenixEnabledPdp:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on PDP
-    AllowedValues:
-      - "TRUE"
-      - "FALSE"
-    Default: "TRUE"
-
-  FenixEnabledCart:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on CART
-    AllowedValues:
-      - "TRUE"
-      - "FALSE"
-    Default: "TRUE"
-
-  FenixEnabledCheckout:
-    Type: String
-    Description: Fenix Commerce Flag to enable EDD on checkout
-    AllowedValues:
-      - "TRUE"
-      - "FALSE"
-    Default: "TRUE"
-
-  FenixXapiKey:
-    Type: String
-    Description: Fenix Commerce Demo Env x-api-key
-    Default: "nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd"
-    NoEcho: true
-
   ACMCertificateArn:
     Type: String
     Description: ACM Certificate ARN for CloudFront WebUICDN
@@ -185,9 +134,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         VpcId: !GetAtt VPC.Outputs.VpcId
-        Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
-        Subnet2: !GetAtt VPC.Outputs.Subnet2
         ExperimentStrategyTable: !GetAtt Tables.Outputs.ExperimentStrategyTable
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
@@ -266,9 +213,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/opensearch.yaml
       Parameters:
         VpcId: !GetAtt VPC.Outputs.VpcId
-        Subnets: !GetAtt VPC.Outputs.Subnets
         Subnet1: !GetAtt VPC.Outputs.Subnet1
-        Subnet2: !GetAtt VPC.Outputs.Subnet2
 
   # SSM Parameters
   SSMParameters:

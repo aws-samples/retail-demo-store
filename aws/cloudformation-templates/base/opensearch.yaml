@@ -6,13 +6,7 @@ Description: >
 
 Parameters:
 
-  Subnets:
-    Type: String
-
   Subnet1:
-    Type: String
-
-  Subnet2:
     Type: String
 
   VpcId:

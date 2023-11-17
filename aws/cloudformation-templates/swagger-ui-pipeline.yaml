@@ -4,13 +4,6 @@ Description: >
     This template deploys the Retail Demo Store Swagger UI deployment pipeline.
 
 Parameters:
-  ResourceBucket:
-    Type: String
-    Description: S3Bucket Bucket where the deployment Resources are stored (cloudformation, images, lambda code)
-
-  ResourceBucketRelativePath:
-    Type: String
-    Description: S3Bucket Path where the deployment Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
 
   SwaggerUICDN:
     Type: String

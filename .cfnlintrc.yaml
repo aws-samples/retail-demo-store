@@ -4,3 +4,5 @@ templates:
   - aws/cloudformation-templates/event-engine/*.yaml
   - aws/cloudformation-templates/services/*.yaml
   - aws/cloudformation-templates/services/service/*.yaml
+ignore_checks:
+  - I3011 #demo site, 
