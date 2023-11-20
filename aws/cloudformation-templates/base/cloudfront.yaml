@@ -106,6 +106,10 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub 'Retail Demo Store CDN for ${WebUIBucket}'
+        CustomErrorResponses:
+          -  ErrorCode: 403
+             ResponseCode: 200
+             ResponsePagePath: /index.html
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
         HttpVersion: http2and3
