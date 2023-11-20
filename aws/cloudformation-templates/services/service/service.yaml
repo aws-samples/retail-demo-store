@@ -54,33 +54,17 @@ Parameters:
     Type: String
     Default: products.retaildemostore.local
 
-  EnvProductsServiceInternalPort:
-    Type: String
-    Default: 80
-
   EnvUsersServiceInternalUrl:
     Type: String
     Default: users.retaildemostore.local
-
-  EnvUsersServiceInternalPort:
-    Type: String
-    Default: 80
 
   EnvSearchServiceInternalUrl:
     Type: String
     Default: search.retaildemostore.local
 
-  EnvSerchServiceInternalPort:
-    Type: String
-    Default: 80
-
   EnvOffersServiceInternalUrl:
     Type: String
     Default: offers.retaildemostore.local
-
-  EnvOffersServiceInternalPort:
-    Type: String
-    Default: 80
 
   EnvOpenSearchDomainEndpoint:
     Type: String
@@ -130,9 +114,6 @@ Parameters:
     Type: String
     Default: none
 
-  Uid:
-    Type: String
-
   PinpointAppId:
     Type: String
 
@@ -162,7 +143,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameters
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
+                Resource: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
@@ -181,16 +162,16 @@ Resources:
                 Action:
                   - dynamodb:*
                 Resource:
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}/index/*'
         - PolicyName: PinpointSMS
           PolicyDocument:
             Version: '2012-10-17'
@@ -201,11 +182,11 @@ Resources:
                   - mobiletargeting:GetEndpoint
                   - mobiletargeting:UpdateEndpoint
                   - mobiletargeting:PutEvents
-                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/*'
+                Resource: !Sub 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/*'
               - Effect: Allow
                 Action:
                   - mobiletargeting:PhoneNumberValidate
-                Resource: !Sub 'arn:aws:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
+                Resource: !Sub 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
         - PolicyName: others
           PolicyDocument:
             Version: '2012-10-17'
@@ -213,7 +194,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:*
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
+                Resource: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -243,7 +224,7 @@ Resources:
                   - personalize:DeleteEventTracker
                   - personalize:DescribeEventTracker
                 Resource:
-                  - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
+                  - !Sub 'arn:${AWS::Partition}:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
               - Effect: Allow
                 Action:
                   - personalize:ListCampaigns
@@ -260,44 +241,44 @@ Resources:
                 Action:
                   - s3:GetObject
                 Resource:
-                  - !Sub 'arn:aws:s3:::${ResourceBucket}'
-                  - !Sub 'arn:aws:s3:::${ResourceBucket}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ResourceBucket}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ResourceBucket}/*'
               - Effect: Allow
                 Action:
                   - ivs:ListStreamKeys
                 Resource:
-                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:*'
+                  - !Sub 'arn:${AWS::Partition}:ivs:${AWS::Region}:${AWS::AccountId}:*'
               - Effect: Allow
                 Action:
                   - ivs:GetChannel
                   - ivs:GetStream
                   - ivs:PutMetadata
                 Resource:
-                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:channel/*'
+                  - !Sub 'arn:${AWS::Partition}:ivs:${AWS::Region}:${AWS::AccountId}:channel/*'
               - Effect: Allow
                 Action:
                   - ivs:GetStreamKey
                 Resource:
-                  - !Sub 'arn:aws:ivs:${AWS::Region}:${AWS::AccountId}:stream-key/*'
+                  - !Sub 'arn:${AWS::Partition}:ivs:${AWS::Region}:${AWS::AccountId}:stream-key/*'
               - Effect: Allow
                 Action:
                   - events:DescribeRule
                   - events:ListRules
                   - events:EnableRule
                 Resource:
-                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
+                  - !Sub 'arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/RetailDemoStore-PersonalizePreCreateScheduledRule'
               - Effect: Allow
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
+                  - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
               - Effect: Allow
                 Action:
                   - evidently:BatchEvaluateFeature
                   - evidently:PutProjectEvents
                 Resource:
-                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
-                  - !Sub 'arn:aws:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
+                  - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
+                  - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
@@ -353,9 +334,9 @@ Resources:
           Memory: 256
           Secrets:
             - Name: OPTIMIZELY_SDK_KEY
-              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
+              ValueFrom: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-optimizely-sdk-key'
             - Name: SEGMENT_WRITE_KEY
-              ValueFrom: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
+              ValueFrom: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/retaildemostore-segment-write-key'
           Environment:
             - Name: PERSONALIZE_CAMPAIGN_ARN
               Value: !Ref EnvPersonalizeCampaignArn

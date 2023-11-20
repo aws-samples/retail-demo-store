@@ -158,9 +158,20 @@ Parameters:
     Type: String
     Description: S3 Bucket For logging
 
+  ResourceBucketImages:
+    Type: String
+    Description: >
+      (Leave empty in most cases) only specify if your product images are stored in a different bucket
+
+  ResourceBucketImagesPrefix:
+    Type: String
+    Description: >
+      (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+  CustomResourceBucketImages: !Not [ !Equals [!Ref ResourceBucketImages, ""] ]
 
 Resources:
   CopyImagesLambdaFunction:
@@ -182,7 +193,6 @@ Resources:
               source_bucket_name = event['ResourceProperties']['SourceBucket']
               source_path = event['ResourceProperties']['SourceBucketPath']
               target_bucket_name = event['ResourceProperties']['TargetBucket']
-              resource_bucket_path = event['ResourceProperties']['ResourceBucketRelativePath']
 
               if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
                 # Copy from source to target
@@ -192,9 +202,9 @@ Resources:
 
                 for obj in source_bucket.objects.filter(Prefix=source_path):
                     source = { 'Bucket': source_bucket_name, 'Key': obj.key }
-                    if len(resource_bucket_path)>0:
+                    if len(source_path)>0:
                       # need to remove the resource_relative_path for the target images directory
-                      target = target_bucket.Object(obj.key[len(resource_bucket_path):])
+                      target = target_bucket.Object(obj.key[len(source_path):])
                     else:
                       target = target_bucket.Object(obj.key)
                     target.copy(source)
@@ -219,10 +229,19 @@ Resources:
     Type: Custom::CopyImagesToWebUI
     Properties:
       ServiceToken: !GetAtt CopyImagesLambdaFunction.Arn
-      SourceBucket: !Ref ResourceBucket
-      SourceBucketPath: !Sub '${ResourceBucketRelativePath}images'
+      SourceBucket: 
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImages,
+            !Ref ResourceBucket
+          ]
+      SourceBucketPath: 
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImagesPrefix,
+            !Ref ResourceBucketRelativePath
+          ]
       TargetBucket: !Ref WebUIBucketName
-      ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   CopyImagesLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -250,17 +269,29 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Effect: Allow
-                Action:
-                  - s3:List*
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource:
-                  - !Sub arn:aws:s3:::${ResourceBucket}/*
-                  - !Sub arn:aws:s3:::${ResourceBucket}
-                  - !Sub arn:aws:s3:::${WebUIBucketName}
-                  - !Sub arn:aws:s3:::${WebUIBucketName}/*
-
+              - Fn::If:
+                - CustomResourceBucketImages
+                - Effect: Allow
+                  Action:
+                    - s3:List*
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource:
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucketImages}/*
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucketImages}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}/*
+                - Effect: Allow
+                  Action:
+                    - s3:List*
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource:
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}/*
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}/*
+            
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -298,8 +329,8 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
                 Resource:
-                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
-                  - !Sub arn:aws:s3:::${WebUIBucketName}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${ArtifactBucket}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}/*
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -318,8 +349,8 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Resource:
-                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
-                  - !Sub arn:aws:s3:::${ArtifactBucket}
+                  - !Sub arn:${AWS::Partition}:s3:::${ArtifactBucket}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${ArtifactBucket}
                 Effect: Allow
                 Action:
                   - s3:PutObject
@@ -331,7 +362,7 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-              - Resource: !Sub 'arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+              - Resource: !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
                 Effect: Allow
                 Action:
                   - "codecommit:GetBranch"
@@ -564,7 +595,7 @@ Resources:
               -
                 Effect: Allow
                 Action: codepipeline:StartPipelineExecution
-                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineCodeCommit ] ] 
+                Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
 
   EventRule:
     Condition: LinkToCodeCommit
@@ -576,7 +607,7 @@ Resources:
         detail-type:
           - 'CodeCommit Repository State Change'
         resources:
-          - !Join [ '', [ 'arn:aws:codecommit:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', 'retaildemostore-src' ] ]
+          - !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
         detail:
           event:
             - referenceCreated
@@ -587,8 +618,7 @@ Resources:
             - main
       Targets:
         -
-          Arn: 
-            !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineCodeCommit ] ]
+          Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
           RoleArn: !GetAtt EventRole.Arn
           Id: codepipeline-AppPipeline
 
