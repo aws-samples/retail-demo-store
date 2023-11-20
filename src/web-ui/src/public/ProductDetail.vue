@@ -54,8 +54,10 @@
 
             <div v-if="bedrockProductPersonalizationEnabled">
               <DemoGuideBadge :article="'personalized-product'" hideTextOnSmallScreens />
-              <button class="personalize-description-btn btn" @click="personalizeDescription" v-show="showPersonalizeDescriptionButton">
-                Personalize Description
+              <button class="btn-info btn btn-block" 
+                :disabled="isDescriptionPersonalized" :aria-disabled="isDescriptionPersonalized" 
+                @click="personalizeDescription">
+                  {{ personalizeButtonText }}
               </button>
               <LoadingFallback v-if="loadingPersonalizedProductDescription" class="col my-4 text-center"></LoadingFallback>
             </div>
@@ -137,7 +139,7 @@ export default {
       fenixcurrentvariant: {},
       fenixenablePDP : import.meta.env.VITE_FENIX_ENABLED_PDP,
       loadingPersonalizedProductDescription: false,
-      showPersonalizeDescriptionButton: true
+      isDescriptionPersonalized: false
     };
   },
   computed: {
@@ -172,14 +174,17 @@ export default {
       let isLoggedIn = this.user && this.user.name != 'guest'
       let bedrockFeatureEnabled = import.meta.env.VITE_BEDROCK_PRODUCT_PERSONALIZATION || "false"
       return bedrockFeatureEnabled.toLowerCase() === 'true' && isLoggedIn
-    }, 
+    },
+    personalizeButtonText() {
+      return (this.isDescriptionPersonalized ? 'Personalized' : 'Personalize') + ' Description'
+    }
   },
   watch: {
     $route: {
       immediate: true,
       handler() {
         this.fetchData();
-        this.showPersonalizeDescriptionButton = true
+        this.isDescriptionPersonalized = false
       },
     },
     personalizeUserID() {
@@ -208,13 +213,11 @@ export default {
       AnalyticsHandler.recordShoppingCart(this.user, this.cart)
     },
     async personalizeDescription() {
-      this.product.description = ''
       this.loadingPersonalizedProductDescription = true
-      
       await this.getPersonalizedProduct(this.$route.params.id, this.user.id);
       
       this.loadingPersonalizedProductDescription = false
-      this.showPersonalizeDescriptionButton = false
+      this.isDescriptionPersonalized = true
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
@@ -337,13 +340,4 @@ export default {
   grid-area: ProductImage;
 }
 
-.personalize-description-btn {
-  background: var(--blue-600);
-  color: var(--white);
-}
-
-.personalize-description-btn:hover,
-.personalize-description-btn:focus {
-  background: var(--blue-500);
-}
 </style>
