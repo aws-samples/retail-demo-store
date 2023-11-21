@@ -727,7 +727,7 @@ Resources:
         WebURL: 
           !If [
             ConditionCustomDomain,
-            CloudfrontCustomDomain,
+            !Ref CloudfrontCustomDomain,
             !GetAtt Base.Outputs.WebUICDNURL
           ]
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
