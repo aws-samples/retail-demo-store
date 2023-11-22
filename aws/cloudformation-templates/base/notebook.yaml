@@ -21,13 +21,7 @@ Parameters:
     Type: String
     Description: The GitHub branch to use for deployments.
 
-  Subnets:
-    Type: String
-
   Subnet1:
-    Type: String
-
-  Subnet2:
     Type: String
 
   VpcId:

@@ -53,12 +53,12 @@ Resources:
           - Sid: 'AllowCloudFrontServicePrincipalReadOnly'
             Action: 's3:GetObject'
             Effect: Allow
-            Resource: !Sub 'arn:aws:s3:::${WebUIBucket}/*'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucket}/*'
             Principal:
               Service: 'cloudfront.amazonaws.com'
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${WebUICDN}'
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${WebUICDN}'
 
   UIOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
@@ -106,6 +106,10 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub 'Retail Demo Store CDN for ${WebUIBucket}'
+        CustomErrorResponses:
+          -  ErrorCode: 403
+             ResponseCode: 200
+             ResponsePagePath: /index.html
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
         HttpVersion: http2and3
@@ -161,12 +165,12 @@ Resources:
         Statement:
           - Action: 's3:GetObject'
             Effect: Allow
-            Resource: !Sub 'arn:aws:s3:::${SwaggerUIBucket}/*'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${SwaggerUIBucket}/*'
             Principal:
               Service: 'cloudfront.amazonaws.com'
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}'
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SwaggerUICDN}'
 
   SwaggerUICDN:
     Type: 'AWS::CloudFront::Distribution'

@@ -64,9 +64,6 @@ Parameters:
   IdentityPoolId:
     Type: String
 
-  StackBucketName:
-    Type: String
-
   Subnets:
     Type: String
 
@@ -135,33 +132,17 @@ Parameters:
     Type: String
     Default: products.retaildemostore.local
 
-  EnvProductsServiceInternalPort:
-    Type: String
-    Default: 80
-
   EnvUsersServiceInternalUrl:
     Type: String
     Default: users.retaildemostore.local
-
-  EnvUsersServiceInternalPort:
-    Type: String
-    Default: 80
 
   EnvSearchServiceInternalUrl:
     Type: String
     Default: search.retaildemostore.local
 
-  EnvSerchServiceInternalPort:
-    Type: String
-    Default: 80
-
   EnvOffersServiceInternalUrl:
     Type: String
     Default: offers.retaildemostore.local
-
-  EnvOffersServiceInternalPort:
-    Type: String
-    Default: 80
 
   EnvOpenSearchDomainEndpoint:
     Type: String
@@ -223,9 +204,6 @@ Parameters:
     Type: String
     Default: false
 
-  Uid:
-    Type: String
-
   EvidentlyProjectName:
     Type: String
     Description: Evidently project name
@@ -262,7 +240,6 @@ Resources:
         UserPoolId: !Ref UserPoolId
         UserPoolClientId: !Ref UserPoolClientId
         IdentityPoolId: !Ref IdentityPoolId
-        StackBucketName: !Ref StackBucketName
         FargateServiceName: !GetAtt Service.Outputs.FargateServiceName
         ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
         UsersServiceExternalUrl: !Ref UsersServiceExternalUrl
@@ -302,13 +279,9 @@ Resources:
         EnvPersonalizeCampaignArn: !Ref EnvPersonalizeCampaignArn
         EnvPersonalizeSearchCampaignArn: !Ref EnvPersonalizeSearchCampaignArn
         EnvProductsServiceInternalUrl: !Ref EnvProductsServiceInternalUrl
-        EnvProductsServiceInternalPort: !Ref EnvProductsServiceInternalPort
         EnvUsersServiceInternalUrl: !Ref EnvUsersServiceInternalUrl
-        EnvUsersServiceInternalPort: !Ref EnvUsersServiceInternalPort
         EnvSearchServiceInternalUrl: !Ref EnvSearchServiceInternalUrl
-        EnvSerchServiceInternalPort: !Ref EnvSerchServiceInternalPort
         EnvOffersServiceInternalUrl: !Ref EnvOffersServiceInternalUrl
-        EnvOffersServiceInternalPort: !Ref EnvOffersServiceInternalPort
         EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
         ResourceBucket: !Ref ResourceBucket
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
@@ -322,7 +295,6 @@ Resources:
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
-        Uid: !Ref Uid
         EvidentlyProjectName: !Ref EvidentlyProjectName
 
 Outputs:
