@@ -1,16 +1,11 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-
 from uuid import uuid4
-
 from flask import request
 from server import app
 from dynamo_setup import dynamo_resource, ddb_table_orders
-
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from decimal import Decimal
 from werkzeug.exceptions import BadRequest
-
 from copy import deepcopy
 
 
