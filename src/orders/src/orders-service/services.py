@@ -253,7 +253,6 @@ class OrderService:
             f'Retrieved order with id: {order_id}',
             f'Error retrieving order with id: {order_id}',
             TableName=cls.ddb_table_orders,
-            #Key={'id': {'S': order_id}}
             Key={'id': order_id}
         )
         if 'Item' in response:
