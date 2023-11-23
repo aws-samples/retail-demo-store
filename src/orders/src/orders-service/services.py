@@ -98,6 +98,8 @@ class OrderService:
             decimal_order['total'] = Decimal(str(decimal_order['total']))
         if 'channel_detail' in decimal_order:
             decimal_order['channel_detail']['channel_id'] = Decimal(str(decimal_order['channel_detail']['channel_id']))
+        if 'delivery_status' not in decimal_order:
+            decimal_order['delivery_status'] = 'pending'
         return decimal_order
         
     @classmethod
