@@ -105,7 +105,7 @@ Parameters:
     Type: String
     Default: none
 
-  PersonalisedProductDescriptionsTable:
+  PersonalisedProductsTable:
     Type: String
     Default: none
 
@@ -171,7 +171,7 @@ Resources:
         ProductsTable: !Ref ProductsTable
         CategoriesTable: !Ref CategoriesTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
-        PersonalisedProductDescriptionsTable: !Ref PersonalisedProductDescriptionsTable
+        PersonalisedProductsTable: !Ref PersonalisedProductsTable
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey

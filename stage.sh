@@ -134,7 +134,7 @@ if [ "$only_cfn_template" = false ]; then
     aws s3 cp retaildemostore-source.zip s3://${BUCKET}/${S3PATH}source/retaildemostore-source.zip $S3PUBLIC
 
     echo " + Upload seed data"
-    aws s3 cp src/products/src/products-service/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
+    aws s3 cp src/products/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
     aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
 
     echo " + Upload IVS videos"

@@ -16,4 +16,4 @@ echo "Staging bundle to S3"
 aws s3 cp ${PACKAGE_FILE} s3://${S3_BUCKET}/${S3_PATH}aws-lambda/${PACKAGE_FILE} $S3PUBLIC
 
 echo "Uploading products.yaml to S3"
-aws s3 cp ../../../src/products/src/products-service/data/products.yaml s3://${S3_BUCKET}/${S3_PATH}data/products.yaml $S3PUBLIC
+aws s3 cp ../../../src/products/data/products.yaml s3://${S3_BUCKET}/${S3_PATH}data/products.yaml $S3PUBLIC

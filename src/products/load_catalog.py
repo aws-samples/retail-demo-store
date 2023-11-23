@@ -8,20 +8,21 @@ can also be truncated before loading data when you want to completely replace th
 contents.
 
 By default the script will load categories and products from the default location in the
-repo. That is, the corresponding YAML files in the src/products-service/data/ directory.
+repo. That is, the corresponding YAML files in the data/ directory.
 You can override the file location on the command-line.
 
 Usage:
 
-python load_catalog.py --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] --endpoint-url ENDPOINT_URL] --endpoint-url ENDPOINT_URL
+python load_catalog.py --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] --personalised-products-table-name PERSONALISED_PRODUCTS_TABLE_NAME --endpoint-url ENDPOINT_URL] --endpoint-url ENDPOINT_URL
 
 Where:
 CATEGORIES_TABLE_NAME is the DynamoDB table name for categories
-CATEGORIES_FILE is the location on your local machine where the categories.yaml is located (defaults to src/products-service/data/categories.yaml)
+CATEGORIES_FILE is the location on your local machine where the categories.yaml is located (defaults to data/categories.yaml)
 PRODUCTS_TABLE_NAME is the DynamoDB table name for products
-PRODUCTS_FILE is the location on your local machine where the products.yaml is located (defaults to src/products-service/data/products.yaml)
+PRODUCTS_FILE is the location on your local machine where the products.yaml is located (defaults to data/products.yaml)
 CARTS_TABLE_NAME is the DynamoDB table name for carts
-CARTS_FILE is the location on your local machine where the carts.yaml is located (defaults to src/products-service/data/carts.yaml)
+CARTS_FILE is the location on your local machine where the carts.yaml is located (defaults to data/carts.yaml)
+PERSONALISED_PRODUCTS_TABLE_NAME is the DynamoDB table name for personalised products
 truncate is a flag that will truncate the table before loading data (defaults to False)
 endpoint-url is the endpoint URL for the DynamoDB service (defaults to 'http://localhost:3001')
 
@@ -68,14 +69,18 @@ def truncate_table(table):
                 break
     print(f"Deleted {counter} items")
     
-def  create_table(resource, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
+def create_table(resource, ddb_table_name, attribute_definitions, key_schema, global_secondary_indexes=None):
     try: 
+        kargs = {
+            "GlobalSecondaryIndexes": global_secondary_indexes
+        } if global_secondary_indexes else {}
+
         resource.create_table(
             TableName=ddb_table_name,
             KeySchema=key_schema,
             AttributeDefinitions=attribute_definitions,
-            GlobalSecondaryIndexes=global_secondary_indexes or [],
             BillingMode="PAY_PER_REQUEST",
+            **kargs
         )
         print(f'Created table: {ddb_table_name}')
     except ClientError  as e:
@@ -115,23 +120,26 @@ def verify_local_ddb_running(endpoint,dynamodb):
 
 if __name__=="__main__":
     categories_table_name = None
-    categories_file = 'src/products-service/data/categories.yaml'
+    categories_file = 'data/categories.yaml'
     products_table_name = None
-    products_file = 'src/products-service/data/products.yaml'
+    products_file = 'data/products.yaml'
     carts_table_name = None
-    carts_file = 'src/products-service/data/carts.yaml'
+    carts_file = 'data/carts.yaml'
+    personalised_products_table_name = None
     truncate = False
     endpoint_url = 'http://localhost:3001'
 
+    usage = "--categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] --personalised-products-table-name PERSONALISED_PRODUCTS_TABLE_NAME [--endpoint-url ENDPOINT_URL]"
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate', 'endpoint-url=', 'carts-table-name=', 'carts-file='])
+        opts, args = getopt.getopt(sys.argv[1:], 'h', ['categories-table-name=', 'categories-file=', 'products-table-name=', 'products-file=', 'truncate', 'endpoint-url=', 'carts-table-name=', 'carts-file=', 'personalised-products-table-name='])
     except getopt.GetoptError:
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
+        print(f'Usage: {sys.argv[0]} {usage}')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
+            print(f'Usage: {sys.argv[0]} {usage}')
             sys.exit()
         elif opt in ('--categories-table-name'):
             categories_table_name = arg
@@ -150,13 +158,15 @@ if __name__=="__main__":
             carts_table_name = arg
         elif opt in ('--carts-file-name'):
             carts_file = arg
+        elif opt in ('--personalised-products-table-name'):
+            personalised_products_table_name = arg
 
     if (not categories_table_name and not products_table_name and not carts_table_name):
         print('"--categories-table-name and/or --products-table-name and/or carts_table_name" are required')
-        print(f'Usage: {sys.argv[0]} --categories-table-name CATEGORIES_TABLE_NAME [--categories-file CATEGORIES_FILE] --products-table-name PRODUCTS_TABLE_NAME [--products_file PRODUCTS_FILE] [--truncate] --carts-table-name CARTS_TABLE_NAME [--carts_file CARTS_FILE] [--endpoint-url ENDPOINT_URL]')
+        print(f'Usage: {sys.argv[0]} {usage}')
         sys.exit(1)
 
-    dynamodb = resource('dynamodb', endpoint_url=endpoint_url, region_name = 'us-west-2')
+    dynamodb = resource('dynamodb', endpoint_url=endpoint_url)
 
     if categories_table_name:
         print(f'Loading categories from {categories_file} into table {categories_table_name}')
@@ -283,3 +293,16 @@ if __name__=="__main__":
         )
         
         enable_ttl_on_table(dynamodb, carts_table_name, ttl_attribute='ttl')
+
+        if personalised_products_table_name:
+            print(f'Creating personalised products table {personalised_products_table_name}')
+            create_table(
+                ddb_table_name=personalised_products_table_name,
+                resource=dynamodb,
+                attribute_definitions=[
+                    {"AttributeName": "id", "AttributeType": "S"},
+                ],
+                key_schema=[
+                    {"AttributeName": "id", "KeyType": "HASH"},
+                ]
+            )

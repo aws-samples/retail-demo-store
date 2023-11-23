@@ -584,7 +584,7 @@ Resources:
         CartsTable: !GetAtt Base.Outputs.CartsTable
         OrdersTable: !GetAtt Base.Outputs.OrdersTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
-        PersonalisedProductDescriptionsTable: !GetAtt Base.Outputs.PersonalisedProductDescriptionsTable
+        PersonalisedProductsTable: !GetAtt Base.Outputs.PersonalisedProductsTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
@@ -950,7 +950,7 @@ Outputs:
         DDB_TABLE_CATEGORIES=${Base.Outputs.CategoriesTable}
         DDB_TABLE_CARTS=${Base.Outputs.CartsTable}
         DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
-        DDB_TABLE_PERSONALISED_PRODUCT_DESCRIPTIONS=${Base.Outputs.PersonalisedProductDescriptionsTable}
+        DDB_TABLE_PERSONALISED_PRODUCTS=${Base.Outputs.PersonalisedProductsTable}
         IMAGE_ROOT_URL="${Base.Outputs.WebUICDNURL}/images/"
         WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
 

@@ -53,18 +53,19 @@ services:
     depends_on:
       - ddb
     environment:
-      - AWS_REGION
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
       - DDB_TABLE_PRODUCTS
       - DDB_TABLE_CATEGORIES
-      - DDB_TABLE_PERSONALISED_PRODUCT_DESCRIPTIONS
-      - BEDROCK_PRODUCT_PERSONALIZATION
+      - DDB_TABLE_PERSONALISED_PRODUCTS
+      - CACHE_PERSONALISED_PRODUCTS
       - DDB_ENDPOINT_OVERRIDE
       - IMAGE_ROOT_URL
       - WEB_ROOT_URL
-      - USERS_API_URL
+      - USERS_SERVICE_HOST
+      - USERS_SERVICE_PORT
+    volumes:
+      - ~/.aws/:/root/.aws:ro
     build:
       context: ./products
     networks:

@@ -98,7 +98,7 @@ Resources:
           Projection:
             ProjectionType: ALL
 
-  PersonalisedProductDescriptionsTable:
+  PersonalisedProductsTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -163,6 +163,6 @@ Outputs:
     Description: DynamoDB Table for Experiment Strategies
     Value: !Ref ExperimentStrategyTable
 
-  PersonalisedProductDescriptionsTable:
+  PersonalisedProductsTable:
     Description: DynamoDB Table for Bedrock generated personalised product descriptions
-    Value: !Ref PersonalisedProductDescriptionsTable
+    Value: !Ref PersonalisedProductsTable

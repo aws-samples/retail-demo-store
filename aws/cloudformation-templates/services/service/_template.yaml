@@ -168,7 +168,7 @@ Parameters:
     Type: String
     Default: none
 
-  PersonalisedProductDescriptionsTable:
+  PersonalisedProductsTable:
     Type: String
     Default: none
 
@@ -291,7 +291,7 @@ Resources:
         CartsTable: !Ref CartsTable
         OrdersTable: !Ref OrdersTable
         ExperimentStrategyTable: !Ref ExperimentStrategyTable
-        PersonalisedProductDescriptionsTable: !Ref PersonalisedProductDescriptionsTable
+        PersonalisedProductsTable: !Ref PersonalisedProductsTable
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl

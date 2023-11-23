@@ -1,20 +1,18 @@
-FROM public.ecr.aws/docker/library/python:3.11-slim-bullseye
+FROM public.ecr.aws/docker/library/python:3.11-slim-bookworm
 
-WORKDIR /src/
+WORKDIR /src
 
 RUN apt-get update && apt-get install -y  && rm -rf /var/lib/apt/lists/*
 
-COPY src/products-service/requirements.txt .
-RUN python3 -m pip install --no-cache-dir -r requirements.txt
+COPY src/requirements.txt .
+RUN python -m pip install --upgrade pip && python3 -m pip install --no-cache-dir -r requirements.txt
 
 
-COPY src/products-service/ .
+COPY src/ ./
 
 RUN mkdir dynamo-data
-COPY src/products-service/data/*.yaml dynamo-data/
+COPY data/*.yaml dynamo-data/
 
-EXPOSE 80
+ENV PYTHONUNBUFFERED 1
 
-ENV PYTHONUNBUFFERED=0
-
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--config", "gunicorn-cfg.py", "wsgi:app"]

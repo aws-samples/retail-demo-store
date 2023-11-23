@@ -383,9 +383,9 @@ Outputs:
     Description: DynamoDB Table for Experiments
     Value: !GetAtt Tables.Outputs.ExperimentStrategyTable
 
-  PersonalisedProductDescriptionsTable:
-    Description: DynamoDB Table for Experiments
-    Value: !GetAtt Tables.Outputs.PersonalisedProductDescriptionsTable
+  PersonalisedProductsTable:
+    Description: DynamoDB Table for Personalised Product Data
+    Value: !GetAtt Tables.Outputs.PersonalisedProductsTable
 
   ParameterPersonalizeEventTrackerId:
     Description: Personalize Event Tracker ID Parameter
