@@ -1,87 +1,50 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-
 from uuid import uuid4
-
 from flask import request
 from server import app
-from dynamo_setup import dynamo_client, ddb_table_orders
-
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
+from dynamo_setup import dynamo_resource, ddb_table_orders
 from decimal import Decimal
 from werkzeug.exceptions import BadRequest
+from copy import deepcopy
 
 
 class OrderService:
     """
     Service class for handling operations related to orders.
     """
-    dynamo_client = dynamo_client
+    dynamo_client = dynamo_resource.meta.client
     ddb_table_orders = ddb_table_orders
-    
-    serializer = TypeSerializer()
-    deserializer = TypeDeserializer()
     
     ALLOWED_KEYS = {'id', 'items', 'total', 'username', 
                 'billing_address', 'shipping_address', 'collection_phone',
                 'delivery_type', 'delivery_status', 'delivery_complete',
                 'channel', 'email', 'ttl', 'channel_detail'}
     
-    @staticmethod
-    def deserialize_item(item):
-        """
-        Deserializes a cart after retrieval from dynamodb
 
-        Args:
-            item: The item to be deserialized.
-
-        Returns:
-            The deserialized item.
-        """
-        def deserialize_value(k,v):
-            if k == 'price':
-                return float(OrderService.deserializer.deserialize(v))
-            elif k == 'quantity' or k == 'channel_id':
-                return int(OrderService.deserializer.deserialize(v))
-            else:
-                return OrderService.deserializer.deserialize(v)
-            
-        return {k: [{k2: deserialize_value(k2, v2) for k2, v2 in i['M'].items()} 
-                    for i in v['L']] if k == 'items'
-                else {k2: deserialize_value(k2, v2) 
-                      for k2, v2 in v['M'].items()} if k == 'channel_detail'
-                else float(OrderService.deserializer.deserialize(v)) if k == 'total'
-                else OrderService.deserializer.deserialize(v) for k, v in item.items()}
-        
         
     @staticmethod
-    def serialize_item(item):
+    def decimal_to_float(item):
         """
-        Serializes a cart to be compatible with dynamodb before put
-        
+        Converts a decimal to a float
+
         Args:
-            item: The item to be serialized.
+            item: The item to be converted.
 
         Returns:
-            The serialized item.
+            The converted item.
         """
-        if isinstance(item, list):
-            return {'L': [{'M': {k: OrderService.serializer.serialize(Decimal(str(v))) 
-                                 if k=='price' or k=='quantity'
-                     else OrderService.serializer.serialize(v) 
-                     for k, v in i.items()}} for i in item]}
-        if isinstance(item, dict) and item.get('channel_id') is not None:
-            return {'M': {k: OrderService.serializer.serialize(Decimal(str(v))) 
-                          if isinstance(v,float) or isinstance(v,int)
-                     else OrderService.serializer.serialize(v) 
-                     for k, v in item.items()}}
-        else:
-            return {k: OrderService.serialize_item(v) 
-                    if k=='items' or k=='channel_detail'
-                    else OrderService.serializer.serialize(v) if isinstance(v,bool)
-                    else OrderService.serializer.serialize(Decimal(str(v))) 
-                    if isinstance(v,float) or isinstance(v,int)
-                    else OrderService.serializer.serialize(v) for k, v in item.items()}
+        new_item = deepcopy(item)
+        if 'items' in new_item:
+            for i in new_item['items']:
+                i['price'] = float(i['price'])
+                i['quantity'] = int(i['quantity'])
+        if 'total' in new_item:
+            new_item['total'] = float(new_item['total'])
+        if 'channel_detail' in new_item:
+            new_item['channel_detail']['channel_id'] = int(new_item['channel_detail']['channel_id'])
+        return new_item
+        
            
     @staticmethod
     def validate_order(order):
@@ -123,10 +86,21 @@ class OrderService:
 
         Returns:
             The updated order.
-        """ 
-        if 'items' not in order or not order['items']:
-            order['items'] = []
-        return order
+        """
+        decimal_order = deepcopy(order)
+        if 'items' not in decimal_order or not decimal_order['items']:
+            decimal_order['items'] = []
+            
+        for item in decimal_order['items']:
+            if 'price' in item:
+                item['price'] = Decimal(str(item['price']))
+        if 'total' in decimal_order:
+            decimal_order['total'] = Decimal(str(decimal_order['total']))
+        if 'channel_detail' in decimal_order:
+            decimal_order['channel_detail']['channel_id'] = Decimal(str(decimal_order['channel_detail']['channel_id']))
+        if 'delivery_status' not in decimal_order:
+            decimal_order['delivery_status'] = 'pending'
+        return decimal_order
         
     @classmethod
     def execute_and_log(cls, operation, success_message, error_message, **kwargs):
@@ -169,10 +143,10 @@ class OrderService:
             TableName=cls.ddb_table_orders
         )
         app.logger.info(f'Retrieved all orders: {response["Items"]}')
-        unmarshalled_orders = [cls.deserialize_item(order) 
+        result = [cls.decimal_to_float(order) 
                                for order in response['Items']]
-        app.logger.info(f'Unmarshalled orders: {unmarshalled_orders}')
-        return unmarshalled_orders
+        app.logger.info(f'Unmarshalled orders: {result}')
+        return result
     
     @classmethod
     def get_order_by_username(cls,username):
@@ -190,13 +164,13 @@ class OrderService:
             TableName=cls.ddb_table_orders,
             IndexName='username-index',
             KeyConditionExpression='username = :username',
-            ExpressionAttributeValues={':username': {'S': username}}
+            ExpressionAttributeValues={':username': username}
         )
         app.logger.info(f'Retrieved  orders: {response["Items"]}')
-        unmarshalled_orders = [cls.deserialize_item(order) 
+        result = [cls.decimal_to_float(order) 
                                for order in response['Items']]
-        app.logger.info(f'Unmarshalled orders: {unmarshalled_orders}')
-        return unmarshalled_orders
+        app.logger.info(f'Unmarshalled orders: {result}')
+        return result
 
     @classmethod
     def create_order(cls):
@@ -208,17 +182,17 @@ class OrderService:
         """
         order = cls.get_order_template()
         order.update(request.get_json(force=True))
-        cls.validate_order(order)
+        order['total'] = float(order['total'])
+        decimal_order = cls.update_order_template(order)
+        cls.validate_order(decimal_order)
         app.logger.info(f'Order to create: {order}')
-        app.logger.info('Marshalling order for dynamodb')
-        marshalled_order = cls.serialize_item(order)
-        app.logger.info(f'Marshalled order:{marshalled_order}')
+        app.logger.info(f'decimal order:{decimal_order}')
         cls.execute_and_log(
             cls.dynamo_client.put_item,
             f'Order created with id: {order["id"]}',
             'Error creating order',
             TableName=cls.ddb_table_orders,
-            Item=marshalled_order
+            Item=decimal_order
         )
         return order
 
@@ -236,20 +210,22 @@ class OrderService:
             f'Retrieved order with id: {order_id}',
             f'Error retrieving order with id: {order_id}',
             TableName=cls.ddb_table_orders,
-            Key={'id': {'S': order_id}}
+            Key={'id': order_id}
         )
         if 'Item' in response:
-            order = cls.update_order_template(request.get_json(force=True))
-            cls.validate_order(order)
-            app.logger.info('Marshalling order for dynamodb')
-            order['id'] = order_id
-            marshalled_order = cls.serialize_item(order)
+            order = request.get_json(force=True)
+            order['total'] = float(order['total'])
+            decimal_order = cls.update_order_template(order)
+            cls.validate_order(decimal_order)
+            app.logger.info(f'order to update to :{order}')
+            app.logger.info(f'decimal order to update to :{decimal_order}')
+            decimal_order['id'] = order_id
             cls.execute_and_log(
                 cls.dynamo_client.put_item,
-                f'Order updated with id: {order["id"]}',
+                f'Order updated with id: {decimal_order["id"]}',
                 'Error updating order',
                 TableName=cls.ddb_table_orders,
-                Item=marshalled_order)
+                Item=decimal_order)
             return order
         else:
             raise KeyError('Order does not exist')
@@ -274,11 +250,11 @@ class OrderService:
             f'Retrieved order with id: {order_id}',
             f'Error retrieving order with id: {order_id}',
             TableName=cls.ddb_table_orders,
-            Key={'id': {'S': order_id}}
+            Key={'id': order_id}
         )
         if 'Item' in response:
             app.logger.info(f'Retrieved order: {response["Item"]}')
-            result = cls.deserialize_item(response['Item'])
+            result = cls.decimal_to_float(response['Item'])
             app.logger.info(f'Unmarshalled order: {result}')
             return result
         else:
@@ -297,5 +273,5 @@ class OrderService:
             f'Order deleted with id: {order_id}',
             f'Error deleting order with id: {order_id}',
             TableName=cls.ddb_table_orders,
-            Key={'id': {'S': order_id}}
+            Key={'id': order_id}
         )
