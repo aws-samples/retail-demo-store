@@ -64,6 +64,7 @@ services:
       - WEB_ROOT_URL
       - USERS_SERVICE_HOST
       - USERS_SERVICE_PORT
+      - FLASK_CONFIG
     volumes:
       - ~/.aws/:/root/.aws:ro
     build:

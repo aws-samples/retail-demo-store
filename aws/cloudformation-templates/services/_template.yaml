@@ -473,10 +473,9 @@ Resources:
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/ProductsCustom.yaml
       Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        ProductsTable: !Ref ProductsTable
-        CategoriesTable: !Ref CategoriesTable
+        ProductsServiceUrl: !GetAtt ProductsService.Outputs.ServiceUrl
+        LambdaVpcSecurityGroup: !Ref LambdaVpcSecurityGroup
+        LambdaVpcSubnets: !Ref Subnets
 
   ####################### Delete Repository Custom Resource #######################
 

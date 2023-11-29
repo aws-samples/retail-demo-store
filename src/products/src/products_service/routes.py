@@ -17,6 +17,14 @@ CORS(api)
 def welcome():
     return jsonify("Welcome to the Products Web Service"), 200
 
+@api.route('/init', methods=['POST'])
+def init():
+    products_loaded, categories_loaded = product_service.init()
+    return {
+        "products": products_loaded,
+        "categories": categories_loaded
+    }
+
 @api.route('/products/all', methods=['GET'])
 def get_all_products():
     products = product_service.get_all_products(should_fully_qualify_image_urls())

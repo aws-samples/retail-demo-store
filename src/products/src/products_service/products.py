@@ -4,6 +4,8 @@ from flask import current_app
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from uuid import uuid4
 from typing import Dict, Any
+from decimal import Decimal
+import yaml
 
 from products_service import dynamodb
 from products_service.personalisation import generate_personalised_description, Cache
@@ -176,3 +178,36 @@ def set_category_url(category, fully_qualify_image_urls):
         category["image"] = get_fully_qualified_image_url(category.get("image"), category.get("name"))
     elif not category.get("image") or category["image"] == missing_image_file:
         category["image"] = f"{current_app.config['IMAGE_ROOT_URL']}{missing_image_file}"
+
+def init():
+    dynamodb.init_tables()
+    no_categories = load_categories()
+    no_products = load_products()
+    return no_products, no_categories
+
+def load_products():
+    products_file = current_app.config['PRODUCT_DATA']
+    with open(products_file, 'r') as f:
+        products = yaml.safe_load(f)
+
+    current_app.logger.info("Updating products")
+    for product in products:
+        if product.get('price'):
+            product['price'] = Decimal(str(product['price']))
+        if product.get('featured'):
+            product['featured'] = str(product['featured']).lower()
+        dynamodb.products.upsert(product)
+
+    return len(products)
+
+def load_categories():
+    categories_file = current_app.config['CATEGORY_DATA']
+    with open(categories_file, 'r') as f:
+        categories = yaml.safe_load(f)
+
+    current_app.logger.info("Updating categories")
+    for category in categories:
+        category['id'] = str(category['id'])
+        dynamodb.categories.upsert(category)
+
+    return len(categories)

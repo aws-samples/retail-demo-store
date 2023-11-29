@@ -30,10 +30,58 @@ class DynamoDB():
         self.categories = Categories(resource, app.config["DDB_TABLE_CATEGORIES"])
         self.personalised_products = PersonalisedProducts(resource, app.config['DDB_TABLE_PERSONALISED_PRODUCTS'])
 
+    def init_tables(self):
+        entities = [self.products, self.categories, self.personalised_products]
+        for entity in entities:
+            if not entity.table_exists():
+                current_app.logger.info(f"Creating table: {entity.table.name}")
+                entity.create_table()
+
+
 class DynamoBase(ABC):
     def __init__(self, resource, table_name):
         self.resource = resource
         self.table = resource.Table(table_name)
+    
+    def table_exists(self):
+        try:
+            self.table.load()
+        except ClientError as err:
+            if err.response["Error"]["Code"] == "ResourceNotFoundException":
+                return False
+            else:
+                current_app.logger.error(
+                    "Couldn't check for existence of {self.table.name}. Here's why: {err.response['Error']['Code']}: {err.response['Error']['Message']}"
+                )
+                raise
+        else:
+            return True
+    
+    def create_table(self):
+        pass
+
+    def _create_table(self, attribute_definitions, key_schema, global_secondary_indexes=None):
+        
+        try: 
+            kargs = {
+                "GlobalSecondaryIndexes": global_secondary_indexes
+            } if global_secondary_indexes else {}
+
+            self.resource.create_table(
+                TableName=self.table.name,
+                KeySchema=key_schema,
+                AttributeDefinitions=attribute_definitions,
+                BillingMode="PAY_PER_REQUEST",
+                **kargs
+            )
+            self.table.wait_until_exists()
+            current_app.logger.info(f'Created table: {self.table.name}')
+        except ClientError  as e:
+            if e.response["Error"]["Code"] == "ResourceInUseException":
+                print(f'Table {self.table.name} already exists; continuing...')
+            else:
+                raise
+        return self.table
         
     def get(self, id: str):
         try:
@@ -75,6 +123,39 @@ class DynamoBase(ABC):
     
 
 class Products(DynamoBase):
+
+    def create_table(self):
+        self._create_table(
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "category", "AttributeType": "S"},
+                {"AttributeName": "featured", "AttributeType": "S"},
+                ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+                ],
+            global_secondary_indexes=[
+                {
+                    "IndexName": "category-index",
+                    "KeySchema": [{"AttributeName": "category", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                },
+                {
+                    "IndexName": "featured-index",
+                    "KeySchema": [{"AttributeName": "featured", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                }
+            ]
+                    
+        )
     
     def get_featured(self):
         try: 
@@ -126,6 +207,28 @@ class Products(DynamoBase):
         )
 
 class Categories(DynamoBase):
+
+    def create_table(self):
+        self._create_table(
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+                {"AttributeName": "name", "AttributeType": "S"},
+                ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+                ],
+            global_secondary_indexes=[
+                {
+                    "IndexName": "name-index",
+                    "KeySchema": [{"AttributeName": "name", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5,
+                    }
+                }
+            ]
+        )
     
     def get_by_name(self, category_name):
         response = self.table.query(
@@ -140,4 +243,13 @@ class Categories(DynamoBase):
         return response['Items'][0] if 'Items' in response else None
 
 class PersonalisedProducts(DynamoBase):
-    pass
+    
+    def create(self):
+        self._create_table(
+            attribute_definitions=[
+                {"AttributeName": "id", "AttributeType": "S"},
+            ],
+            key_schema=[
+                {"AttributeName": "id", "KeyType": "HASH"},
+            ]
+        )

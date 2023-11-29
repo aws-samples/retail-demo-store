@@ -44,7 +44,12 @@ The Products service listens on port `8001`, you can change this by setting the 
 ```console
 set FLASK_RUN_PORT=xxxx
 ```
-To poulate the 
+
+## Initializing the Database
+The DynamoDB tables can be created and loaded with sample data by calling the init endpoint:
+```console
+POST http://localhost:8001/init
+```
 
 ## Products API
 The following entrypoints are supported by the Products service
