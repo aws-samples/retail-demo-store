@@ -90,15 +90,12 @@ def with_cache(cache_key: str, cache: Cache, func):
         if cached_description:
             return cached_description
         
-        cache_response, response = func()
+    cache_response, response = func()
         
-        if cache_response:
-            cache.put(cache_key, response)
+    if current_app.config['CACHE_PERSONALISED_PRODUCTS'] and cache_response:
+        cache.put(cache_key, response)
         
-        return response
-
-    return func()
-
+    return response
 
 def generate_key(user_persona, user_age_range, product_id) -> str:
     return f"{user_persona}-{user_age_range}-{product_id}"
