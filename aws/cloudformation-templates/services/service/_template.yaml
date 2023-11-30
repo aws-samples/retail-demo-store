@@ -296,6 +296,8 @@ Resources:
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
         EvidentlyProjectName: !Ref EvidentlyProjectName
+        UserPoolId: !Ref UserPoolId
+        UserPoolClientId: !Ref UserPoolClientId
 
 Outputs:
   ServiceDNSName:

@@ -215,8 +215,8 @@ export default {
     async personalizeDescription() {
       this.loadingPersonalizedProductDescription = true
       await this.getPersonalizedProduct(this.$route.params.id, this.user.id)
-      .catch(() => {
-        console.log("Error getting personalised descriptions")
+      .catch((error) => {
+        console.log("Error getting personalised descriptions", error)
         this.product.description = "<b>Error getting personalised description</b><br/>" + this.product.description
       })
       

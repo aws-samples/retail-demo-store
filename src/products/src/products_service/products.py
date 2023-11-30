@@ -34,16 +34,16 @@ class PersonalisedDescriptionCache(Cache):
             }
         )
         
-def get_product_by_id(product_id, fully_qualify_image_urls: bool | None = None, user_id: str | None = None):
+def get_product_by_id(product_id, fully_qualify_image_urls: bool | None = None, user: Dict[str, Any] | None = None):
     product = dynamodb.products.get(str(product_id.lower()))
     if not product:
         return None
 
     update_product_template(product, fully_qualify_image_urls)
 
-    if user_id:
-        current_app.logger.debug(f"Personalizing product description for product: {product}")
-        product['description'] = generate_personalised_description(product, user_id, PersonalisedDescriptionCache())
+    if user:
+        current_app.logger.debug(f"Personalizing product description for product: {product['name']}")
+        product['description'] = generate_personalised_description(product, user, PersonalisedDescriptionCache())
     
     return product
     

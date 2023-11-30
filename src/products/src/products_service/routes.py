@@ -1,17 +1,25 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from decimal import Decimal
-from flask import jsonify, request, Response, current_app, Blueprint
+from flask import jsonify, request, Response, current_app, Blueprint, g
 from flask_cors import CORS
-from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound
+from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound, Unauthorized
 from botocore.exceptions import BotoCoreError
 from http import HTTPStatus
 import json
 
 import products_service.products as product_service 
+from products_service import auth
 
 api = Blueprint('api', __name__)
 CORS(api)
+
+
+@api.before_request
+def load_user():
+    if auth_header := request.headers.get('Authorization'):
+        token = auth_header.split()[1]
+        g.user = auth.auth_user(token)
 
 @api.route('/')
 def welcome():
@@ -39,8 +47,15 @@ def get_products_by_id(product_ids):
     if len(product_ids) > 1:
         products = product_service.get_products_by_ids(product_ids, should_fully_qualify_image_urls())
         return jsonify(products), 200
-        
-    user = request.args.get('user')
+
+    # If the user parameter is passed in then Bedrock is called for personalised product descriptions       
+    user = None
+    if user_id := request.args.get('user'):
+        # Validate that the user_id parameter equals the user id on the identity token
+        user = g.user if hasattr(g, 'user') and g.user and g.user['user_id'] == user_id else None
+        if not user:
+            raise Unauthorized(description=f"No identity token provided or paramerer user_id:{user_id} does not match token")        
+    
     product = product_service.get_product_by_id(product_ids[0], should_fully_qualify_image_urls(), user)
     if not product:
         raise NotFound
@@ -61,12 +76,11 @@ def update_products_by_id(product_id):
 
 @api.route('/products/id/<product_ids>', methods=['DELETE'])
 def delete_products_by_id(product_ids):
-    product = product_service.get_product_by_id(product_ids)
     
-    if not product:
+    if product := product_service.get_product_by_id(product_ids):
+        product_service.delete_product(product)
+    else:
         raise NotFound
-    
-    product_service.delete_product(product)
 
     return {"Success"}
         
@@ -91,13 +105,12 @@ def create_product():
 
 @api.route('/products/id/<product_id>/inventory', methods=['PUT'])
 def update_product_inventory(product_id):
-    product = product_service.get_product_by_id(product_id)   
-    if not product:
-        return jsonify({"error": "Product does not exist"}), 404
-
-    inventory = request.get_json()
-
-    product_service.update_inventory_delta(product, inventory['stock_delta'])
+       
+    if product := product_service.get_product_by_id(product_id):
+        inventory = request.get_json()
+        product_service.update_inventory_delta(product, inventory['stock_delta'])
+    else:
+        raise NotFound
     
     return jsonify(product), 200
     
@@ -149,6 +162,11 @@ def handle_key_error(e):
 def handle_unsupported_media_type(e):
     current_app.logger.error(f'UnsupportedMediaType: {str(e)}')
     return jsonify({"error": "Unsupported media type"}), 415
+
+@api.errorhandler(Unauthorized)
+def handle_unauthorized(e):
+    current_app.logger.error(f'Unauthorized: {str(e)}')
+    return jsonify({"error": "Unauthorized"}), 401
 
 @api.errorhandler(500)
 def handle_internal_error(e):

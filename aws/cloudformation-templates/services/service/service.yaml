@@ -124,6 +124,12 @@ Parameters:
   EvidentlyProjectName:
     Type: String
     Description: Evidently project name
+  
+  UserPoolId:
+    Type: String
+  
+  UserPoolClientId:
+    Type: String
 
 Resources:
   TaskExecutionRole:
@@ -407,6 +413,10 @@ Resources:
               Value: !Ref EvidentlyProjectName
             - Name: AWS_DEFAULT_REGION
               Value: !Ref "AWS::Region"
+            - Name: COGNITO_USER_POOL_ID
+              Value: !Ref UserPoolId
+            - Name: COGNITO_USER_POOL_CLIENT_ID
+              Value: !Ref UserPoolClientId
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

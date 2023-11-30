@@ -29,6 +29,7 @@ class DynamoDB():
         self.products = Products(resource, app.config["DDB_TABLE_PRODUCTS"])
         self.categories = Categories(resource, app.config["DDB_TABLE_CATEGORIES"])
         self.personalised_products = PersonalisedProducts(resource, app.config['DDB_TABLE_PERSONALISED_PRODUCTS'])
+        self.resource = resource
 
     def init_tables(self):
         entities = [self.products, self.categories, self.personalised_products]
@@ -45,9 +46,11 @@ class DynamoBase(ABC):
     
     def table_exists(self):
         try:
+            current_app.logger.info(f"Checking for existence of table {self.table.name}")
             self.table.load()
         except ClientError as err:
             if err.response["Error"]["Code"] == "ResourceNotFoundException":
+                current_app.logger.info(f"Table: {self.table.name} not found")
                 return False
             else:
                 current_app.logger.error(
@@ -55,6 +58,7 @@ class DynamoBase(ABC):
                 )
                 raise
         else:
+            current_app.logger.info(f"Table: {self.table.name} already exists")
             return True
     
     def create_table(self):
@@ -87,7 +91,7 @@ class DynamoBase(ABC):
         try:
             response = self.table.get_item(Key={'id': id })
         except ClientError as err:
-            current_app.logger.error(f"Couldn't get get from table {self.table.name}: {err.response['Error']['Code']} {err.response['Error']['Message']}")
+            current_app.logger.error(f"Couldn't get from table {self.table.name}: {err.response['Error']['Code']} {err.response['Error']['Message']}")
             raise
         else:
             return response.get("Item")
@@ -244,7 +248,7 @@ class Categories(DynamoBase):
 
 class PersonalisedProducts(DynamoBase):
     
-    def create(self):
+    def create_table(self):
         self._create_table(
             attribute_definitions=[
                 {"AttributeName": "id", "AttributeType": "S"},

@@ -33,7 +33,7 @@ Resources:
   LoadDataLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: 'Retail Demo Store deployment utility function that loads product and category information into DynamoDB tables'
+      Description: 'Retail Demo Store deployment utility function that calls the product service init endpoint to load product and category information into DynamoDB tables'
       Handler: index.handler
       Role: !GetAtt LoadDataLambdaRole.Arn
       Runtime: python3.11

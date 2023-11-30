@@ -5,8 +5,6 @@ from flask import current_app
 from anthropic_bedrock import AnthropicBedrock
 import anthropic_bedrock
 
-from products_service import users
-
 bedrock = AnthropicBedrock()
 
 class Cache(ABC):
@@ -39,47 +37,46 @@ def generate_prompt(product, user_persona,user_age_range) -> str:
     product_name = product.get('name', '')
     product_category = product.get('category', '')
     product_style = product.get('style', '')
-    template = (
-        f"Given the following user details:\n"
-        f"- User Age Range: {user_age_range}\n"
-        f"- User Interests: {user_persona}\n"
-        f"Given the following product details:\n"
-        f"- Original Description: {description}\n"
-        f"- Product Name: {product_name}\n"
-        f"- Product Category: {product_category}\n"
-        f"- Product Type: {product_style}\n"
-        f"Please generate an enhanced product description personalised for the user "  
-        f"that incorporates all the above elements while ensuring "
-        f"high-quality language and factual coherence. Make the description rich in relevant details "
-        f"and present it in a format that includes:\n"
-        f"- A compelling opening sentence\n"
-        f"- Key features\n"
-        f"- Benefits\n"
-        f"- Each paragraph generated should be in xml format, like so: <p>Paragraph here</p>\n"
+    user_persona = ",".join(user_persona.split('_'))
+
+    instructions = (
+        f"Please generate an enhanced product description personalised for a customer aged {user_age_range}, interested in {user_persona}. "
+        f"However, do not mention their age in the rewrite. "
+        f"The product is named \"{product_name}\" and is a product of type \"{product_style}\" in the {product_category} category."
     )
-    current_app.logger.debug(f"Generated prompt: {template}")
+
+    template = (
+        f"I'd like you to rewrite the following paragraph using the following instructions:\n"
+        f"\"{instructions}\"\n"
+        f"\n"
+        f"\"{description}\"\n\n"
+        f"Please put your rewrite in <p></p> tags."
+    )
     return template
 
-def generate_personalised_description(product, user_id, cache: Cache) -> str:
-    user = users.get(user_id)
+def generate_personalised_description(product, user, cache: Cache) -> str:
     user_age_range = getAgeRange(user.get('age'))
     user_persona = user.get('persona')
 
     def get_personalised_description() -> (bool, str):
         prompt = generate_prompt(product, user_persona,user_age_range)
         claude_prompt = f"{anthropic_bedrock.HUMAN_PROMPT} {prompt} {anthropic_bedrock.AI_PROMPT}"
+        current_app.logger.debug(f"Generated prompt:\n{claude_prompt}")
+        
         response = bedrock.completions.create(
                     model="anthropic.claude-v2",
                     max_tokens_to_sample=300,
                     prompt=claude_prompt,
                     top_p=1,
-                    top_k=250)
+                    top_k=250,
+                    temperature=0)
         
         if 'Sorry' in response.completion:
             current_app.logger.info(f"No personalised description can be generated for product: {product['id']}")
             return False, ''
-
-        return True, ' '.join(response.completion.split('\n',2)[2:])
+        
+        current_app.logger.debug(f"Response:\n{response.completion}")
+        return True, response.completion
     
     cache_key = generate_key(user_persona, user_age_range, product['id'])
     return with_cache(cache_key, cache, get_personalised_description)

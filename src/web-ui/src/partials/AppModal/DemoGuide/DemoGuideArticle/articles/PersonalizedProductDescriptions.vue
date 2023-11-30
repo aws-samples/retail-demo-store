@@ -12,9 +12,11 @@
       </p>
       <p>
         This demo integrates the product service with Amazon Bedrock, to retrieve personalized product descriptions based on the logged-in user's age and interests.  
-        Amazon Bedrock makes Foundation Models (FMs) accessible via an API, and in this demo,  Anthropic Claude is the underlying FM that is used.
-
+        Amazon Bedrock makes Foundation Models (FMs) accessible via an API, and in this demo,  Anthropic Claude v2 is the underlying FM used.
       </p>
+      <div class="architecture">
+        <img src="/personalised-descriptions-architecture.png" alt="personalised descriptions architecture" class="img-fluid" />
+      </div>
     </ArticleLayout>
 </template>
 
