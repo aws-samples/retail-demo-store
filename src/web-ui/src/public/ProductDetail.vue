@@ -54,8 +54,7 @@
 
             <div v-if="bedrockProductPersonalizationEnabled">
               <DemoGuideBadge :article="'personalized-product'" hideTextOnSmallScreens />
-              <button class="btn-info btn btn-block" 
-                :disabled="isDescriptionPersonalized" :aria-disabled="isDescriptionPersonalized" 
+              <button class="btn-info btn btn-block" v-show="!isDescriptionPersonalized"
                 @click="personalizeDescription">
                   {{ personalizeButtonText }}
               </button>
