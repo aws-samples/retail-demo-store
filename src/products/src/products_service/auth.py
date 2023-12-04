@@ -20,10 +20,10 @@ class Auth:
 
     def auth_user(self, id_token: str) -> Dict[str, Any]:
         try:
-            signing_key = self.jwks_client.get_signing_key_from_jwt(id_token)            
+            signing_key = self.jwks_client.get_signing_key_from_jwt(id_token).key if self.verify else None
             data = jwt.decode(
                 id_token,
-                signing_key.key,
+                signing_key,
                 algorithms=["RS256"],
                 audience=self.audience,
                 issuer=self.issuer,
