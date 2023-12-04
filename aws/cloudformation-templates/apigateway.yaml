@@ -476,6 +476,18 @@ Resources:
         - /
         - - integrations
           - !Ref OrdersServiceIntegration
+  
+  PutOrderById:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'PUT /orders/id/{orderId}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref OrdersServiceIntegration
 
   GetOrderByUsername:
     Type: 'AWS::ApiGatewayV2::Route'

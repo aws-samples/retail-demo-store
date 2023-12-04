@@ -33,7 +33,7 @@ ddb_table_orders = os.getenv("DDB_TABLE_ORDERS")
 ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
 running_local = False
 
-dynamo_client = None
+dynamo_resource = None
 
 def verify_local_ddb_running(endpoint, dynamo_client):
     app.logger.info(f"Verifying that local DynamoDB is running at: {endpoint}")
@@ -80,22 +80,22 @@ def verify_local_ddb_running(endpoint, dynamo_client):
     exit(1)
 
 def setup():
-    global dynamo_client, running_local
+    global dynamo_resource, running_local
 
     if ddb_endpoint_override:
         running_local = True
         app.logger.info("Creating DDB client with endpoint override: " 
                         + ddb_endpoint_override)
-        dynamo_client = boto3.client(
+        dynamo_resource = boto3.resource(
             'dynamodb',
             endpoint_url=ddb_endpoint_override,
             region_name='us-west-2',
             aws_access_key_id='XXXX',
             aws_secret_access_key='XXXX'
         )
-        verify_local_ddb_running(ddb_endpoint_override, dynamo_client)
+        verify_local_ddb_running(ddb_endpoint_override, dynamo_resource.meta.client)
     else:
         running_local = False
-        dynamo_client = boto3.client('dynamodb')
+        dynamo_resource = boto3.resource('dynamodb')
 
 setup()
