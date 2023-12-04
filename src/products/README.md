@@ -14,6 +14,43 @@ foo@bar:~$ docker compose up --build products
 
 Once the container is up and running, you can access it in your browser or with a utility such as [Postman](https://www.postman.com/) at [http://localhost:8001](http://localhost:8001).
 
+Alternatively, you can run the Products service directly, although you will need to setup the required environment variables (See the .env.template file mentioned above) and setup DynamoDB locally or through your AWS account.
+
+From the (`src/products/src`) directory setup a virtual env:
+```console
+python3 -m venv .venv
+```
+To activate and enter the virtual environment.
+```console
+source .venv/bin/activate
+```
+Install the service dependencies:
+```console
+pip install -r requirements.txt
+```
+Set the required Environment variables.  For development, you can set the `FLASK_CONFIG` env variable to `Development`
+```console
+export FLASK_CONFIG=Development
+```
+To run the service you can either type: 
+```console
+flask run
+```
+or
+```console
+python3 wsgi.py
+```
+The Products service listens on port `8001`, you can change this by setting the `FLASK_RUN_PORT` environment variable, e.g:
+```console
+set FLASK_RUN_PORT=xxxx
+```
+
+## Initializing the Database
+The DynamoDB tables can be created and loaded with sample data by calling the init endpoint:
+```console
+POST http://localhost:8001/init
+```
+
 ## Products API
 The following entrypoints are supported by the Products service
 

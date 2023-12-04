@@ -59,7 +59,7 @@ NORMALISE_PER_PRODUCT_WEIGHT = 1.0
 DISCOUNT_PROBABILITY = 0.2
 DISCOUNT_PROBABILITY_WITH_PREFERENCE = 0.5
 
-IN_PRODUCTS_FILENAME = "src/products/src/products-service/data/products.yaml"
+IN_PRODUCTS_FILENAME = "src/products/data/products.yaml"
 IN_USERS_FILENAMES = ["src/users/src/users-service/data/users.json.gz",
                       "src/users/src/users-service/data/cstore_users.json.gz"]
 

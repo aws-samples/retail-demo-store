@@ -74,6 +74,7 @@ Metadata:
         Parameters:
           - CloudfrontCustomDomain
           - ACMCertificateArn
+          - BedrockProductPersonalization
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -170,6 +171,8 @@ Metadata:
         default: "Fenix Commerce enable EDD on Checkoutpage"
       FenixXapiKey:
         default: "Fenix Commerce X-Api-Key"
+      BedrockProductPersonalization:
+        default: "Enable Amazon Bedrock product personalization"
 
 Parameters:
   ResourceBucket:
@@ -491,6 +494,14 @@ Parameters:
     Default: 'nr50Qdu7FM94n2X1GYuhA8cFzyvdYTJ5Qka4XMOd'
     NoEcho: true
 
+  BedrockProductPersonalization:
+    Type: String
+    Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'FALSE'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -573,6 +584,7 @@ Resources:
         CartsTable: !GetAtt Base.Outputs.CartsTable
         OrdersTable: !GetAtt Base.Outputs.OrdersTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
+        PersonalisedProductsTable: !GetAtt Base.Outputs.PersonalisedProductsTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !GetAtt Base.Outputs.ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
@@ -639,6 +651,7 @@ Resources:
         FenixEnabledCart: !Ref FenixEnabledCart
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
+        BedrockProductPersonalization: !Ref BedrockProductPersonalization
 
         LocationResourceName:
           !If [
@@ -935,6 +948,9 @@ Outputs:
         # Products service
         DDB_TABLE_PRODUCTS=${Base.Outputs.ProductsTable}
         DDB_TABLE_CATEGORIES=${Base.Outputs.CategoriesTable}
+        DDB_TABLE_CARTS=${Base.Outputs.CartsTable}
+        DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
+        DDB_TABLE_PERSONALISED_PRODUCTS=${Base.Outputs.PersonalisedProductsTable}
         IMAGE_ROOT_URL="${Base.Outputs.WebUICDNURL}/images/"
         WEB_ROOT_URL="${Base.Outputs.WebUICDNURL}"
 

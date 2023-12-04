@@ -53,19 +53,25 @@ services:
     depends_on:
       - ddb
     environment:
-      - AWS_REGION
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
+      - AWS_PROFILE
+      - AWS_DEFAULT_REGION
       - DDB_TABLE_PRODUCTS
       - DDB_TABLE_CATEGORIES
+      - DDB_TABLE_PERSONALISED_PRODUCTS
+      - CACHE_PERSONALISED_PRODUCTS
       - DDB_ENDPOINT_OVERRIDE
       - IMAGE_ROOT_URL
       - WEB_ROOT_URL
+      - USERS_SERVICE_HOST
+      - USERS_SERVICE_PORT
+      - FLASK_CONFIG
+      - COGNITO_USER_POOL_ID
+      - COGNITO_USER_POOL_CLIENT_ID
+      - VERIFY_IDENTITY_TOKEN
+    volumes:
+      - ~/.aws/:/root/.aws:ro
     build:
       context: ./products
-      args:
-        - GOPROXY_OVERRIDE
     networks:
       - dev-net
     ports:

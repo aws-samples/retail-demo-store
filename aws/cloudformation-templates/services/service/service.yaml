@@ -114,12 +114,22 @@ Parameters:
     Type: String
     Default: none
 
+  PersonalisedProductsTable:
+    Type: String
+    Default: none
+
   PinpointAppId:
     Type: String
 
   EvidentlyProjectName:
     Type: String
     Description: Evidently project name
+  
+  UserPoolId:
+    Type: String
+  
+  UserPoolClientId:
+    Type: String
 
 Resources:
   TaskExecutionRole:
@@ -163,11 +173,13 @@ Resources:
                   - dynamodb:*
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PersonalisedProductsTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PersonalisedProductsTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}/index/*'
@@ -187,6 +199,15 @@ Resources:
                 Action:
                   - mobiletargeting:PhoneNumberValidate
                 Resource: !Sub 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:phone/number/validate'
+        - PolicyName: Bedrock
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/anthropic.claude-v2'
         - PolicyName: others
           PolicyDocument:
             Version: '2012-10-17'
@@ -372,6 +393,8 @@ Resources:
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
+            - Name: DDB_TABLE_PERSONALISED_PRODUCTS
+              Value: !Ref PersonalisedProductsTable
             - Name: DDB_TABLE_CATEGORIES
               Value: !Ref CategoriesTable
             - Name: DDB_TABLE_CARTS
@@ -390,6 +413,10 @@ Resources:
               Value: !Ref EvidentlyProjectName
             - Name: AWS_DEFAULT_REGION
               Value: !Ref "AWS::Region"
+            - Name: COGNITO_USER_POOL_ID
+              Value: !Ref UserPoolId
+            - Name: COGNITO_USER_POOL_CLIENT_ID
+              Value: !Ref UserPoolClientId
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

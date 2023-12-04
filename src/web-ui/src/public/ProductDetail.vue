@@ -52,7 +52,16 @@
               </button>
             </div>
 
-            <p>{{ product.description }}</p>
+            <div v-if="bedrockProductPersonalizationEnabled">
+              <DemoGuideBadge :article="'personalized-product'" hideTextOnSmallScreens />
+              <button class="btn-info btn btn-block" v-show="!isDescriptionPersonalized"
+                @click="personalizeDescription">
+                  {{ personalizeButtonText }}
+              </button>
+              <LoadingFallback v-if="loadingPersonalizedProductDescription" class="col my-4 text-center"></LoadingFallback>
+            </div>
+            <p v-html="product.description"></p>
+            
           </div>
 
           <div class="product-img">
@@ -90,6 +99,7 @@ import FiveStars from '@/components/FiveStars/FiveStars.vue';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection.vue';
 import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
+import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 import Fenixmaster from '@/components/Fenix/Fenixmaster.vue';
@@ -107,6 +117,7 @@ export default {
     RecommendedProductsSection,
     DemoGuideBadge,
     Fenixmaster,
+    LoadingFallback,
   },
   mixins: [product],
   props: {
@@ -126,6 +137,8 @@ export default {
       experiment: null,
       fenixcurrentvariant: {},
       fenixenablePDP : import.meta.env.VITE_FENIX_ENABLED_PDP,
+      loadingPersonalizedProductDescription: false,
+      isDescriptionPersonalized: false
     };
   },
   computed: {
@@ -156,12 +169,21 @@ export default {
 
       return !this.outOfStock && this.cartItem.quantity >= this.product.current_stock;
     },
+    bedrockProductPersonalizationEnabled() {
+      let isLoggedIn = this.user && this.user.name != 'guest'
+      let bedrockFeatureEnabled = import.meta.env.VITE_BEDROCK_PRODUCT_PERSONALIZATION || "false"
+      return bedrockFeatureEnabled.toLowerCase() === 'true' && isLoggedIn
+    },
+    personalizeButtonText() {
+      return (this.isDescriptionPersonalized ? 'Personalized' : 'Personalize') + ' Description'
+    }
   },
   watch: {
     $route: {
       immediate: true,
       handler() {
         this.fetchData();
+        this.isDescriptionPersonalized = false
       },
     },
     personalizeUserID() {
@@ -188,6 +210,17 @@ export default {
 
       this.resetQuantity();
       AnalyticsHandler.recordShoppingCart(this.user, this.cart)
+    },
+    async personalizeDescription() {
+      this.loadingPersonalizedProductDescription = true
+      await this.getPersonalizedProduct(this.$route.params.id, this.user.id)
+      .catch((error) => {
+        console.log("Error getting personalised descriptions", error)
+        this.product.description = "<b>Error getting personalised description</b><br/>" + this.product.description
+      })
+      
+      this.loadingPersonalizedProductDescription = false
+      this.isDescriptionPersonalized = true
     },
     async fetchData() {
       await this.getProductByID(this.$route.params.id);
@@ -309,4 +342,5 @@ export default {
 .product-img {
   grid-area: ProductImage;
 }
+
 </style>

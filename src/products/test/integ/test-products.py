@@ -8,7 +8,7 @@ DEFAULT_LOCAL_URL = 'http://localhost:8001'
 
 products_api_url = os.getenv('PRODUCTS_API_URL', DEFAULT_LOCAL_URL)
 test_product_id = os.getenv('TEST_PRODUCT_ID', '8bffb5fb-624f-48a8-a99f-b8e9c64bbe29')
-test_category_name = os.getenv('TEST_PRODUCT_ID', 'tools')
+test_category_name = os.getenv('TEST_CATEGORY_NAME', 'tools')
 test_category_id = os.getenv('TEST_CATEGORY_ID', '16')
 
 cwd = os.path.dirname(os.path.abspath(__file__))

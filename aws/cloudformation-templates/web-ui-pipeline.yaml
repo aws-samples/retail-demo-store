@@ -158,6 +158,11 @@ Parameters:
     Type: String
     Description: S3 Bucket For logging
 
+  BedrockProductPersonalization:
+    Type: String
+    Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
+    Default: 'FALSE'
+
   ResourceBucketImages:
     Type: String
     Description: >
@@ -481,6 +486,8 @@ Resources:
             Value: !Ref FenixEnabledCheckout
           - Name: FENIX_X_API_KEY
             Value: !Ref FenixXapiKey  
+          - Name: BEDROCK_PRODUCT_PERSONALIZATION
+            Value: !Ref BedrockProductPersonalization
         Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
         Type: LINUX_CONTAINER
 

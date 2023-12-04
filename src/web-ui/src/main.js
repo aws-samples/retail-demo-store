@@ -23,7 +23,7 @@ const amplifyConfig = {
       mandatorySignIn: false,
   },
   Analytics: {
-    disabled: false,
+    disabled: typeof import.meta.env.VITE_PINPOINT_APP_ID == 'undefined',
     autoSessionRecord: true,
     AWSPinpoint: {
       appId: import.meta.env.VITE_PINPOINT_APP_ID,

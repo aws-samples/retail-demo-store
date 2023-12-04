@@ -98,6 +98,17 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  PersonalisedProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
   ExperimentStrategyTable:
     Type: AWS::DynamoDB::Table
     DependsOn: "ProductsTable"
@@ -145,9 +156,13 @@ Outputs:
     Value: !Ref CartsTable
 
   OrdersTable:
-    Description: DynamoDB Table for Carts
+    Description: DynamoDB Table for Orders
     Value: !Ref OrdersTable
 
   ExperimentStrategyTable:
     Description: DynamoDB Table for Experiment Strategies
     Value: !Ref ExperimentStrategyTable
+
+  PersonalisedProductsTable:
+    Description: DynamoDB Table for Bedrock generated personalised product descriptions
+    Value: !Ref PersonalisedProductsTable

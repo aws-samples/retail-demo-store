@@ -6,16 +6,11 @@ Description: >
     Author: Bastien Leblanc <bastil@amazon.co.uk>
 
 Parameters:
-  ResourceBucket:
+  ProductsServiceUrl:
     Type: String
-
-  ResourceBucketRelativePath:
-    Type: String
-
-  ProductsTable:
-    Type: String
-
-  CategoriesTable:
+  LambdaVpcSecurityGroup:
+    Type: String  
+  LambdaVpcSubnets:
     Type: String
 
 Resources:
@@ -31,69 +26,58 @@ Resources:
             Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-      Policies:
-        - PolicyName: DynamoDB
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:DescribeTable
-                  - dynamodb:PutItem
-                Resource:
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
-                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
-        - PolicyName: S3
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:                  
-              - Effect: Allow
-                Action:
-                  - s3:GetObject 
-                Resource: 
-                  !Sub 
-                    - 'arn:aws:s3:::${Bucket}/*'
-                    - { Bucket: !Ref ResourceBucket }
-        - PolicyName: CloudWatch
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:                    
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:PutLogEvents
-                  - logs:CreateLogStream
-                Resource: "arn:aws:logs:*:*:*"
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
   LoadDataLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: 'Retail Demo Store deployment utility function that loads product and category information into DynamoDB tables'
-      Handler: 'main'
+      Description: 'Retail Demo Store deployment utility function that calls the product service init endpoint to load product and category information into DynamoDB tables'
+      Handler: index.handler
       Role: !GetAtt LoadDataLambdaRole.Arn
-      Runtime: go1.x
-      Timeout: 900
+      Runtime: python3.11
+      MemorySize: 128
+      Timeout: 120
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
+      Environment:
+        Variables:
+          ProductsServiceUrl: !Ref ProductsServiceUrl
       Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/retaildemostore-lambda-load-products.zip'
+        ZipFile: |
+          from urllib.request import Request, urlopen
+          from urllib.error import URLError
+          import logging
+          import cfnresponse
+          import os
 
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+
+          def handler(event, context):
+            response_data = {}
+            response_status = cfnresponse.SUCCESS
+
+            if event['RequestType'] in ['Create', 'Update']:     
+              url = os.environ['ProductsServiceUrl']
+              request = Request(f"{url}/init", method='POST')
+              try:
+                with urlopen(request) as response:
+                  logger.info(f"Product Service init method success: {response.read()}")
+              except URLError as e:
+                logger.error(f"Error calling product service init: {e.code} : {e.reason}")
+                response_status = cfnresponse.FAILED
+                response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"
+                            
+            cfnresponse.send(event, context, response_status, response_data)
+  
   CustomLoadDataProducts:
     Type: Custom::CustomLoadData
     Properties:
       ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
-      Bucket: !Ref ResourceBucket
-      File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
-      Table: !Ref ProductsTable
-      Datatype: "products"
-
-  CustomLoadDataCategories:
-    Type: Custom::CustomLoadData
-    Properties:
-      ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
-      Bucket: !Ref ResourceBucket
-      File: !Join [ '', [ !Ref ResourceBucketRelativePath, 'data/categories.yaml' ] ]
-      Table: !Ref CategoriesTable
-      Datatype: "categories"
 
 Outputs:
   LoadDataLambdaFunction:

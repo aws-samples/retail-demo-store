@@ -1,0 +1,11 @@
+anthropic-bedrock==0.5.4
+aws-xray-sdk==2.12.1
+boto3==1.29.6
+Flask==3.0.0
+flask-cors==3.0.10
+gunicorn==21.2.0
+pyyaml==6.0.1
+requests==2.31.0
+urllib3<2
+uuid==1.30
+pyjwt[crypto]==2.8.0

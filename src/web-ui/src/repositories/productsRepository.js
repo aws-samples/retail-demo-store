@@ -3,6 +3,7 @@
 
 import axios from "axios";
 import resolveBaseURL from './resolveBaseURL'
+import { Auth } from 'aws-amplify';
 
 const baseURL = resolveBaseURL(
     import.meta.env.VITE_PRODUCTS_SERVICE_DOMAIN,
@@ -22,12 +23,21 @@ export default {
     getFeatured() {
         return connection.get(`${resource}/featured`)
     },
-    getProduct(productID) {
+    async getProduct(productID, user) {
         if (!productID || productID.length == 0)
             throw "productID required"
         if (Array.isArray(productID))
             productID = productID.join()
-        return connection.get(`${resource}/id/${productID}`)
+
+        let params = {}
+        let headers = {}
+        if (user) {
+            params['user'] = user
+            await Auth.currentSession()
+                    .then((session) => session.idToken.jwtToken)
+                    .then((idToken) => headers['Authorization'] = "Bearer " + idToken)
+        } 
+        return connection.get(`${resource}/id/${productID}`, { params: params, headers: headers })        
     },
     getProductsByCategory(categoryName) {
         if (!categoryName || categoryName.length == 0)
