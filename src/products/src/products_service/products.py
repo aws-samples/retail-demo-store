@@ -128,7 +128,7 @@ def validate_product(product):
     invalid_keys = set(product.keys()) - ALLOWED_PRODUCT_KEYS
     if invalid_keys:
         raise ValueError(f'Invalid keys: {invalid_keys}')
-    category = get_category_by_name(product['category'])
+    category = get_category_by_name(product['category'], fully_qualify_image_urls=False)
     if not category:
         raise ValueError(f'Category {product["category"]} not found')
     product['price'] = str(product['price'])
