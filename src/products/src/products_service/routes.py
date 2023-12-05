@@ -62,7 +62,7 @@ def get_products_by_id(product_ids):
 
     return jsonify(product), 200
 
-@api.route('/products/id/<product_ids>', methods=['PUT'])
+@api.route('/products/id/<product_id>', methods=['PUT'])
 def update_products_by_id(product_id):
     product = request.get_json(force=True)
     existing_product = product_service.get_product_by_id(product_id)

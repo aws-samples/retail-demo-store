@@ -14,8 +14,6 @@ class Config:
     CACHE_PERSONALISED_PRODUCTS     = os.environ.get('CACHE_PERSONALISED_PRODUCTS', "True") == "True"
     IMAGE_ROOT_URL                  = os.environ.get('IMAGE_ROOT_URL')
     WEB_ROOT_URL                    = os.environ.get('WEB_ROOT_URL')
-    USERS_SERVICE_HOST              = os.environ.get('USERS_SERVICE_HOST')
-    USERS_SERVICE_PORT              = os.environ.get('USERS_SERVICE_PORT', 80)
     DATA_DIR                        = os.environ.get('DATA_DIR', '/src/data')
     CATEGORY_DATA                   = os.path.join(DATA_DIR, os.environ.get('CATEGORY_DATA', "categories.yaml"))
     PRODUCT_DATA                    = os.path.join(DATA_DIR, os.environ.get('PRODUCT_DATA', "products.yaml"))
