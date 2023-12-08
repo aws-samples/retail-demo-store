@@ -1,18 +1,14 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from flask import current_app
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from uuid import uuid4
 from typing import Dict, Any
-from decimal import Decimal
 import yaml
 
 from products_service import dynamodb
 from products_service.personalisation import generate_personalised_description, Cache
 
 MAX_BATCH_GET_ITEM = 100
-serializer = TypeSerializer()
-deserializer = TypeDeserializer()
 ALLOWED_PRODUCT_KEYS = {
     'id', 'url', 'sk', 'name', 'category', 'style', 'description', 'aliases',
     'price', 'image', 'featured', 'gender_affinity', 'current_stock', 'promoted'
