@@ -75,7 +75,7 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
     paginator = personalize.get_paginator('list_recommenders')
     for recommender_page in paginator.paginate(datasetGroupArn = dataset_group_arn):
         for recommender in recommender_page['recommenders']:
-            if recommender['status'] in [ 'ACTIVE', 'CREATE FAILED' ]:
+            if recommender['status'] in [ 'ACTIVE', 'INACTIVE', 'CREATE FAILED' ]:
                 logger.info('Deleting recommender {}'.format(recommender['recommenderArn']))
                 personalize.delete_recommender(recommenderArn = recommender['recommenderArn'])
             elif recommender['status'].startswith('DELETE'):
@@ -318,8 +318,23 @@ def _delete_datasets_and_schemas(dataset_group_arn: str, wait_for_resources: boo
     logger.info('All schemas used exclusively by datasets have been deleted or none exist for dataset group')
 
 def _delete_dataset_group(dataset_group_arn: str, wait_for_resources: bool = True):
-    logger.info('Deleting dataset group ' + dataset_group_arn)
-    personalize.delete_dataset_group(datasetGroupArn = dataset_group_arn)
+    try:
+        describe_response = personalize.describe_dataset_group(datasetGroupArn = dataset_group_arn)
+        dsg = describe_response['datasetGroup']
+        logger.debug('Dataset group {} status is {}'.format(dataset_group_arn, dsg['status']))
+        if dsg['status'] in ['ACTIVE', 'CREATE FAILED']:
+            logger.info('Deleting dataset group ' + dataset_group_arn)
+            personalize.delete_dataset_group(datasetGroupArn = dataset_group_arn)
+        elif dsg['status'].startswith('DELETE'):
+            logger.warning('Dataset Group {} is already being deleted so will wait for delete to complete'.format(dataset_group_arn))
+        else:
+            raise Exception('Dataset Group {} has a status of {} so cannot be deleted'.format(dataset_group_arn, dsg['status']))
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        if error_code == 'ResourceNotFoundException':
+            logger.info('Dataset group {} does not exist'.format(dataset_group_arn))
+            return
+        raise e
 
     max_time = time.time() + 30*60 # 30 mins
     while time.time() < max_time:
