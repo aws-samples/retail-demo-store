@@ -10,6 +10,8 @@ A sample retail web application and workshop platform intended as an educational
 
 **This project is intended for educational purposes only and not for production use.**
 
+![Retail Demo Store Home Page](./assets/retaildemostore-home-devices.png)
+
 The Retail Demo Store is an eCommerce reference implementation designed to showcase how AWS services can be used to build compelling shopping experiences using modern architecture and design patterns.
 
 At the heart of the Retail Demo Store is a collection of polyglot microservices hosted in [Amazon Elastic Container Service](https://aws.amazon.com/ecs/) ([AWS Fargate](https://aws.amazon.com/fargate/)) that represent domain constructs such as [products](src/products), [carts](src/carts), [orders](src/orders), and [users](src/users) as well as services for [search](src/search) and [recommendations](src/recommendations). While the [web user interface](src/web-ui) is served by Amazon CloudFront and Amazon S3.
