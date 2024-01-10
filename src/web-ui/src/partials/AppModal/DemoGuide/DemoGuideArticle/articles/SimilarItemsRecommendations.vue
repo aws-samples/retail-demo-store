@@ -26,7 +26,7 @@
     </p>
 
     <p>
-      This user experinece is implemented using the Similar-Items algorithm that considers co-occurrence in interactions data (how often these items appear together across user histories)
+      This user experience is implemented using the Similar-Items algorithm that considers co-occurrence in interactions data (how often these items appear together across user histories)
       and thematic similarity (what is similar about the items in your catalog) when making recommendations to better quantify similarity for less popular or new items in
       your catalog. The product detail page in this demo takes it a step further by using the Personalized-Ranking recipe to rerank related items recommendations for each user. This adds a level of
       personalization to the user experience.

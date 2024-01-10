@@ -4,7 +4,7 @@
 
 Personalized user experiences are implemented across several features within the Retail Demo Store web user interface that demonstrate three core use-cases of Amazon Personalize as well as real-time recommendations.
 
-> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](../workshop/1-Personalization/Lab-1-Introduction-and-data-preparation.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
+> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](../workshop/1-Personalization/Lab-01-(Core)-Introduction-and-data-preparation.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
 
 ## Datasets
 

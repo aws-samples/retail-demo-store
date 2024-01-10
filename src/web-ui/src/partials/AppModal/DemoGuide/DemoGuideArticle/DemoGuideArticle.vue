@@ -7,6 +7,7 @@ import { Articles } from '../config';
 import UserPersonalization from './articles/UserPersonalization.vue';
 import SIMSRecommendations from './articles/SIMSRecommendations.vue';
 import SimilarItemsRecommendations from './articles/SimilarItemsRecommendations.vue';
+import SimilarItemsWithTheme from './articles/SimilarItemsWithTheme.vue';
 import PersonalizedRanking from './articles/PersonalizedRanking.vue';
 import CustomersWhoViewedXAlsoViewed from './articles/CustomersWhoViewedXAlsoViewed.vue';
 import FrequentlyBoughtTogether from './articles/FrequentlyBoughtTogether.vue';
@@ -44,6 +45,8 @@ export default {
           return SIMSRecommendations;
         case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
           return SimilarItemsRecommendations;
+        case Articles.SIMILAR_ITEMS_WITH_THEME:
+          return SimilarItemsWithTheme;
         case Articles.PERSONALIZED_RANKING:
           return PersonalizedRanking;
         case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
