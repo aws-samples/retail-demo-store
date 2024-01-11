@@ -413,7 +413,7 @@ def related():
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
-        if rerank_items and not "X-Related-Items-Theme" in resp_headers:
+        if rerank_items and "X-Related-Items-Theme" not in resp_headers:
             app.logger.info('Reranking related items to personalize order for user %s', user_id)
             items, resp_headers = get_ranking(user_id, items, feature = None, resp_headers = resp_headers)
 
