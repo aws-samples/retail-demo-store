@@ -54,7 +54,7 @@ cw_events = boto3.client('events')
 filter_purchased_param_name = '/retaildemostore/personalize/filters/filter-purchased-arn'
 filter_cstore_param_name = '/retaildemostore/personalize/filters/filter-cstore-arn'
 filter_purchased_cstore_param_name = '/retaildemostore/personalize/filters/filter-purchased-and-cstore-arn'
-filter_include_categories_param_name = '/retaildemostore/personalize/filters/filter-include-categories-arn'
+filter_include_categories_param_name = '/retaildemostore/personalize/filters/filter-same-categories-arn'
 promotion_filter_param_name = '/retaildemostore/personalize/filters/promoted-items-filter-arn'
 promotion_filter_no_cstore_param_name = '/retaildemostore/personalize/filters/promoted-items-no-cstore-filter-arn'
 offers_arn_param_name = '/retaildemostore/personalize/personalized-offers-arn'
@@ -179,7 +179,7 @@ def fetch_product_details(item_ids: Union[str, List[str]], fully_qualify_image_u
     return products
 
 def get_products(feature, user_id, current_item_id, num_results, default_inference_arn_param_name,
-                 default_filter_arn_param_name, filter_values=None, user_reqd_for_inference=False, fully_qualify_image_urls=False,
+                 default_filter_arn_param_name, filter_values=None, related_items_recipe=False, fully_qualify_image_urls=False,
                  promotion: Dict = None
                  ):
     """ Returns products given a UI feature, user, item/product.
@@ -197,7 +197,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
         default_inference_arn_param_name: If no experiment active, use this SSM parameters to get recommender Arn
         default_filter_arn_param_name: If no experiment active, use this SSM parameter to get filter Arn, if exists
         filter_values: Values to pass at inference for the filter
-        user_reqd_for_inference: Require a user ID to use Personalze - otherwise default
+        related_items_recipe: If campaign/recommender is for related items use case (i.e, whether user_id is required or not)
         fully_qualify_image_urls: Fully qualify image URLs n here
         promotion: Personalize promotional filter configuration
     Returns:
@@ -231,7 +231,21 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
         resp_headers['X-Experiment-Name'] = experiment.name
         resp_headers['X-Experiment-Type'] = experiment.type
         resp_headers['X-Experiment-Id'] = experiment.id
-    else:
+
+    elif related_items_recipe:
+        # No experiment but is related items use case. Check if seed item already has related items and
+        # related items theme attached to the product record. If so, use those values rather than
+        # using default logic. Note that the related items and related items theme are generated using
+        # the Personalize content generator (gen AI) using a batch inference job.
+        products = fetch_product_details(current_item_id, fully_qualify_image_urls)
+
+        if len(products) > 0 and products[0].get("related_items_theme") and products[0].get("related_items"):
+            items = [{"itemId": related_item_id } for related_item_id in products[0]["related_items"]]
+            resp_headers['X-Related-Items-Theme'] = products[0]["related_items_theme"]
+            # Currently only similar-items is supported by content generator (subject to change)
+            resp_headers["X-Personalize-Recipe"] = "arn:aws:personalize:::recipe/aws-similar-items"
+
+    if len(items) == 0:
         # Fallback to default behavior of checking for campaign/recommender ARN parameter and
         # then the default product resolver.
         values = get_parameter_values([default_inference_arn_param_name, default_filter_arn_param_name])
@@ -239,7 +253,7 @@ def get_products(feature, user_id, current_item_id, num_results, default_inferen
         inference_arn = values[0]
         filter_arn = values[1]
 
-        if inference_arn and (user_id or not user_reqd_for_inference):
+        if inference_arn and (user_id or related_items_recipe):
 
             logger.info(f"get_products: Supplied campaign/recommender: {inference_arn} (from {default_inference_arn_param_name}) Supplied filter: {filter_arn} (from {default_filter_arn_param_name}) Supplied user: {user_id}")
 
@@ -368,21 +382,11 @@ def related():
     # The default filter includes products from the same category as the current item.
     filter_ssm = request.args.get('filter', filter_include_categories_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': 
+    if filter_ssm == 'cstore':
         filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': 
+    elif filter_ssm == 'purchased':
         filter_ssm = filter_purchased_param_name
     app.logger.info("Filter SSM for /related: %s", filter_ssm)
-
-    filter_values = None
-    if filter_ssm == filter_include_categories_param_name:
-        category = request.args.get('currentItemCategory')
-        if not category:
-            products = fetch_product_details(current_item_id)
-            if products:
-                category = products[0]['category']
-
-        filter_values = { "CATEGORIES": f"\"{category}\"" }
 
     # Determine name of feature where related items are being displayed
     feature = request.args.get('feature')
@@ -399,21 +403,21 @@ def related():
             related_count = num_results
 
         items, resp_headers = get_products(
+            related_items_recipe = True,
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,
             num_results = related_count,
             default_inference_arn_param_name='/retaildemostore/personalize/related-items-arn',
             default_filter_arn_param_name=filter_ssm,
-            filter_values=filter_values,
             fully_qualify_image_urls = fully_qualify_image_urls
         )
 
-        if rerank_items:
+        if rerank_items and "X-Related-Items-Theme" not in resp_headers:
             app.logger.info('Reranking related items to personalize order for user %s', user_id)
             items, resp_headers = get_ranking(user_id, items, feature = None, resp_headers = resp_headers)
 
-            items = items[0:num_results]    # Trim back down to the requested number of items.
+        items = items[0:num_results]    # Trim back down to the requested number of items (if over-sampled above).
 
         resp = Response(json.dumps(items, cls=CompatEncoder), content_type = 'application/json', headers = resp_headers)
         return resp
@@ -452,9 +456,9 @@ def recommendations():
     # The default filter is the not-already-purchased filter
     filter_ssm = request.args.get('filter', filter_purchased_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': 
+    if filter_ssm == 'cstore':
         filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': 
+    elif filter_ssm == 'purchased':
         filter_ssm = filter_purchased_param_name
     app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
 
@@ -471,6 +475,7 @@ def recommendations():
 
     try:
         items, resp_headers = get_products(
+            related_items_recipe = False,
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,
@@ -520,9 +525,9 @@ def popular():
     # The default filter is the exclude already purchased and c-store products filter
     filter_ssm = request.args.get('filter', filter_purchased_cstore_param_name)
     # We have short names for these filters
-    if filter_ssm == 'cstore': 
+    if filter_ssm == 'cstore':
         filter_ssm = filter_cstore_param_name
-    elif filter_ssm == 'purchased': 
+    elif filter_ssm == 'purchased':
         filter_ssm = filter_purchased_cstore_param_name
     app.logger.info(f"Filter SSM for /recommendations: {filter_ssm}")
 
@@ -539,6 +544,7 @@ def popular():
 
     try:
         items, resp_headers = get_products(
+            related_items_recipe = False,
             feature = feature,
             user_id = user_id,
             current_item_id = current_item_id,

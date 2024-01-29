@@ -61,7 +61,7 @@
               <LoadingFallback v-if="loadingPersonalizedProductDescription" class="col my-4 text-center"></LoadingFallback>
             </div>
             <p v-html="product.description"></p>
-            
+
           </div>
 
           <div class="product-img">
@@ -70,8 +70,8 @@
         </main>
 
         <RecommendedProductsSection :experiment="experiment" :recommendedProducts="relatedProducts" :feature="feature">
-          <template #heading
-            >Compare similar items
+          <template #heading>
+            {{ relatedProductsSectionTitle }}
             <DemoGuideBadge
               v-if="demoGuideBadgeArticle"
               :article="demoGuideBadgeArticle"
@@ -101,7 +101,7 @@ import { discountProductPrice } from '@/util/discountProductPrice';
 import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
-import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
+import { Articles, getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 import Fenixmaster from '@/components/Fenix/Fenixmaster.vue';
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
@@ -133,6 +133,7 @@ export default {
       quantity: 1,
       feature: EXPERIMENT_FEATURE,
       relatedProducts: null,
+      relatedProductsSectionTitle: "Compare similar items",
       demoGuideBadgeArticle: null,
       experiment: null,
       fenixcurrentvariant: {},
@@ -218,7 +219,7 @@ export default {
         console.log("Error getting personalised descriptions", error)
         this.product.description = "<b>Error getting personalised description</b><br/>" + this.product.description
       })
-      
+
       this.loadingPersonalizedProductDescription = false
       this.isDescriptionPersonalized = true
     },
@@ -253,6 +254,10 @@ export default {
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
         if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
+        if (response.headers["x-related-items-theme"]) {
+          this.relatedProductsSectionTitle = response.headers["x-related-items-theme"];
+          this.demoGuideBadgeArticle = Articles.SIMILAR_ITEMS_WITH_THEME;
+        }
       }
 
       this.relatedProducts = response.data;

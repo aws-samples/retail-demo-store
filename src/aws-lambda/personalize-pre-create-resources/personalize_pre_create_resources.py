@@ -94,6 +94,10 @@ items_schema = {
             "categorical": True
         },
         {
+            "name": "PRODUCT_NAME",
+            "type": "string"
+        },
+        {
             "name": "PRODUCT_DESCRIPTION",
             "type": "string",
             "textual": True
@@ -237,10 +241,16 @@ dataset_group_confs = [
                 'paramDescription': 'Retail Demo Store Filter Purchased and C-Store Products Arn Parameter'
             },
             {
-                'name': 'retaildemostore-filter-include-categories',
-                'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN ($CATEGORIES)',
-                'param': '/retaildemostore/personalize/filters/filter-include-categories-arn',
-                'paramDescription': 'Retail Demo Store Filter to Include by Categories Arn Parameter'
+                'name': 'retaildemostore-filter-same-categories',
+                'expression': 'INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN CurrentItem.CATEGORY_L1',
+                'param': '/retaildemostore/personalize/filters/filter-same-categories-arn',
+                'paramDescription': 'Retail Demo Store Filter to Include Same Categories Arn Parameter'
+            },
+            {
+                'name': 'retaildemostore-filter-exclude-purchased-include-categories',
+                'expression': 'EXCLUDE ItemID WHERE INTERACTIONS.event_type IN ("Purchase") | INCLUDE ItemID WHERE ITEMS.CATEGORY_L1 IN CurrentItem.CATEGORY_L1',
+                'param': '/retaildemostore/personalize/filters/filter-exclude-purchased-include-categories-arn',
+                'paramDescription': 'Retail Demo Store Filter to Exclude Purchased and Include Same Categories Arn Parameter'
             },
             {
                 'name': 'retaildemostore-filter-promoted-items',
@@ -259,12 +269,26 @@ dataset_group_confs = [
             {
                 'name': 'retaildemostore-recommended-for-you',
                 'recipe': 'arn:aws:personalize:::recipe/aws-ecomm-recommended-for-you',
+                'recommenderConfig': {
+                    'trainingDataConfig': {
+                        'excludedDatasetColumns': {
+                            'ITEMS': [ 'PRODUCT_NAME', 'PROMOTED' ]
+                        }
+                    }
+                },
                 'param': '/retaildemostore/personalize/recommended-for-you-arn',
                 'paramDescription': 'Retail Demo Store Recommended For You Campaign/Recommender Arn Parameter'
             },
             {
                 'name': 'retaildemostore-popular-items',
                 'recipe': 'arn:aws:personalize:::recipe/aws-ecomm-popular-items-by-views',
+                'recommenderConfig': {
+                    'trainingDataConfig': {
+                        'excludedDatasetColumns': {
+                            'ITEMS': [ 'PRODUCT_NAME', 'PROMOTED' ]
+                        }
+                    }
+                },
                 'param': '/retaildemostore/personalize/popular-items-arn',
                 'paramDescription': 'Retail Demo Store Popular Items Campaign/Recommender Arn Parameter'
             }
@@ -274,6 +298,13 @@ dataset_group_confs = [
                 'name': 'retaildemostore-related-items',
                 'recipe': 'arn:aws:personalize:::recipe/aws-similar-items',
                 'eventType': 'View',
+                'solutionConfig': {
+                    'trainingDataConfig': {
+                        'excludedDatasetColumns': {
+                            'ITEMS': [ 'PRODUCT_NAME', 'PROMOTED' ]
+                        }
+                    }
+                },
                 'campaign': {
                     'name': 'retaildemostore-related-items',
                     'param': '/retaildemostore/personalize/related-items-arn',
@@ -284,6 +315,13 @@ dataset_group_confs = [
                 'name': 'retaildemostore-personalized-ranking',
                 'recipe': 'arn:aws:personalize:::recipe/aws-personalized-ranking',
                 'eventType': 'View',
+                'solutionConfig': {
+                    'trainingDataConfig': {
+                        'excludedDatasetColumns': {
+                            'ITEMS': [ 'PRODUCT_NAME', 'PROMOTED' ]
+                        }
+                    }
+                },
                 'campaign': {
                     'name': 'retaildemostore-personalized-ranking',
                     'param': '/retaildemostore/personalize/personalized-ranking-arn',
@@ -292,7 +330,14 @@ dataset_group_confs = [
             },
             {
                 'name': 'retaildemostore-item-attribute-affinity',
-                'recipe': 'arn:aws:personalize:::recipe/aws-item-attribute-affinity'
+                'recipe': 'arn:aws:personalize:::recipe/aws-item-attribute-affinity',
+                'solutionConfig': {
+                    'trainingDataConfig': {
+                        'excludedDatasetColumns': {
+                            'ITEMS': [ 'PRODUCT_NAME', 'PROMOTED' ]
+                        }
+                    }
+                }
             }
         ]
     }
@@ -368,11 +413,17 @@ def create_recommender(dataset_group_arn: str, recommender_conf: Dict) -> Tuple[
 
     if not recommender_exists:
         logger.info('Creating recommender %s', recommender_conf['name'])
-        response = personalize.create_recommender(
-            datasetGroupArn = dataset_group_arn,
-            name = recommender_conf['name'],
-            recipeArn = recommender_conf['recipe']
-        )
+
+        params = {
+            'datasetGroupArn': dataset_group_arn,
+            'name': recommender_conf['name'],
+            'recipeArn': recommender_conf['recipe']
+        }
+
+        if recommender_conf.get('recommenderConfig'):
+            params['recommenderConfig'] = recommender_conf['recommenderConfig']
+
+        response = personalize.create_recommender(**params)
 
         recommender_conf['arn'] = response['recommenderArn']
 
@@ -424,6 +475,9 @@ def create_solution_version(dataset_group_arn: str, solution_conf: Dict) -> Tupl
 
         if solution_conf.get('eventType'):
             params['eventType'] = solution_conf['eventType']
+
+        if solution_conf.get('solutionConfig'):
+            params['solutionConfig'] = solution_conf['solutionConfig']
 
         response = personalize.create_solution(**params)
         solution_conf['arn'] = response['solutionArn']
