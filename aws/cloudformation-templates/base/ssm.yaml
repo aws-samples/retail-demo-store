@@ -156,10 +156,18 @@ Resources:
   ParameterPersonalizeFilterIncludeCategoriesArn:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "/retaildemostore/personalize/filters/filter-include-categories-arn"
+      Name: "/retaildemostore/personalize/filters/filter-same-categories-arn"
       Type: "String"
       Value: "NONE"
-      Description: "Retail Demo Store Filter to Include by Categories Arn Parameter"
+      Description: "Retail Demo Store Filter to Include Same Categories Arn Parameter"
+
+  ParameterPersonalizeFilterExcPurchasedIncCategoriesArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/retaildemostore/personalize/filters/filter-exclude-purchased-include-categories-arn"
+      Type: "String"
+      Value: "NONE"
+      Description: "Retail Demo Store Filter to Exclude Purchased and Include Same Categories Arn Parameter"
 
   ParameterPersonalizePromotedItemsFilterArn:
     Type: "AWS::SSM::Parameter"

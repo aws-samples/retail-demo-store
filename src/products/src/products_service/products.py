@@ -11,7 +11,8 @@ from products_service.personalisation import generate_personalised_description, 
 MAX_BATCH_GET_ITEM = 100
 ALLOWED_PRODUCT_KEYS = {
     'id', 'url', 'sk', 'name', 'category', 'style', 'description', 'aliases',
-    'price', 'image', 'featured', 'gender_affinity', 'current_stock', 'promoted'
+    'price', 'image', 'featured', 'gender_affinity', 'current_stock', 'promoted',
+    'where_visible', 'related_items_theme', 'related_items'
 }
 missing_image_file = "product_image_coming_soon.png"
 
@@ -19,9 +20,9 @@ class PersonalisedDescriptionCache(Cache):
 
     def get(self, key: str):
         cached_item = dynamodb.personalised_products.get(key)
-        
+
         return cached_item['generated_description'] if cached_item else None
-    
+
     def put(self, key: str, obj):
         return dynamodb.personalised_products.upsert(
             {
@@ -29,7 +30,7 @@ class PersonalisedDescriptionCache(Cache):
                 'generated_description': obj
             }
         )
-        
+
 def get_product_by_id(product_id, fully_qualify_image_urls: bool | None = None, user: Dict[str, Any] | None = None):
     product = dynamodb.products.get(str(product_id.lower()))
     if not product:
@@ -40,32 +41,32 @@ def get_product_by_id(product_id, fully_qualify_image_urls: bool | None = None, 
     if user:
         current_app.logger.debug(f"Personalizing product description for product: {product['name']}")
         product['description'] = generate_personalised_description(product, user, PersonalisedDescriptionCache())
-    
+
     return product
-    
+
 def get_products_by_ids(product_ids, fully_qualify_image_urls: bool):
     if len(product_ids) > MAX_BATCH_GET_ITEM:
         raise Exception("Cannot query more than 100 items at a time")
-    
+
     products = dynamodb.products.gets(product_ids)
     for product in products:
         update_product_template(product, fully_qualify_image_urls)
-    
+
     return products
-    
-def get_products_by_category(category, fully_qualify_image_urls: bool):    
+
+def get_products_by_category(category, fully_qualify_image_urls: bool):
     products = dynamodb.products.get_by_category(category)
     for product in products:
         update_product_template(product, fully_qualify_image_urls)
-    
+
     return products
-    
-def get_featured_products(fully_qualify_image_urls: bool):       
+
+def get_featured_products(fully_qualify_image_urls: bool):
     products = dynamodb.products.get_featured()
     for product in products:
         update_product_template(product, fully_qualify_image_urls)
         product['featured'] = 'true'
-    
+
     return products
 
 def get_all_products(fully_qualify_image_urls: bool):
@@ -73,28 +74,28 @@ def get_all_products(fully_qualify_image_urls: bool):
     current_app.logger.debug(f"Found {len(products)} products")
     for product in products:
         update_product_template(product, fully_qualify_image_urls)
-    
+
     return products
-    
+
 def update_product(original_product, updated_product):
-    updated_product['id'] = original_product['id']  
+    updated_product['id'] = original_product['id']
     validate_product(updated_product)
     current_app.logger.debug(f"Updating product: {original_product} to {updated_product}")
     dynamodb.products.upsert(updated_product)
-    
+
 def update_inventory_delta(product, stock_delta):
     if product['current_stock'] + stock_delta < 0:
         stock_delta = -product['current_stock']
-        
+
     dynamodb.products.update_inventory(product['id'], product['current_stock'], stock_delta)
     product['current_stock'] += stock_delta
-    
+
 def add_product(product):
     product_temp = get_product_template()
     product.update(product_temp)
     validate_product(product)
     dynamodb.products.upsert(product)
-    
+
 def delete_product(self, product):
     dynamodb.products.delete(product['id'])
 
@@ -102,14 +103,14 @@ def get_category_by_id(category_id, fully_qualify_image_urls: bool):
     category = dynamodb.categories.get(str(category_id.lower()))
     if category:
         set_category_url(category, fully_qualify_image_urls)
- 
+
     return category
 
 def get_category_by_name(category_name, fully_qualify_image_urls: bool):
     category = dynamodb.categories.get_by_name(category_name)
     if category:
         set_category_url(category, fully_qualify_image_urls)
-    
+
     return category
 
 def get_all_categories(fully_qualify_image_urls: bool):
@@ -117,7 +118,7 @@ def get_all_categories(fully_qualify_image_urls: bool):
     current_app.logger.debug(f"Found {len(categories)} categories")
     for category in categories:
         set_category_url(category, fully_qualify_image_urls)
-    
+
     return categories
 
 def validate_product(product):
@@ -148,11 +149,13 @@ def update_product_template(product, fully_qualify_image_urls):
         product['promoted'] = str(product['promoted'])
     set_product_url(product)
     set_fully_qualified_product_image_url(fully_qualify_image_urls, product)
-    
+
     return product
 
 def get_fully_qualified_image_url(image: str, category_name: str) -> str:
-    if image and image != missing_image_file:
+    if image and image.find("://") > -1:
+        return image
+    elif image and image != missing_image_file:
         return f"{current_app.config['IMAGE_ROOT_URL']}{category_name}/{image}"
     else:
         return f"{current_app.config['IMAGE_ROOT_URL']}{missing_image_file}"
@@ -166,7 +169,7 @@ def set_fully_qualified_product_image_url(fully_qualify_image_url: bool, product
 def set_product_url(product):
     if current_app.config['WEB_ROOT_URL']:
         product["url"] = f"{current_app.config['WEB_ROOT_URL']}/#/product/{product['id']}"
-        
+
 def set_category_url(category, fully_qualify_image_urls):
     if current_app.config['WEB_ROOT_URL']:
         category["url"] = f"{current_app.config['WEB_ROOT_URL']}/#/category/{category['id']}"

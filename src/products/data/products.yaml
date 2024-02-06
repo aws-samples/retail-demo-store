@@ -476,7 +476,7 @@
   where_visible: UI
 - id: d9d3351f-1fdb-4ba7-b757-55f18a1a2dc0
   current_stock: 19
-  name: '"Spacious White Backpack for Everyday"'
+  name: Spacious White Backpack for Everyday
   category: accessories
   style: backpack
   description: This stylish white backpack keeps your gear organized with multiple
@@ -1068,9 +1068,9 @@
   name: Stylish Accessory Belt for Women
   category: accessories
   style: belt
-  description: '"The Cool Belt''s sleek, lightweight design adds stylish flair to
+  description: 'The Cool Belt''s sleek, lightweight design adds stylish flair to
     any woman''s outfit. This must-have accessory comes in on-trend colors to complement
-    your look. Crafted from quality materials for long-lasting comfort and style."'
+    your look. Crafted from quality materials for long-lasting comfort and style.'
   price: 25.99
   image: 16842055-6a51-443b-843c-51bc85dee353.jpg
   gender_affinity: F
@@ -3238,7 +3238,7 @@
   where_visible: UI
 - id: ad62d66b-887f-4f87-afbc-26a372e0d9f7
   current_stock: 19
-  name: '"Stylish Insulated Raincoat for Women"'
+  name: Stylish Insulated Raincoat for Women
   category: apparel
   style: jacket
   description: Style and function combined - this lightweight yet durable women's
@@ -4513,7 +4513,7 @@
   where_visible: UI
 - id: 1811c348-a164-4305-97e2-bd0427074f30
   current_stock: 14
-  name: '"Flattering Flowy Feminine Dress"'
+  name: Flattering Flowy Feminine Dress
   category: apparel
   style: shirt
   description: Flatter your figure in this effortlessly chic V-neck dress featuring
@@ -5372,7 +5372,7 @@
   where_visible: UI
 - id: c3f5bf7c-2c15-49ac-9bb9-2b04bd1d1c0a
   current_stock: 7
-  name: '"Vibrant Patterned Socks for Bold Style"'
+  name: Vibrant Patterned Socks for Bold Style
   category: apparel
   style: socks
   description: Make a bold fashion statement with these supercool socks featuring
@@ -6429,7 +6429,7 @@
   where_visible: UI
 - id: ac099a60-9187-4d4f-97b4-6bdfb14ba521
   current_stock: 11
-  name: '"Immerse Yourself in Iceland''s Wonders"'
+  name: Immerse Yourself in Iceland''s Wonders
   category: books
   style: travel
   description: Discover Iceland's majestic natural wonders, vibrant culture, and lively
@@ -6520,7 +6520,7 @@
   where_visible: UI
 - id: e53a6570-3a3f-4ca8-b6dc-8ff378bca757
   current_stock: 12
-  name: '"Immerse Yourself in Sweden''s Wonders"'
+  name: Immerse Yourself in Sweden''s Wonders
   category: books
   style: travel
   description: Discover Sweden's rich history, culture, and natural wonders with this
@@ -7036,7 +7036,7 @@
   where_visible: UI
 - id: 35d4970e-cd3d-4f69-9754-15c8765793d6
   current_stock: 9
-  name: '"Relive Special Moments in HD"'
+  name: Relive Special Moments in HD
   category: electronics
   style: camera
   description: Capture life's special moments in stunning HD video with this easy-to-use,
@@ -8142,7 +8142,7 @@
   promoted: true
 - id: e1d2ec50-2970-43be-aeb7-fc90779086b7
   current_stock: 16
-  name: '"Stunning Seasonal Wedding Bouquet"'
+  name: Stunning Seasonal Wedding Bouquet
   category: floral
   style: bouquet
   description: Presenting our Wedding Bouquet of Seasonal Blooms - an artful arrangement
@@ -9135,7 +9135,7 @@
   where_visible: UI
 - id: e588910b-a9fb-4717-a2c0-5c476505b5d2
   current_stock: 10
-  name: '"Wreath of Love Marks New Beginnings"'
+  name: Wreath of Love Marks New Beginnings
   category: floral
   style: wreath
   description: Celebrate your wedding day with this exquisite floral wreath. Lovingly
@@ -12898,7 +12898,7 @@
   where_visible: UI
 - id: fe00d7b6-7c1a-482d-8552-cb9654f98286
   current_stock: 19
-  name: '"Luxurious Rosy Sofa for Cozy Lounging"'
+  name: Luxurious Rosy Sofa for Cozy Lounging
   category: furniture
   style: sofas
   description: Luxuriously soft rosy-brown upholstery adorns this elegant sofa, providing
@@ -13067,7 +13067,7 @@
   where_visible: UI
 - id: 0dcd0570-c2df-43c8-9784-feab4ec2dc6b
   current_stock: 12
-  name: '"Bold Blue Sophisticated Sofa"'
+  name: Bold Blue Sophisticated Sofa
   category: furniture
   style: sofas
   description: "Make a bold, posh statement with this richly hued cadet blue sofa.\
@@ -14390,7 +14390,7 @@
   promoted: true
 - id: cf6b6193-0261-4bdb-8ab8-8ace25956419
   current_stock: 14
-  name: '"Artisan Baked Bread, Fresh Daily"'
+  name: Artisan Baked Bread, Fresh Daily
   category: groceries
   style: bakery
   description: Our freshly baked artisanal bread features a crispy golden crust enveloping
@@ -18346,7 +18346,7 @@
   where_visible: UI
 - id: 21a6eee1-20d3-4147-9c6e-5e784896c8e6
   current_stock: 17
-  name: '"Stylish Lamp Brightens Any Room"'
+  name: Stylish Lamp Brightens Any Room
   category: homedecor
   style: lighting
   description: This stylish modern floor lamp provides ambient lighting to relax by.
@@ -19593,7 +19593,7 @@
   where_visible: UI
 - id: 540e414d-c279-45c2-bde6-4a731e7c54c7
   current_stock: 18
-  name: '"Elevate Your Brew Beer Glass"'
+  name: Elevate Your Brew Beer Glass
   category: housewares
   style: kitchen
   description: Presenting the perfect beer glass to elevate your brew! This sleek
@@ -22651,7 +22651,7 @@
 - id: 3f9a39b2-0d63-4751-b6ee-4ecd08dd2276
   featured: true
   current_stock: 11
-  name: '"Vibrant Tone Electric Guitar"'
+  name: Vibrant Tone Electric Guitar
   category: instruments
   style: strings
   description: Experience vibrant tone and incredible playability with this sleek,
@@ -24443,7 +24443,7 @@
   promoted: true
 - id: 37cb1acd-1b2d-4718-9ec3-15864424de14
   current_stock: 13
-  name: '"Spacious Tent Invites Outdoor Adventure"'
+  name: Spacious Tent Invites Outdoor Adventure
   category: outdoors
   style: camping
   description: This spacious, durable tent is the ultimate home-base for outdoor adventures.
@@ -24467,7 +24467,7 @@
   promoted: true
 - id: 0395c84b-d532-495d-8b4c-25cbaff606f7
   current_stock: 10
-  name: '"Spacious Shelter for Two Adventurers"'
+  name: Spacious Shelter for Two Adventurers
   category: outdoors
   style: camping
   description: This spacious and durable two-person tent is the perfect outdoor companion
@@ -24619,7 +24619,7 @@
   where_visible: UI
 - id: 7cd4cc5b-4302-40ee-989a-078559761ef8
   current_stock: 9
-  name: '"Reel In The Big One"'
+  name: Reel In The Big One
   category: outdoors
   style: fishing
   description: The Definitive fishing reel is the versatile, durable dream reel for
@@ -24655,7 +24655,7 @@
   where_visible: UI
 - id: 462c7968-3fc8-4ce4-aef2-b732e87ac895
   current_stock: 19
-  name: '"Smooth Casting, Built to Last"'
+  name: Smooth Casting, Built to Last
   category: outdoors
   style: fishing
   description: The Dependable Fishing Reel delivers smooth, reliable performance cast
@@ -24737,7 +24737,7 @@
   where_visible: UI
 - id: a6dc7912-aa64-4941-bbe0-2007e1db765b
   current_stock: 17
-  name: '"Cast Farther, Catch Bigger" Fishing Reel'
+  name: Cast Farther, Catch Bigger" Fishing Reel
   category: outdoors
   style: fishing
   description: Precision-engineered with a lightweight graphite body and aluminum
@@ -24786,7 +24786,7 @@
   where_visible: UI
 - id: af1fb35f-8fee-4ff2-a6a9-4be30d03c54b
   current_stock: 12
-  name: '"Reel In Big Catches Effortlessly"'
+  name: Reel In Big Catches Effortlessly
   category: outdoors
   style: fishing
   description: The Outstanding Fishing Reel delivers reliable performance and versatility
@@ -25004,7 +25004,7 @@
   promoted: true
 - id: 1b997958-e55c-4e1d-9764-ae969504b94d
   current_stock: 8
-  name: '"Adventure Awaits in this Sleek Kayak"'
+  name: Adventure Awaits in this Sleek Kayak
   category: outdoors
   style: kayaking
   description: This sleek, bold kayak built for adventure takes you everywhere you
@@ -25201,7 +25201,7 @@
   promoted: true
 - id: 0c4e5ca2-93cd-4ddb-a5d3-197fa2221ead
   current_stock: 7
-  name: '"Stylish Playhouse for Pets"'
+  name: Stylish Playhouse for Pets
   category: outdoors
   style: pet
   description: Let your pet play in style with this innovative outdoor playhouse!
@@ -25212,7 +25212,7 @@
   where_visible: UI
 - id: 4d010975-7365-4db9-b31c-5eee0286c458
   current_stock: 15
-  name: '"Outdoors Fun For You And Pup"'
+  name: Outdoors Fun For You And Pup
   category: outdoors
   style: pet
   description: This innovative outdoor accessory keeps your pet comfortable, entertained,
@@ -25223,7 +25223,7 @@
   where_visible: UI
 - id: 42ba4ae9-f12b-481a-9159-81c65103cc2c
   current_stock: 14
-  name: '"Explore Nature with Your Pet"'
+  name: Explore Nature with Your Pet
   category: outdoors
   style: pet
   description: This innovative outdoor accessory keeps your pet happy, safe, and entertained
@@ -26472,7 +26472,7 @@
   where_visible: UI
 - id: 5c111431-fbc2-4a49-9c38-83dd5c37586a
   current_stock: 14
-  name: '"Bright Basket of Easter Treats"'
+  name: Bright Basket of Easter Treats
   category: seasonal
   style: easter
   description: Celebrate Spring's renewal with this festive assortment of candy eggs,
@@ -27461,7 +27461,7 @@
   where_visible: UI
 - id: 0d354dd4-ebd3-4787-8c9f-dd75f6f401a4
   current_stock: 17
-  name: '"Decadent Valentine''s Chocolates Gift"'
+  name: Decadent Valentine''s Chocolates Gift
   category: seasonal
   style: valentine
   description: Treat your Valentine to a heartfelt gift with our limited-edition box
@@ -27484,7 +27484,7 @@
   where_visible: UI
 - id: 05d20a80-c6b7-44c3-a053-cd9c8a30adbf
   current_stock: 11
-  name: '"Delectable Valentine''s Chocolates Gift"'
+  name: Delectable Valentine''s Chocolates Gift
   category: seasonal
   style: valentine
   description: "This heart-shaped box brims with rich, decadent chocolates\u2014the\
@@ -27494,7 +27494,7 @@
   where_visible: UI
 - id: 053664ca-8056-4d71-b609-5211976554c3
   current_stock: 15
-  name: '"Sweetheart''s Valentine Chocolate Treat"'
+  name: Sweetheart''s Valentine Chocolate Treat
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day by gifting your sweetheart this
@@ -27544,7 +27544,7 @@
   where_visible: UI
 - id: f58c9fff-3c8e-4da8-825e-d6aac4f4436a
   current_stock: 10
-  name: '"Sweetheart''s Velvety Valentine Chocolates"'
+  name: Sweetheart''s Velvety Valentine Chocolates
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day by gifting your special someone
@@ -27556,7 +27556,7 @@
   promoted: true
 - id: 66e5b0a9-0cc9-47b2-b78b-8730d561a297
   current_stock: 11
-  name: '"Indulgent Valentine Truffle Treat"'
+  name: Indulgent Valentine Truffle Treat
   category: seasonal
   style: valentine
   description: Treat your Valentine to decadent truffles in a heart-shaped box. These
@@ -27611,7 +27611,7 @@
   where_visible: UI
 - id: d08a900a-211d-4020-8d8b-b36659ecae7c
   current_stock: 15
-  name: '"Romantic Valentine''s Day Home Decor"'
+  name: Romantic Valentine''s Day Home Decor
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day with our festive decorations. Adorn
@@ -27657,7 +27657,7 @@
   promoted: true
 - id: 5e10a645-8825-4f12-8a7c-0b42424b8c11
   current_stock: 9
-  name: '"Romantic Valentine''s Decor for Your Love"'
+  name: Romantic Valentine''s Decor for Your Love
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day with our elegant decorations. Our
@@ -27681,7 +27681,7 @@
   where_visible: UI
 - id: 09b832ce-73fc-49f4-bd8b-5d5e4fe9fe72
   current_stock: 10
-  name: '"Romantic Valentine''s Decorating Kit"'
+  name: Romantic Valentine''s Decorating Kit
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day by transforming any space into
@@ -27693,7 +27693,7 @@
   where_visible: UI
 - id: f1e98350-8bc1-4f5b-a008-29f467619bda
   current_stock: 15
-  name: '"Love Blooms with Valentine Decor"'
+  name: Love Blooms with Valentine Decor
   category: seasonal
   style: valentine
   description: Celebrate love this Valentine's Day with our festive decorations. Our
@@ -27762,7 +27762,7 @@
   where_visible: UI
 - id: 3b320422-8c70-47ef-aae0-d949afa88ad1
   current_stock: 16
-  name: '"Cuddle Me Valentine"'
+  name: Cuddle Me Valentine
   category: seasonal
   style: valentine
   description: This cuddly Valentine's Day teddy bear, with its soft fur, red bow,
@@ -27774,7 +27774,7 @@
   promoted: true
 - id: b8eb2f71-56ca-4b9b-991a-0734070e0f5b
   current_stock: 13
-  name: '"Be Mine" Valentine Teddy Bear'
+  name: Be Mine" Valentine Teddy Bear
   category: seasonal
   style: valentine
   description: The Valentine Stuffed Teddybear is a soft, huggable plush bear holding
@@ -27785,7 +27785,7 @@
   where_visible: UI
 - id: bd446035-3a6f-49b0-a1c3-d346d12cb877
   current_stock: 8
-  name: '"Cuddle Me Teddy"'
+  name: Cuddle Me Teddy
   category: seasonal
   style: valentine
   description: This cuddly brown teddy bear with a red bow tie is the perfect huggable
@@ -27820,7 +27820,7 @@
   where_visible: UI
 - id: ad41a106-99f7-4258-8060-d1dcb7de93b8
   current_stock: 6
-  name: '"Snuggly Valentine''s Teddybear"'
+  name: Snuggly Valentine''s Teddybear
   category: seasonal
   style: valentine
   description: Spread love with this snuggly Valentine Teddybear! Its huggable shape
@@ -28464,7 +28464,7 @@
   where_visible: UI
 - id: b93b7b15-9bb3-407c-b80b-517e7c45e090
   current_stock: 18
-  name: '"Versatile 12" Craftsman Wrench"'
+  name: Versatile 12" Craftsman Wrench
   category: tools
   style: wrench
   description: Craftsman's 12" adjustable wrench delivers rugged strength and versatility
