@@ -1,18 +1,14 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from flask import current_app
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from uuid import uuid4
 from typing import Dict, Any
-from decimal import Decimal
 import yaml
 
 from products_service import dynamodb
 from products_service.personalisation import generate_personalised_description, Cache
 
 MAX_BATCH_GET_ITEM = 100
-serializer = TypeSerializer()
-deserializer = TypeDeserializer()
 ALLOWED_PRODUCT_KEYS = {
     'id', 'url', 'sk', 'name', 'category', 'style', 'description', 'aliases',
     'price', 'image', 'featured', 'gender_affinity', 'current_stock', 'promoted',
@@ -133,7 +129,7 @@ def validate_product(product):
     if not category:
         raise ValueError(f'Category {product["category"]} not found')
     product['price'] = str(product['price'])
-    product['current_stock'] = str(product['current_stock'])
+    product['current_stock'] = int(product['current_stock'])
     set_product_url(product)
 
 def get_product_template():
@@ -148,7 +144,7 @@ def update_product_template(product, fully_qualify_image_urls):
     if 'sk' not in product or product['sk'] is None:
         product['sk'] = ''
     product['current_stock'] = int(product['current_stock'])
-    product['price'] = float(product['price'])
+    product['price'] = str(product['price'])
     if 'promoted' in product:
         product['promoted'] = str(product['promoted'])
     set_product_url(product)
@@ -196,7 +192,7 @@ def load_products():
     current_app.logger.info("Updating products")
     for product in products:
         if product.get('price'):
-            product['price'] = Decimal(str(product['price']))
+            product['price'] = str(product['price'])
         if product.get('featured'):
             product['featured'] = str(product['featured']).lower()
         dynamodb.products.upsert(product)
