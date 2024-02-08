@@ -82,6 +82,7 @@ def update_product(original_product, updated_product):
     validate_product(updated_product)
     current_app.logger.debug(f"Updating product: {original_product} to {updated_product}")
     dynamodb.products.upsert(updated_product)
+    cast_price(updated_product)
 
 def update_inventory_delta(product, stock_delta):
     if product['current_stock'] + stock_delta < 0:
@@ -95,6 +96,7 @@ def add_product(product):
     product.update(product_temp)
     validate_product(product)
     dynamodb.products.upsert(product)
+    cast_price(product)
 
 def delete_product(self, product):
     dynamodb.products.delete(product['id'])
@@ -144,7 +146,7 @@ def update_product_template(product, fully_qualify_image_urls):
     if 'sk' not in product or product['sk'] is None:
         product['sk'] = ''
     product['current_stock'] = int(product['current_stock'])
-    product['price'] = str(product['price'])
+    cast_price(product)
     if 'promoted' in product:
         product['promoted'] = str(product['promoted'])
     set_product_url(product)
@@ -177,6 +179,10 @@ def set_category_url(category, fully_qualify_image_urls):
         category["image"] = get_fully_qualified_image_url(category.get("image"), category.get("name"))
     elif not category.get("image") or category["image"] == missing_image_file:
         category["image"] = f"{current_app.config['IMAGE_ROOT_URL']}{missing_image_file}"
+
+def cast_price(product):
+    # Cast the price from a string back to a float for the frontend
+    product['price'] = float(product['price'])
 
 def init():
     dynamodb.init_tables()
