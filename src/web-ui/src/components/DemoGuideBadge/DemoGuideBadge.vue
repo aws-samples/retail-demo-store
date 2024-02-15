@@ -40,6 +40,7 @@ export default {
         case Articles.PERSONALIZED_RANKING:
         case Articles.SIMS_RECOMMENDATIONS:
         case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
+        case Articles.SIMILAR_ITEMS_WITH_THEME:
         case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
         case Articles.ECOMM_FBT:
         case Articles.ECOMM_POPULAR_BY_PURCHASES:
@@ -59,7 +60,7 @@ export default {
         case Services.Personalize:
           return '/personalize.svg';
         case Services.Bedrock:
-          return '/bedrock.svg'; 
+          return '/bedrock.svg';
       }
 
       throw new Error('Invalid article passed to DemoGuideBadge');
@@ -76,6 +77,8 @@ export default {
           return 'Learn more about similar item (SIMS) recommendations';
         case Articles.SIMILAR_ITEMS_RECOMMENDATIONS:
           return 'Learn more about similar items recommendations with personalized ranking';
+        case Articles.SIMILAR_ITEMS_WITH_THEME:
+          return 'Learn more about similar items with generative AI theme';
         case Articles.ECOMM_CUSTOMERS_WHO_VIEWED_X:
           return 'Learn more about customers who viewed X viewed';
         case Articles.ECOMM_FBT:

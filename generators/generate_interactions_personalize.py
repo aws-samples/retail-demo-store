@@ -104,11 +104,12 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id','price','category','style','description','gender_affinity','promoted']]
+    products_dataset_df = products_df[['id','price','category','style','name','description','gender_affinity','promoted']]
     products_dataset_df = products_dataset_df.rename(columns = {'id':'ITEM_ID',
                                                             'price':'PRICE',
                                                             'category':'CATEGORY_L1',
                                                             'style':'CATEGORY_L2',
+                                                            'name': 'PRODUCT_NAME',
                                                             'description':'PRODUCT_DESCRIPTION',
                                                             'gender_affinity':'GENDER',
                                                             'promoted': 'PROMOTED'})
@@ -157,7 +158,7 @@ def generate_interactions(out_interactions_filename, users_df, products_df):
     average_product_price = int(products_df.price.mean())
     print('Average product price: ${:.2f}'.format(average_product_price))
 
-    if seconds_increment <= 0: 
+    if seconds_increment <= 0:
         raise AssertionError(f"Should never happen: {seconds_increment} <= 0")
 
     print('Minimum interactions to generate: {}'.format(min_interactions))
