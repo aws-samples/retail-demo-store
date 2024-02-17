@@ -61,7 +61,7 @@ Parameters:
 
   IdentityPoolId:
     Type: String
-    
+
   Subnets:
     Type: String
 
@@ -136,11 +136,11 @@ Parameters:
   EvidentlyProjectName:
     Type: String
     Description: Evidently project name
-    
+
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
-  
+
   LambdaVpcSecurityGroup:
     Type: String
 
@@ -214,7 +214,7 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         EvidentlyProjectName: !Ref EvidentlyProjectName
         LoggingBucketName: !Ref LoggingBucketName
-        
+
   CartsService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -249,7 +249,7 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         EvidentlyProjectName: !Ref EvidentlyProjectName
         LoggingBucketName: !Ref LoggingBucketName
-        
+
   OrdersService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -282,7 +282,7 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         EvidentlyProjectName: !Ref EvidentlyProjectName
         LoggingBucketName: !Ref LoggingBucketName
-        
+
   SearchService:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -450,7 +450,7 @@ Resources:
         ImageRootUrl: !Ref ImageRootUrl
         EvidentlyProjectName: !Ref EvidentlyProjectName
         LoggingBucketName: !Ref LoggingBucketName
-        
+
   # Pinpoint personalized messaging customization
   PinpointPersonalize:
     Type: AWS::CloudFormation::Stack
@@ -520,7 +520,7 @@ Resources:
             cfnresponse.send(event, context, responseStatus, responseData)
 
       Handler: index.handler
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 30
       Role: !GetAtt DeleteRepositoryLambdaExecutionRole.Arn
 
@@ -565,7 +565,7 @@ Outputs:
   UsersServiceUrl:
     Description: Users load balancer URL.
     Value: !GetAtt UsersService.Outputs.ServiceUrl
-  
+
   UsersServiceELBListener:
     Description: Users Service ELB Arn
     Value: !GetAtt UsersService.Outputs.ServiceELBListener
