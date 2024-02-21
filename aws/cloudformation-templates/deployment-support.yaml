@@ -147,7 +147,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-resources.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePersonalizePreCreateResources
       Environment:
@@ -286,7 +286,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/ivs-create-channels.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStoreIVSCreateChannels
       Environment:
@@ -373,7 +373,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/opensearch-pre-index.zip'
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 300
       VpcConfig:
         SecurityGroupIds:
@@ -447,7 +447,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-auto-workshop.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePinpointAutoWorkshop
       Environment:
