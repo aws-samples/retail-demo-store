@@ -1,18 +1,14 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from flask import current_app
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 from uuid import uuid4
 from typing import Dict, Any
-from decimal import Decimal
 import yaml
 
 from products_service import dynamodb
 from products_service.personalisation import generate_personalised_description, Cache
 
 MAX_BATCH_GET_ITEM = 100
-serializer = TypeSerializer()
-deserializer = TypeDeserializer()
 ALLOWED_PRODUCT_KEYS = {
     'id', 'url', 'sk', 'name', 'category', 'style', 'description', 'aliases',
     'price', 'image', 'featured', 'gender_affinity', 'current_stock', 'promoted',
@@ -86,6 +82,7 @@ def update_product(original_product, updated_product):
     validate_product(updated_product)
     current_app.logger.debug(f"Updating product: {original_product} to {updated_product}")
     dynamodb.products.upsert(updated_product)
+    cast_price(updated_product)
 
 def update_inventory_delta(product, stock_delta):
     if product['current_stock'] + stock_delta < 0:
@@ -99,6 +96,7 @@ def add_product(product):
     product.update(product_temp)
     validate_product(product)
     dynamodb.products.upsert(product)
+    cast_price(product)
 
 def delete_product(self, product):
     dynamodb.products.delete(product['id'])
@@ -133,7 +131,7 @@ def validate_product(product):
     if not category:
         raise ValueError(f'Category {product["category"]} not found')
     product['price'] = str(product['price'])
-    product['current_stock'] = str(product['current_stock'])
+    product['current_stock'] = int(product['current_stock'])
     set_product_url(product)
 
 def get_product_template():
@@ -148,7 +146,7 @@ def update_product_template(product, fully_qualify_image_urls):
     if 'sk' not in product or product['sk'] is None:
         product['sk'] = ''
     product['current_stock'] = int(product['current_stock'])
-    product['price'] = float(product['price'])
+    cast_price(product)
     if 'promoted' in product:
         product['promoted'] = str(product['promoted'])
     set_product_url(product)
@@ -182,6 +180,10 @@ def set_category_url(category, fully_qualify_image_urls):
     elif not category.get("image") or category["image"] == missing_image_file:
         category["image"] = f"{current_app.config['IMAGE_ROOT_URL']}{missing_image_file}"
 
+def cast_price(product):
+    # Cast the price from a string back to a float for the frontend
+    product['price'] = float(product['price'])
+
 def init():
     dynamodb.init_tables()
     no_categories = load_categories()
@@ -196,7 +198,7 @@ def load_products():
     current_app.logger.info("Updating products")
     for product in products:
         if product.get('price'):
-            product['price'] = Decimal(str(product['price']))
+            product['price'] = str(product['price'])
         if product.get('featured'):
             product['featured'] = str(product['featured']).lower()
         dynamodb.products.upsert(product)

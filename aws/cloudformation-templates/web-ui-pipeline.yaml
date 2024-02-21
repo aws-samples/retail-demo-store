@@ -226,7 +226,7 @@ Resources:
             cfnresponse.send(event, context, response_status, response_data)
 
       Handler: index.handler
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 900
       Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
 
@@ -234,13 +234,13 @@ Resources:
     Type: Custom::CopyImagesToWebUI
     Properties:
       ServiceToken: !GetAtt CopyImagesLambdaFunction.Arn
-      SourceBucket: 
+      SourceBucket:
           !If [
             CustomResourceBucketImages,
             !Ref ResourceBucketImages,
             !Ref ResourceBucket
           ]
-      SourceBucketPath: 
+      SourceBucketPath:
           !If [
             CustomResourceBucketImages,
             !Ref ResourceBucketImagesPrefix,
@@ -296,7 +296,7 @@ Resources:
                     - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}
                     - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}
                     - !Sub arn:${AWS::Partition}:s3:::${WebUIBucketName}/*
-            
+
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -383,13 +383,13 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucketName
-        LogFilePrefix: artifactui-logs  
-      BucketEncryption: 
+        LogFilePrefix: artifactui-logs
+      BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
             BucketKeyEnabled: true
-             
+
   # Empties bucket when stack is deleted
   EmptyArtifactBucket:
     Type: Custom::EmptyArtifactBucket
@@ -485,7 +485,7 @@ Resources:
           - Name: FENIX_ENABLED_CHECKOUT
             Value: !Ref FenixEnabledCheckout
           - Name: FENIX_X_API_KEY
-            Value: !Ref FenixXapiKey  
+            Value: !Ref FenixXapiKey
           - Name: BEDROCK_PRODUCT_PERSONALIZATION
             Value: !Ref BedrockProductPersonalization
         Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
