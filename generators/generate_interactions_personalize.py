@@ -114,8 +114,8 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
                                                             'gender_affinity':'GENDER',
                                                             'promoted': 'PROMOTED'})
     # Since GENDER column requires a value for all rows, default all nulls to "Any"
-    products_dataset_df['GENDER'].fillna(GENDER_ANY, inplace = True)
-    products_dataset_df['PROMOTED'].fillna(False, inplace = True)
+    products_dataset_df['GENDER']=products_dataset_df['GENDER'].fillna(GENDER_ANY)
+    products_dataset_df['PROMOTED'] = products_dataset_df['PROMOTED'].astype(str).fillna(False)
     products_dataset_df['PROMOTED'] = products_dataset_df['PROMOTED'].replace({True: 'Y', False: 'N'})
     products_dataset_df.to_csv(out_items_filename, index=False)
 
