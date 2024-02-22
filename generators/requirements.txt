@@ -11,4 +11,4 @@ scipy
 six
 text-unidecode
 zope.interface
-pandas==1.5.3
+pandas==2.2.*
