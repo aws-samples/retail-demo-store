@@ -187,6 +187,10 @@ Resources:
         ZipFile: |
           import boto3
           import cfnresponse
+          import tarfile
+          import urllib.request
+          import tempfile
+          import os          
 
           def handler(event, context):
             print(event)
@@ -200,20 +204,28 @@ Resources:
               target_bucket_name = event['ResourceProperties']['TargetBucket']
 
               if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
-                # Copy from source to target
+                os.makedirs('/tmp/images', exist_ok = True)
+                filename,headers= urllib.request.urlretrieve('https://code.retaildemostore.retail.aws.dev/images.tar.gz', '/tmp/images/images.tar.gz')              
+                print(filename)
+                file = tarfile.open('/tmp/images/images.tar.gz')
+                file.extractall('/tmp/images/')
+                file.close()
+                #remove images.tar.gz
+            
+                os.remove('/tmp/images/images.tar.gz')
+
                 s3 = boto3.resource('s3')
-                source_bucket = s3.Bucket(source_bucket_name)
                 target_bucket = s3.Bucket(target_bucket_name)
-
-                for obj in source_bucket.objects.filter(Prefix=source_path):
-                    source = { 'Bucket': source_bucket_name, 'Key': obj.key }
-                    if len(source_path)>0:
-                      # need to remove the resource_relative_path for the target images directory
-                      target = target_bucket.Object(obj.key[len(source_path):])
-                    else:
-                      target = target_bucket.Object(obj.key)
-                    target.copy(source)
-
+            
+                # For all files in tmpdirname
+                for root, dirs, files in os.walk('/tmp/images'):
+                  for filename in files:
+                    local_path = os.path.join(root, filename)
+                    relative_path = os.path.relpath(local_path, '/tmp/images')
+                    s3_path = os.path.join('images/', relative_path)
+                    # Upload file to target bucket
+                    target_bucket.upload_file(local_path, s3_path)
+  
                 response_data['Message'] = "Resource creation succeeded"
               elif event['RequestType'] == 'Delete':
                 response_data['Message'] = "Resource deletion succeeded"
@@ -227,7 +239,10 @@ Resources:
 
       Handler: index.handler
       Runtime: python3.12
+      EphemeralStorage:
+           Size: 2048
       Timeout: 900
+      MemorySize: 1024
       Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
 
   CustomCopyImagesLambdaFunction:

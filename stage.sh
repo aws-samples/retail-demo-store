@@ -154,10 +154,11 @@ if [ "$only_cfn_template" = false ]; then
     fi
 
     # Sync product images
-    echo " + Copying product images"
-    aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.3"
-    aws s3 sync s3://retail-demo-store-code/datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.4"
-    aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of local image dataset 1.4"
+    #echo " + Copying product images"
+    # disabled, images are downloaded from https://code.retaildemostore.retail.aws.dev/images.tar.gz
+    #aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.3"
+    #aws s3 sync s3://retail-demo-store-code/datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.4"
+    #aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of local image dataset 1.4"
 
     aws s3 sync ./src/videos/src/videos-service/static s3://${BUCKET}/${S3PATH}images/videos/ $S3PUBLIC || echo "Skipping load of local video thumbnails"
 
