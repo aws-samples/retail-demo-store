@@ -59,11 +59,12 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 
 **The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.**
 
-**If you are a developer looking to contribute to the Retail Demo Store, please see the Developer section below.**
+> [!NOTE]
+> If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you. Check with your event administrators.
 
-To get the Retail Demo Store running in your own AWS account, follow these instructions. If you are attending an AWS-led event where temporary AWS accounts are provided, this has likely already been done for you. Check with your event administrators.
+> [!IMPORTANT]
+> To deploy to your own AWS account please follow the [Developer Instructions](./Developer-Instructions.md)
 
-To deploy to your own AWS account please follow the [Developer Instructions](./Developer-Instructions.md)
 
 ### Notes:
 
