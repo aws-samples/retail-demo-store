@@ -504,7 +504,7 @@ Parameters:
 
   SourceImagesPackage:
     Type: String
-    Description : full url to the images.tar.gz adress
+    Description : Full url to the images.tar.gz address (only change if you plan to upload custom pictures)
     Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
 
 Conditions:
