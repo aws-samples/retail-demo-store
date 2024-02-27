@@ -173,6 +173,11 @@ Parameters:
     Description: >
       (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
 
+  SourceImagesPackage:
+    Type: String
+    Description : full url to the images.tar.gz adress
+    Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
+
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
   LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
@@ -202,10 +207,11 @@ Resources:
               source_bucket_name = event['ResourceProperties']['SourceBucket']
               source_path = event['ResourceProperties']['SourceBucketPath']
               target_bucket_name = event['ResourceProperties']['TargetBucket']
+              source_images_package = event['ResourceProperties']['SourceImagesPackage']
 
               if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
                 os.makedirs('/tmp/images', exist_ok = True)
-                filename,headers= urllib.request.urlretrieve('https://code.retaildemostore.retail.aws.dev/images.tar.gz', '/tmp/images/images.tar.gz')              
+                filename, _ = urllib.request.urlretrieve( source_images_package , '/tmp/images/images.tar.gz')              
                 print(filename)
                 file = tarfile.open('/tmp/images/images.tar.gz')
                 file.extractall('/tmp/images/')
@@ -262,6 +268,7 @@ Resources:
             !Ref ResourceBucketRelativePath
           ]
       TargetBucket: !Ref WebUIBucketName
+      SourceImagesPackage: ! Ref SourceImagesPackage
 
   CopyImagesLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
