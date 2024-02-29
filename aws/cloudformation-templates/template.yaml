@@ -502,6 +502,11 @@ Parameters:
       - 'FALSE'
     Default: 'FALSE'
 
+  SourceImagesPackage:
+    Type: String
+    Description : Full url to the images.tar.gz address (only change if you plan to upload custom pictures)
+    Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -679,6 +684,7 @@ Resources:
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         ResourceBucketImages: !Ref ResourceBucketImages
         ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
+        SourceImagesPackage: !Ref SourceImagesPackage
 
   # Swagger UI Pipeline
   SwaggerUIPipeline:

@@ -23,13 +23,13 @@ set -e
 ########################################################################################################################################
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this case, we take 2 arguments for BUCKET and S3PATH
-# 2. "private-s3" contains a boolean value whether "--private-s3" is presented (e.g. "./stage.sh --private-s3" will set this to true.
+# 2. "private-s3" DEPRECATED. Default behaviour is private_s3=true
 # 3. "only-cfn-template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
 # 4. "skip-generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
 # 5. "skip-virtualenv" contains a boolean value to be used if stage.sh is called from inside a virtualenv 
 ########################################################################################################################################
 args=()
-private_s3=false
+private_s3=true # this is now on by default.
 only_cfn_template=false
 skip_generators=false
 
@@ -45,8 +45,7 @@ do
         bool=$(echo ${arg:2} | sed s/://g)
         if [ "$bool" == "private-s3" ]
         then
-            private_s3=true
-            echo Received a \"--private-s3\" flag. Will upload object without public access.
+            echo Received a \"--private-s3\" flag. this is not now the default behaviour, you don t have to use this parameter anymore
         elif [ "$bool" == "only-cfn-template" ]
         then
             only_cfn_template=true
@@ -93,6 +92,7 @@ echo "=============================================="
 ########################################################################################################################################
 
 # Add suffix to "s3 cp" commands to upload public objects
+# this is left for reference if you REALLY need staged public objects (you probably don't)
 if [ "$private_s3" = false ]; then
     export S3PUBLIC=" --acl public-read"
 fi
@@ -154,9 +154,9 @@ if [ "$only_cfn_template" = false ]; then
     fi
 
     # Sync product images
-    echo " + Copying product images"
-    aws s3 sync s3://retail-demo-store-code/datasets/1.3/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.3"
-    aws s3 sync s3://retail-demo-store-code/datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of remote image dataset 1.4"
+    echo " + Copying local product images (if any)"
+    # at deploy time images will be downloaded from https://code.retaildemostore.retail.aws.dev/images.tar.gz
+    # this can be configured in the cfn template with the parameter SourceImagesPackage
     aws s3 sync datasets/1.4/images/ s3://${BUCKET}/${S3PATH}images/ $S3PUBLIC || echo "Skipping load of local image dataset 1.4"
 
     aws s3 sync ./src/videos/src/videos-service/static s3://${BUCKET}/${S3PATH}images/videos/ $S3PUBLIC || echo "Skipping load of local video thumbnails"
