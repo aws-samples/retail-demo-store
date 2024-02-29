@@ -30,3 +30,5 @@ phases:
       - cd retail-demo-store/
       - pip3 install -r generators/requirements.txt
       - ./stage.sh retail-demo-store-code --private-s3
+      - ./stage.sh retail-demo-store-us-east-1 --private-s3 --skip-generators
+      - ./stage.sh retail-demo-store-us-west-2 --private-s3 --skip-generators
