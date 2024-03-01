@@ -1,34 +1,40 @@
 import boto3
 import json
 import os
-from aws_lambda_powertools import Logger
+from typing import Any
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.utilities.typing import LambdaContext
 
 s3_client = boto3.client('s3')
 sagemaker_client = boto3.client('sagemaker-runtime')
 dynamodb_client = boto3.client('dynamodb')
 
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
+inference_input_bucket = os.environ['INFERENCE_INPUT_BUCKET']
 endpoint_name = os.environ.get('ENDPOINT_NAME', 'controlnet-depth-sdxl')
-table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'photo')
+table_name = os.environ['DYNAMODB_TABLE_NAME']
 
-logger = Logger(service="roomgen-image-generator")
+logger = Logger(utc=True)
+metrics = Metrics()
 
 NEGATIVE_PROMPT =  "Avoid monochrome, pixelation, clutter, distorted proportions, and low-detail textures."
+INFERENCE_INPUT_S3_PREFIX = "async_inference/input/"
 
+@metrics.log_metrics(capture_cold_start_metric=True)
+def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict[str, Any]:
 
-def lambda_handler(event: dict, context) -> dict:
+    response = invoke_async_endpoint(event)
+    return {
+        "output_location": response['OutputLocation']
+    }
+
+def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
     event_payload = event["input"]
-
     id = event_payload["id"]
-    image_prefix = event_payload["image_prefix"]
-    image_key = event_payload["image_key"]
-    prompt = event_payload["prompt"]
-    task_token = event['token']
-
-    logger.info(f"Processing image id: {image_key}")
+    logger.info(f"Processing image id: {event_payload["image_key"]}")
 
     input_data = {}
-    input_data["prompt"] = prompt
+    input_data["prompt"] = event_payload["prompt"]
     input_data["steps"] = 15
     input_data["guidance_scale"] = 2.5
     input_data["controlnet_conditioning_scale"] = 0.5
@@ -36,24 +42,21 @@ def lambda_handler(event: dict, context) -> dict:
     input_data["negative_prompt"] = NEGATIVE_PROMPT
     input_data["init_image_s3"] = {
         "Bucket": input_image_bucket,
-        "Key": image_key
+        "Key": event_payload["image_key"]
     }
-
-    input_location_key = f"{image_prefix}{id}"
-    s3_client.put_object(Bucket=input_image_bucket, ContentType="application/json", Key=input_location_key, Body=json.dumps(input_data))
+    
+    inference_input_s3_key = f"{INFERENCE_INPUT_S3_PREFIX}{id}"
+    s3_client.put_object(Bucket=inference_input_bucket, ContentType="application/json", Key=inference_input_s3_key, Body=json.dumps(input_data))
 
     # handle any errors
     response = sagemaker_client.invoke_endpoint_async(
         EndpointName=endpoint_name, 
         InferenceId=id,
         ContentType="application/json", 
-        InputLocation=f"s3://{input_image_bucket}/{input_location_key}"
+        InputLocation=f"s3://{inference_input_bucket}/{inference_input_s3_key}"
     )
-    update_db(id, task_token, 'Generating')
-    
-    return {
-        "output_location": response['OutputLocation']
-    }
+    update_db(id, event['token'], 'Generating')
+    return response
 
 def update_db(id: str, task_token: str, status: str) -> None:
     dynamodb_client.update_item(
@@ -67,4 +70,4 @@ def update_db(id: str, task_token: str, status: str) -> None:
             ':task_token': {'S': task_token},
             ':state': {'S' : status}
         },
-        UpdateExpression='SET task_token = :task_token, room_state = :status')
+        UpdateExpression='SET task_token = :task_token, room_state = :state')

@@ -8,7 +8,8 @@ from PIL import Image
 import boto3
 from botocore.exceptions import ClientError
 from opensearchpy import OpenSearch
-from aws_lambda_powertools import Logger
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.utilities.typing import LambdaContext
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client('rekognition')
@@ -30,9 +31,10 @@ rekognition_max_labels = os.environ.get('REKOGNITION_MAX_LABELS', 10)
 rekognition_min_confidence = os.environ.get('REKOGNITION_MIN_CONFIDENCE', 10)
 embedded_products_index_name = os.environ.get('OPENSEARCH_INDEX_NAME', 'embproducts')
 
-table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'photo')
+table_name = os.environ['DYNAMODB_TABLE_NAME']
 
-logger = Logger(service="roomgen-image-analyzer")
+logger = Logger(utc=True)
+metrics = Metrics()
 
 room_style_prompt_mapping = {
     'minimalist': 'Transform a traditional living room into a modern, minimalist space with sleek furniture and natural light enhancement.', 
@@ -52,7 +54,6 @@ class SimilarItem:
 class LabelBox:
     name: str
     bounding_box: dict[str, int]
-    cropped_image: Image = None
     embedding: List[float] = None
     similar_items: List[SimilarItem] = None
 
@@ -63,16 +64,13 @@ class RoomGenerationRequest:
     image_prefix: str
     image_key: str
 
-def lambda_handler(event: dict, context) -> dict:
+@metrics.log_metrics(capture_cold_start_metric=True)
+def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
     request = RoomGenerationRequest(event["id"], event['room_style'], event["image_prefix"], event["image_key"])
 
     labelled_furniture: List[LabelBox] = analyze_image(request)
-    # Tidy up this code as potentially there could be a problem obtaining embeddings etc. which will
-    # result in less labels than initially predicted
-
-    crop_image_per_label(request, labelled_furniture)
-    get_embeddings_per_label(labelled_furniture)
-    get_captions_and_similar_items(labelled_furniture, size=1)
+    process_image_boxes(request, labelled_furniture)
+    get_captions_and_similar_items(labelled_furniture)
     prompt = create_approximate_prompt(request, labelled_furniture)
     logger.info(f'Prompt created for {request}: {prompt}')
 
@@ -113,7 +111,7 @@ def analyze_image(request: RoomGenerationRequest) -> List[LabelBox]:
     return get_bounding_boxes(response)
     
 
-def crop_image_per_label(request: RoomGenerationRequest, labelled_boxes: List[LabelBox]):
+def process_image_boxes(request: RoomGenerationRequest, labelled_boxes: List[LabelBox]):
     def to_pixel_coordinates(relative_coord, dimension):
         return round(relative_coord * dimension)
     
@@ -125,47 +123,43 @@ def crop_image_per_label(request: RoomGenerationRequest, labelled_boxes: List[La
         height = to_pixel_coordinates(box.bounding_box['Height'] if 'Height' in box.bounding_box else 0, 1024)
         try:    
             # Crop the image according to the bounding box
-            cropped_image = room_image.crop((left, top, left + width, top + height))            
+            cropped_image = room_image.crop((left, top, left + width, top + height))
+            buffered = io.BytesIO()
+            cropped_image.save(buffered, format="PNG")      
             logger.info(f"{box.name} cropped successfully")
-            box.cropped_image = cropped_image
+            box.embedding = get_embeddings(buffered, box.name)
 
         except Exception:
             logger.exception('Error processing image box')
 
 # Function to send an inference request to the Titan model
-def get_embeddings_per_label(labelled_boxes: List[LabelBox]):
-    def get_embeddings(box: LabelBox) -> None:
-        # Convert the image to bytes
-        buffered = io.BytesIO()
-        box.cropped_image.save(buffered, format="JPEG")
-        # Encode the bytes to base64
-        img_base64 = base64.b64encode(buffered.getvalue())
-        # Convert bytes to string
-        img_base64_str = img_base64.decode()
+def get_embeddings(image_buffer: io.BytesIO, text_description: str) -> List[float]:
+    # Encode the bytes to base64
+    img_base64 = base64.b64encode(image_buffer.getvalue())
+    # Convert bytes to string
+    img_base64_str = img_base64.decode()
 
-        body = json.dumps({
-            "inputText": box.name,
-            "inputImage": img_base64_str
-        })
-        try:
-            response = bedrock_runtime.invoke_model(
-                body=body, 
-                modelId="amazon.titan-embed-image-v1",
-                accept="application/json", 
-                contentType="application/json"
-            )
-            response_body = json.loads(response.get("body").read())
-        except ClientError:
-            # If there is an exception, just log and carry on
-            logger.exception("Error getting Titan embeddings")
-        else:
-            box.embedding = response_body.get("embedding")
+    body = json.dumps({
+        "inputText": text_description,
+        "inputImage": img_base64_str
+    })
+    try:
+        response = bedrock_runtime.invoke_model(
+            body=body, 
+            modelId="amazon.titan-embed-image-v1",
+            accept="application/json", 
+            contentType="application/json"
+        )
+        response_body = json.loads(response.get("body").read())
+    except ClientError as error:
+        # If there is an exception, just log and carry on
+        logger.exception("Error getting Titan embeddings")
+        raise error
+    else:
+        return response_body.get("embedding")
 
-    for box in labelled_boxes:
-        if box.cropped_image:
-            get_embeddings(box)
-
-def get_captions_and_similar_items(labels: List[LabelBox], size: int) -> List[LabelBox]:
+    
+def get_captions_and_similar_items(labels: List[LabelBox], size=3) -> List[LabelBox]:
     def query_opensearch(box: LabelBox) -> None:
         query = {
           "size": size,
