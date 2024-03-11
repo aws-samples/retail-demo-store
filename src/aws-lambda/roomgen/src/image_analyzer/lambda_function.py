@@ -29,7 +29,7 @@ search_client = OpenSearch(
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
 rekognition_max_labels = os.environ.get('REKOGNITION_MAX_LABELS', 10)
 rekognition_min_confidence = os.environ.get('REKOGNITION_MIN_CONFIDENCE', 10)
-embedded_products_index_name = os.environ.get('OPENSEARCH_INDEX_NAME', 'embproducts')
+embedded_products_index_name = os.environ['OPENSEARCH_INDEX_NAME']
 
 table_name = os.environ['DYNAMODB_TABLE_NAME']
 
@@ -41,7 +41,7 @@ room_style_prompt_mapping = {
     'modern': 'Revamp a traditional living room into a Mid Century Modern oasis featuring clean lines, organic forms, and a mix of different materials such as wood, metal, and glass.', 
     'bohemian': 'Rework a traditional living room into a Bohemian Chic haven with eclectic furnishings, vibrant textiles, and an abundance of plants and cultural artifacts.', 
     'rustic': 'Update a traditional living room into a Rustic Farmhouse setting with reclaimed wood accents, comfortable and practical furniture, and a warm, neutral color palette.', 
-    'industrial:': 'Transform a traditional living area into an edgy Industrial loft, highlighting raw, unfinished materials like exposed brick and steel, open spaces, and vintage-inspired lighting for a touch of modernity.', 
+    'industrial': 'Transform a traditional living area into an edgy Industrial loft, highlighting raw, unfinished materials like exposed brick and steel, open spaces, and vintage-inspired lighting for a touch of modernity.', 
     'scandanavian': 'Redesign a conventional living space into a serene, Scandinavian sanctuary that emphasizes functionality, natural light flooding, and a palette of soft, muted colors paired with elements of wood.'
 }
 

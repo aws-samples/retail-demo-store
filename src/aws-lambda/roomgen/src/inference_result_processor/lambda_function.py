@@ -8,7 +8,7 @@ s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
 
 image_bucket = os.environ['INPUT_IMAGE_BUCKET']
-table_name = os.environ.get('DYNAMODB_TABLE_NAME', 'photo')
+table_name = os.environ['DYNAMODB_TABLE_NAME']
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):

@@ -1,0 +1,633 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Room Generator Demo
+
+Parameters:
+  LambdaVpcSecurityGroup:
+    Type: String  
+  LambdaVpcSubnets:
+    Type: String
+  ResourceBucket:
+    Type: String
+  ResourceBucketRelativePath:
+    Type: String
+  LoggingBucketName:
+    Type: String
+  CleanupBucketLambdaArn:
+    Type: String
+    Description: Lambda Arn for cleanup function
+  OpenSearchDomainEndpoint:
+    Type: String
+  OpenSearchIndex:
+    Type: String
+  SagemakerEndpointName:
+    Type: String
+    Description: The Sagemaker async endpoint name used for image generation
+    Default: controlnet-depth-sdxl
+  ApiGatewayId:
+    Type: String
+  LambdaAuthorizer:
+    Type: String
+
+Resources:
+
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucketName
+        LogFilePrefix: roomgen-logs 
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+
+  InferenceBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+  
+  # Empties bucket when stack is deleted
+  EmptyImageBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref ImageBucket
+
+  EmptyInferenceBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref InferenceBucket
+
+  RoomGenerationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "room_owner"
+          AttributeType: "S"
+        - AttributeName: "dt"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: room_owner-dt-index
+          KeySchema:
+            - AttributeName: "room_owner"
+              KeyType: "HASH"
+            - AttributeName: "dt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes: ["room_state", "room_style"]
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+  
+  BaseLambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: roomgeneration-base-layer
+      Description: Base Layer for Room Generation Lambda's
+      Content:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_base_layer.zip'
+      CompatibleRuntimes:
+        - python3.12
+
+  ImageLambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: roomgeneration-image-layer
+      Description: Image Layer for Room Generation Lambda's
+      Content:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_imaging_layer.zip'
+      CompatibleRuntimes:
+        - python3.12
+
+  ApiHandlerLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !GetAtt RoomGenerationTable.Arn
+              
+
+  ApiHandlerLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt ApiHandlerLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_api_handler.zip'
+      Runtime: python3.12
+      Timeout: 3
+      FunctionName: RoomGeneratorApiHandler
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
+          INPUT_IMAGE_BUCKET: !Ref ImageBucket
+          POWERTOOLS_METRICS_NAMESPACE: retaildemostore
+          POWERTOOLS_SERVICE_NAME: roomgen-api
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  DynamoDbStreamHandlerLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeStream
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                Resource: !GetAtt RoomGenerationTable.StreamArn
+              - Effect: Allow
+                Action:
+                  - states:StartExecution
+                Resource: !Ref RoomGenerationStateMachine
+
+  RoomGenerationTableStream:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1 #trigger one lambda per document
+      Enabled: True
+      EventSourceArn: !GetAtt RoomGenerationTable.StreamArn
+      FunctionName: !GetAtt DynamoDbStreamHandlerLambdaFunction.Arn
+      StartingPosition: LATEST #always start at the tail of the stream
+      MaximumRecordAgeInSeconds: 120
+      MaximumRetryAttempts: 1
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "eventName" : [ "INSERT" ] }'
+
+  DynamoDbStreamHandlerLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDbStreamHandlerLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_dynamodb_stream_handler.zip'
+      Runtime: python3.12
+      Timeout: 3
+      FunctionName: RoomGeneratorDynamoDbStreamHandler
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !GetAtt RoomGenerationStateMachine.Arn
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  ImageAnalyzerLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !GetAtt RoomGenerationTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
+              - Effect: Allow
+                Action:
+                  - rekognition:DetectLabels
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/amazon.titan-embed-image-v1'          
+
+  ImageAnalyzerLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt ImageAnalyzerLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_image_analyzer.zip'
+      Runtime: python3.12
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
+      FunctionName: RoomGeneratorImageAnalyzer
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
+          INPUT_IMAGE_BUCKET: !Ref ImageBucket
+          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchIndex
+          POWERTOOLS_METRICS_NAMESPACE: retaildemostore
+          POWERTOOLS_SERVICE_NAME: roomgen-image-analyzer
+      Layers:
+        - !Ref ImageLambdaLayer
+
+  ImageGenerationLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !GetAtt RoomGenerationTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - sagemaker:InvokeEndpointAsync
+                Resource: 
+                  - !Sub arn:${AWS::Partition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint/${SagemakerEndpointName}
+
+  ImageGenerationLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt ImageGenerationLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_image_generation.zip'
+      Runtime: python3.12
+      Timeout: 30
+      FunctionName: RoomGeneratorAsyncImageInference
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
+          ENDPOINT_NAME: !Ref SagemakerEndpointName
+          INPUT_IMAGE_BUCKET: !Ref ImageBucket
+          INFERENCE_INPUT_BUCKET: !Ref InferenceBucket
+          POWERTOOLS_METRICS_NAMESPACE: retaildemostore
+          POWERTOOLS_SERVICE_NAME: roomgen-image-generator
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  InferenceResultProcessorLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !GetAtt RoomGenerationTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}/*'
+  
+  InferenceResultProcessorLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt InferenceResultProcessorLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_inference_result_processor.zip'
+      Runtime: python3.12
+      Timeout: 3
+      FunctionName: RoomGeneratorInferenceResultProcessor
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
+          INPUT_IMAGE_BUCKET: !Ref ImageBucket
+          POWERTOOLS_SERVICE_NAME: roomgen-inference-result-processor
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  SnsSubscriberLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                Resource: !GetAtt RoomGenerationTable.Arn
+              - Effect: Allow
+                Action:
+                  - states:SendTaskSuccess
+                Resource: !Ref RoomGenerationStateMachine
+  
+  SnsSubscriberLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt SnsSubscriberLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_inference_sns_subscriber.zip'
+      Runtime: python3.12
+      Timeout: 3
+      FunctionName: RoomGeneratorSnsSubscriber
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
+          POWERTOOLS_SERVICE_NAME: roomgen-sns-subscriber
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: 
+                  - !GetAtt ImageAnalyzerLambdaFunction.Arn
+                  - !GetAtt ImageGenerationLambdaFunction.Arn
+                  - !GetAtt InferenceResultProcessorLambdaFunction.Arn
+
+  RoomGenerationStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: RoomGeneration-StateMachine
+      DefinitionString: |-
+        {
+          "StartAt": "Image Analyzer",
+          "States": {
+            "Image Analyzer": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "${RoomGenerationImageAnalyzerFunction}"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Image Generator"
+            },
+            "Image Generator": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Parameters": {
+                "Payload": {
+                  "token.$": "$$.Task.Token",
+                  "input.$": "$"
+                },
+                "FunctionName": "${RoomGenerationImageGeneratorFunction}"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Image Result Processor"
+            },
+            "Image Result Processor": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "${RoomGenerationInferenceResultProcessorFunction}"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        RoomGenerationImageAnalyzerFunction: !GetAtt ImageAnalyzerLambdaFunction.Arn
+        RoomGenerationImageGeneratorFunction: !GetAtt ImageGenerationLambdaFunction.Arn
+        RoomGenerationInferenceResultProcessorFunction: !GetAtt InferenceResultProcessorLambdaFunction.Arn
+      RoleArn: !GetAtt StateMachineRole.Arn
+  
+  ApiGatewayFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt ApiHandlerLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayId}/*/*/*"
+
+  ApiIntegration:
+    Type: 'AWS::ApiGatewayV2::Integration'
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      Description: Room Generator API Lambda Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiHandlerLambdaFunction.Arn}/invocations"          
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetRoomById:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      RouteKey: 'GET /rooms/{id}'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ApiIntegration
+
+  GetRooms:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      RouteKey: 'GET /rooms'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ApiIntegration
+
+  CreateRoom:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      RouteKey: 'POST /rooms'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref ApiIntegration
