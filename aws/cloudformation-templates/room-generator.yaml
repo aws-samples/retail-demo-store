@@ -30,6 +30,10 @@ Parameters:
     Type: String
   LambdaAuthorizer:
     Type: String
+  WebURL:
+    Type: String
+  CognitoAuthorizedRole:
+    Type: String
 
 Resources:
 
@@ -45,6 +49,32 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
             BucketKeyEnabled: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - POST
+              - PUT
+            AllowedOrigins:
+              - !Ref WebURL
+            MaxAge: 600
+
+  ImageBucketPolicy:
+    Type: AWS::IAM::Policy
+    Properties:      
+      PolicyName: RoomGenS3UploadPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:PutObject'
+              - 's3:GetObject'
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ImageBucket}/private/${!cognito-identity.amazonaws.com:sub}/*"
+      Roles: 
+        - !Ref CognitoAuthorizedRole
 
   InferenceBucket:
     Type: AWS::S3::Bucket
