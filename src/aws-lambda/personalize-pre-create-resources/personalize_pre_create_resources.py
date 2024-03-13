@@ -25,6 +25,7 @@ For example, the Experimentation workshop.
 """
 
 import json
+import urllib
 import boto3
 import logging
 import os
@@ -49,10 +50,29 @@ sts = boto3.client('sts')
 bucket = os.environ['csv_bucket']
 bucket_path = os.environ.get('csv_path', '')
 
+# Default value : https://code.retaildemostore.retail.aws.dev/
+base_url = os.environ['base_url']
+
 items_filename = bucket_path + "items.csv"
 users_filename = bucket_path + "users.csv"
 interactions_filename = bucket_path + "interactions.csv"
 offer_interactions_filename = bucket_path + "offer_interactions.csv"
+
+
+# Download generated csv file from central repo
+
+filename_items, _ = urllib.request.urlretrieve( base_url + 'csvs/items.csv' , '/tmp/items.csv')
+filename_users, _ = urllib.request.urlretrieve( base_url + 'csvs/users.csv' , '/tmp/users.csv')
+filename_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/interactions.csv' , '/tmp/interactions.csv')
+filename_offer_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/interactions.csv' , '/tmp/offer_interactions.csv')
+
+# upload these files to the S3 stack bucket where personalize will have the right s3 policies
+s3 = boto3.client('s3')
+s3.upload_file(filename_items, bucket, items_filename)
+s3.upload_file(filename_users, bucket, users_filename)
+s3.upload_file(filename_interactions, bucket, interactions_filename)
+s3.upload_file(filename_offer_interactions, bucket, offer_interactions_filename)
+
 
 session = boto3.session.Session()
 region = session.region_name

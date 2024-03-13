@@ -818,6 +818,7 @@ Resources:
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
         PersonalizeRoleArn: !GetAtt Base.Outputs.PersonalizeRoleArn
+        StackBucketName: !GetAtt Base.Outputs.StackBucketName
 
   # Cleanup bucket function
   CleanupBucket:
