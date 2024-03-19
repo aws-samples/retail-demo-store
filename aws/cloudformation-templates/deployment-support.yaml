@@ -104,6 +104,10 @@ Parameters:
   PersonalizeRoleArn:
     Type: String
 
+  StackBucketName:
+    Type: String
+    Default: none
+
 Conditions:
   DeployPreIndexOpenSearch: !Equals
     - !Ref PreIndexOpenSearch
@@ -152,8 +156,9 @@ Resources:
       FunctionName: RetailDemoStorePersonalizePreCreateResources
       Environment:
         Variables:
-          csv_bucket: !Ref ResourceBucket
-          csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
+          csv_bucket: !Ref StackBucketName
+          csv_path:  'csvs/'
+          base_url: 'https://code.retaildemostore.retail.aws.dev/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
@@ -241,6 +246,17 @@ Resources:
                   - codepipeline:ListTagsForResource
                 Resource:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
+              -
+                Effect: "Allow"
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                  - s3:GetBucketPolicy
+                Resource:
+                  - !Sub arn:aws:s3:::${StackBucketName}/*
+                  - !Sub arn:aws:s3:::${StackBucketName}                  
               - Effect: Allow
                 Action:
                   - codepipeline:StartPipelineExecution
