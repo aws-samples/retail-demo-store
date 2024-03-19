@@ -48,6 +48,7 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
     inference_input_s3_key = f"{INFERENCE_INPUT_S3_PREFIX}{id}"
     s3_client.put_object(Bucket=inference_input_bucket, ContentType="application/json", Key=inference_input_s3_key, Body=json.dumps(input_data))
 
+    update_db(id, event['token'], 'Generating')
     # handle any errors
     response = sagemaker_client.invoke_endpoint_async(
         EndpointName=endpoint_name, 
@@ -55,7 +56,7 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
         ContentType="application/json", 
         InputLocation=f"s3://{inference_input_bucket}/{inference_input_s3_key}"
     )
-    update_db(id, event['token'], 'Generating')
+    
     return response
 
 def update_db(id: str, task_token: str, status: str) -> None:

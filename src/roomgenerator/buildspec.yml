@@ -1,0 +1,23 @@
+version: 0.2
+
+env:
+  variables:
+    pythonversion: 3.12
+
+phases:
+  install:
+    runtime-versions:
+      python: $pythonversion
+  pre_build:
+    commands:
+      - echo Installing python dependencies...
+      - cd src/roomgenerator/model
+      - pip install -r code/requirements.txt
+  build:
+    commands:
+      - echo Downloading model parameters...
+      - python save_models.py
+  post_build:
+    commands:
+      - echo Copying model artifacts to S3...
+      - aws s3 cp . s3://${MODEL_ARTIFACTS_BUCKET} --recursive --quiet --exclude 'save_models.py'

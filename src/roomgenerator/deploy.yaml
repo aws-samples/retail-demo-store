@@ -1,0 +1,123 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ModelBucket:
+    Type: String
+    Description: Bucket containing the model
+  ModelPrefix:
+    Type: String
+    Description: Prefix that contains the model
+  ImageBucket:
+    Type: String
+    Description: The bucket that contains the uploaded images
+  InferenceBucket:
+    Type: String
+    Description: The bucket that contains the input and outpu payloads to be processed by the inference endpoint
+  SuccessTopic:
+    Type: String
+    Description: The Sns topic to send inference success notifications
+  EndpointName:
+    Type: String
+    Description: The name to use for the SageMaker endpoint
+
+Mappings: 
+  RegionMap: 
+    "us-east-1":
+      "DLC": "763104351884.dkr.ecr.us-east-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "us-west-2":
+      "DLC": "763104351884.dkr.ecr.us-west-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "eu-west-1":
+      "DLC": "763104351884.dkr.ecr.eu-west-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "ap-northeast-1":
+      "DLC": "763104351884.dkr.ecr.ap-northeast-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "ap-southeast-2":
+      "DLC": "763104351884.dkr.ecr.ap-southeast-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+
+Resources:
+  ExecutionRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - "sagemaker.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "root"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
+              - Effect: Allow
+                Action: 
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ModelBucket}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ModelBucket}/*'
+              - Effect: Allow
+                Action: 
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}/*'
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref SuccessTopic
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource: '*'
+  
+  SageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      PrimaryContainer:
+        Image: !FindInMap [RegionMap, !Ref "AWS::Region", "DLC"]
+        ModelDataSource:
+          S3DataSource:
+            S3Uri: !Sub 's3://${ModelBucket}/${ModelPrefix}'
+            S3DataType: S3Prefix
+            CompressionType: None
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
+
+  EndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      AsyncInferenceConfig:
+        OutputConfig:
+          S3OutputPath: !Sub 's3://${InferenceBucket}/async_inference/output'
+          NotificationConfig:
+            SuccessTopic: !Ref SuccessTopic
+      ProductionVariants:
+        - InitialInstanceCount: 1
+          InitialVariantWeight: 1.0
+          InstanceType: ml.g5.2xlarge
+          ModelName: !GetAtt SageMakerModel.ModelName
+          VariantName: AllTraffic
+
+  Endpoint:
+    Type: "AWS::SageMaker::Endpoint"
+    Properties:
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+      EndpointName: !Ref EndpointName
+            
