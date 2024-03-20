@@ -108,7 +108,10 @@ aws cloudformation deploy \
   CreateOpenSearchServiceLinkedRole="No" \
   ACMCertificateArn="" \
   PreCreatePersonalizeResources="${param_personalize}" \
-  PreIndexElasticsearch="${param_elasticsearch}"
+  PreIndexElasticsearch="${param_elasticsearch}" \
+  ResourceBucketImages="" \
+  ResourceBucketImagesPrefix=""
+  
 
 
 # Wait until stack creation completes
