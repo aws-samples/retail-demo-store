@@ -64,7 +64,7 @@ offer_interactions_filename = bucket_path + "offer_interactions.csv"
 filename_items, _ = urllib.request.urlretrieve( base_url + 'csvs/items.csv' , '/tmp/items.csv')
 filename_users, _ = urllib.request.urlretrieve( base_url + 'csvs/users.csv' , '/tmp/users.csv')
 filename_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/interactions.csv' , '/tmp/interactions.csv')
-filename_offer_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/interactions.csv' , '/tmp/offer_interactions.csv')
+filename_offer_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/offer_interactions.csv' , '/tmp/offer_interactions.csv')
 
 # upload these files to the S3 stack bucket where personalize will have the right s3 policies
 s3 = boto3.client('s3')
