@@ -4,4 +4,5 @@ accelerate
 datasets
 matplotlib
 timm==0.6.7
+compel
 boto3

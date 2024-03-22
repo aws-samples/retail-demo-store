@@ -2,7 +2,7 @@ import json
 import io
 import base64
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Any, List
 from PIL import Image
 import boto3
@@ -27,8 +27,6 @@ search_client = OpenSearch(
 )
 
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
-rekognition_max_labels = os.environ.get('REKOGNITION_MAX_LABELS', 10)
-rekognition_min_confidence = os.environ.get('REKOGNITION_MIN_CONFIDENCE', 10)
 embedded_products_index_name = os.environ['OPENSEARCH_INDEX_NAME']
 
 table_name = os.environ['DYNAMODB_TABLE_NAME']
@@ -54,8 +52,7 @@ class SimilarItem:
 class LabelBox:
     name: str
     bounding_box: dict[str, int]
-    embedding: List[float] = None
-    similar_items: List[SimilarItem] = None
+    similar_items: List[SimilarItem] = field(default_factory=list)
 
 @dataclass
 class RoomGenerationRequest:
@@ -67,75 +64,87 @@ class RoomGenerationRequest:
 @metrics.log_metrics(capture_cold_start_metric=True)
 def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
     request = RoomGenerationRequest(event["id"], event['room_style'], event["image_prefix"], event["image_key"])
-
-    labelled_furniture: List[LabelBox] = analyze_image(request)
-    process_image_boxes(request, labelled_furniture)
-    get_captions_and_similar_items(labelled_furniture)
-    prompt = create_approximate_prompt(request, labelled_furniture)
-    logger.info(f'Prompt created for {request}: {prompt}')
-
-    update_db(request, labelled_furniture, prompt)
+    
+    labelled_furniture = get_labelled_furniture(input_image_bucket, request.image_key)
+    prompt = create_approximate_prompt(request.room_style, labelled_furniture)
+    
+    update_db(request.id, labelled_furniture, prompt)
 
     response = asdict(request)
     response['prompt'] = prompt
     return response
 
-def analyze_image(request: RoomGenerationRequest) -> List[LabelBox]:
-    def get_bounding_boxes(response: dict[str, Any]) -> List[LabelBox]:
-        label_boxes = []
-        for label in response.get('Labels', []):
-            for instance in label.get('Instances', []):
-                if bounding_box := instance.get('BoundingBox'):
-                    label_boxes.append(LabelBox(
-                        name=label.get('Name', 'Unknown'),
-                        bounding_box={
-                            'Left': bounding_box.get('Left'),
-                            'Top': bounding_box.get('Top'),
-                            'Width': bounding_box.get('Width'),
-                            'Height': bounding_box.get('Height')
-                        }
-                    ))
-        return label_boxes
+def get_labelled_furniture(input_image_bucket:str, image_key: str) -> List[LabelBox]:
+    labelled_furniture: List[LabelBox] = analyze_image(input_image_bucket, image_key)
+    initial_image: Image = fetch_image(input_image_bucket, image_key)
+    for furniture_item_box in labelled_furniture:
+        try:
+            cropped_image: bytes = crop_image(initial_image, furniture_item_box)
+            embeddings: List[float] = get_embeddings(cropped_image, furniture_item_box.name)
+            similar_items: List[SimilarItem] = get_similar_items(embeddings)
+        except Exception:
+            logger.error(f"Couldn't process labelled box: {furniture_item_box.name}")
+        else:
+            furniture_item_box.similar_items = similar_items
+    return labelled_furniture
+
+def fetch_image(bucket: str, key: str) -> Image:
+    response = s3_client.get_object(Bucket=bucket, Key=key)
+    image_bytes = response["Body"].read()
+    return Image.open(io.BytesIO(image_bytes))
+
+def analyze_image(bucket: str, key: str, rekognition_max_labels: int = 10, rekognition_min_confidence: int = 10) -> List[LabelBox]:
     # Prepare the request
     params = {
         'Image': {
             'S3Object': {
-                'Bucket': input_image_bucket,
-                'Name': request.image_key
+                'Bucket': bucket,
+                'Name': key
             }
         },
         'MaxLabels': rekognition_max_labels, 
         'MinConfidence': rekognition_min_confidence
     }
     response = rekognition_client.detect_labels(**params)    
-    return get_bounding_boxes(response)
-    
+    label_boxes = []
+    for label in response.get('Labels', []):
+        for instance in label.get('Instances', []):
+            if bounding_box := instance.get('BoundingBox'):
+                label_boxes.append(LabelBox(
+                    name=label.get('Name', 'Unknown'),
+                    bounding_box={
+                        'Left': bounding_box.get('Left'),
+                        'Top': bounding_box.get('Top'),
+                        'Width': bounding_box.get('Width'),
+                        'Height': bounding_box.get('Height')
+                    }
+                ))
+    return label_boxes
 
-def process_image_boxes(request: RoomGenerationRequest, labelled_boxes: List[LabelBox]):
-    def to_pixel_coordinates(relative_coord, dimension):
+def crop_image(image: Image, box: LabelBox) -> bytes:
+    def to_pixel_coordinates(relative_coord, dimension) -> float:
         return round(relative_coord * dimension)
-    
-    room_image: Image = fetch_image(request)
-    for box in labelled_boxes:        
-        left = to_pixel_coordinates(box.bounding_box['Left'] if 'Left' in box.bounding_box else 0, 1024)
-        top = to_pixel_coordinates(box.bounding_box['Top'] if 'Top' in box.bounding_box else 0, 1024)
-        width = to_pixel_coordinates(box.bounding_box['Width'] if 'Width' in box.bounding_box else 0, 1024)
-        height = to_pixel_coordinates(box.bounding_box['Height'] if 'Height' in box.bounding_box else 0, 1024)
-        try:    
-            # Crop the image according to the bounding box
-            cropped_image = room_image.crop((left, top, left + width, top + height))
-            buffered = io.BytesIO()
-            cropped_image.save(buffered, format="PNG")      
-            logger.info(f"{box.name} cropped successfully")
-            box.embedding = get_embeddings(buffered, box.name)
-
-        except Exception:
-            logger.exception('Error processing image box')
+          
+    left = to_pixel_coordinates(box.bounding_box['Left'] if 'Left' in box.bounding_box else 0, 1024)
+    top = to_pixel_coordinates(box.bounding_box['Top'] if 'Top' in box.bounding_box else 0, 1024)
+    width = to_pixel_coordinates(box.bounding_box['Width'] if 'Width' in box.bounding_box else 0, 1024)
+    height = to_pixel_coordinates(box.bounding_box['Height'] if 'Height' in box.bounding_box else 0, 1024)
+    try:    
+        # Crop the image according to the bounding box
+        cropped_image = image.crop((left, top, left + width, top + height))
+        buffered = io.BytesIO()
+        cropped_image.save(buffered, format="PNG")      
+    except Exception as error:
+        logger.exception('Error processing image box')
+        raise error
+    else:
+        logger.info(f"{box.name} cropped successfully")
+        return buffered.getvalue()
 
 # Function to send an inference request to the Titan model
-def get_embeddings(image_buffer: io.BytesIO, text_description: str) -> List[float]:
+def get_embeddings(image_bytes: bytes, text_description: str) -> List[float]:
     # Encode the bytes to base64
-    img_base64 = base64.b64encode(image_buffer.getvalue())
+    img_base64 = base64.b64encode(image_bytes)
     # Convert bytes to string
     img_base64_str = img_base64.decode()
 
@@ -152,71 +161,60 @@ def get_embeddings(image_buffer: io.BytesIO, text_description: str) -> List[floa
         )
         response_body = json.loads(response.get("body").read())
     except ClientError as error:
-        # If there is an exception, just log and carry on
         logger.exception("Error getting Titan embeddings")
         raise error
     else:
         return response_body.get("embedding")
-
     
-def get_captions_and_similar_items(labels: List[LabelBox], size=3) -> List[LabelBox]:
-    def query_opensearch(box: LabelBox) -> None:
-        query = {
-          "size": size,
-          "_source": ["caption", "category", "filename"],
-          "query": {
+def get_similar_items(embeddings: bytes, size=3) -> List[SimilarItem]:
+    query = {
+        "size": size,
+        "_source": ["caption"],
+        "query": {
             "knn": {
-              "embedding": {
-                "vector": box.embedding,
-                "k": size
-              }
+                "embedding": {
+                    "vector": embeddings,
+                    "k": size
+                }
             }
-          }
         }
-        try: 
-            response = search_client.search(query, index = embedded_products_index_name)
-        except ClientError:
-            logger.exception(f'There was a problem retrieving similar items for: {box.name}')
-        else:
-            hits = response['hits']['hits']
-            # Update the box with similarItems
-            box.similar_items = [SimilarItem(hit['_id'], hit['_source']['caption']) for hit in hits]
+    }
+    try: 
+        response = search_client.search(query, index = embedded_products_index_name)
+    except ClientError as error:
+        logger.exception('There was a problem retrieving similar items')
+        raise error
+    else:
+        hits = response['hits']['hits']
+        # Update the box with similarItems
+        return [SimilarItem(hit['_id'], hit['_source']['caption']) for hit in hits]
 
-    # Process each box
-    for box in labels:
-        if box.embedding:
-            query_opensearch(box)
-
-def create_approximate_prompt(request: RoomGenerationRequest, labelled_boxes: List[LabelBox]):
+def create_approximate_prompt(room_style: str, labelled_furniture: List[LabelBox]):
     # Get the base prompt for the style requested
-    new_prompt = room_style_prompt_mapping[request.room_style]
+    new_prompt = room_style_prompt_mapping[room_style]
     max_length = 350
-    
-    if not labelled_boxes:
+
+    captions = [labelled_box.similar_items[0].caption for labelled_box in labelled_furniture if labelled_box.similar_items]
+    if not captions:
         return new_prompt[:max_length]  # Return the base prompt if no labels
     
     # Calculate the average length we can afford for each label to approximate even distribution
-    average_length_per_item = (max_length - len(new_prompt)) // len(labelled_boxes)
-    logger.info(f"Average length per item: {average_length_per_item}")
+    average_length_per_item = (max_length - len(new_prompt)) // len(captions)
+    logger.debug(f"Average length per item: {average_length_per_item}")
     # Append an evenly distributed part of each item's similar_items[0][4]
-    for item in labelled_boxes:
+    for caption in captions:
         # Calculate the length to use, ensuring we don't exceed our average target too much
-        part_length = min(average_length_per_item, len(item.similar_items[0].caption))
+        part_length = min(average_length_per_item, len(caption))
         # Add the item part to the new_prompt
-        new_prompt += "," + item.similar_items[0].caption.replace("there is a ", "")[:part_length]
+        # Remove some standard text that won't add anything
+        new_prompt += "," + caption.replace("The image shows ", "")[:part_length]
         # Break if we reach or exceed the max_length
         if len(new_prompt) >= max_length:
             break
     
     return new_prompt[:max_length]
 
-
-def fetch_image(request: RoomGenerationRequest) -> Image:
-    response = s3_client.get_object(Bucket=input_image_bucket, Key=request.image_key)
-    image_bytes = response["Body"].read()
-    return Image.open(io.BytesIO(image_bytes))
-
-def update_db(request: RoomGenerationRequest, labels: List[LabelBox], prompt: str) -> None:        
+def update_db(id: str, labels: List[LabelBox], prompt: str) -> None:        
     boxes = [{'M': {
         'name': {'S': label.name},
         'bounding_box': {'M': {key: {"N": str(value)} for key, value in label.bounding_box.items()}},
@@ -226,7 +224,7 @@ def update_db(request: RoomGenerationRequest, labels: List[LabelBox], prompt: st
         TableName=table_name, 
         Key={
             'id': {
-                'S': request.id
+                'S': id
             }
         },
         ExpressionAttributeValues={

@@ -35,10 +35,11 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
 
     input_data = {}
     input_data["prompt"] = event_payload["prompt"]
-    input_data["steps"] = 15
-    input_data["guidance_scale"] = 2.5
-    input_data["controlnet_conditioning_scale"] = 0.5
-    input_data["cross_attention_scale"] = 1.2
+    input_data["steps"] = 8
+    input_data["strength"] = 0.9
+    input_data["guidance_scale"] = 8
+    input_data["controlnet_conditioning_scale"] = 0.35
+    input_data["cross_attention_scale"] = 1.0
     input_data["negative_prompt"] = NEGATIVE_PROMPT
     input_data["init_image_s3"] = {
         "Bucket": input_image_bucket,

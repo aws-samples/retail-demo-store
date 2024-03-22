@@ -1,12 +1,12 @@
+from io import BytesIO
+import json
+import base64
 import torch
 import numpy as np
 from PIL import Image
 from transformers import DPTImageProcessor, DPTForDepthEstimation
-from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, LCMScheduler, AutoencoderKL
-
-from io import BytesIO
-import json
-import base64
+from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, UNet2DConditionModel, LCMScheduler, AutoencoderKL
+from compel import Compel, ReturnedEmbeddingsType
 import boto3
 
 s3_client = boto3.client('s3')
@@ -15,6 +15,12 @@ s3_client = boto3.client('s3')
 def model_fn(model_dir):
     depth_estimator = DPTForDepthEstimation.from_pretrained(model_dir + "/dpt-hybrid-midas").to("cuda")
     feature_extractor = DPTImageProcessor.from_pretrained(model_dir + "/dpt-hybrid-midas")
+    
+    unet = UNet2DConditionModel.from_pretrained(
+        model_dir + "/lcm-sdxl",
+        torch_dtype=torch.float16,
+        use_safetensors=True
+    )
 
     controlnet = ControlNetModel.from_pretrained(
         model_dir + "/controlnet-depth-sdxl-1.0",
@@ -22,6 +28,7 @@ def model_fn(model_dir):
         use_safetensors=True,
         torch_dtype=torch.float16,
     ).to("cuda")
+    
     vae = AutoencoderKL.from_pretrained(
         model_dir + "/sdxl-vae-fp16-fix", 
         torch_dtype=torch.float16
@@ -31,17 +38,23 @@ def model_fn(model_dir):
         model_dir + "/stable-diffusion-xl-base-1.0",
         controlnet=controlnet,
         vae=vae,
+        unet=unet,
         variant="fp16",
         use_safetensors=True,
         torch_dtype=torch.float16,
     ).to("cuda")
     
     pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
-    pipe.load_lora_weights("latent-consistency/lcm-lora-sdxl")
-    pipe.fuse_lora()
     pipe.enable_model_cpu_offload()
+    
+    compel = Compel(
+      tokenizer=[pipe.tokenizer, pipe.tokenizer_2] ,
+      text_encoder=[pipe.text_encoder, pipe.text_encoder_2],
+      returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+      requires_pooled=[False, True]
+    )
 
-    return depth_estimator, feature_extractor, controlnet, vae, pipe
+    return depth_estimator, feature_extractor, controlnet, vae, pipe, compel
 
 def input_fn(request_body, request_content_type):    
     if request_content_type == 'application/json':
@@ -56,16 +69,19 @@ def input_fn(request_body, request_content_type):
 # Predict the result using the model
 def predict_fn(input_data, model):
     image, data = input_data
-    depth_estimator, feature_extractor, controlnet, vae, pipe = model  
-    
+    depth_estimator, feature_extractor, controlnet, vae, pipe, compel = model
+    prompt = data['prompt']
+    conditioning, pooled = compel(prompt)
     depth_image = get_depth_map(image, feature_extractor, depth_estimator)
-    generator = torch.manual_seed(0)
+    generator = torch.manual_seed(33)
     
     generated_images = pipe(
-        prompt=data['prompt'],
+        prompt_embeds=conditioning,
+        pooled_prompt_embeds=pooled,
         negative_prompt=data['negative_prompt'],
         image=depth_image,
         num_inference_steps=data['steps'],
+        strength=data['strength'],
         guidance_scale=data['guidance_scale'], 
         controlnet_conditioning_scale=data['controlnet_conditioning_scale'],
         cross_attention_kwargs={"scale": data['cross_attention_scale']},
@@ -111,3 +127,4 @@ def fetch_image(input_data: dict) -> Image:
 def fetch_image_s3(s3_object: dict) -> bytes:
     response = s3_client.get_object(Bucket=s3_object['Bucket'], Key=s3_object['Key'])
     return response["Body"].read()
+    
