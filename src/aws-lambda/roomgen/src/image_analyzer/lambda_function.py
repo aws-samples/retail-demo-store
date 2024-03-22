@@ -194,26 +194,25 @@ def create_approximate_prompt(room_style: str, labelled_furniture: List[LabelBox
     new_prompt = room_style_prompt_mapping[room_style]
     max_length = 350
 
-    captions = [labelled_box.similar_items[0].caption for labelled_box in labelled_furniture if labelled_box.similar_items]
-    if not captions:
-        return new_prompt[:max_length]  # Return the base prompt if no labels
-    
-    # Calculate the average length we can afford for each label to approximate even distribution
-    average_length_per_item = (max_length - len(new_prompt)) // len(captions)
-    logger.debug(f"Average length per item: {average_length_per_item}")
-    # Append an evenly distributed part of each item's similar_items[0][4]
-    for caption in captions:
-        # Calculate the length to use, ensuring we don't exceed our average target too much
-        part_length = min(average_length_per_item, len(caption))
-        # Add the item part to the new_prompt
-        # Remove some standard text that won't add anything
-        new_prompt += "," + caption.replace("The image shows ", "")[:part_length]
-        # Break if we reach or exceed the max_length
-        if len(new_prompt) >= max_length:
-            break
-    
-    return new_prompt[:max_length]
+    if captions := [labelled_box.similar_items[0].caption for labelled_box in labelled_furniture if labelled_box.similar_items]:
+        # Calculate the average length we can afford for each label to approximate even distribution
+        average_length_per_item = (max_length - len(new_prompt)) // len(captions)
+        logger.debug(f"Average length per item: {average_length_per_item}")
+        # Append an evenly distributed part of each item's similar_items[0][4]
+        for caption in captions:
+            # Calculate the length to use, ensuring we don't exceed our average target too much
+            part_length = min(average_length_per_item, len(caption))
+            # Add the item part to the new_prompt
+            # Remove some standard text that won't add anything
+            new_prompt += "," + caption.replace("The image shows ", "")[:part_length]
+            # Break if we reach or exceed the max_length
+            if len(new_prompt) >= max_length:
+                break
 
+    prompt = new_prompt[:max_length]
+    conjugate_prompt = f"{[room_style, prompt]}.and(1, 0.3, 0.3)"
+    return conjugate_prompt
+    
 def update_db(id: str, labels: List[LabelBox], prompt: str) -> None:        
     boxes = [{'M': {
         'name': {'S': label.name},
