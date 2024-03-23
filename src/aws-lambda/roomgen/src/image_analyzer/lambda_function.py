@@ -191,26 +191,18 @@ def get_similar_items(embeddings: bytes, size=3) -> List[SimilarItem]:
 
 def create_approximate_prompt(room_style: str, labelled_furniture: List[LabelBox]):
     # Get the base prompt for the style requested
-    new_prompt = room_style_prompt_mapping[room_style]
-    max_length = 350
+    prompt = [room_style_prompt_mapping[room_style]]
 
     if captions := [labelled_box.similar_items[0].caption for labelled_box in labelled_furniture if labelled_box.similar_items]:
-        # Calculate the average length we can afford for each label to approximate even distribution
-        average_length_per_item = (max_length - len(new_prompt)) // len(captions)
-        logger.debug(f"Average length per item: {average_length_per_item}")
-        # Append an evenly distributed part of each item's similar_items[0][4]
         for caption in captions:
-            # Calculate the length to use, ensuring we don't exceed our average target too much
-            part_length = min(average_length_per_item, len(caption))
-            # Add the item part to the new_prompt
-            # Remove some standard text that won't add anything
-            new_prompt += "," + caption.replace("The image shows ", "")[:part_length]
-            # Break if we reach or exceed the max_length
-            if len(new_prompt) >= max_length:
-                break
+            # Potentially do some caption cleanup - if not, this can be simplfied to just add captions to prompt
+            prompt.append(caption)
 
-    prompt = new_prompt[:max_length]
-    conjugate_prompt = f"{[room_style, prompt]}.and(1, 0.3, 0.3)"
+    # For now just create a list of comman separated weights equal in size to the number of captions, and set to the same value: 0.3
+    weights = ','.join(['0.3']*(len(prompt)-1))
+    # This will produce a prompt like: 
+    # "[Transform a traditional living room into a modern..., caption 1, caption 2,...].and(1, caption 1 weight, caption 2 weight, ...)"
+    conjugate_prompt = f"{prompt}.and(1, {weights})"
     return conjugate_prompt
     
 def update_db(id: str, labels: List[LabelBox], prompt: str) -> None:        
