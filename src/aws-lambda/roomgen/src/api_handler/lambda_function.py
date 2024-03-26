@@ -1,13 +1,10 @@
 import os
 import base64
 import json
-import uuid
 from typing import Any
 from enum import StrEnum
 from pathlib import PurePath
-from datetime import datetime, timezone
 import boto3
-from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 from aws_lambda_powertools.event_handler.exceptions import UnauthorizedError, NotFoundError, BadRequestError
 from aws_lambda_powertools.event_handler import APIGatewayHttpResolver, Response, content_types
@@ -16,15 +13,15 @@ from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel
+from room_generator.db import RoomGenerationRequests
 
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
-table_name = os.environ['DYNAMODB_TABLE_NAME']
 signed_s3_url_expiry = os.environ.get('SIGNED_S3_URL_EXPIRY', 600)
 
 app = APIGatewayHttpResolver(enable_validation=True)
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(table_name)
+db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))
 s3_client = boto3.client('s3')
 
 logger = Logger(utc=True)
@@ -88,79 +85,44 @@ def __verify_s3_key(s3_key: str, user_identity: str) -> None:
     path = PurePath(s3_key)
     if len(path.parts) != 4 or path.parts[0] != 'private':
         raise BadRequestError(f"S3 key should be of format private/token.sub/uuid/filename, received: {s3_key}")
-    # Verify that the user making the request matches the folder 
-    # Commenting out as Amplify use the identity id rather than the user sub
-    # if path.parts[1] != user_identity:
-    #     raise UnauthorizedError(f"Current authenticated user does not have access to: private/{path.parts[1]}")
+
     try:
         s3_client.head_object(
             Bucket=input_image_bucket,
             Key=s3_key)
-    except ClientError:
-        logger.info(f"Image was not uploaded to s3: {s3_key}")
-        raise NotFoundError(f"Image: {s3_key} not found in S3")
-    
-def __get_s3_prefix(s3_key: str, user_identity: str) -> str:
-    """
-    Returns the s3 prefix for the passed in key.
-    """    
-    return PurePath(s3_key).parents[0].as_posix() + "/"
-
-def __current_data_time() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    except ClientError as error:
+        if error.response['Error']['Code'] == 'NoSuchKey':
+            logger.info(f"Image was not uploaded to s3: {s3_key}")
+            raise NotFoundError(f"Image: {s3_key} not found in S3")
     
 @app.post("/rooms")
 def create_room(request: RoomGenerationRequest):
     user_identity: str = __get_user_identity()
 
     __verify_s3_key(request.s3_key, user_identity)
-    # Generate a unique id for this room generation request
-    room_generation_id = str(uuid.uuid4())
     
-    table.put_item(
-        Item={
-                'id': room_generation_id,
-                'room_owner': user_identity,
-                'dt': __current_data_time(),
-                'room_style': request.style,
-                'image_key': request.s3_key,
-                'image_prefix': __get_s3_prefix(request.s3_key),
-                'room_state': 'UPLOADED'
-            }
-    )
+    room_generation_id = db.create(room_owner=user_identity, room_style=request.style, image_key=request.s3_key)
+
     metrics.add_metric(name="RoomRequest", unit=MetricUnit.Count, value=1)
     return {'room_generation_id': room_generation_id}, 201
 
 
 @app.get("/rooms")
 def get_rooms():
-    user_identity: str = __get_user_identity()
-
-    rooms = table.query(
-        IndexName="room_owner-dt-index",
-        KeyConditionExpression=Key('room_owner').eq(user_identity),
-        ScanIndexForward=False
-    )
-    return rooms['Items']
+    return db.list(__get_user_identity())
         
 @app.get("/rooms/<id>")
 def get_room(id: str):
     user_identity: str = __get_user_identity()
 
-    # Potentially make the user id part of the key. e.g the sort key
-    room = table.get_item(
-            Key={
-                'id': id
-            },
-            ProjectionExpression="id, room_owner, room_state, room_style, prompt, labels, image_key, final_image_key"
-        ).get('Item')
+    room = db.get(id, attrs="id, room_owner, room_state, room_style, prompt, labels, image_key, final_image_key")
     
     if not room:
         raise NotFoundError('Room details not found')
     
     if user_identity != room['room_owner']:
         raise UnauthorizedError('Unauthorized access')
-
+    
     return room
 
 @metrics.log_metrics(capture_cold_start_metric=True)

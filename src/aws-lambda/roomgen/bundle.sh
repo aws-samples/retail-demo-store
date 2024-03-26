@@ -31,12 +31,13 @@ cd dist/_layers/base/
 zip -r9 ${OLDPWD}/dist/room_generator_base_layer.zip .
 
 cd ${OLDPWD}
-echo "Installing imaging layer dependencies"
-pip install -r src/_layers/imaging/requirements.txt --target ./dist/_layers/imaging/python
-pip install --platform manylinux2014_x86_64 --target ./dist/_layers/imaging/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade Pillow
-echo "Building imaging layer package"
-cd dist/_layers/imaging/
-zip -r9 ${OLDPWD}/dist/room_generator_imaging_layer.zip .
+echo "Installing shared layer dependencies"
+pip install -r src/_layers/shared/requirements.txt --target ./dist/_layers/shared/python
+pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade Pillow
+echo "Building shared layer package"
+cp -R src/_layers/shared/src/* ./dist/_layers/shared/python/
+cd dist/_layers/shared/
+zip -r9 ${OLDPWD}/dist/room_generator_shared_layer.zip .
 
 cd ${OLDPWD}
 echo "Build dynamodb stream handler package"

@@ -4,15 +4,16 @@ import os
 from typing import Any
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.utilities.typing import LambdaContext
-
-s3_client = boto3.client('s3')
-sagemaker_client = boto3.client('sagemaker-runtime')
-dynamodb_client = boto3.client('dynamodb')
+from room_generator.db import RoomGenerationRequests
 
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
 inference_input_bucket = os.environ['INFERENCE_INPUT_BUCKET']
 endpoint_name = os.environ.get('ENDPOINT_NAME', 'controlnet-depth-sdxl')
-table_name = os.environ['DYNAMODB_TABLE_NAME']
+
+s3_client = boto3.client('s3')
+sagemaker_client = boto3.client('sagemaker-runtime')
+dynamodb = boto3.resource('dynamodb')
+db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))
 
 logger = Logger(utc=True)
 metrics = Metrics()
@@ -49,7 +50,7 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
     inference_input_s3_key = f"{INFERENCE_INPUT_S3_PREFIX}{id}"
     s3_client.put_object(Bucket=inference_input_bucket, ContentType="application/json", Key=inference_input_s3_key, Body=json.dumps(input_data))
 
-    update_db(id, event['token'], 'Generating')
+    db.update(id, task_token=event['token'], state='Generating')
     # handle any errors
     response = sagemaker_client.invoke_endpoint_async(
         EndpointName=endpoint_name, 
@@ -59,17 +60,3 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
     )
     
     return response
-
-def update_db(id: str, task_token: str, status: str) -> None:
-    dynamodb_client.update_item(
-        TableName=table_name, 
-        Key={
-            'id': {
-                'S': id
-            }
-        },
-        ExpressionAttributeValues={
-            ':task_token': {'S': task_token},
-            ':state': {'S' : status}
-        },
-        UpdateExpression='SET task_token = :task_token, room_state = :state')

@@ -7,7 +7,7 @@ from aws_lambda_powertools.utilities.data_classes import event_source, DynamoDBS
 from aws_lambda_powertools import Logger
 
 sfn_client = boto3.client('stepfunctions')
-logger = Logger(service="roomgen-stream-handler")
+logger = Logger()
 state_machine_arn = os.environ['STATE_MACHINE_ARN']
 
 @event_source(data_class=DynamoDBStreamEvent)

@@ -137,14 +137,14 @@ Resources:
       CompatibleRuntimes:
         - python3.12
 
-  ImageLambdaLayer:
+  SharedLambdaLayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
-      LayerName: roomgeneration-image-layer
-      Description: Image Layer for Room Generation Lambda's
+      LayerName: roomgeneration-shared-layer
+      Description: Shared Layer for Room Generation Lambda's
       Content:
         S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_imaging_layer.zip'
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_shared_layer.zip'
       CompatibleRuntimes:
         - python3.12
 
@@ -199,7 +199,7 @@ Resources:
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-api
       Layers:
-        - !Ref BaseLambdaLayer
+        - !Ref SharedLambdaLayer
 
   DynamoDbStreamHandlerLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -260,6 +260,7 @@ Resources:
       Environment:
         Variables:
           STATE_MACHINE_ARN: !GetAtt RoomGenerationStateMachine.Arn
+          POWERTOOLS_SERVICE_NAME: roomgen-stream-handler
       Layers:
         - !Ref BaseLambdaLayer
 
@@ -328,7 +329,7 @@ Resources:
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-image-analyzer
       Layers:
-        - !Ref ImageLambdaLayer
+        - !Ref SharedLambdaLayer
 
   ImageGenerationLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -387,7 +388,7 @@ Resources:
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-image-generator
       Layers:
-        - !Ref BaseLambdaLayer
+        - !Ref SharedLambdaLayer
 
   InferenceResultProcessorLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -403,7 +404,7 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -435,7 +436,11 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_inference_result_processor.zip'
       Runtime: python3.12
-      Timeout: 3
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds: !Split [",", !Ref LambdaVpcSubnets]
       FunctionName: RoomGeneratorInferenceResultProcessor
       Environment:
         Variables:
@@ -443,7 +448,7 @@ Resources:
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
           POWERTOOLS_SERVICE_NAME: roomgen-inference-result-processor
       Layers:
-        - !Ref BaseLambdaLayer
+        - !Ref SharedLambdaLayer
 
   SnsSubscriberLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -490,7 +495,7 @@ Resources:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
           POWERTOOLS_SERVICE_NAME: roomgen-sns-subscriber
       Layers:
-        - !Ref BaseLambdaLayer
+        - !Ref SharedLambdaLayer
 
   SnsTopic:
     Type: AWS::SNS::Topic
@@ -921,7 +926,7 @@ Resources:
                 ActionMode: REPLACE_ON_FAILURE
                 Capabilities: CAPABILITY_IAM
                 RoleArn: !GetAtt CFNRole.Arn
-                StackName: RoomGenerationStack
+                StackName: !Sub '${AWS::StackName}-RoomGenerationStack'
                 ParameterOverrides: 
                    !Sub |
                     {

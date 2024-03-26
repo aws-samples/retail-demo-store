@@ -4,12 +4,13 @@ import os
 from botocore.exceptions import ClientError
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.data_classes import event_source, SNSEvent
+from room_generator.db import RoomGenerationRequests
 
 sf_client = boto3.client('stepfunctions')
 dynamodb = boto3.resource('dynamodb')
 
-table_name = os.environ['DYNAMODB_TABLE_NAME']
-table = dynamodb.Table(table_name)
+dynamodb = boto3.resource('dynamodb')
+db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))
 
 logger = Logger(utc=True)
 
@@ -18,12 +19,7 @@ def resume_sfn(message: str) -> None:
     inference_id = message["inferenceId"]
     output_location = message["responseParameters"]["outputLocation"]
     
-    item = table.get_item(
-        Key={
-            'id': inference_id
-        },
-        ProjectionExpression="task_token"
-    )["Item"]
+    room_request = db.get(inference_id, attrs="task_token")
     
     response = {
         "id": inference_id,
@@ -31,7 +27,7 @@ def resume_sfn(message: str) -> None:
     }
     try:
         sf_client.send_task_success(
-            taskToken=item["task_token"],
+            taskToken=room_request["task_token"],
             output=json.dumps(response)
         )
     except ClientError as error:
