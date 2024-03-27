@@ -11,7 +11,7 @@ from aws_lambda_powertools import Logger
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client('rekognition')
-bedrock_runtime = boto3.client(service_name="bedrock-runtime")
+bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 @dataclass
 class SimilarItem:
@@ -41,8 +41,8 @@ class ImageAnalyzer():
                 cropped_image: bytes = self.__crop_image(initial_image, furniture_item_box)
                 embeddings: List[float] = self.__get_embeddings(cropped_image, furniture_item_box.name)
                 similar_items: List[SimilarItem] = self.__get_similar_items(embeddings)
-            except Exception:
-                self.logger.error(f"Could process labelled box: {furniture_item_box.name}")
+            except Exception as error:
+                self.logger.error(f"Could process labelled box: {furniture_item_box.name}", exc_info=error)
             else:
                 furniture_item_box.similar_items = similar_items
         return labelled_furniture

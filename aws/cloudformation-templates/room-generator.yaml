@@ -179,8 +179,11 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:Query
                 Resource: !GetAtt RoomGenerationTable.Arn
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                Resource: !Sub '${RoomGenerationTable.Arn}/index/*'
               
-
   ApiHandlerLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -286,9 +289,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - dynamodb:GetItem
-                  - dynamodb:PutItem
-                  - dynamodb:Query
+                  - dynamodb:UpdateItem
                 Resource: !GetAtt RoomGenerationTable.Arn
               - Effect: Allow
                 Action:
@@ -353,9 +354,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - dynamodb:GetItem
-                  - dynamodb:PutItem
-                  - dynamodb:Query
+                  - dynamodb:UpdateItem
                 Resource: !GetAtt RoomGenerationTable.Arn
               - Effect: Allow
                 Action:
@@ -413,12 +412,12 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
-                  - dynamodb:PutItem
-                  - dynamodb:Query
+                  - dynamodb:UpdateItem
                 Resource: !GetAtt RoomGenerationTable.Arn
               - Effect: Allow
                 Action:
                   - s3:PutObject
+                  - s3:GetObject
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
               - Effect: Allow
@@ -426,6 +425,15 @@ Resources:
                   - s3:GetObject
                 Resource: 
                   - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - rekognition:DetectLabels
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/amazon.titan-embed-image-v1'  
   
   InferenceResultProcessorLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -446,6 +454,9 @@ Resources:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
+          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchIndex
+          POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-inference-result-processor
       Layers:
         - !Ref SharedLambdaLayer
@@ -492,7 +503,8 @@ Resources:
       FunctionName: RoomGeneratorSnsSubscriber
       Environment:
         Variables:
-          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
+          DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
+          POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-sns-subscriber
       Layers:
         - !Ref SharedLambdaLayer
@@ -776,7 +788,7 @@ Resources:
       Environment:
         ComputeType: BUILD_GENERAL1_LARGE
         Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
-        Type: LINUX_CONTAINER
+        Type: LINUX_GPU_CONTAINER
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -926,7 +938,7 @@ Resources:
                 ActionMode: REPLACE_ON_FAILURE
                 Capabilities: CAPABILITY_IAM
                 RoleArn: !GetAtt CFNRole.Arn
-                StackName: !Sub '${AWS::StackName}-RoomGenerationStack'
+                StackName: !Sub '${AWS::StackName}-InferenceStack'
                 ParameterOverrides: 
                    !Sub |
                     {

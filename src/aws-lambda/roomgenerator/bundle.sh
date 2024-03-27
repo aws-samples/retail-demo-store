@@ -25,7 +25,6 @@ echo "Cleaning up intermediate files"
 
 echo "Installing base layer dependencies"
 pip install -r src/_layers/base/requirements.txt --target ./dist/_layers/base/python
-pip install --platform manylinux2014_x86_64 --target ./dist/_layers/base/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade pydantic_core
 echo "Building base layer package"
 cd dist/_layers/base/
 zip -r9 ${OLDPWD}/dist/room_generator_base_layer.zip .
@@ -33,6 +32,7 @@ zip -r9 ${OLDPWD}/dist/room_generator_base_layer.zip .
 cd ${OLDPWD}
 echo "Installing shared layer dependencies"
 pip install -r src/_layers/shared/requirements.txt --target ./dist/_layers/shared/python
+pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade pydantic_core
 pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade Pillow
 echo "Building shared layer package"
 cp -R src/_layers/shared/src/* ./dist/_layers/shared/python/

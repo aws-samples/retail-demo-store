@@ -50,13 +50,14 @@ class RoomGenerationRequests():
         # Generate a unique id for this room generation request
         room_generation_id = str(uuid.uuid4())
 
-        self.table.put_item({
+        self.table.put_item(
+            Item={
                 'id': room_generation_id,
                 'room_owner': room_owner,
-                'dt': __current_data_time(),
+                'dt': self.__current_date_time(),
                 'room_style': room_style,
                 'image_key': image_key,
-                'image_prefix': __get_s3_prefix(image_key),
+                'image_prefix': self.__get_s3_prefix(image_key),
                 'room_state': 'UPLOADED'
             })
         return room_generation_id
@@ -68,11 +69,11 @@ class RoomGenerationRequests():
             ScanIndexForward=False
         )['Items']
         
-def __get_s3_prefix(s3_key: str) -> str:
-    """
-    Returns the s3 prefix for the passed in key.
-    """    
-    return PurePath(s3_key).parents[0].as_posix() + "/"
+    def __get_s3_prefix(self, s3_key: str) -> str:
+        """
+        Returns the s3 prefix for the passed in key.
+        """    
+        return PurePath(s3_key).parents[0].as_posix() + "/"
 
-def __current_data_time() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    def __current_date_time(self) -> str:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
