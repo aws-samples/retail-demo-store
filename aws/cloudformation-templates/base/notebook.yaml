@@ -178,6 +178,7 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
                   - s3:GetBucketPolicy
+                  - s3:ListBucket
                 Resource:
                   - !Sub arn:aws:s3:::${StackBucketName}/*
                   - !Sub arn:aws:s3:::${StackBucketName}

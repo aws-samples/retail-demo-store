@@ -370,7 +370,7 @@ Parameters:
   AlexaDefaultSandboxEmail:
     Type: String
     Description: >
-      Fallback email address to receive order confirmation emails.  This will be used until the steps are followed to enable Alexa to authenticate with Cognito, 
+      Fallback email address to receive order confirmation emails.  This will be used until the steps are followed to enable Alexa to authenticate with Cognito,
       after which it will be able to retrieve the user's details.
 
   IncludeSegmentDependencies:
@@ -743,7 +743,7 @@ Resources:
         OrdersServiceExternalUrl: !GetAtt Services.Outputs.OrdersServiceUrl
         OffersServiceExternalUrl: !GetAtt Services.Outputs.OffersServiceUrl
         UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
-        WebURL: 
+        WebURL:
           !If [
             ConditionCustomDomain,
             !Sub 'https://${CloudfrontCustomDomain}' ,
@@ -802,6 +802,7 @@ Resources:
         PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
         Subnet1: !GetAtt Base.Outputs.Subnet1
         Subnet2: !GetAtt Base.Outputs.Subnet2
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         OpenSearchSecurityGroupId: !GetAtt Base.Outputs.OpenSearchSecurityGroupId
         OpenSearchDomainArn: !GetAtt Base.Outputs.OpenSearchDomainArn
         OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
@@ -941,7 +942,7 @@ Outputs:
   OffersServiceUrl:
     Description: Offers service load balancer URL.
     Value: !GetAtt Services.Outputs.OffersServiceUrl
-  
+
   APIEndpoint:
     Value: !GetAtt ApiGateway.Outputs.APIEndpoint
 
@@ -978,7 +979,7 @@ Outputs:
         OPENSEARCH_DOMAIN_SCHEME=https
         OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
         OPENSEARCH_DOMAIN_PORT=9200
-      
+
         # Evidently
         EVIDENTLY_PROJECT_NAME="${Base.Outputs.EvidentlyProjectName}"
 

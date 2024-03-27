@@ -34,7 +34,7 @@ import logging
 import botocore
 import boto3
 import time
-from typing import List
+from typing import List, Tuple
 from packaging import version
 from botocore.exceptions import ClientError
 
@@ -75,11 +75,21 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
     paginator = personalize.get_paginator('list_recommenders')
     for recommender_page in paginator.paginate(datasetGroupArn = dataset_group_arn):
         for recommender in recommender_page['recommenders']:
-            if recommender['status'] in [ 'ACTIVE', 'CREATE FAILED' ]:
+            # Recommender status transitions:
+            # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+            # STOP PENDING > STOP IN_PROGRESS > INACTIVE > START PENDING > START IN_PROGRESS > ACTIVE
+            # DELETE PENDING > DELETE IN_PROGRESS
+            if recommender['status'] in [ 'ACTIVE', 'INACTIVE', 'CREATE FAILED' ]:
                 logger.info('Deleting recommender {}'.format(recommender['recommenderArn']))
                 personalize.delete_recommender(recommenderArn = recommender['recommenderArn'])
             elif recommender['status'].startswith('DELETE'):
                 logger.warning('Recommender {} is already being deleted so will wait for delete to complete'.format(recommender['recommenderArn']))
+            elif recommender['status'].startswith('CREATE'):
+                logger.warning('Recommender {} is currently being created so will wait for it to complete before deleting'.format(recommender['recommenderArn']))
+            elif recommender['status'].startswith('STOP'):
+                logger.warning('Recommender {} is currently being stopped so will wait for it to complete before deleting'.format(recommender['recommenderArn']))
+            elif recommender['status'].startswith('START'):
+                logger.warning('Recommender {} is currently being started so will wait for it to complete before deleting'.format(recommender['recommenderArn']))
             else:
                 raise Exception('Recommender {} has a status of {} so cannot be deleted'.format(recommender['recommenderArn'], recommender['status']))
 
@@ -91,12 +101,16 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
         paginator = personalize.get_paginator('list_campaigns')
         for paginate_result in paginator.paginate(solutionArn = solution_arn):
             for campaign in paginate_result['campaigns']:
+                # Campaign status transitions:
+                # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+                # DELETE PENDING > DELETE IN_PROGRESS
                 if campaign['status'] in ['ACTIVE', 'CREATE FAILED']:
                     logger.info('Deleting campaign: ' + campaign['campaignArn'])
-
                     personalize.delete_campaign(campaignArn = campaign['campaignArn'])
                 elif campaign['status'].startswith('DELETE'):
                     logger.warning('Campaign {} is already being deleted so will wait for delete to complete'.format(campaign['campaignArn']))
+                elif campaign['status'].startswith('CREATE'):
+                    logger.warning('Campaign {} is currently being created so will wait for it to complete before deleting'.format(campaign['campaignArn']))
                 else:
                     raise Exception('Campaign {} has a status of {} so cannot be deleted'.format(campaign['campaignArn'], campaign['status']))
 
@@ -107,7 +121,11 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
         for recommender_arn in recommender_arns:
             try:
                 describe_response = personalize.describe_recommender(recommenderArn = recommender_arn)
-                logger.debug('Recommender {} status is {}'.format(recommender_arn, describe_response['recommender']['status']))
+                recommender = describe_response['recommender']
+                logger.debug('Recommender {} status is {}'.format(recommender_arn, recommender['status']))
+                if recommender['status'] in [ 'ACTIVE', 'INACTIVE', 'CREATE FAILED' ]:
+                    logger.info('Deleting recommender {}'.format(recommender['recommenderArn']))
+                    personalize.delete_recommender(recommenderArn = recommender['recommenderArn'])
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -130,7 +148,11 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
         for campaign_arn in campaign_arns:
             try:
                 describe_response = personalize.describe_campaign(campaignArn = campaign_arn)
-                logger.debug('Campaign {} status is {}'.format(campaign_arn, describe_response['campaign']['status']))
+                campaign = describe_response["campaign"]
+                logger.debug('Campaign {} status is {}'.format(campaign_arn, campaign['status']))
+                if campaign['status'] in ['ACTIVE', 'CREATE FAILED']:
+                    logger.info('Deleting campaign: %s', campaign['campaignArn'])
+                    personalize.delete_campaign(campaignArn = campaign['campaignArn'])
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -148,19 +170,46 @@ def _delete_recommenders_and_campaigns(dataset_group_arn: str, solution_arns: Li
     if len(campaign_arns) > 0:
         raise ResourcePending('Timed out waiting for all campaigns to be deleted')
 
+def _is_solution_deletable(solution) -> Tuple[bool, bool]:
+    # Solution status transitions:
+    # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+    # DELETE PENDING > DELETE IN_PROGRESS
+    if solution["status"] in ["ACTIVE", "CREATE FAILED"]:
+        # Solution version status transitions:
+        # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+        # CREATE STOPPING > CREATE STOPPED
+        if "latestSolutionVersion" in solution and solution["latestSolutionVersion"]["status"] in ["CREATE PENDING", "CREATE IN_PROGRESS"]:
+            return False, True  # Solution version can be stopped
+        elif "latestSolutionVersion" in solution and solution["latestSolutionVersion"]["status"] == "CREATE STOPPING":
+            return False, False # Solution version is stopping; have to wait
+
+        return True, False  # Solution can be deleted
+    elif solution['status'].startswith('DELETE'):
+        return False, False # Solution is already being deleted; have to wait
+    elif solution['status'].startswith('CREATE'):
+        return False, False # Solution is being created; have to wait
+
+    raise Exception('Solution {} has a status of {} so cannot be deleted'.format(solution["solutionArn"], solution['status']))
+
 def _delete_solutions(solution_arns: List[str], wait_for_resources: bool = True):
     for solution_arn in solution_arns:
         try:
             describe_response = personalize.describe_solution(solutionArn = solution_arn)
             solution = describe_response['solution']
-            if solution['status'] in ['ACTIVE', 'CREATE FAILED']:
-                logger.info('Deleting solution: ' + solution_arn)
 
+            soln_can_be_deleted, sv_can_be_stopped = _is_solution_deletable(solution)
+
+            if sv_can_be_stopped:
+                logger.warning('Solution %s is %s but currently has a solution version being created/trained so will stop solution version before deleting', solution_arn, solution["status"])
+                logger.info('Stopping solution version %s', solution["latestSolutionVersion"]["solutionVersionArn"])
+                personalize.stop_solution_version_creation(solutionVersionArn = solution["latestSolutionVersion"]["solutionVersionArn"])
+            elif soln_can_be_deleted:
+                logger.info('Deleting solution: {}'.format(solution_arn))
                 personalize.delete_solution(solutionArn = solution_arn)
-            elif solution['status'].startswith('DELETE'):
-                logger.warning('Solution {} is already being deleted so will wait for delete to complete'.format(solution_arn))
+            elif "latestSolutionVersion" in solution:
+                logger.warning('Solution %s is %s and has latest solution version in %s; cannot be deleted', solution_arn, solution["status"], solution["latestSolutionVersion"]["status"])
             else:
-                raise Exception('Solution {} has a status of {} so cannot be deleted'.format(solution_arn, solution['status']))
+                logger.info('Solution %s is %s', solution_arn, solution["status"])
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code != 'ResourceNotFoundException':
@@ -171,7 +220,22 @@ def _delete_solutions(solution_arns: List[str], wait_for_resources: bool = True)
         for solution_arn in solution_arns:
             try:
                 describe_response = personalize.describe_solution(solutionArn = solution_arn)
-                logger.debug('Solution {} status is {}'.format(solution_arn, describe_response['solution']['status']))
+                solution = describe_response['solution']
+                if "latestSolutionVersion" in solution:
+                    logger.debug('Solution %s is %s and has latest solution version in %s; cannot be deleted', solution_arn, solution["status"], solution["latestSolutionVersion"]["status"])
+                else:
+                    logger.debug('Solution %s is %s', solution_arn, solution["status"])
+
+                soln_can_be_deleted, sv_can_be_stopped = _is_solution_deletable(solution)
+
+                if sv_can_be_stopped:
+                    logger.warning('Solution %s is %s but currently has a solution version being created/trained so will stop solution version before deleting', solution_arn, solution["status"])
+                    logger.info('Stopping solution version %s', solution["latestSolutionVersion"]["solutionVersionArn"])
+                    personalize.stop_solution_version_creation(solutionVersionArn = solution["latestSolutionVersion"]["solutionVersionArn"])
+                elif soln_can_be_deleted:
+                    logger.info('Deleting solution: %s', solution_arn)
+                    personalize.delete_solution(solutionArn = solution_arn)
+
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -195,11 +259,15 @@ def _delete_event_trackers(dataset_group_arn: str, wait_for_resources: bool = Tr
     event_trackers_paginator = personalize.get_paginator('list_event_trackers')
     for event_tracker_page in event_trackers_paginator.paginate(datasetGroupArn = dataset_group_arn):
         for event_tracker in event_tracker_page['eventTrackers']:
+            # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+            # DELETE PENDING > DELETE IN_PROGRESS
             if event_tracker['status'] in [ 'ACTIVE', 'CREATE FAILED' ]:
                 logger.info('Deleting event tracker {}'.format(event_tracker['eventTrackerArn']))
                 personalize.delete_event_tracker(eventTrackerArn = event_tracker['eventTrackerArn'])
             elif event_tracker['status'].startswith('DELETE'):
                 logger.warning('Event tracker {} is already being deleted so will wait for delete to complete'.format(event_tracker['eventTrackerArn']))
+            elif event_tracker['status'].startswith('CREATE'):
+                logger.warning('Event tracker {} is being created so will wait for create to complete'.format(event_tracker['eventTrackerArn']))
             else:
                 raise Exception('Solution {} has a status of {} so cannot be deleted'.format(event_tracker['eventTrackerArn'], event_tracker['status']))
 
@@ -210,7 +278,11 @@ def _delete_event_trackers(dataset_group_arn: str, wait_for_resources: bool = Tr
         for event_tracker_arn in event_tracker_arns:
             try:
                 describe_response = personalize.describe_event_tracker(eventTrackerArn = event_tracker_arn)
-                logger.debug('Event tracker {} status is {}'.format(event_tracker_arn, describe_response['eventTracker']['status']))
+                event_tracker = describe_response["eventTracker"]
+                logger.debug('Event tracker {} status is {}'.format(event_tracker_arn, event_tracker['status']))
+                if event_tracker['status'] in [ 'ACTIVE', 'CREATE FAILED' ]:
+                    logger.info('Deleting event tracker %s', event_tracker_arn)
+                    personalize.delete_event_tracker(eventTrackerArn = event_tracker_arn)
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -234,16 +306,29 @@ def _delete_filters(dataset_group_arn: str, wait_for_resources: bool = True):
     filters_response = personalize.list_filters(datasetGroupArn = dataset_group_arn, maxResults = 100)
     for filter in filters_response['Filters']:
         filter_arns.append(filter['filterArn'])
+        # Filter status transitions:
+        # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+        # DELETE PENDING > DELETE IN_PROGRESS
         if filter['status'] in ['ACTIVE', 'CREATE FAILED']:
-            logger.info('Deleting filter ' + filter['filterArn'])
+            logger.info('Deleting filter %s', filter['filterArn'])
             personalize.delete_filter(filterArn = filter['filterArn'])
+        elif filter['status'].startswith('DELETE'):
+            logger.warning('Filter %s is already being deleted so will wait for delete to complete', filter["filterArn"])
+        elif filter['status'].startswith('CREATE'):
+            logger.warning('Filter %s is currently being created so will wait for it to complete before deleting', filter["filterArn"])
+        else:
+            raise Exception('Filter {} has a status of {} so cannot be deleted'.format(filter['filterArn'], filter['status']))
 
     max_time = time.time() + 30*60 # 30 mins
     while time.time() < max_time:
         for filter_arn in filter_arns:
             try:
                 describe_response = personalize.describe_filter(filterArn = filter_arn)
-                logger.debug('Filter {} status is {}'.format(filter_arn, describe_response['filter']['status']))
+                filter = describe_response["filter"]
+                logger.debug('Filter %s status is %s', filter_arn, filter['status'])
+                if filter['status'] in ['ACTIVE', 'CREATE FAILED']:
+                    logger.info('Deleting filter %s', filter_arn)
+                    personalize.delete_filter(filterArn = filter_arn)
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -271,11 +356,16 @@ def _delete_datasets_and_schemas(dataset_group_arn: str, wait_for_resources: boo
             describe_response = personalize.describe_dataset(datasetArn = dataset['datasetArn'])
             schema_arns.append(describe_response['dataset']['schemaArn'])
 
+            # Dataset status transitions:
+            # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+            # DELETE PENDING > DELETE IN_PROGRESS
             if dataset['status'] in ['ACTIVE', 'CREATE FAILED']:
-                logger.info('Deleting dataset ' + dataset['datasetArn'])
+                logger.info('Deleting dataset %s', dataset['datasetArn'])
                 personalize.delete_dataset(datasetArn = dataset['datasetArn'])
             elif dataset['status'].startswith('DELETE'):
-                logger.warning('Dataset {} is already being deleted so will wait for delete to complete'.format(dataset['datasetArn']))
+                logger.warning('Dataset %s is already being deleted so will wait for delete to complete', dataset['datasetArn'])
+            elif dataset['status'].startswith('CREATE'):
+                logger.warning('Dataset %s is being created so will wait for create to complete', dataset['datasetArn'])
             else:
                 raise Exception('Dataset {} has a status of {} so cannot be deleted'.format(dataset['datasetArn'], dataset['status']))
 
@@ -286,7 +376,12 @@ def _delete_datasets_and_schemas(dataset_group_arn: str, wait_for_resources: boo
         for dataset_arn in dataset_arns:
             try:
                 describe_response = personalize.describe_dataset(datasetArn = dataset_arn)
-                logger.debug('Dataset {} status is {}'.format(dataset_arn, describe_response['dataset']['status']))
+                dataset = describe_response["dataset"]
+                logger.debug('Dataset %s status is %s', dataset_arn, dataset['status'])
+                if dataset['status'] in ['ACTIVE', 'CREATE FAILED']:
+                    logger.info('Deleting dataset %s', dataset_arn)
+                    personalize.delete_dataset(datasetArn = dataset_arn)
+
             except ClientError as e:
                 error_code = e.response['Error']['Code']
                 if error_code == 'ResourceNotFoundException':
@@ -318,18 +413,42 @@ def _delete_datasets_and_schemas(dataset_group_arn: str, wait_for_resources: boo
     logger.info('All schemas used exclusively by datasets have been deleted or none exist for dataset group')
 
 def _delete_dataset_group(dataset_group_arn: str, wait_for_resources: bool = True):
-    logger.info('Deleting dataset group ' + dataset_group_arn)
-    personalize.delete_dataset_group(datasetGroupArn = dataset_group_arn)
+    try:
+        describe_response = personalize.describe_dataset_group(datasetGroupArn = dataset_group_arn)
+        dsg = describe_response['datasetGroup']
+        logger.debug('Dataset group {} status is {}'.format(dataset_group_arn, dsg['status']))
+        # Dataset group status transitions:
+        # CREATE PENDING > CREATE IN_PROGRESS > ACTIVE -or- CREATE FAILED
+        # DELETE PENDING
+        if dsg['status'] in ['ACTIVE', 'CREATE FAILED']:
+            logger.info('Deleting dataset group %s', dataset_group_arn)
+            personalize.delete_dataset_group(datasetGroupArn = dataset_group_arn)
+        elif dsg['status'].startswith('DELETE'):
+            logger.warning('Dataset Group {} is already being deleted so will wait for delete to complete'.format(dataset_group_arn))
+        elif dsg['status'].startswith('CREATE'):
+            logger.warning('Dataset Group {} is currently being created so will wait for it to complete before deleting'.format(dataset_group_arn))
+        else:
+            raise Exception('Dataset Group {} has a status of {} so cannot be deleted'.format(dataset_group_arn, dsg['status']))
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        if error_code == 'ResourceNotFoundException':
+            logger.info('Dataset group {} does not exist'.format(dataset_group_arn))
+            return
+        raise e
 
     max_time = time.time() + 30*60 # 30 mins
     while time.time() < max_time:
         try:
             describe_response = personalize.describe_dataset_group(datasetGroupArn = dataset_group_arn)
-            logger.debug('Dataset group {} status is {}'.format(dataset_group_arn, describe_response['datasetGroup']['status']))
+            dsg = describe_response["datasetGroup"]
+            logger.debug('Dataset group %s status is %s', dataset_group_arn, dsg['status'])
+            if dsg['status'] in ['ACTIVE', 'CREATE FAILED']:
+                logger.info('Deleting dataset group %s', dataset_group_arn)
+                personalize.delete_dataset_group(datasetGroupArn = dataset_group_arn)
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == 'ResourceNotFoundException':
-                logger.info('Dataset group {} has been fully deleted'.format(dataset_group_arn))
+                logger.info('Dataset group %s has been fully deleted', dataset_group_arn)
                 break
             else:
                 raise e
