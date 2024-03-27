@@ -3,6 +3,16 @@
 
 A sample retail web application and workshop platform intended as an educational tool for demonstrating how AWS infrastructure and services can be used to build compelling customer experiences for eCommerce, retail, and digital marketing use-cases.
 
+> [!NOTE]
+> Jump directly to a section of the documentation:
+> 
+> * [How to deploy an instance in your account ](#Deployment)
+> * [Hands-on Workshops](#hands-on-workshops)
+> * [Partner Integrations](#partner-integrations)
+> * [Delivering a Demo of the Retail Demo Store ](#delivering-a-demo-of-the-retail-demo-store)
+> * [Troubleshooting - FAQs](#troubleshooting---faqs)
+
+
 ## Build Status
 
 ![Ruff](https://github.com/aws-samples/retail-demo-store/actions/workflows/ruff.yml/badge.svg?branch=master)
@@ -22,11 +32,15 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ## Deployment
 
-To deploy to your own AWS account please follow the [Developer Instructions](./Developer-Instructions.md) that will explain how to easily get started by staging the retail demo store to your own AWS account.
+> [!NOTE]  
+> To deploy to your own AWS account please follow the [Developer Instructions](./Deployment-Instructions.md) that will explain how to easily get started by staging the retail demo store to your own AWS account.
 
-***IMPORTANT NOTE:** Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.*
+> [!WARNING]  
+> Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.
 
-**The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.**
+> [!IMPORTANT]  
+> The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.
+
 
 ## Supported Regions
 
@@ -113,7 +127,7 @@ Here you will find several workshops in a directory structure in the notebook in
 
 # Developer Instructions
 
-If you're interested in contributing enhancements, features, or fixes to the Retail Demo Store, please see the [Developer Instructions](./Developer-Instructions.md) for details on how to setup your local environment and deployment environment.
+If you're interested in contributing enhancements, features, or fixes to the Retail Demo Store, please see the [Deployment Instructions](./Deployment-Instructions.md) for details on how to setup your local environment and deployment environment.
 
 # Delivering a Demo of the Retail Demo Store
 
@@ -132,7 +146,7 @@ The intent of the Retail Demo Store is to 1) provide a tool to demonstrate the c
 * Currently only tested in the AWS regions provided in the deployment instructions above. The only limitation for deploying into other regions is [availability of all required services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/).
     - Amazon IVS is currently only supported in the N. Virginia (us-east-1), Oregon (us-west-2), and Ireland (eu-west-1) regions. Therefore, to deploy the Retail Demo Store in a region that does not support IVS, be sure to select to use the Default IVS Streams CloudFormation template parameter.
 
-# Troubleshooting / FAQs
+# Troubleshooting - FAQs
 
 ***Q: When accessing the Retail Demo Store web application after deploying the project, a CloudFront error is displayed. What's wrong?***
 
