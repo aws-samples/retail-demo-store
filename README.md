@@ -44,9 +44,20 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ## Supported Regions
 
-The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below. Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.
+The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below. 
 
 
+| Region | Supported |
+| ------------- | ------------- |
+| us-east-1 | fully-supported | 
+| us-west-2 | fully-supported | 
+| eu-west-1 | all supported except Amazon Bedrock | 
+| ap-northeast-1 | fully-supported | 
+| ap-southeast-2 | fully-supported | 
+
+
+> [Note]
+> Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.
 
 ## Hands-On Workshops
 
