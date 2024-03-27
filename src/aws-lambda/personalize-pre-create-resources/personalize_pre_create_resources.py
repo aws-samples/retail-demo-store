@@ -684,7 +684,7 @@ def get_featured_product_ids() -> List[str]:
         item_ids = []
 
         for product in products_list:
-            if product.get("featured", False) == True:
+            if product.get("featured", False):
                 item_ids.append(product["id"])
 
         return item_ids
@@ -791,7 +791,7 @@ def update_products_with_themes(output_file):
         for idx, theme_line in enumerate(themes_lines):
             theme_results = json.loads(theme_line)
             item_id = theme_results["input"]["itemId"]
-            if not "output" in theme_results:
+            if "output" not in theme_results:
                 if "error" in theme_results:
                     logger.error('Error generating similar items and theme for item %s: %s', item_id, theme_results["error"])
                 else:
