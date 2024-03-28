@@ -4,7 +4,7 @@ These instructions are valid whenever you just want to demo the Retail Demo Stor
 
 ## Step 1: Fork this Repo
 
-We highly recomment to create a fork of the Retail Demo Store respository in your own GitHub account. That enables you to customize the code before deployment.
+We highly recommend to create a fork of the Retail Demo Store respository in your own GitHub account. That enables you to customize the code before deployment.
 
 ## Step 2: Create a GitHub Personal Access Token
 
@@ -12,7 +12,7 @@ Create a [GitHub Personal Access Token](https://help.github.com/en/articles/crea
 
 Make sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
 
-Save your access token in a secure location, you will use it the cloudformation parameters at deployment time.
+Save your access token in a secure location, you will use it the CloudFormation parameters at deployment time.
 
 ## Step 3: Create a S3 Staging Bucket
 
@@ -52,7 +52,7 @@ If you plan to enable the automated Personalize campaign creation process at dep
 }
 ```
 
-### Step 4: Staging for Deployment
+## Step 4: Staging for Deployment
 
 We recommend to use a Python 3 virtual environment. Current supported version of python is 3.12 (other versions may work but we haven't tested all versions)
 
@@ -69,7 +69,7 @@ Example on how to stage your project to a custom bucket and path (note the path 
 ./stage.sh MY_CUSTOM_BUCKET S3_PATH/ --skip-virtualenv
 ```
 
-### Step 5: Deploy the Cloudformation template
+## Step 5: Deploy the Cloudformation template
 
 The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console. Please read and complete any required parameters. The mandatory parameters to fill up are:
 
@@ -86,13 +86,13 @@ All the others will work by default, take the time to read and decide which para
 > ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
 > ```
 
-### (optional) Developing Services Locally
+## (optional) Developing Services Locally
 
 The Retail Demo Store also supports running the web user interface and backend services in a local container on your machine.  This may be a handy option while testing a fix or enhancement.
 
 [Detailed instructions](./src) are available on how to get going with local development.  Note that you will still need to set up one of the development options described above, and have a working deployment in your AWS account as some of the services will need to access cloud-based services as part of deployment.
 
-### (optional) Integration tests
+## (optional) Integration tests
 
 Integration tests can be run on either
 
