@@ -56,6 +56,9 @@ Parameters:
   Subnet2:
     Type: String
 
+  LambdaVpcSecurityGroup:
+    Type: String
+
   OpenSearchSecurityGroupId:
     Type: String
 
@@ -120,17 +123,17 @@ Conditions:
   AutoCreatePersonalizedOffersCampaign: !Equals
     - !Ref DeployPersonalizedOffersCampaign
     - 'Yes'
-  
-  # If the Personalize offers campaign isn't being pre-created then we can invoke the pinpoint-auto-workshop lambda immediately, 
-  # otherwise we have to wait until it completes.  See personalize_pre_create_resources.py.  When all the personalize resources are 
-  # created it writes the resource arn's in SSM parameter store.  To wait for the offers campaign we setup an eventbridge rule to  
-  # trigger the pinpoint-auto-workshop lambda when create/updates events are received for the respective SSM parameter.  
+
+  # If the Personalize offers campaign isn't being pre-created then we can invoke the pinpoint-auto-workshop lambda immediately,
+  # otherwise we have to wait until it completes.  See personalize_pre_create_resources.py.  When all the personalize resources are
+  # created it writes the resource arn's in SSM parameter store.  To wait for the offers campaign we setup an eventbridge rule to
+  # trigger the pinpoint-auto-workshop lambda when create/updates events are received for the respective SSM parameter.
 
   DeployPreCreatePinpointWorkshop: !And
     - !Condition AutoCreatePinpointWorkshop
     - !Not [!Condition AutoCreatePersonalizedOffersCampaign]
 
-  WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop: !And 
+  WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop: !And
     - !Condition AutoCreatePinpointWorkshop
     - !Condition AutoCreatePersonalizedOffersCampaign
 
@@ -154,9 +157,15 @@ Resources:
       Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePersonalizePreCreateResources
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
       Environment:
         Variables:
-          csv_bucket: !Ref StackBucketName
+          bucket: !Ref StackBucketName
           csv_path:  'csvs/'
           base_url: 'https://code.retaildemostore.retail.aws.dev/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
@@ -164,7 +173,7 @@ Resources:
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
           PersonalizeRoleArn: !Ref PersonalizeRoleArn
-          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources          
+          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
 
   PersonalizePreCreateLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -199,6 +208,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - servicediscovery:DiscoverInstances
                 Resource: '*'
               - Effect: Allow
                 Action:
@@ -254,9 +267,10 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
                   - s3:GetBucketPolicy
+                  - s3:ListBucket
                 Resource:
                   - !Sub arn:aws:s3:::${StackBucketName}/*
-                  - !Sub arn:aws:s3:::${StackBucketName}                  
+                  - !Sub arn:aws:s3:::${StackBucketName}
               - Effect: Allow
                 Action:
                   - codepipeline:StartPipelineExecution

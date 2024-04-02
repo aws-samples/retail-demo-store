@@ -29,8 +29,10 @@ import urllib
 import boto3
 import logging
 import os
+import requests
 import time
-from typing import Dict, Tuple
+import yaml
+from typing import Dict, List, Tuple
 from crhelper import CfnResource
 from botocore.exceptions import ClientError
 from delete_dataset_groups import delete_dataset_groups, ResourcePending
@@ -42,37 +44,23 @@ ssm = boto3.client('ssm')
 personalize = boto3.client('personalize')
 cw_events = boto3.client('events')
 codepipeline = boto3.client('codepipeline')
-cloudformation_helper = CfnResource()
-
+servicediscovery = boto3.client('servicediscovery')
+s3 = boto3.client('s3')
 sts = boto3.client('sts')
 
+cloudformation_helper = CfnResource()
+
 # Where our data is for training
-bucket = os.environ['csv_bucket']
-bucket_path = os.environ.get('csv_path', '')
+bucket = os.environ['bucket']
+csv_path = os.environ.get('csv_path', '')
 
 # Default value : https://code.retaildemostore.retail.aws.dev/
 base_url = os.environ['base_url']
 
-items_filename = bucket_path + "items.csv"
-users_filename = bucket_path + "users.csv"
-interactions_filename = bucket_path + "interactions.csv"
-offer_interactions_filename = bucket_path + "offer_interactions.csv"
-
-
-# Download generated csv file from central repo
-
-filename_items, _ = urllib.request.urlretrieve( base_url + 'csvs/items.csv' , '/tmp/items.csv')
-filename_users, _ = urllib.request.urlretrieve( base_url + 'csvs/users.csv' , '/tmp/users.csv')
-filename_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/interactions.csv' , '/tmp/interactions.csv')
-filename_offer_interactions, _ = urllib.request.urlretrieve( base_url + 'csvs/offer_interactions.csv' , '/tmp/offer_interactions.csv')
-
-# upload these files to the S3 stack bucket where personalize will have the right s3 policies
-s3 = boto3.client('s3')
-s3.upload_file(filename_items, bucket, items_filename)
-s3.upload_file(filename_users, bucket, users_filename)
-s3.upload_file(filename_interactions, bucket, interactions_filename)
-s3.upload_file(filename_offer_interactions, bucket, offer_interactions_filename)
-
+items_key = csv_path + "items.csv"
+users_filename = csv_path + "users.csv"
+interactions_key = csv_path + "interactions.csv"
+offer_interactions_key = csv_path + "offer_interactions.csv"
 
 session = boto3.session.Session()
 region = session.region_name
@@ -221,13 +209,13 @@ dataset_group_confs = [
                 'type': 'INTERACTIONS',
                 'name': 'retaildemostore-products-interactions',
                 'schema': interactions_schema_products,
-                's3Key': interactions_filename
+                's3Key': interactions_key
             },
             {
                 'type': 'ITEMS',
                 'name': 'retaildemostore-products-items',
                 'schema': items_schema,
-                's3Key': items_filename
+                's3Key': items_key
             },
             {
                 'type': 'USERS',
@@ -329,7 +317,8 @@ dataset_group_confs = [
                     'name': 'retaildemostore-related-items',
                     'param': '/retaildemostore/personalize/related-items-arn',
                     'paramDescription': 'Retail Demo Store Related Items Campaign/Recommender Arn Parameter'
-                }
+                },
+                'generateFeaturedProductThemes': True
             },
             {
                 'name': 'retaildemostore-personalized-ranking',
@@ -371,7 +360,7 @@ if create_deploy_offers_campaign:
                 'type': 'INTERACTIONS',
                 'name': 'retaildemostore-offers-interactions',
                 'schema': interactions_schema_offers,
-                's3Key': offer_interactions_filename
+                's3Key': offer_interactions_key
             }
         ],
         'solutions': [
@@ -388,6 +377,21 @@ if create_deploy_offers_campaign:
         ]
     })
 
+def s3_key_exists(bucket, prefix) -> bool:
+    response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
+    return 'Contents' in response
+
+def stage_s3_file(bucket, key):
+    if not s3_key_exists(bucket, key):
+        source_url = base_url + key
+        logger.info("Staged file s3://%s/%s does not exist; downloading from %s and staging in bucket", bucket, key, source_url)
+        # Download file from URL
+        temp_file = "/tmp/" + key
+        os.makedirs(os.path.dirname(temp_file), exist_ok=True)
+        local_filename, _ = urllib.request.urlretrieve(source_url, temp_file)
+        # Upload to bucket
+        s3.upload_file(local_filename, bucket, key)
+
 def create_schema(dataset_group_conf: Dict, dataset_conf: Dict) -> Tuple[str, bool]:
     """ Conditionally creates a personalize schema if it does not already exist """
     schema_exists=False
@@ -395,9 +399,20 @@ def create_schema(dataset_group_conf: Dict, dataset_conf: Dict) -> Tuple[str, bo
     for paginate_result in paginator.paginate():
         for schema in paginate_result['schemas']:
             if schema['name'] == dataset_conf['name']:
-                logger.info("Schema %s already exists, not creating", dataset_conf['name'])
-                schema_exists=True
-                dataset_conf['schemaArn'] = schema['schemaArn']
+                logger.info("Schema %s already exists, verifying that schema definition matches", dataset_conf['name'])
+
+                # Since it's possible for a schema with the same name to exist from a prior deployment that wasn't
+                # cleaned up properly, let's check that the schema definition matches what we want to create.
+                response = personalize.describe_schema(schemaArn = schema["schemaArn"])
+                schema_def = json.loads(response["schema"]["schema"])
+
+                if dataset_conf['schema'] != schema_def:
+                    logger.warning("Definition for existing schema does not match target schema; attempting to delete existing schema")
+                    personalize.delete_schema(schemaArn = schema["schemaArn"])
+                else:
+                    logger.info("Schema %s definition matches expected definition; using existing definition", dataset_conf['name'])
+                    schema_exists=True
+                    dataset_conf['schemaArn'] = schema['schemaArn']
                 break
 
         if schema_exists:
@@ -643,6 +658,9 @@ def create_import_job(dataset_conf: Dict) -> Tuple[str, bool]:
 
     if not import_job_exists:
         logger.info('Creating dataset import job %s', job_name)
+
+        stage_s3_file(bucket, dataset_conf['s3Key'])
+
         response = personalize.create_dataset_import_job(
             jobName = job_name,
             datasetArn = dataset_conf['arn'],
@@ -654,6 +672,159 @@ def create_import_job(dataset_conf: Dict) -> Tuple[str, bool]:
         dataset_conf['importJobArn'] = response['datasetImportJobArn']
 
     return dataset_conf['importJobArn'], not import_job_exists
+
+def get_featured_product_ids() -> List[str]:
+    logger.info("Downloading products.yaml to extract featured products")
+    filename_products, _ = urllib.request.urlretrieve(base_url + 'data/products.yaml', '/tmp/products.yaml')
+
+    with open(filename_products) as file:
+        logger.info('Loading products.yaml...')
+        products_list = yaml.safe_load(file)
+
+        item_ids = []
+
+        for product in products_list:
+            if product.get("featured", False):
+                item_ids.append(product["id"])
+
+        return item_ids
+
+def create_theme_generation_job(solution_conf: Dict, include_category_filter_arn: str) -> Tuple[str, bool]:
+    theme_job_exists = False
+
+    job_name = "retaildemostore-related-items-theme-job"
+    similar_items_solution_version_arn = solution_conf["solutionVersionArn"]
+
+    paginator = personalize.get_paginator('list_batch_inference_jobs')
+    for paginate_result in paginator.paginate(solutionVersionArn = similar_items_solution_version_arn):
+        for job in paginate_result['batchInferenceJobs']:
+            if job['jobName'] == job_name:
+                logger.info("Content generator batch inference theme job %s already exists with status %s, not creating", job_name, job.get('status'))
+                theme_job_exists = True
+                solution_conf['themeJobArn'] = job['batchInferenceJobArn']
+                solution_conf['themeJobStatus'] = job.get('status')
+                solution_conf["themeJobCreationDateTime"] = job["creationDateTime"]
+                break
+
+        if theme_job_exists:
+            break
+
+    if not theme_job_exists:
+        logger.info('Creating content generator batch inference theme job %s', job_name)
+
+        item_ids = get_featured_product_ids()
+
+        logger.info("Building content generator batch inference input file")
+        json_input_filename = "related_items_json_input.json"
+        with open("/tmp/" + json_input_filename, 'w') as json_input:
+            for id in item_ids:
+                json_input.write(f'{{"itemId": "{id}"}}\n')
+
+        s3.upload_file(f"/tmp/{json_input_filename}", bucket, json_input_filename)
+
+        s3_input_path = f"s3://{bucket}/{json_input_filename}"
+        s3_output_path = f"s3://{bucket}/related-items/similar-items/"
+
+        response = personalize.create_batch_inference_job(
+            solutionVersionArn = similar_items_solution_version_arn,
+            jobName = job_name,
+            roleArn = role_arn,
+            filterArn = include_category_filter_arn,
+            batchInferenceJobMode = "THEME_GENERATION",
+            themeGenerationConfig = {
+                "fieldsForThemeGeneration": {
+                    "itemName": "PRODUCT_NAME"
+                }
+            },
+            jobInput = {"s3DataSource": {"path": s3_input_path}},
+            jobOutput = {"s3DataDestination":{"path": s3_output_path}},
+            numResults = 15
+        )
+
+        solution_conf['themeJobArn'] = response['batchInferenceJobArn']
+
+    return solution_conf['themeJobArn'], not theme_job_exists
+
+def download_batch_inference_output(solution_conf):
+    job_start_time = solution_conf["themeJobCreationDateTime"]
+
+    response = s3.list_objects_v2(
+        Bucket=bucket,
+        Prefix="related-items/similar-items/",
+    )
+
+    output_key_name = None
+
+    for obj in response["Contents"]:
+        if obj["LastModified"] > job_start_time and obj["Key"].endswith(".out"):
+            output_key_name = obj["Key"]
+            break
+
+    assert output_key_name is not None, "Unable to locate the job output file in the output folder"
+
+    logger.info("Downloading output file %s from %s", output_key_name, bucket)
+
+    out_file = "/tmp/related_items_json_input.json.out"
+    s3.download_file(bucket, output_key_name, out_file)
+
+    return out_file
+
+def update_products_with_themes(output_file):
+    # We will limit related items to those with a score >= 0.1
+    score_threshold = 0.1
+
+    response = servicediscovery.discover_instances(
+        NamespaceName='retaildemostore.local',
+        ServiceName='products',
+        MaxResults=1,
+        HealthStatus='HEALTHY'
+    )
+
+    assert len(response['Instances']) > 0, 'Products service instance not found; check ECS to ensure it launched cleanly'
+
+    products_service_instance = response['Instances'][0]['Attributes']['AWS_INSTANCE_IPV4']
+
+    with open(output_file) as themes_file:
+        # Read all lines from the segmentation output file.
+        themes_lines = themes_file.readlines()
+
+        for idx, theme_line in enumerate(themes_lines):
+            theme_results = json.loads(theme_line)
+            item_id = theme_results["input"]["itemId"]
+            if "output" not in theme_results:
+                if "error" in theme_results:
+                    logger.error('Error generating similar items and theme for item %s: %s', item_id, theme_results["error"])
+                else:
+                    logger.error('Unknown error generating similar items and theme for item %s', item_id)
+
+                continue
+
+            similar_items = theme_results["output"]["recommendedItems"]
+            theme = theme_results["output"]["theme"]
+            theme_scores = theme_results["output"]["itemsThemeRelevanceScores"]
+
+            final_items = []
+            for idx_item, similar_item_id in enumerate(similar_items):
+                score = theme_scores[idx_item]
+                if score >= score_threshold:
+                    final_items.append(similar_item_id)
+
+            response = requests.get(f"http://{products_service_instance}/products/id/{item_id}")
+            product = response.json()
+
+            if len(final_items) >= 3:
+                product["related_items_theme"] = theme.rstrip(".")
+                product["related_items"] = final_items
+            else:
+                logger.warning(f"Not enough items with score >= {score_threshold} for item {item_id}; clearing related items fields for product")
+                product.pop("related_items_theme", None)
+                product.pop("related_items", None)
+
+            logger.info(f"Updating related items for product {item_id}")
+            headers = {"Content-Type": "application/json"}
+            response = requests.put(f"http://{products_service_instance}/products/id/{item_id}", json=product, headers=headers)
+            if not response.ok:
+                logger.error(f"status_code={response.status_code}")
 
 def is_ssm_parameter_set(parameter_name: str) -> bool:
     try:
@@ -837,12 +1008,33 @@ def update() -> bool:
                     all_filters_active = False
             except ClientError as e:
                 if e.response['Error']['Code'] == 'LimitExceededException':
+                    all_filters_active = False
                     logger.warn('Too many filters being created; backing off and retrying...')
                     break
                 else:
                     raise e
 
-        if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active:
+        # Create theme batch inference jobs
+        all_batch_inf_active = True
+        if all_svs_active and all_filters_active:
+            for solution_conf in dataset_group_conf.get('solutions', []):
+                if solution_conf.get("generateFeaturedProductThemes", False):
+                    filter_arn = None
+                    for filter_conf in dataset_group_conf["filters"]:
+                        if filter_conf["name"] == "retaildemostore-filter-same-categories":
+                            filter_arn = filter_conf["arn"]
+                            break
+
+                    _,job_created = create_theme_generation_job(solution_conf, filter_arn)
+                    if job_created:
+                        all_batch_inf_active = False
+                    elif solution_conf['themeJobStatus'] == 'ACTIVE':
+                        output_file = download_batch_inference_output(solution_conf)
+                        update_products_with_themes(output_file)
+                    else:
+                        all_batch_inf_active = False
+
+        if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active and all_batch_inf_active:
             # All resources are active for the DSG. Set SSM params for filters, recommenders, and campaigns
             # Note that the event tracker SSM param value is set in create_event_tracker function.
             for filter_conf in dataset_group_conf.get('filters', []):
@@ -875,8 +1067,8 @@ def update() -> bool:
                     )
         else:
             # More waiting required.
-            logger.info('Not done: all_recs_active = %s; all_svs_active = %s; all_campaigns_active = %s; event_tracker_active = %s; all_filters_active = %s',
-                    all_recs_active, all_svs_active, all_campaigns_active, event_tracker_active, all_filters_active)
+            logger.info('DSG %s not done: all_recs_active = %s; all_svs_active = %s; all_campaigns_active = %s; event_tracker_active = %s; all_filters_active = %s; all_batch_inf_active = %s',
+                    dataset_group_conf["name"], all_recs_active, all_svs_active, all_campaigns_active, event_tracker_active, all_filters_active, all_batch_inf_active)
             done = False
 
     if done:
