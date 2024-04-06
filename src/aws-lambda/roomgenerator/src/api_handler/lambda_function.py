@@ -27,7 +27,7 @@ s3_client = boto3.client('s3')
 logger = Logger(utc=True)
 metrics = Metrics()
 
-Style = StrEnum('Style', ['minimalist', 'modern', 'bohemian', 'rustic', 'industrial', 'scandanavian'])
+Style = StrEnum('Style', ['minimalist', 'cozy', 'bohemian', 'modern', 'rustic', 'industrial', 'scandanavian'])
 
 class RoomGenerationRequest(BaseModel):
     """
@@ -115,7 +115,7 @@ def get_rooms():
 def get_room(id: str):
     user_identity: str = __get_user_identity()
 
-    room = db.get(id, attrs="id, room_owner, room_state, room_style, prompt, labels, image_key, final_image_key")
+    room = db.get(id, attrs="id, room_owner, room_state, room_style, prompt, labels, image_key, final_image_key, thumbnail_image_key")
     
     if not room:
         raise NotFoundError('Room details not found')

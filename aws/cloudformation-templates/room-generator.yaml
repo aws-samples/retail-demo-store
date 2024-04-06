@@ -122,7 +122,7 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: INCLUDE
-            NonKeyAttributes: ["room_state", "room_style"]
+            NonKeyAttributes: ["room_state", "room_style", "thumbnail_image_key"]
       StreamSpecification:
         StreamViewType: NEW_IMAGE
   

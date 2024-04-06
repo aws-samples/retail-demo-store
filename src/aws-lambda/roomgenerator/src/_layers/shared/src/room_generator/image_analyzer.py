@@ -46,6 +46,13 @@ class ImageAnalyzer():
             else:
                 furniture_item_box.similar_items = similar_items
         return labelled_furniture
+    
+    def resize_image(self, image_bytes: bytes, size: tuple[int, int]) -> bytes:
+        image = Image.open(io.BytesIO(image_bytes))
+        resized_image = image.resize(size=size)
+        buffered = io.BytesIO()
+        resized_image.save(buffered, format="PNG")
+        return buffered.getvalue()
 
     def __fetch_image(self, bucket: str, key: str) -> Image:
         response = s3_client.get_object(Bucket=bucket, Key=key)

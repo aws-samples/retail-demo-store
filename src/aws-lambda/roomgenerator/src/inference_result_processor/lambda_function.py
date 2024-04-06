@@ -26,15 +26,16 @@ def lambda_handler(event, context: LambdaContext) -> dict:
     id = event["id"]
     output_location = event["output_location"]
     
-    _, image_key = fetch_and_store_image(id, output_location)
-    db.update(id, state='Re-Analyzing', final_image_key=image_key)
+    _, image_key, thumbnail_image_key = fetch_and_store_image(id, output_location)
+    db.update(id, state='Re-Analyzing', final_image_key=image_key, thumbnail_image_key=thumbnail_image_key)
 
     labelled_furniture = image_analyzer.get_labelled_furniture(image_bucket, image_key)
     db.update(id, state='Done', labels=labelled_furniture)
 
     return {
         'image_bucket': image_bucket,
-        'final_image_key': image_key
+        'final_image_key': image_key,
+        'thumbnail_image_key': thumbnail_image_key
     }
 
 def fetch_and_store_image(id: str, output_location: str) -> tuple[str, str]:
@@ -49,7 +50,11 @@ def fetch_and_store_image(id: str, output_location: str) -> tuple[str, str]:
 
     room_request = db.get(id, "image_prefix")
     image_key = f"{room_request['image_prefix']}{id}_final.jpg"
+    thumbnail_image_key = f"{room_request['image_prefix']}{id}_small.png"
+
+    thumbnail_image = image_analyzer.resize_image(image, (128,128))
 
     s3_client.put_object(Bucket=image_bucket, ContentType="image/jpeg", Key=image_key, Body=image)
+    s3_client.put_object(Bucket=image_bucket, ContentType="image/png", Key=thumbnail_image_key, Body=thumbnail_image)
 
-    return image_bucket, image_key
+    return image_bucket, image_key, thumbnail_image_key

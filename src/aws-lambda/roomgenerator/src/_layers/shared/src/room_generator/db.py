@@ -35,6 +35,9 @@ class RoomGenerationRequests():
         if task_token := kwargs.get('task_token'):
             expression_attr_values[':task_token'] = task_token
             update_expression.append('task_token = :task_token')
+        if thumbnail_image_key := kwargs.get('thumbnail_image_key'):
+            expression_attr_values[':thumbnail_image_key'] = thumbnail_image_key
+            update_expression.append('thumbnail_image_key = :thumbnail_image_key')
 
         self.table.update_item(
             Key={'id': id},
@@ -58,15 +61,16 @@ class RoomGenerationRequests():
                 'room_style': room_style,
                 'image_key': image_key,
                 'image_prefix': self.__get_s3_prefix(image_key),
-                'room_state': 'UPLOADED'
+                'room_state': 'Uploaded'
             })
         return room_generation_id
 
-    def list(self, room_owner: str):
+    def list(self, room_owner: str, size: int = 12):
         return self.table.query(
             IndexName="room_owner-dt-index",
             KeyConditionExpression=Key('room_owner').eq(room_owner),
-            ScanIndexForward=False
+            ScanIndexForward=False,
+            Limit=size
         )['Items']
         
     def __get_s3_prefix(self, s3_key: str) -> str:

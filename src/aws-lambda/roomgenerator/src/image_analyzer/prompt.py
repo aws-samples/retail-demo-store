@@ -2,9 +2,10 @@ from typing import List
 from room_generator.image_analyzer import LabelBox
 
 room_style_prompt_mapping = {
-    'minimalist': 'Transform a traditional living room into a modern, minimalist space with sleek furniture and natural light enhancement.', 
+    'minimalist': '4k photo clean scandinavian modern minimalist living room, trending on socials.', 
+    'cozy': '4k photo clean cozy living room, gentle lighting, warm wall colours, trending on socials.',     
+    'bohemian': '4k photo boho, bohemian, plants, tapestries, cozy, rug, trending on socials.',
     'modern': 'Revamp a traditional living room into a Mid Century Modern oasis featuring clean lines, organic forms, and a mix of different materials such as wood, metal, and glass.', 
-    'bohemian': 'Rework a traditional living room into a Bohemian Chic haven with eclectic furnishings, vibrant textiles, and an abundance of plants and cultural artifacts.', 
     'rustic': 'Update a traditional living room into a Rustic Farmhouse setting with reclaimed wood accents, comfortable and practical furniture, and a warm, neutral color palette.', 
     'industrial': 'Transform a traditional living area into an edgy Industrial loft, highlighting raw, unfinished materials like exposed brick and steel, open spaces, and vintage-inspired lighting for a touch of modernity.', 
     'scandanavian': 'Redesign a conventional living space into a serene, Scandinavian sanctuary that emphasizes functionality, natural light flooding, and a palette of soft, muted colors paired with elements of wood.'
