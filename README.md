@@ -52,7 +52,6 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 | us-east-1 | fully-supported | 
 | us-west-2 | fully-supported |  
 | ap-northeast-1 | fully-supported | 
-| ap-southeast-2 | fully-supported | 
 
 
 > [Note]
