@@ -5,7 +5,7 @@ A sample retail web application and workshop platform intended as an educational
 
 > [!NOTE]
 > Jump directly to a section of the documentation:
-> 
+>
 > * [How to deploy an instance in your account ](#Deployment)
 > * [Hands-on Workshops](#hands-on-workshops)
 > * [Partner Integrations](#partner-integrations)
@@ -32,27 +32,29 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ## Deployment
 
-> [!NOTE]  
+> [!NOTE]
 > To deploy to your own AWS account please follow the [Deployment Instructions](./Deployment-Instructions.md) that will explain how to easily get started by staging the retail demo store to your own AWS account.
 
-> [!WARNING]  
+> [!WARNING]
 > Deploying this demo application in your AWS account will create and consume AWS resources, which will cost money. In addition, some features such as account registration via Amazon Cognito and the messaging workshop for Amazon Pinpoint require users to provide a valid email address and optionally a phone number to demonstrate completely. Therefore, to avoid ongoing charges and to clean up all data, be sure to follow all workshop clean up instructions and shutdown/remove all resources by deleting the CloudFormation stack once you are finished.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > The Retail Demo Store experience is for demonstration purposes only. You must comply with all applicable laws and regulations, including any laws and regulations related to email or text marketing, in any applicable country or region.
 
 
 ## Supported Regions
 
-The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below. 
+The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below.
 
 
-| Region | Supported |
-| ------------- | ------------- |
-| us-east-1 | fully-supported | 
-| us-west-2 | fully-supported |  
-| ap-northeast-1 | fully-supported | 
-
+| Region Name | Region | Supported |
+| ------------- | ------------- | ------------- |
+| US East (N. Virginia) | us-east-1 | Fully supported |
+| US West (Oregon) | us-west-2 | Fully supported |
+| Europe (Ireland) | eu-west-1 | Partial support (personalized product descriptions and thematic similar product descriptions not supported) |
+| Europe (Frankfurt) | eu-central-1 | Partial support (thematic similar product descriptions not supported) |
+| Asia Pacific (Tokyo) | ap-northeast-1 | Partial support (personalized product descriptions not supported) |
+| Asia Pacific (Sydney) | ap-southeast-2 | Partial support (personalized product descriptions and thematic similar product descriptions not supported) |
 
 > [Note]
 > Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.

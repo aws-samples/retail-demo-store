@@ -78,6 +78,9 @@ datasetgroup_name_param = 'retaildemostore-personalize-datasetgroup-name'
 # Info on CloudWatch event rule used to repeatedely call this function.
 lambda_event_rule_name = os.environ['lambda_event_rule_name']
 
+# Currently supported regions for Personalize Content Generator: https://docs.aws.amazon.com/personalize/latest/dg/themed-batch-recommendations.html#themes-regions
+CONTENT_GENERATOR_REGIONS = [ "us-east-1", "us-west-2", "ap-northeast-1" ]
+
 items_schema = {
     "type": "record",
     "name": "Items",
@@ -692,8 +695,11 @@ def get_featured_product_ids() -> List[str]:
 def create_theme_generation_job(solution_conf: Dict, include_category_filter_arn: str) -> Tuple[str, bool]:
     theme_job_exists = False
 
-    job_name = "retaildemostore-related-items-theme-job"
     similar_items_solution_version_arn = solution_conf["solutionVersionArn"]
+
+    solution_version_name = similar_items_solution_version_arn.split('/')[-1]
+    # Create job name that incudes the SV name so avoid name colisions with old batch inference jobs
+    job_name = f"retaildemostore-related-items-theme-job-{solution_version_name}"
 
     paginator = personalize.get_paginator('list_batch_inference_jobs')
     for paginate_result in paginator.paginate(solutionVersionArn = similar_items_solution_version_arn):
@@ -1014,25 +1020,28 @@ def update() -> bool:
                 else:
                     raise e
 
-        # Create theme batch inference jobs
+        # Run batch inference jobs
         all_batch_inf_active = True
         if all_svs_active and all_filters_active:
             for solution_conf in dataset_group_conf.get('solutions', []):
                 if solution_conf.get("generateFeaturedProductThemes", False):
-                    filter_arn = None
-                    for filter_conf in dataset_group_conf["filters"]:
-                        if filter_conf["name"] == "retaildemostore-filter-same-categories":
-                            filter_arn = filter_conf["arn"]
-                            break
+                    if region in CONTENT_GENERATOR_REGIONS:
+                        filter_arn = None
+                        for filter_conf in dataset_group_conf["filters"]:
+                            if filter_conf["name"] == "retaildemostore-filter-same-categories":
+                                filter_arn = filter_conf["arn"]
+                                break
 
-                    _,job_created = create_theme_generation_job(solution_conf, filter_arn)
-                    if job_created:
-                        all_batch_inf_active = False
-                    elif solution_conf['themeJobStatus'] == 'ACTIVE':
-                        output_file = download_batch_inference_output(solution_conf)
-                        update_products_with_themes(output_file)
+                        _,job_created = create_theme_generation_job(solution_conf, filter_arn)
+                        if job_created:
+                            all_batch_inf_active = False
+                        elif solution_conf['themeJobStatus'] == 'ACTIVE':
+                            output_file = download_batch_inference_output(solution_conf)
+                            update_products_with_themes(output_file)
+                        else:
+                            all_batch_inf_active = False
                     else:
-                        all_batch_inf_active = False
+                        logger.warn("Personalize content generator not supported in the current region (%s); skipping (https://docs.aws.amazon.com/personalize/latest/dg/themed-batch-recommendations.html#themes-regions)", region)
 
         if all_recs_active and all_svs_active and all_campaigns_active and event_tracker_active and all_filters_active and all_batch_inf_active:
             # All resources are active for the DSG. Set SSM params for filters, recommenders, and campaigns
