@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-    This template deploys the Room Generator Demo
+    This template deploys the Room Makeover Demo
 
 Parameters:
   LambdaVpcSecurityGroup:
@@ -15,13 +15,17 @@ Parameters:
     Type: String
   LoggingBucketName:
     Type: String
+  WebUIBucketName:
+    Type: String
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
   OpenSearchDomainEndpoint:
     Type: String
-  OpenSearchIndex:
+  OpenSearchEmbeddingIndex:
     Type: String
+    Description: The index name that holds the Product embeddings
+    Default: embproducts
   SagemakerEndpointName:
     Type: String
     Description: The Sagemaker async endpoint name used for image generation
@@ -326,7 +330,7 @@ Resources:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
           OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
-          OPENSEARCH_INDEX_NAME: !Ref OpenSearchIndex
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-image-analyzer
       Layers:
@@ -455,7 +459,7 @@ Resources:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable        
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
           OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
-          OPENSEARCH_INDEX_NAME: !Ref OpenSearchIndex
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-inference-result-processor
       Layers:
@@ -951,4 +955,492 @@ Resources:
                     }
                 TemplatePath: 'source::src/roomgenerator/deploy.yaml'
               RunOrder: 1
-        
+  
+  ProductImageBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+  
+  # Empties bucket when stack is deleted
+  EmptyProductImageBucket:
+    Type: Custom::EmptyStackBucket
+    Properties:
+      ServiceToken: !Ref CleanupBucketLambdaArn
+      BucketName: !Ref ProductImageBucket
+
+  CreateEmbeddingIndexLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  CreateEmbeddingIndexLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt CreateEmbeddingIndexLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_create_index.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorCreateEmbeddingIndex
+      Environment:
+        Variables:
+          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
+          POWERTOOLS_SERVICE_NAME: roomgen-embedding-index
+      Layers:
+        - !Ref SharedLambdaLayer
+
+  CreateProductCaptionLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:             
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ProductImageBucket}/*'              
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/anthropic.claude-3-haiku-20240307-v1:0'
+          
+
+  CreateProductCaptionLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt CreateProductCaptionLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_caption.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorCreateProductCaption
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: roomgen-product-caption
+      Layers:
+        - !Ref BaseLambdaLayer
+  
+  GetEmbeddingLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:             
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ProductImageBucket}/*'              
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/amazon.titan-embed-image-v1'
+          
+  GetEmbeddingLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt GetEmbeddingLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_embedding.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorGetProductEmbedding
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: roomgen-product-embedding
+      Layers:
+        - !Ref BaseLambdaLayer
+  
+  IndexProductsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 300
+      ReceiveMessageWaitTimeSeconds: 20
+      RedriveAllowPolicy:
+        redrivePermission: denyAll
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt IndexProductsDLQ.Arn
+        maxReceiveCount: 5
+      VisibilityTimeout: 60
+
+  IndexProductsDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedriveAllowPolicy:
+        redrivePermission: byQueue
+        sourceQueueArns: !GetAtt IndexProductsQueue.Arn
+
+  IndexProductsQueueLambdaTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 100
+      Enabled: True
+      EventSourceArn: !GetAtt IndexProductsQueue.Arn
+      FunctionName: !GetAtt IndexProductsLambdaFunction.Arn
+      MaximumBatchingWindowInSeconds: 10
+
+  IndexProductsLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:             
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !Ref IndexProductsQueue
+
+  IndexProductsLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt IndexProductsLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_index.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorIndexProducts
+      Environment:
+        Variables:
+          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
+          POWERTOOLS_SERVICE_NAME: roomgen-index-products
+      Layers:
+        - !Ref SharedLambdaLayer
+
+  ResizeImageLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:             
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucketName}/images/*'              
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ProductImageBucket}/*'
+          
+  ResizeImageLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt ResizeImageLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_image_resize.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorResizeImahe
+      Environment:
+        Variables:
+          DESTINATION_BUCKET: !Ref ProductImageBucket
+          POWERTOOLS_SERVICE_NAME: roomgen-resize-image
+      Layers:
+        - !Ref SharedLambdaLayer
+
+  TriggerProductImageSfnLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - states:StartExecution
+                Resource: !Ref ProductImageProcessorStateMachine
+
+  TriggerProductImageSfnLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt TriggerProductImageSfnLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_sfn_trigger.zip'
+      Runtime: python3.12
+      Timeout: 15
+      FunctionName: RoomGeneratorTriggerProductImageSfn
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !GetAtt ProductImageStateMachine.Arn
+          POWERTOOLS_SERVICE_NAME: roomgen-product-image-sfn-trigger
+      Layers:
+        - !Ref BaseLambdaLayer    
+
+  S3EventLambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt TriggerProductImageSfnLambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub 'arn:aws:s3:::${ProductImageBucket}'
+
+  UpdateBucketNotificationLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketNotification'
+                  - 's3:PutBucketNotification'
+                Resource: !Sub 'arn:aws:s3:::${ProductImageBucket}'
+
+  UpdateBucketNotificationLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt UpdateBucketNotificationLambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+            
+            import boto3
+            from crhelper import CfnResource
+
+            s3 = boto3.resource('s3')
+
+            helper = CfnResource()
+
+            @helper.create
+            def create_nofification(event,_):
+              LambdaArn=event['ResourceProperties']['LambdaArn']
+              Bucket=event['ResourceProperties']['Bucket']
+              bucket_notification = s3.BucketNotification(Bucket)
+                response = bucket_notification.put(
+                  NotificationConfiguration={
+                    'LambdaFunctionConfigurations': [
+                      {
+                          'LambdaFunctionArn': LambdaArn,
+                          'Events': [
+                              's3:ObjectCreated:*'
+                          ]
+                      }
+                    ]
+                  }
+                )
+
+            @helper.delete
+            def delete_notification(event,_):
+              Bucket=event['ResourceProperties']['Bucket']
+              bucket_notification = s3.BucketNotification(Bucket)
+                response = bucket_notification.put(
+                    NotificationConfiguration={}
+                )
+            
+            def lambda_handler(event, context):
+              helper(event, context)
+
+      Runtime: python3.12
+      Timeout: 50
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  UpdateBucketNotificationLambdaTrigger:
+    Type: 'Custom::LambdaTrigger'
+    DependsOn: S3EventLambdaInvokePermission
+    Properties:
+      ServiceToken: !GetAtt UpdateBucketNotificationLambdaFunction.Arn
+      LambdaArn: !GetAtt TriggerProductImageSfnLambdaFunction.Arn
+      Bucket: !Ref ProductImageBucket
+
+  S3BatchOperationsRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: batchoperations.s3.amazonaws.com
+              Action: sts:AssumeRole
+        Path: /      
+        Policies:
+          - PolicyName: root
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: lambda:InvokeFunction
+                  Resource: !GetAtt ResizeImageLambdaFunction.Arn 
+                - Effect: Allow
+                  Action: 
+                    - s3:GetObject
+                    - s3:ListBucket
+                  Resource: 
+                    - !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucketName}'
+                    - !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucketName}/images/*'
+
+  CreateS3BatchJobsLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: s3:CreateJob
+                Resource: '*'
+
+  CreateS3BatchJobsLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt CreateS3BatchJobsLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ResourceBucket
+        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_s3_batch_job.zip'
+      Runtime: python3.12
+      Timeout: 30
+      FunctionName: RoomGeneratorCreateS3BatchJobs
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: roomgen-create-s3-batch-jobs
+      Layers:
+        - !Ref BaseLambdaLayer 
+
+  CreateS3BatchJobsLambdaTrigger:
+    Type: 'Custom::LambdaTrigger'
+    DependsOn:
+      - ProductImageStateMachine
+      - UpdateBucketNotificationLambdaTrigger
+    Properties:
+      ServiceToken: !GetAtt CreateS3BatchJobsLambdaExecutionRole.Arn
+      LambdaArn: !GetAtt CreateS3BatchJobsLambdaFunction.Arn
+      Bucket: !Ref WebUIBucketName
+      AccountId: AWS::AccountId
+      S3BatchJobLambdaFunctionArn: !GetAtt ResizeImageLambdaFunction.Arn
+      ImagePrefixes: 'images/floral/, images/housewares, images/homedecor, images/electronics, images/floral, images/furniture'
+
+  ProductImageStateMachineRole:
+    # TODO
+  ProductImageStateMachine:
+    # TODO
