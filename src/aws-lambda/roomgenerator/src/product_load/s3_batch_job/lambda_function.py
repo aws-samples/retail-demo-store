@@ -1,5 +1,6 @@
 from aws_lambda_powertools import Logger
 from crhelper import CfnResource
+from pathlib import PurePath
 import boto3
 from botocore.exceptions import ClientError
 
@@ -7,9 +8,9 @@ client = boto3.client('s3control')
 logger = Logger(utc=True)
 helper = CfnResource()
 
-def create_job(image_prefix: str, account_id: str, bucket: str, lambda_function_arn) -> None:
+def create_job(image_prefix: str, account_id: str, bucket: str, lambda_function_arn: str, role_arn: str) -> str:
     try:
-        client.client.create_job(
+        response = client.client.create_job(
             AccountId=account_id,
             ConfirmationRequired=False,
             Operation={
@@ -29,20 +30,30 @@ def create_job(image_prefix: str, account_id: str, bucket: str, lambda_function_
                         }
                     }
                 }
-            }
+            },
+            RoleArn=role_arn,
+            Description='Resize product images',
+            Priority=99
         )
+        return response['JobId']
     except ClientError as error:
         logger.exception(f"Unable to create S3 control job for: {image_prefix}")
         raise error
 
 @helper.create  
 def create(event, _):
-    prefixes=event['ResourceProperties']['ImagePrefixes'].split(',')
-    account_id=event['ResourceProperties']['AccountId']
-    bucket=event['ResourceProperties']['Bucket']
-    lambda_function_arn=event['ResourceProperties']['S3BatchJobLambdaFunctionArn']
+    prefixes =  event['ResourceProperties']['ImagePrefixes'].split(',')
+    params = {        
+        'account_id': event['ResourceProperties']['AccountId'],
+        'bucket': event['ResourceProperties']['Bucket'],
+        'lambda_function_arn': event['ResourceProperties']['S3BatchJobLambdaFunctionArn'],
+        'role_arn': event['ResourceProperties']['RoleArn']
+    }
+
     for image_prefix in prefixes:
-        create_job(image_prefix.strip(), account_id, bucket, lambda_function_arn)
+        job_id = create_job(image_prefix.strip(), **params)
+        path = PurePath(image_prefix)
+        helper.Data.update({path.name: job_id})
 
 def lambda_handler(event, context):
     """

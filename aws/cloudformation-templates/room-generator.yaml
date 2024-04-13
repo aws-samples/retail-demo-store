@@ -955,7 +955,13 @@ Resources:
                     }
                 TemplatePath: 'source::src/roomgenerator/deploy.yaml'
               RunOrder: 1
-  
+
+##################################################################################
+#
+# The following sets up the Product data pre-processing 
+#
+##################################################################################
+
   ProductImageBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -1389,7 +1395,7 @@ Resources:
                     - !Sub 'arn:${AWS::Partition}:s3:::${WebUIBucketName}/images/*'
 
   CreateS3BatchJobsLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -1437,10 +1443,126 @@ Resources:
       LambdaArn: !GetAtt CreateS3BatchJobsLambdaFunction.Arn
       Bucket: !Ref WebUIBucketName
       AccountId: AWS::AccountId
-      S3BatchJobLambdaFunctionArn: !GetAtt ResizeImageLambdaFunction.Arn
+      S3BatchJobLambdaFunctionArn: !GetAtt S3BatchOperationsRole.Arn
+      RoleArn: !GetAtt CreateS3BatchJobsLambdaExecutionRole.Arn
       ImagePrefixes: 'images/floral/, images/housewares, images/homedecor, images/electronics, images/floral, images/furniture'
 
   ProductImageStateMachineRole:
-    # TODO
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: 
+                  - !GetAtt ImageAnalyzerLambdaFunction.Arn
+                  - !GetAtt ImageGenerationLambdaFunction.Arn
+                  - !GetAtt InferenceResultProcessorLambdaFunction.Arn
+  
   ProductImageStateMachine:
-    # TODO
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: RoomGeneration-StateMachine
+      DefinitionString: |-
+        {
+          "StartAt": "Parallel",
+          "States": {
+            "Parallel": {
+              "Type": "Parallel",
+              "Branches": [
+                {
+                  "StartAt": "Titan Embeddings",
+                  "States": {
+                    "Titan Embeddings": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${RoomGenerationProductEmbeddingFunction}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException"
+                          ],
+                          "IntervalSeconds": 10,
+                          "MaxAttempts": 3,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true,
+                      "OutputPath": "$.Payload"
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Claude Captions",
+                  "States": {
+                    "Claude Captions": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${RoomGenerationProductCaptionFunction}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException"
+                          ],
+                          "IntervalSeconds": 10,
+                          "MaxAttempts": 3,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true,
+                      "OutputPath": "$.Payload"
+                    }
+                  }
+                }
+              ],
+              "Next": "SQS SendMessage",
+              "ResultSelector": {
+                "embedding.$": "$[0].embedding",
+                "caption.$": "$[1].caption"
+              },
+              "ResultPath": "$.data"
+            },
+            "SQS SendMessage": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sqs:sendMessage",
+              "Parameters": {
+                "MessageBody.$": "$",
+                "QueueUrl": "${RoomGenerationIndexProductsQueue}"
+              },
+              "End": true
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        RoomGenerationProductCaptionFunction: !GetAtt ImageAnalyzerLambdaFunction.Arn
+        RoomGenerationProductEmbeddingFunction: !GetAtt ImageGenerationLambdaFunction.Arn
+        RoomGenerationIndexProductsQueue: !GetAtt IndexProductsQueue.QueueUrl
+      RoleArn: !GetAtt ProductImageStateMachineRole.Arn
