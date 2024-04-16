@@ -30,20 +30,19 @@ search_client = OpenSearch(
         )
 helper = CfnResource()
 
-def create_index():
-    if not search_client.indices.exists(index_name):
-        search_client.indices.create(index_name, body=mapping)
+@helper.delete
+def opensearch_delete(event,_):
+  if search_client.indices.exists(index_name):
+      search_client.indices.delete(index_name)
 
 @helper.create
+@helper.update
 def opensearch_create(event,_):
-    create_index()
+  if not search_client.indices.exists(index_name):
+      search_client.indices.create(index_name, body=mapping)
 
 def lambda_handler(event, context):
-    """
-    Creates the Embeddings Product index if it does not exist in OpenSearch
-    """
-    # If the event has a RequestType, we're being called by CFN as custom resource
-    if event.get('RequestType'):
-        helper(event, context)
-    else:
-        create_index()
+  """
+  Creates the Embeddings Product index if it does not exist in OpenSearch
+  """
+  helper(event, context)

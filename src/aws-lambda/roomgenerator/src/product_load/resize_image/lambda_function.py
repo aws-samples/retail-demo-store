@@ -8,7 +8,7 @@ from PIL import Image
 import io
 
 s3 = boto3.client("s3")
-destination_bucket = os.environ('DESTINATION_BUCKET')
+destination_bucket = os.environ['DESTINATION_BUCKET']
     
 @event_source(data_class=S3BatchOperationEvent)
 def lambda_handler(event: S3BatchOperationEvent, context: LambdaContext):

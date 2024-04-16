@@ -10,7 +10,7 @@ helper = CfnResource()
 
 def create_job(image_prefix: str, account_id: str, bucket: str, lambda_function_arn: str, role_arn: str) -> str:
     try:
-        response = client.client.create_job(
+        response = client.create_job(
             AccountId=account_id,
             ConfirmationRequired=False,
             Operation={
@@ -23,22 +23,24 @@ def create_job(image_prefix: str, account_id: str, bucket: str, lambda_function_
             },
             ManifestGenerator={
                 'S3JobManifestGenerator': {
-                    'SourceBucket': bucket,
+                    'EnableManifestOutput': False,
+                    'SourceBucket': bucket,                
                     'Filter': {
                         'KeyNameConstraint': {
                             'MatchAnyPrefix': [image_prefix]
                         }
-                    }
-                }
+                    }                    
+                }                
             },
             RoleArn=role_arn,
             Description='Resize product images',
             Priority=99
-        )
-        return response['JobId']
+        )        
     except ClientError as error:
         logger.exception(f"Unable to create S3 control job for: {image_prefix}")
         raise error
+    else:
+        return response['JobId']
 
 @helper.create  
 def create(event, _):
