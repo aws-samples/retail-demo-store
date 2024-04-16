@@ -35,6 +35,11 @@ Metadata:
           - PinpointEmailFromName
           - PinpointSMSLongCode
       - Label:
+          default: "Generative AI Optional Integrations"
+        Parameters:
+          - BedrockProductPersonalization
+          - DeployRoomMakeoverDemo
+      - Label:
           default: "Use default IVS streams"
         Parameters:
           - UseDefaultIVSStreams
@@ -73,8 +78,7 @@ Metadata:
           default: "Custom Cloudfront domain name (optional)"
         Parameters:
           - CloudfrontCustomDomain
-          - ACMCertificateArn
-          - BedrockProductPersonalization
+          - ACMCertificateArn          
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -173,6 +177,8 @@ Metadata:
         default: "Fenix Commerce X-Api-Key"
       BedrockProductPersonalization:
         default: "Enable Amazon Bedrock product personalization"
+      DeployRoomMakeoverDemo:
+        default: "Deploy Room Makeover Demo"
 
 Parameters:
   ResourceBucket:
@@ -507,6 +513,14 @@ Parameters:
     Description : Full url to the images.tar.gz address (only change if you plan to upload custom pictures)
     Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
 
+  DeployRoomMakeoverDemo:
+    Type: String
+    Description: Flag to deploy the Room Makeover demo. Amazon Bedrock users need to request access to models before they are available for use. To demo the Room Makerover functionality make sure to enable access to Anthropic's Claude v3 & Titan Embeddings via the Amazon Bedrock Management Console. Check README Notes for more details.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -532,6 +546,10 @@ Conditions:
 
   ConditionCustomDomain: !Not
     - !Equals [!Ref CloudfrontCustomDomain, ""]
+
+  DeployRoomMakeoverStack: !Equals
+    - !Ref DeployRoomMakeoverDemo
+    - "Yes"
 
 Resources:
   # Base Resources
@@ -657,6 +675,7 @@ Resources:
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
         BedrockProductPersonalization: !Ref BedrockProductPersonalization
+        RoomImagesBucket: !Ref RoomMakeover.Outputs.RoomImagesBucket
 
         LocationResourceName:
           !If [
@@ -851,6 +870,35 @@ Resources:
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+
+  RoomMakeover:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployRoomMakeoverStack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/room-generator.yaml
+      Parameters:
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+        OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
+        ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
+        LambdaAuthorizer: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
+        WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
+  
+  ApiGatewayDeploy:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - ApiGateway
+      - RoomMakeover
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/apigateway-deploy.yaml
+      Parameters:
+        ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
 
 Outputs:
   UserPoolId:

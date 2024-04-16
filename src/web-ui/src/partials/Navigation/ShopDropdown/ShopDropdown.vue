@@ -25,7 +25,8 @@
           >{{ formattedCategories[i] }}</router-link
         >
       </template>
-
+      <hr />
+      <router-link class="dropdown-item" :to="`/roomgenerator`">Room Makeover</router-link>
       <hr />
       <router-link class="dropdown-item" :to="`/live`">Live Streams</router-link>
       <hr />

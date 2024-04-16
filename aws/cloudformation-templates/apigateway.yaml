@@ -657,25 +657,13 @@ Resources:
         - - integrations
           - !Ref LocationServiceIntegration
 
-  HttpApiStage:
-    Type: 'AWS::ApiGatewayV2::Stage'
-    DependsOn:
-      - GetProduct
-    Properties:
-      StageName: '$default'
-      ApiId: !Ref HttpAPI
-      AutoDeploy: true
-      AccessLogSettings:
-        DestinationArn: !GetAtt AccessLogs.Arn
-        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey", "status":"$context.status","protocol":"$context.protocol", "integrationStatus": $context.integrationStatus, "integrationLatency": $context.integrationLatency, "responseLength":"$context.responseLength", "authorizerError": "$context.authorizer.error" }'
-
-  AccessLogs:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 30
-      LogGroupName: !Sub "/${AWS::StackName}/APIAccessLogs"
-
 Outputs:
   APIEndpoint:
     Description: "API Gateway endpoint URL"
     Value: !GetAtt HttpAPI.ApiEndpoint
+  ApiGatewayAuthorizer:
+    Description: API Gateway Authorizer id
+    Value: !Ref LambdaAuthorizer
+  ApiGatewayId:
+    Description: API Gateway Id
+    Value: !Ref HttpAPI

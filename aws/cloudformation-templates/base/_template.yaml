@@ -299,6 +299,10 @@ Outputs:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Authentication.Outputs.IdentityPoolId
 
+  CognitoAuthorizedRole:
+    Description: Authentication Cognito Authorized Role name
+    Value: !GetAtt Authentication.Outputs.CognitoAuthorizedRole
+
   StackBucketName:
     Description: Stack Bucket
     Value: !GetAtt Buckets.Outputs.StackBucketName

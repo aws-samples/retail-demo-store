@@ -1,0 +1,27 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+    This template deploys the Retail Demo Store API Gateway
+
+Parameters:
+    ApiGatewayId:
+      Type: String
+
+Resources:
+
+  HttpApiStage:
+    Type: 'AWS::ApiGatewayV2::Stage'
+    Properties:
+      StageName: '$default'
+      ApiId: !Ref ApiGatewayId
+      AutoDeploy: true
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey", "status":"$context.status","protocol":"$context.protocol", "integrationStatus": $context.integrationStatus, "integrationLatency": $context.integrationLatency, "responseLength":"$context.responseLength", "authorizerError": "$context.authorizer.error" }'
+
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName: !Sub "/${AWS::StackName}/APIAccessLogs"

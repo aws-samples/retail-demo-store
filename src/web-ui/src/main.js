@@ -3,7 +3,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
-import { Auth, Logger, Analytics, Interactions, AWSPinpointProvider, AmazonPersonalizeProvider } from 'aws-amplify';
+import { Auth, Logger, Analytics, Interactions, AmazonPersonalizeProvider, Storage } from 'aws-amplify';
 import store from '@/store/store';
 import Amplitude from 'amplitude-js'
 import mParticle from '@mparticle/web-sdk';
@@ -38,9 +38,16 @@ const amplifyConfig = {
         "alias": import.meta.env.VITE_BOT_ALIAS,
         "region": import.meta.env.VITE_BOT_REGION,
       },
+    }   
+  },
+  Storage: {
+    AWSS3: {
+      bucket: import.meta.env.VITE_ROOM_IMAGES_BUCKET,
+      region: import.meta.env.VITE_AWS_REGION, 
     }
   }
 }
+Storage.configure(amplifyConfig)
 
 if (AmplifyStore.state.user?.id) {
     amplifyConfig.Analytics.AWSPinpoint.endpoint = {

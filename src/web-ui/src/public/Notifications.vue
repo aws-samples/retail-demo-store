@@ -133,7 +133,7 @@ export default {
       return AmplifyStore.state.user
     },
     notificationsEnabled() {
-      const enabled = import.meta.env.VITE_LOCATION_NOTIFICATION_URL && import.meta.env.VITE_LOCATION_NOTIFICATION_URL !== ''
+      const enabled = import.meta.env.VITE_LOCATION_NOTIFICATION_URL && import.meta.env.VITE_LOCATION_NOTIFICATION_URL !== 'NotDeployed'
       if (enabled) {
         console.log('Websocket notifications are enabled')
       }
