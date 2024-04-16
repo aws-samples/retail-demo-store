@@ -356,7 +356,7 @@ Resources:
 
 Outputs:
   # Web UI outputs
-  WebUIBucket:
+  WebUIBucketName:
     Description: Web UI S3 bucket for CloudFront distribution.
     Value: !Ref WebUIBucket
 
