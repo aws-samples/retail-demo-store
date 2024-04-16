@@ -578,6 +578,9 @@ Resources:
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
         ACMCertificateArn: !Ref ACMCertificateArn
+        ResourceBucketImages: !Ref ResourceBucketImages
+        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
+        SourceImagesPackage: !Ref SourceImagesPackage
 
   # Services Resources
   Services:
@@ -675,8 +678,7 @@ Resources:
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
         BedrockProductPersonalization: !Ref BedrockProductPersonalization
-        RoomImagesBucket: !Ref RoomMakeover.Outputs.RoomImagesBucket
-
+        RoomImagesBucket: !GetAtt RoomMakeover.Outputs.RoomImagesBucket
         LocationResourceName:
           !If [
             DeployLocationStack,
@@ -701,9 +703,6 @@ Resources:
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
-        ResourceBucketImages: !Ref ResourceBucketImages
-        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
-        SourceImagesPackage: !Ref SourceImagesPackage
 
   # Swagger UI Pipeline
   SwaggerUIPipeline:
