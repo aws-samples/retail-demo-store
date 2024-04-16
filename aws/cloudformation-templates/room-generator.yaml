@@ -1264,7 +1264,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - states:StartExecution
-                Resource: !Ref ProductImageStateMachine
+                Resource: !Ref PrepareProductDataStateMachine
 
   TriggerProductImageSfnLambdaFunction:
     Type: AWS::Lambda::Function
@@ -1279,7 +1279,7 @@ Resources:
       FunctionName: RoomGeneratorTriggerProductImageSfn
       Environment:
         Variables:
-          STATE_MACHINE_ARN: !GetAtt ProductImageStateMachine.Arn
+          STATE_MACHINE_ARN: !GetAtt PrepareProductDataStateMachine.Arn
           POWERTOOLS_SERVICE_NAME: roomgen-product-image-sfn-trigger
       Layers:
         - !Ref BaseLambdaLayer    
@@ -1449,7 +1449,8 @@ Resources:
   CreateS3BatchJobsLambdaTrigger:
     Type: Custom::LambdaTrigger
     DependsOn:
-      - ProductImageStateMachine
+      - CreateEmbeddingIndexLambdaTrigger
+      - PrepareProductDataStateMachine
       - UpdateBucketNotificationLambdaTrigger
     Properties:
       ServiceToken: !GetAtt CreateS3BatchJobsLambdaFunction.Arn
@@ -1457,9 +1458,9 @@ Resources:
       AccountId: !Ref AWS::AccountId
       S3BatchJobLambdaFunctionArn: !GetAtt ResizeImageLambdaFunction.Arn
       RoleArn: !GetAtt S3BatchOperationsRole.Arn
-      ImagePrefixes: 'images/floral/, images/housewares, images/homedecor, images/electronics, images/floral, images/furniture'
+      ImagePrefixes: 'images/floral/, images/housewares, images/homedecor, images/electronics, images/furniture'
 
-  ProductImageStateMachineRole:
+  PrepareProductDataStateMachineRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -1490,12 +1491,36 @@ Resources:
                   - sqs:SendMessage
                 Resource: 
                   - !GetAtt IndexProductsQueue.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogDelivery
+                  - logs:GetLogDelivery
+                  - logs:UpdateLogDelivery
+                  - logs:DeleteLogDelivery
+                  - logs:ListLogDeliveries
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:PutResourcePolicy
+                  - logs:DescribeResourcePolicies
+                  - logs:DescribeLogGroups
+                Resource: '*'
+
+  PrepareProductDataSfnLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/sfn/${AWS::StackName}-PrepareProductData
   
-  ProductImageStateMachine:
+  PrepareProductDataStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
       StateMachineName: RoomGeneration-PrepareProductData
       StateMachineType: EXPRESS
+      LoggingConfiguration:
+        Destinations:
+          - CloudWatchLogsLogGroup: 
+              LogGroupArn: !GetAtt PrepareProductDataSfnLogGroup.Arn
+        IncludeExecutionData: true
+        Level: ERROR
       DefinitionString: |-
         {
           "StartAt": "Parallel",
@@ -1519,7 +1544,8 @@ Resources:
                             "Lambda.ServiceException",
                             "Lambda.AWSLambdaException",
                             "Lambda.SdkClientException",
-                            "Lambda.TooManyRequestsException"
+                            "Lambda.TooManyRequestsException",
+                            "ThrottlingException"
                           ],
                           "IntervalSeconds": 10,
                           "MaxAttempts": 3,
@@ -1547,7 +1573,8 @@ Resources:
                             "Lambda.ServiceException",
                             "Lambda.AWSLambdaException",
                             "Lambda.SdkClientException",
-                            "Lambda.TooManyRequestsException"
+                            "Lambda.TooManyRequestsException",
+                            "ThrottlingException"
                           ],
                           "IntervalSeconds": 10,
                           "MaxAttempts": 3,
@@ -1582,4 +1609,4 @@ Resources:
         RoomGenerationProductCaptionFunction: !GetAtt CreateProductCaptionLambdaFunction.Arn
         RoomGenerationProductEmbeddingFunction: !GetAtt GetEmbeddingLambdaFunction.Arn
         RoomGenerationIndexProductsQueue: !GetAtt IndexProductsQueue.QueueUrl
-      RoleArn: !GetAtt ProductImageStateMachineRole.Arn
+      RoleArn: !GetAtt PrepareProductDataStateMachineRole.Arn
