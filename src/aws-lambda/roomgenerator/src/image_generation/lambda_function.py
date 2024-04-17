@@ -18,7 +18,7 @@ db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))
 logger = Logger(utc=True)
 metrics = Metrics()
 
-NEGATIVE_PROMPT =  "Avoid monochrome, pixelation, clutter, distorted proportions, and low-detail textures."
+NEGATIVE_PROMPT =  "monochrome, lowres, bad anatomy, worst quality, low quality, fantasy, clutter, physically implausible placements, unrealistic geometry, objects that defy gravity, smudgy, blurry"
 INFERENCE_INPUT_S3_PREFIX = "async_inference/input/"
 
 @metrics.log_metrics(capture_cold_start_metric=True)
@@ -36,10 +36,10 @@ def invoke_async_endpoint(event: dict[str, Any]) -> dict[str,Any]:
 
     input_data = {}
     input_data["prompt"] = event_payload["prompt"]
-    input_data["steps"] = 8
-    input_data["strength"] = 0.9
+    input_data["steps"] = 30
+    input_data["strength"] = 0.8
     input_data["guidance_scale"] = 8
-    input_data["controlnet_conditioning_scale"] = 0.35
+    input_data["controlnet_conditioning_scale"] = 0.5
     input_data["cross_attention_scale"] = 1.0
     input_data["negative_prompt"] = NEGATIVE_PROMPT
     input_data["init_image_s3"] = {

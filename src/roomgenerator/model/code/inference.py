@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from PIL import Image
 from transformers import DPTImageProcessor, DPTForDepthEstimation
-from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, UNet2DConditionModel, LCMScheduler, AutoencoderKL
+from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, HeunDiscreteScheduler, AutoencoderKL
 from compel import Compel, ReturnedEmbeddingsType
 import boto3
 
@@ -16,12 +16,6 @@ def model_fn(model_dir):
     depth_estimator = DPTForDepthEstimation.from_pretrained(model_dir + "/dpt-hybrid-midas").to("cuda")
     feature_extractor = DPTImageProcessor.from_pretrained(model_dir + "/dpt-hybrid-midas")
     
-    unet = UNet2DConditionModel.from_pretrained(
-        model_dir + "/lcm-sdxl",
-        torch_dtype=torch.float16,
-        use_safetensors=True
-    )
-
     controlnet = ControlNetModel.from_pretrained(
         model_dir + "/controlnet-depth-sdxl-1.0",
         variant="fp16",
@@ -38,14 +32,12 @@ def model_fn(model_dir):
         model_dir + "/stable-diffusion-xl-base-1.0",
         controlnet=controlnet,
         vae=vae,
-        unet=unet,
         variant="fp16",
         use_safetensors=True,
         torch_dtype=torch.float16,
     ).to("cuda")
-    
-    pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
-    pipe.enable_model_cpu_offload()
+    # print(pipe.scheduler.compatibles)
+    pipe.scheduler = HeunDiscreteScheduler.from_config(pipe.scheduler.config)
     
     compel = Compel(
       tokenizer=[pipe.tokenizer, pipe.tokenizer_2] ,
@@ -75,6 +67,7 @@ def predict_fn(input_data, model):
     depth_image = get_depth_map(image, feature_extractor, depth_estimator)
     generator = torch.manual_seed(33)
     
+    # https://huggingface.co/docs/diffusers/en/api/pipelines/controlnet#diffusers.StableDiffusionControlNetImg2ImgPipeline.__call__
     generated_images = pipe(
         prompt_embeds=conditioning,
         pooled_prompt_embeds=pooled,
@@ -82,9 +75,7 @@ def predict_fn(input_data, model):
         image=depth_image,
         num_inference_steps=data['steps'],
         strength=data['strength'],
-        guidance_scale=data['guidance_scale'], 
         controlnet_conditioning_scale=data['controlnet_conditioning_scale'],
-        cross_attention_kwargs={"scale": data['cross_attention_scale']},
         generator=generator,
     ).images
     
@@ -94,6 +85,7 @@ def predict_fn(input_data, model):
       buffered = BytesIO()
       image.save(buffered, format="JPEG")
       encoded_images.append(base64.b64encode(buffered.getvalue()).decode())
+    encoded_images.append(depth_image)
 
     # create response
     return {"generated_images": encoded_images}
