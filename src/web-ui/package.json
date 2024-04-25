@@ -27,7 +27,7 @@
     "amplitude-js": "^5.8.0",
     "autoprefixer": "^10.4.13",
     "aws-amplify": "^5.3.5",
-    "axios": "^1.6.0",
+    "axios": "^1.6.8",
     "jsonfile": "^6.1.0",
     "jwt-decode": "^4.0.0",
     "mapbox-gl": "^1.12.0",

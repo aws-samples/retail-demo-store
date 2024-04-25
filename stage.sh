@@ -6,15 +6,14 @@
 # products and categories into DDB and CSVs for training Personalize models.
 #
 # Exammple usage:
-# ./stage.sh S3_BUCKET [OPTIONAL_S3_PATH/] [--private-s3] [--only-cfn-template] [--skip-generators]
+# ./stage.sh S3_BUCKET [OPTIONAL_S3_PATH/] [--only-cfn-template] [--skip-generators]
 #
 # The S3_BUCKET/OPTIONAL_S3_PATH is where all resources and templates will be uploaded.
 # If you don't specify the OPTIONAL_S3_PATH, it will be uploaded to the root of the bucket.
 #
 # The optional flags are:
-# 1. "--private-s3" to upload files without setting the object ACL to public
-# 2. "--only-cfn-template" to upload only CloudFormation templates (to speed up development time if you aren't changing any code)
-# 3. "--skip-generators" to skip data generator steps
+# 1. "--only-cfn-template" to upload only CloudFormation templates (to speed up development time if you aren't changing any code)
+# 2. "--skip-generators" to skip data generator steps
 
 set -e
 
@@ -23,10 +22,10 @@ set -e
 ########################################################################################################################################
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this case, we take 2 arguments for BUCKET and S3PATH
-# 2. "private-s3" DEPRECATED. Default behaviour is private_s3=true
-# 3. "only-cfn-template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
-# 4. "skip-generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
-# 5. "skip-virtualenv" contains a boolean value to be used if stage.sh is called from inside a virtualenv 
+#  "private-s3" DEPRECATED. Default behaviour is private_s3=true
+# 2. "only-cfn-template" contains a boolean value whether only CloudFormation templates should be copied to staging bucket (default = false).
+# 3. "skip-generators" contains a boolean value whether the dataset generators should be skipped or not (default = false).
+# 4. "skip-virtualenv" contains a boolean value to be used if stage.sh is called from inside a virtualenv 
 ########################################################################################################################################
 args=()
 private_s3=true # this is now on by default.
