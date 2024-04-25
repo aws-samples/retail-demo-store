@@ -226,7 +226,7 @@ const router = createRouter({
       path: '/roomgenerator',
       name: 'RoomGenerator',
       component: RoomGenerator,
-      meta: { requiresAuth: false}
+      meta: { requiresAuth: true}
     },
     {
       path: '/live',
