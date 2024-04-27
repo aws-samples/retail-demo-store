@@ -11,6 +11,7 @@ import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
 import { Auth } from 'aws-amplify';
+import { set, event } from "vue-gtag";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const ProductsRepository = RepositoryFactory.get('products')
@@ -182,7 +183,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            this.$gtag.set({
+            set({
                 "user_id": user.id,
                 "user_properties": {
                     "age": user.age,
@@ -206,7 +207,7 @@ export const AnalyticsHandler = {
             })
 
             if (this.googleAnalyticsEnabled()) {
-                this.$gtag.event("sign_up", {
+                event("sign_up", {
                     "method": "Web"
                 });
             }
@@ -228,7 +229,7 @@ export const AnalyticsHandler = {
             })
 
             if (this.googleAnalyticsEnabled()) {
-                this.$gtag.event("login", {
+                event("login", {
                     "method": "Web"
                 });
             }
@@ -258,7 +259,7 @@ export const AnalyticsHandler = {
             }
 
             if (this.googleAnalyticsEnabled()) {
-                this.$gtag.event("exp_" + experiment.feature, {
+                event("exp_" + experiment.feature, {
                     "feature": experiment.feature,
                     "name": experiment.name,
                     "variation": experiment.variationIndex
@@ -372,7 +373,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            this.$gtag.event('add_to_cart', {
+            event('add_to_cart', {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
@@ -506,7 +507,7 @@ export const AnalyticsHandler = {
 
 
         if (this.googleAnalyticsEnabled()) {
-            this.$gtag.event('remove_from_cart', {
+            event('remove_from_cart', {
                 "currency": "USD",
                 "value": +cartItem.price.toFixed(2),
                 "items": [
@@ -651,7 +652,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            this.$gtag.event('view_item', {
+            event('view_item', {
                 "currency": "USD",
                 "value": +product.price.toFixed(2),
                 "items": [
@@ -749,7 +750,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            this.$gtag.event('view_cart', {
+            event('view_cart', {
                 "value": +cartTotal.toFixed(2),
                 "currency": "USD",
                 "items": gaItems
@@ -836,7 +837,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            this.$gtag.event('begin_checkout', {
+            event('begin_checkout', {
                 "value": +cartTotal.toFixed(2),
                 "currency": "USD",
                 "items": gaItems
@@ -971,7 +972,7 @@ export const AnalyticsHandler = {
                 });
             }
 
-            this.$gtag.event('purchase', {
+            event('purchase', {
                 "transaction_id": order.id.toString(),
                 "value": +order.total.toFixed(2),
                 "currency": "USD",
@@ -1028,7 +1029,7 @@ export const AnalyticsHandler = {
         }
 
         if (this.googleAnalyticsEnabled()) {
-            this.$gtag.event('search', {
+            event('search', {
                 "search_term": query
             });
         }
