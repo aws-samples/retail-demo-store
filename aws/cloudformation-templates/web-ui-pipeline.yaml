@@ -161,7 +161,7 @@ Parameters:
   BedrockProductPersonalization:
     Type: String
     Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
-    Default: 'FALSE'
+    Default: 'No'
 
   RoomImagesBucket:
     Type: String

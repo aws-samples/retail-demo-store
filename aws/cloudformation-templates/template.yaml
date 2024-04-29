@@ -504,9 +504,9 @@ Parameters:
     Type: String
     Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
     AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'FALSE'
+      - 'Yes'
+      - 'No'
+    Default: 'No'
 
   SourceImagesPackage:
     Type: String
@@ -678,7 +678,7 @@ Resources:
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
         BedrockProductPersonalization: !Ref BedrockProductPersonalization
-        RoomImagesBucket: !GetAtt RoomMakeover.Outputs.RoomImagesBucket
+        RoomImagesBucket: !If [DeployRoomMakeoverStack, !GetAtt RoomMakeover.Outputs.RoomImagesBucket, '']
         LocationResourceName:
           !If [
             DeployLocationStack,
@@ -890,16 +890,18 @@ Resources:
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
         CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
-  
+
   ApiGatewayDeploy:
     Type: AWS::CloudFormation::Stack
     DependsOn:
       - ApiGateway
-      - RoomMakeover
     Properties:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/apigateway-deploy.yaml
       Parameters:
         ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
+      Tags:
+        - Key: ConditionalDependsOn
+          Value: !If [DeployRoomMakeoverStack, !Ref RoomMakeover, Ignored]
 
 Outputs:
   UserPoolId:

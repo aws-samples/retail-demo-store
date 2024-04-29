@@ -172,8 +172,8 @@ export default {
     },
     bedrockProductPersonalizationEnabled() {
       let isLoggedIn = this.user && this.user.name != 'guest'
-      let bedrockFeatureEnabled = import.meta.env.VITE_BEDROCK_PRODUCT_PERSONALIZATION || "false"
-      return bedrockFeatureEnabled.toLowerCase() === 'true' && isLoggedIn
+      let bedrockFeatureEnabled = import.meta.env.VITE_BEDROCK_PRODUCT_PERSONALIZATION == 'Yes'
+      return bedrockFeatureEnabled && isLoggedIn
     },
     personalizeButtonText() {
       return (this.isDescriptionPersonalized ? 'Personalized' : 'Personalize') + ' Description'
