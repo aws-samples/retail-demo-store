@@ -6,7 +6,7 @@ import boto3
 import base64
 import json
 
-bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-1')
+bedrock_client = boto3.client('bedrock-runtime')
 s3_client = boto3.client('s3')
 
 logger = Logger(utc=True)

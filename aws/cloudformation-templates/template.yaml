@@ -1,5 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::LanguageExtensions'
 
 # Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
@@ -521,6 +522,20 @@ Parameters:
       - 'No'
     Default: 'No'
 
+Mappings:
+# Regions that support Amazon Bedrock and the required models of Room Maker demo: Claude 3 Haiku, Titan Multimodal Embeddings G1
+  BedrockRegionMap: 
+    us-east-1: 
+      SupportsRequiredModels: "Yes"
+    us-west-2: 
+      SupportsRequiredModels: "Yes"
+    ap-south-1: 
+      SupportsRequiredModels: "Yes"
+    ap-southeast-2: 
+      SupportsRequiredModels: "Yes"
+    eu-west-3: 
+      SupportsRequiredModels: "Yes"
+
 Conditions:
   DeploySegmentResources: !Equals
     - !Ref IncludeSegmentDependencies
@@ -547,9 +562,13 @@ Conditions:
   ConditionCustomDomain: !Not
     - !Equals [!Ref CloudfrontCustomDomain, ""]
 
-  DeployRoomMakeoverStack: !Equals
-    - !Ref DeployRoomMakeoverDemo
-    - "Yes"
+  RegionSupportsRequiredBedrockModels: !Equals
+    - !FindInMap [BedrockRegionMap, !Ref 'AWS::Region', 'SupportsRequiredModels', DefaultValue: 'No']
+    - 'Yes'
+
+  DeployRoomMakeoverStack: !And
+    - !Equals [!Ref DeployRoomMakeoverDemo, "Yes"]
+    - !Condition RegionSupportsRequiredBedrockModels
 
 Resources:
   # Base Resources

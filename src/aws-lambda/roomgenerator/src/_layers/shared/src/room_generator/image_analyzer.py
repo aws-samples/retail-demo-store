@@ -11,7 +11,7 @@ from aws_lambda_powertools import Logger
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client('rekognition')
-bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+bedrock_runtime = boto3.client('bedrock-runtime')
 
 @dataclass
 class SimilarItem:
