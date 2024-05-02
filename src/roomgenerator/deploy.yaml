@@ -27,12 +27,12 @@ Mappings:
       "DLC": "763104351884.dkr.ecr.us-east-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
     "us-west-2":
       "DLC": "763104351884.dkr.ecr.us-west-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
-    "eu-west-1":
-      "DLC": "763104351884.dkr.ecr.eu-west-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
-    "ap-northeast-1":
-      "DLC": "763104351884.dkr.ecr.ap-northeast-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "ap-south-1":
+      "DLC": "763104351884.dkr.ecr.ap-south-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
     "ap-southeast-2":
       "DLC": "763104351884.dkr.ecr.ap-southeast-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "eu-west-3":
+      "DLC": "763104351884.dkr.ecr.eu-west-3.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
 
 Resources:
   ExecutionRole: 
@@ -116,7 +116,7 @@ Resources:
           VariantName: AllTraffic
 
   Endpoint:
-    Type: "AWS::SageMaker::Endpoint"
+    Type: AWS::SageMaker::Endpoint
     Properties:
       EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
       EndpointName: !Ref EndpointName
