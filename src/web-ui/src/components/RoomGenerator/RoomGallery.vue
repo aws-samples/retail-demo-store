@@ -51,7 +51,7 @@ export default {
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(128px, 128px));
   gap: 16px;
   padding: 8px;
 }
@@ -87,9 +87,4 @@ export default {
   }
 }
 
-@media (max-width: 600px) {
-  .gallery-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-}
 </style>
