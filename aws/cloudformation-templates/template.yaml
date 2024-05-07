@@ -40,6 +40,9 @@ Metadata:
         Parameters:
           - BedrockProductPersonalization
           - DeployRoomMakeoverDemo
+          - EnableSageMakerAutoScaling
+          - SageMakerScalingMinCapacity
+          - SageMakerScalingMaxCapacity
       - Label:
           default: "Use default IVS streams"
         Parameters:
@@ -180,6 +183,12 @@ Metadata:
         default: "Enable Amazon Bedrock product personalization"
       DeployRoomMakeoverDemo:
         default: "Deploy Room Makeover Demo"
+      EnableSageMakerAutoScaling:
+        default: Enable Auto scaling for SageMaker Asynchronous endpoint        
+      SageMakerScalingMinCapacity:
+        default: Minimum capacity for SageMaker endpoint.
+      SageMakerScalingMaxCapacity:
+        default: Maximum capacity for SageMaker endpoint
 
 Parameters:
   ResourceBucket:
@@ -521,6 +530,26 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'No'
+  
+  EnableSageMakerAutoScaling:
+    Type: String
+    Description: Enable Auto scaling for the SageMaker Asyncronous endpoint
+    AllowedValues:
+      - "Yes"
+      - "No"
+    Default: "Yes"
+
+  SageMakerScalingMaxCapacity:
+    Type: Number
+    Description: Maximum capacity to scale the SageMaker Asyncronous endpoint
+    MinValue: 1
+    Default: 1
+
+  SageMakerScalingMinCapacity:
+    Type: Number
+    Description: SageMaker Asynchronous endpoints can be scaled to zero.  The endpoint will scale up from zero and room requests will resume execution when there is an endpoint to invoke.
+    MinValue: 0
+    Default: 0
 
 Mappings:
 # Regions that support Amazon Bedrock and the required models of Room Maker demo: Claude 3 Haiku, Titan Multimodal Embeddings G1

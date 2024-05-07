@@ -38,6 +38,21 @@ Parameters:
     Type: String
   CognitoAuthorizedRole:
     Type: String
+  EnableSageMakerAutoScaling:
+    Type: String
+    Description: Enable Auto scaling for the SageMaker Asyncronous endpoint
+    AllowedValues:
+      - "Yes"
+      - "No"
+    Default: "Yes"
+  SageMakerScalingMaxCapacity:
+    Type: Number
+    MinValue: 1
+    Default: 1
+  SageMakerScalingMinCapacity:
+    Type: Number
+    MinValue: 0
+    Default: 0
 
 Resources:
 
@@ -848,10 +863,10 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Action: ['sts:AssumeRole']
+        - Action: sts:AssumeRole
           Effect: Allow
           Principal:
-            Service: [cloudformation.amazonaws.com]
+            Service: cloudformation.amazonaws.com
         Version: '2012-10-17'
       Path: /
       Policies:
@@ -872,18 +887,32 @@ Resources:
                   - sagemaker:DeleteEndpoint
                   - sagemaker:AddTags
                   - sagemaker:DeleteTags
-                Resource: '*'
-              - Effect: Allow
-                Action:
+                  - sagemaker:UpdateEndpointWeightsAndCapacities
                   - iam:AttachRolePolicy
                   - iam:DeleteRolePolicy
                   - iam:PutRolePolicy
                   - iam:CreateRole
                   - iam:DeleteRole
                   - iam:GetRole
-                  - iam:PassRole       
+                  - iam:PassRole
+                  - application-autoscaling:RegisterScalableTarget                  
+                  - application-autoscaling:DescribeScalableTargets
+                  - application-autoscaling:DeregisterScalableTarget
+                  - application-autoscaling:PutScalingPolicy
+                  - application-autoscaling:DescribeScalingPolicies
+                  - application-autoscaling:DescribeScalingActivities
+                  - application-autoscaling:DeleteScalingPolicy
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:GetMetricData
+                  - cloudwatch:PutMetricAlarm
+                  - cloudwatch:DeleteAlarms
                 Resource: '*'
-                
+              - Effect: Allow
+                Action: iam:CreateServiceLinkedRole
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/sagemaker.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_SageMakerEndpoint'
+                Condition:
+                  StringLike:
+                    iam:AWSServiceName: sagemaker.application-autoscaling.amazonaws.com                            
 
   PipelineCodeCommit:
     Type: AWS::CodePipeline::Pipeline
@@ -951,7 +980,10 @@ Resources:
                       "ImageBucket": "${ImageBucket}",
                       "InferenceBucket": "${InferenceBucket}",
                       "SuccessTopic": "${SnsTopic}",
-                      "EndpointName": "${SagemakerEndpointName}"
+                      "EndpointName": "${SagemakerEndpointName}",
+                      "EnableAutoScaling": "${EnableSageMakerAutoScaling}",
+                      "ScalingMinCapacity": "${SageMakerScalingMinCapacity}",
+                      "ScalingMaxCapacity": "${SageMakerScalingMaxCapacity}"
                     }
                 TemplatePath: 'source::src/roomgenerator/deploy.yaml'
               RunOrder: 1

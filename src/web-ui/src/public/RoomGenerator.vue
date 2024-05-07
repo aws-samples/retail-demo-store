@@ -112,8 +112,10 @@ export default {
                 setTimeout(fetchRoomAndUpdate, 5000, id, ++count);
               } else {
                 this.showSpinner = false;
-                this.statusMessage = 'Error Processing Image';
-                console.log("Timed out waiting for image to complete processing!");
+                // This could be because of an error or Autoscaling has scaled down to zero
+                // If autoscaling has kicked in, wait 5-10 mins for this to resume
+                this.statusMessage = 'Timed Out Waiting for Room Generation';
+                console.log("Timed out waiting for room generation.");
               }
             }
           })

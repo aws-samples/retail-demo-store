@@ -15,7 +15,7 @@
           <li>The Web UI calls the API Gateway, passing in the S3 location of the uploaded image and the selected room style, to create a room generation request.  A unique id is returned that can be used to retrieve the results.</li>
           <li>The API Gateway uses a Lambda authorizer to validate the supplied identity token.  It then proxies the request through to a Lambda function that validates and then persists the request into DynamoDB.</li>
           <li>DynamoDB streams captures the newly inserted room request.</li>
-          <li>A lambda function triggers on each new record in the stream and triggers the an AWS Step Function to process the request.</li>
+          <li>A lambda function triggers on each new record in the stream and starts an AWS Step Function to process the request.</li>
           <li>The first step of the step function performs image analysis on the uploaded room image.  The output of the step is a prompt that can passed to the Stable Diffusion model.
             <ol type="i">
               <li>Amazon Rekognition is used to detect objects in the image – such as sofa’s, chairs, and tables.  It returns a list of objects, together with their associated bounding boxes.</li>
