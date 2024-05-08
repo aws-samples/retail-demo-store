@@ -40,9 +40,11 @@ Metadata:
         Parameters:
           - BedrockProductPersonalization
           - DeployRoomMakeoverDemo
+          - SageMakerEndpointName
           - EnableSageMakerAutoScaling
           - SageMakerScalingMinCapacity
           - SageMakerScalingMaxCapacity
+          - OpenSearchEmbeddingIndex
       - Label:
           default: "Use default IVS streams"
         Parameters:
@@ -550,6 +552,17 @@ Parameters:
     Description: SageMaker Asynchronous endpoints can be scaled to zero.  The endpoint will scale up from zero and room requests will resume execution when there is an endpoint to invoke.
     MinValue: 0
     Default: 0
+  
+  SageMakerEndpointName:
+    Type: String
+    Description: The SageMaker async endpoint name used for image generation
+    Default: controlnet-depth-sdxl
+  
+  OpenSearchEmbeddingIndex:
+    Type: String
+    Description: Name of the embedding index
+    Default: embproducts
+
 
 Mappings:
 # Regions that support Amazon Bedrock and the required models of Room Maker demo: Claude 3 Haiku, Titan Multimodal Embeddings G1
@@ -938,6 +951,15 @@ Resources:
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebURL: !GetAtt Base.Outputs.WebUICDNURL
         CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
+        SageMakerEndpointName: !Ref SageMakerEndpointName
+        EnableSageMakerAutoScaling: !Ref EnableSageMakerAutoScaling
+        SageMakerScalingMaxCapacity: !Ref SageMakerScalingMaxCapacity
+        SageMakerScalingMinCapacity: !Ref SageMakerScalingMinCapacity
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser     
 
   ApiGatewayDeploy:
     Type: AWS::CloudFormation::Stack

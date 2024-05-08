@@ -26,7 +26,7 @@ Parameters:
     Type: String
     Description: The index name that holds the Product embeddings
     Default: embproducts
-  SagemakerEndpointName:
+  SageMakerEndpointName:
     Type: String
     Description: The Sagemaker async endpoint name used for image generation
     Default: controlnet-depth-sdxl
@@ -53,6 +53,26 @@ Parameters:
     Type: Number
     MinValue: 0
     Default: 0
+  SourceDeploymentType:
+    Type: String
+    Description: Retail Demo Store source deployment type
+    AllowedValues:
+      - 'GitHub'
+      - 'CodeCommit'
+    Default: 'CodeCommit'
+  GitHubRepo:
+    Type: String
+  GitHubBranch:
+    Type: String
+    Default: master
+  GitHubToken:
+    Type: String
+    NoEcho: true
+  GitHubUser:
+    Type: String
+
+Conditions:
+  GitHubDeployment: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
 
 Resources:
 
@@ -384,7 +404,7 @@ Resources:
                 Action:
                   - sagemaker:InvokeEndpointAsync
                 Resource: 
-                  - !Sub arn:${AWS::Partition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint/${SagemakerEndpointName}
+                  - !Sub arn:${AWS::Partition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint/${SageMakerEndpointName}
 
   ImageGenerationLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -400,7 +420,7 @@ Resources:
       Environment:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
-          ENDPOINT_NAME: !Ref SagemakerEndpointName
+          ENDPOINT_NAME: !Ref SageMakerEndpointName
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
           INFERENCE_INPUT_BUCKET: !Ref InferenceBucket
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
@@ -927,13 +947,22 @@ Resources:
             - Name: App
               ActionTypeId:
                 Category: Source
-                Owner: AWS
+                Owner: !If [GitHubDeployment, 'ThirdParty', 'AWS']
                 Version: '1'
-                Provider: CodeCommit
+                Provider: !Ref SourceDeploymentType
               Configuration:
-                RepositoryName: retaildemostore-src
-                BranchName: main
-                PollForSourceChanges: false
+                !If 
+                  - GitHubDeployment
+                  -
+                    Fn::Transform:
+                      Name: 'AWS::Include'
+                      Parameters:
+                        Location: !Sub "s3://${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/codepipeline-config-github.yaml"
+                  -
+                    Fn::Transform:
+                      Name: 'AWS::Include'
+                      Parameters:
+                        Location: !Sub "s3://${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/codepipeline-config-codecommit.yaml"
               OutputArtifacts:
                 - Name: source
               RunOrder: 1
@@ -980,7 +1009,7 @@ Resources:
                       "ImageBucket": "${ImageBucket}",
                       "InferenceBucket": "${InferenceBucket}",
                       "SuccessTopic": "${SnsTopic}",
-                      "EndpointName": "${SagemakerEndpointName}",
+                      "EndpointName": "${SageMakerEndpointName}",
                       "EnableAutoScaling": "${EnableSageMakerAutoScaling}",
                       "ScalingMinCapacity": "${SageMakerScalingMinCapacity}",
                       "ScalingMaxCapacity": "${SageMakerScalingMaxCapacity}"

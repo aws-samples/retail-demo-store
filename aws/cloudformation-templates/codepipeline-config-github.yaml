@@ -1,0 +1,8 @@
+Owner: 
+  Ref: GitHubUser
+Repo: 
+  Ref: GitHubRepo
+Branch:
+   Ref: GitHubBranch
+OAuthToken: 
+  Ref: GitHubToken
