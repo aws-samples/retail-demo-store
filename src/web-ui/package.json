@@ -24,7 +24,7 @@
     "amplitude-js": "^5.8.0",
     "autoprefixer": "^10.4.13",
     "aws-amplify": "^5.3.5",
-    "axios": "^1.2.4",
+    "axios": "^1.6.8",
     "jsonfile": "^6.1.0",
     "mapbox-gl": "^1.12.0",
     "maska": "^2.1.5",
@@ -52,7 +52,7 @@
     "eslint-webpack-plugin": "^3.2.0",
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.21",
-    "vite": "^4.4.6",
+    "vite": "^4.5.2",
     "webpack": "^5.79.0",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^5.0.1"

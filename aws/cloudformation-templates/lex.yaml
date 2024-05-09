@@ -38,7 +38,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/bot-intent-recommendations.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 10
       VpcConfig:
         SecurityGroupIds:

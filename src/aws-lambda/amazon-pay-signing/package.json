@@ -7,6 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@amazonpay/amazon-pay-api-sdk-nodejs": "^2.2.2"
+    "@amazonpay/amazon-pay-api-sdk-nodejs": "^2.3.1"
   }
 }

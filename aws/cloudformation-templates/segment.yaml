@@ -37,7 +37,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/segment-personalize-events-destination.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: SegmentPersonalizeEventsDestination
       Environment:
@@ -55,7 +55,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/segment-personalize-inference-destination.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:

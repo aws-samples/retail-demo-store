@@ -42,7 +42,7 @@ Resources:
             cfnresponse.send(event, context, responseStatus, responseData)
 
       Handler: index.handler
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 300
       Role: !GetAtt CleanupBucketLambdaExecutionRole.Arn
 

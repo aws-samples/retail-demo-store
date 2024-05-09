@@ -56,6 +56,9 @@ Parameters:
   Subnet2:
     Type: String
 
+  LambdaVpcSecurityGroup:
+    Type: String
+
   OpenSearchSecurityGroupId:
     Type: String
 
@@ -104,6 +107,10 @@ Parameters:
   PersonalizeRoleArn:
     Type: String
 
+  StackBucketName:
+    Type: String
+    Default: none
+
 Conditions:
   DeployPreIndexOpenSearch: !Equals
     - !Ref PreIndexOpenSearch
@@ -116,17 +123,17 @@ Conditions:
   AutoCreatePersonalizedOffersCampaign: !Equals
     - !Ref DeployPersonalizedOffersCampaign
     - 'Yes'
-  
-  # If the Personalize offers campaign isn't being pre-created then we can invoke the pinpoint-auto-workshop lambda immediately, 
-  # otherwise we have to wait until it completes.  See personalize_pre_create_resources.py.  When all the personalize resources are 
-  # created it writes the resource arn's in SSM parameter store.  To wait for the offers campaign we setup an eventbridge rule to  
-  # trigger the pinpoint-auto-workshop lambda when create/updates events are received for the respective SSM parameter.  
+
+  # If the Personalize offers campaign isn't being pre-created then we can invoke the pinpoint-auto-workshop lambda immediately,
+  # otherwise we have to wait until it completes.  See personalize_pre_create_resources.py.  When all the personalize resources are
+  # created it writes the resource arn's in SSM parameter store.  To wait for the offers campaign we setup an eventbridge rule to
+  # trigger the pinpoint-auto-workshop lambda when create/updates events are received for the respective SSM parameter.
 
   DeployPreCreatePinpointWorkshop: !And
     - !Condition AutoCreatePinpointWorkshop
     - !Not [!Condition AutoCreatePersonalizedOffersCampaign]
 
-  WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop: !And 
+  WaitForOffersCampaignCreationAndDeployPreCreatePinpointWorkshop: !And
     - !Condition AutoCreatePinpointWorkshop
     - !Condition AutoCreatePersonalizedOffersCampaign
 
@@ -147,19 +154,26 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/personalize-pre-create-resources.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePersonalizePreCreateResources
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaVpcSecurityGroup
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
       Environment:
         Variables:
-          csv_bucket: !Ref ResourceBucket
-          csv_path: !Sub '${ResourceBucketRelativePath}csvs/'
+          bucket: !Ref StackBucketName
+          csv_path:  'csvs/'
+          base_url: 'https://code.retaildemostore.retail.aws.dev/'
           lambda_event_rule_name: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
           Uid: !Ref Uid
           DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
           ProductsServiceExternalUrl: !Ref ProductsServiceExternalUrl
           PersonalizeRoleArn: !Ref PersonalizeRoleArn
-          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources          
+          PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
 
   PersonalizePreCreateLambdaExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -194,6 +208,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - servicediscovery:DiscoverInstances
                 Resource: '*'
               - Effect: Allow
                 Action:
@@ -241,6 +259,18 @@ Resources:
                   - codepipeline:ListTagsForResource
                 Resource:
                   - !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*'
+              -
+                Effect: "Allow"
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                  - s3:GetBucketPolicy
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${StackBucketName}/*
+                  - !Sub arn:aws:s3:::${StackBucketName}
               - Effect: Allow
                 Action:
                   - codepipeline:StartPipelineExecution
@@ -286,7 +316,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/ivs-create-channels.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStoreIVSCreateChannels
       Environment:
@@ -373,7 +403,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/opensearch-pre-index.zip'
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 300
       VpcConfig:
         SecurityGroupIds:
@@ -447,7 +477,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-auto-workshop.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePinpointAutoWorkshop
       Environment:

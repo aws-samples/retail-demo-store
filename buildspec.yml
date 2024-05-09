@@ -8,13 +8,15 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.12
     commands:
       - echo Entered the install phase...
       - yum -y install git python3 golang
       - yum -y update ca-certificates
       - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      - python3 get-pip.py
-      - python3 -m venv retailstore/env
+      - python get-pip.py
+      - python -m venv retailstore/env
       - . retailstore/env/bin/activate
       - pip install pip --upgrade
       - go get github.com/aws/aws-lambda-go/lambda
@@ -23,11 +25,10 @@ phases:
       - go get gopkg.in/yaml.v2
   build:
     commands:
+      - python -V
       - git clone https://github.com/aws-samples/retail-demo-store
       - cd retail-demo-store/
-      - pip install -r generators/requirements.txt
-      - ./stage.sh retail-demo-store-us-east-1
-      - ./stage.sh retail-demo-store-us-west-2 --skip-generators
-      - ./stage.sh retail-demo-store-ap-northeast-1 --skip-generators
-      - ./stage.sh retail-demo-store-ap-southeast-2 --skip-generators
-      - ./stage.sh retail-demo-store-eu-west-1 --skip-generators
+      - pip3 install -r generators/requirements.txt
+      - ./stage.sh retail-demo-store-code --private-s3
+      - ./stage.sh retail-demo-store-us-east-1 --private-s3 --skip-generators
+      - ./stage.sh retail-demo-store-us-west-2 --private-s3 --skip-generators

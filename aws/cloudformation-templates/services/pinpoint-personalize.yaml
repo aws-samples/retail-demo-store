@@ -101,7 +101,7 @@ Resources:
       Description: 'Retail Demo Store function called by Pinpoint to enrich messages with product information based on recommendations from Amazon Personalize'
       Handler: pinpoint-recommender.lambda_handler
       Role: !GetAtt CustomizeRecommendationsFunctionRole.Arn
-      Runtime: python3.8
+      Runtime: python3.12
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-recommender.zip'
@@ -120,7 +120,7 @@ Resources:
       Description: 'Retail Demo Store function called by Pinpoint to enrich messages with product/offer information based on recommendations from Amazon Personalize'
       Handler: pinpoint-offers-recommender.lambda_handler
       Role: !GetAtt CustomizeRecommendationsFunctionRole.Arn
-      Runtime: python3.8
+      Runtime: python3.12
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-offers-recommender.zip'
@@ -155,7 +155,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/pinpoint-sms-alerts.zip'
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       FunctionName: RetailDemoStorePinpointSMSAlerts
       Environment:

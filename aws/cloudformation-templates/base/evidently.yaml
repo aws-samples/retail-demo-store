@@ -168,7 +168,7 @@ Resources:
             cfnresponse.send(event, context, response_status, response_data)
 
       Handler: index.handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 120
       Role: !GetAtt EvidentlyCleanupLambdaExecutionRole.Arn
 
