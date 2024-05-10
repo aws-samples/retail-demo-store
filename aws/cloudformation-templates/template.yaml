@@ -603,7 +603,7 @@ Resources:
         ImageRootUrl: !If 
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}/images/
-          - !Sub https://${Base.Outputs.WebUICDNURL}/images/
+          - !Sub ${Base.Outputs.WebUICDNURL}/images/
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
