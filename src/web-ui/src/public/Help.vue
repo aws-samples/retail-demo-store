@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { Interactions } from 'aws-amplify';
+import { Interactions as InteractionsLexV1 } from '@aws-amplify/interactions/lex-v1';
 
 import Layout from '@/components/Layout/Layout.vue'
 import Chatbot from '@/components/Chatbot.vue'
@@ -74,7 +74,7 @@ export default {
       this.checkingBackend = true
 
       try {
-        await Interactions.send(this.chatbotConfig.bot, 'Hey Retail Demo Store');
+        await InteractionsLexV1.send({ botName: this.chatbotConfig.bot, message: 'Hey Retail Demo Store' });
         this.backendConfigured = true
       }
       catch(err) {

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {Auth} from "aws-amplify";
+import { getCurrentUser } from 'aws-amplify/auth';
 import swal from "sweetalert";
 import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
@@ -24,11 +24,12 @@ export default {
   created () {
     this.getCognitoUser()
       .then(() => this.openWebsocketConnection())
-      .catch(err => console.log(err));
+      .catch(() => this.cognitoUser = null);
   },
   methods: {
     async getCognitoUser() {
-      this.cognitoUser = await Auth.currentAuthenticatedUser()
+      const { username } = await getCurrentUser()
+      this.cognitoUser = username
     },
     openWebsocketConnection() {
 
@@ -36,7 +37,7 @@ export default {
         return
       }
 
-      this.connection = new WebSocket(`${import.meta.env.VITE_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser.username}`)
+      this.connection = new WebSocket(`${import.meta.env.VITE_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser}`)
 
       this.connection.onopen = (e) => {
         console.log(e)
@@ -145,7 +146,7 @@ export default {
       if (this.connection) {
         this.connection.close();
       }
-      this.getCognitoUser().then(() => this.openWebsocketConnection());
+      this.getCognitoUser().then(() => this.openWebsocketConnection()).catch(() => this.cognitoUser = null);
     }
   }
 }

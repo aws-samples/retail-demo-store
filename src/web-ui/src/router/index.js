@@ -3,82 +3,56 @@
 
 import { createRouter,  createWebHistory} from 'vue-router'
 
-import { Hub } from 'aws-amplify';
-import { Auth } from 'aws-amplify';
+import { Hub } from 'aws-amplify/utils';
+import { fetchUserAttributes, fetchAuthSession, updateUserAttributes } from 'aws-amplify/auth';
+
 import AmplifyStore from '@/store/store';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
-import { Credentials } from '@aws-amplify/core';
-import store from '../store/store'
-
 const UsersRepository = RepositoryFactory.get('users')
-
-// Load User
-// eslint-disable-next-line
-getUser().then((_user, error) => {
-  if (error) {
-    // eslint-disable-next-line
-    console.log(error)
-  }
-})
-
-function getCognitoUser() {
-  return Auth.currentAuthenticatedUser().then((cognitoUser) => {
-    if (cognitoUser && cognitoUser.signInUserSession) {
-      return cognitoUser
-    }
-  }).catch((error) => {
-    // eslint-disable-next-line
-    console.log('Error getting current authd cognito user: ' + error)
-    return null
-  });
-}
 
 // Event Handles for Authentication
 const authListener = async (data) => {
-  switch (data.payload.event) {
-    case 'signOut':
+  switch (data.payload.event) {    
+    case 'signedOut':
       AmplifyStore.dispatch('logout');
       AnalyticsHandler.clearUser()
 
       if (router.currentRoute.path !== '/') router.push({ path: '/' })
       break;
-    case 'signIn': {
-      const cognitoUser = await getCognitoUser()
-
+    case 'signedIn': {
       let storeUser = null
-
-      const hasAssignedShopperProfile = !!cognitoUser.attributes?.['custom:profile_user_id'];
+      const userAttributes = await fetchUserAttributes();
+      const { username } = data.payload.data
+      const hasAssignedShopperProfile = !!userAttributes?.['custom:profile_user_id'];
 
       if (hasAssignedShopperProfile) {
-        const { data } = await UsersRepository.getUserByID(cognitoUser.attributes['custom:profile_user_id'])
+        const { data } = await UsersRepository.getUserByID(userAttributes['custom:profile_user_id'])
         storeUser = data
       }
       else {
         // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
-        // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user
-        const { data } = await UsersRepository.getUserByUsername(cognitoUser.username)
+        // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user        
+        const { data } = await UsersRepository.getUserByUsername(username)
         storeUser = data
       }
 
-      const credentials = await Credentials.get();
-
+      const { identityId } = await fetchAuthSession();
       if (!storeUser.id) {
         // Store user does not exist. Create one on the fly.
         // This takes the personalize User ID which was a UUID4 for the current session and turns it into a user user ID.
         console.log('store user does not exist for cognito user... creating on the fly')
-        let identityId = credentials ? credentials.identityId : null;
         let provisionalUserId = AmplifyStore.getters.personalizeUserID;
-        const { data } = await UsersRepository.createUser(provisionalUserId, cognitoUser.username, cognitoUser.attributes.email, identityId)
+        const { data } = await UsersRepository.createUser(provisionalUserId, username, userAttributes.email, identityId)
         storeUser = data
       }
 
       console.log('Syncing store user state to cognito user custom attributes')
       // Store user exists. Use this as opportunity to sync store user
       // attributes to Cognito custom attributes.
-      Auth.updateUserAttributes(cognitoUser, {
+      updateUserAttributes({ userAttributes : {
         'custom:profile_user_id': storeUser.id.toString(),
         'custom:profile_email': storeUser.email,
         'custom:profile_first_name': storeUser.first_name,
@@ -86,12 +60,12 @@ const authListener = async (data) => {
         'custom:profile_gender': storeUser.gender,
         'custom:profile_age': storeUser.age.toString(),
         'custom:profile_persona': storeUser.persona
-      })
+      }})
 
       // Sync identityId with user to support reverse lookup.
-      if (credentials && storeUser.identity_id != credentials.identityId) {
+      if (storeUser.identity_id != identityId) {
         console.log('Syncing credentials identity_id with store user profile')
-        storeUser.identity_id = credentials.identityId
+        storeUser.identity_id = identityId
       }
 
       // Update last sign in and sign up dates on user.
@@ -137,13 +111,12 @@ Hub.listen('auth', authListener);
 const userListener = async (data) => {
   switch (data.payload.event) {
     case 'profileChanged': {
-      const cognitoUser = await getCognitoUser()
       const storeUser = AmplifyStore.state.user
 
-      if (cognitoUser && storeUser) {
+      if (storeUser) {
         // Store user exists. Use this as opportunity to sync store user
         // attributes to Cognito custom attributes.
-        Auth.updateUserAttributes(cognitoUser, {
+        updateUserAttributes({ userAttributes : {
           'custom:profile_user_id': storeUser.id.toString(),
           'custom:profile_email': storeUser.email,
           'custom:profile_first_name': storeUser.first_name,
@@ -151,14 +124,14 @@ const userListener = async (data) => {
           'custom:profile_gender': storeUser.gender,
           'custom:profile_age': storeUser.age.toString(),
           'custom:profile_persona': storeUser.persona
-        })
+        }})
       }
 
+      const { identityId } = await fetchAuthSession();
       // Sync identityId with user to support reverse lookup.
-      const credentials = await Credentials.get();
-      if (credentials && storeUser.identity_id != credentials.identityId) {
+      if (storeUser.identity_id != identityId) {
         console.log('Syncing credentials identity_id with store user profile')        
-        store.commit('setIdentityId',credentials.identityId)
+        AmplifyStore.commit('setIdentityId', identityId);
         UsersRepository.updateUser(storeUser)
       }
       break;
@@ -166,16 +139,6 @@ const userListener = async (data) => {
   }
 }
 Hub.listen('user', userListener);
-
-// Get store user from local storage, making sure session is authenticated
-async function getUser() {
-  const cognitoUser = await getCognitoUser()
-  if (!cognitoUser) {
-    AmplifyStore.commit('setUser', null);
-  }
-
-  return AmplifyStore.state.user;
-}
 
 const Main = () => import('@/public/Main.vue')
 const Welcome = () => import('@/public/Welcome.vue')
@@ -297,6 +260,16 @@ const router = createRouter({
     }
   }
 });
+
+// Get store user from local storage, making sure session is authenticated
+async function getUser() {
+  try {
+    await fetchAuthSession()
+  } catch (err) {
+    AmplifyStore.commit('setUser', null);
+  }
+  return AmplifyStore.state.user;
+}
 
 // Check if we need to redirect to welcome page - if redirection has never taken place and user is not authenticated
 // Check For Authentication

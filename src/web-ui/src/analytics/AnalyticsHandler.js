@@ -6,11 +6,12 @@
  * (event tracker), and partner integrations.
  */
 import AmplifyStore from '@/store/store';
-import { Analytics as AmplifyAnalytics } from '@aws-amplify/analytics';
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import { identifyUser, record } from 'aws-amplify/analytics';
+import { record as personalizeRecord } from 'aws-amplify/analytics/personalize';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
 import optimizelySDK from '@optimizely/optimizely-sdk';
-import { Auth } from 'aws-amplify';
 import { set, event } from "vue-gtag";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
@@ -42,41 +43,39 @@ export const AnalyticsHandler = {
         var promise
 
         try {
-            const cognitoUser = await Auth.currentAuthenticatedUser()
-            const endpointId = AmplifyAnalytics.getPluggable('AWSPinpoint')._config.endpointId;
-            console.log('Pinpoint EndpointId Currently Active:');
-            console.log(endpointId);
-
             let endpoint = {
                 userId: user.id,
-                optOut: 'NONE',
-                userAttributes: {
-                    Username: [ user.username ],
-                    ProfileEmail: [ user.email ],
-                    FirstName: [ user.first_name ],
-                    LastName: [ user.last_name ],
-                    Gender: [ user.gender ],
-                    Age: [ user.age.toString() ],
-                    Persona: user.persona.split("_")
+                userProfile: {
+                    customProperties: {},
                 },
-                attributes: {}
+                options: {
+                    userAttributes: {
+                        Username: [ user.username ],
+                        ProfileEmail: [ user.email ],
+                        FirstName: [ user.first_name ],
+                        LastName: [ user.last_name ],
+                        Gender: [ user.gender ],
+                        Age: [ user.age.toString() ],
+                        Persona: user.persona.split("_")
+                    }
+                },
             }
 
             if (user.sign_up_date) {
-                endpoint.attributes.SignUpDate = [ user.sign_up_date ]
+                endpoint.userProfile.customProperties.SignUpDate = [ user.sign_up_date ]
             }
 
             if (user.last_sign_in_date) {
-                endpoint.attributes.LastSignInDate = [ user.last_sign_in_date ]
+                endpoint.userProfile.customProperties.LastSignInDate = [ user.last_sign_in_date ]
             }
 
             if (user.addresses && user.addresses.length > 0) {
                 let address = user.addresses[0]
-                endpoint.location = {
-                    City: address.city,
-                    Country: address.country,
-                    PostalCode: address.zipcode,
-                    Region: address.state
+                endpoint.userProfile.location = {
+                    city: address.city,
+                    country: address.country,
+                    postalCode: address.zipcode,
+                    region: address.state
                 }
             }
 
@@ -117,11 +116,10 @@ export const AnalyticsHandler = {
                 };
                 window.mParticle.Identity.login(identityRequest, identityCallback);
             }
-
-            if (cognitoUser.attributes.email) {
-                endpoint.address = cognitoUser.attributes.email
-                endpoint.channelType = 'EMAIL'
-                promise = AmplifyAnalytics.updateEndpoint(endpoint)
+            const { email } = await fetchUserAttributes();
+            if (email) {
+                endpoint.userProfile.email = email
+                promise = identifyUser(endpoint)
             }
             else {
                 promise = Promise.resolve()
@@ -134,12 +132,12 @@ export const AnalyticsHandler = {
         }
 
         if (this.personalizeEventTrackerEnabled()) {
-            AmplifyAnalytics.record({
+            personalizeRecord({
                 eventType: "Identify",
                 properties: {
                     "userId": user.id
                 }
-            }, 'AmazonPersonalize')
+            })
         }
 
         if (this.segmentEnabled()) {
@@ -198,7 +196,7 @@ export const AnalyticsHandler = {
 
     userSignedUp(user) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'UserSignedUp',
                 attributes: {
                     userId: user.id,
@@ -220,7 +218,7 @@ export const AnalyticsHandler = {
 
     userSignedIn(user) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'UserSignedIn',
                 attributes: {
                     userId: user.id,
@@ -270,7 +268,7 @@ export const AnalyticsHandler = {
 
     productAddedToCart(user, cart, product, quantity, feature, experimentCorrelationId) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'AddToCart',
                 attributes: {
                     userId: user.id,
@@ -288,10 +286,12 @@ export const AnalyticsHandler = {
                 }
             })
 
-            AmplifyAnalytics.updateEndpoint({
+            identifyUser({
                 userId: user.id,
-                userAttributes: {
-                    HasShoppingCart: ['true']
+                options: {
+                    userAttributes: {
+                        HasShoppingCart: ['true']
+                    },
                 },
                 metrics: {
                     ItemsInCart: cart.items.length
@@ -300,14 +300,14 @@ export const AnalyticsHandler = {
         }
 
         if (this.personalizeEventTrackerEnabled()) {
-            AmplifyAnalytics.record({
+            personalizeRecord({
                 eventType: 'AddToCart',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: product.id,
                     discount: "No"
                 }
-            }, 'AmazonPersonalize')
+            })
             AmplifyStore.commit('incrementSessionEventsRecorded');
         }
 
@@ -399,21 +399,23 @@ export const AnalyticsHandler = {
                 productImages = [cartItem.image]
                 productTitles = [cartItem.name]
                 productURLs = [cartItem.url]
-            }else {
+            } else {
                 productImages = []
                 productTitles = []
                 productURLs = []
             }
-            AmplifyAnalytics.updateEndpoint({
+            identifyUser({
                 userId: user.id,
-                userAttributes: {
-                    WebsiteCartURL : [import.meta.env.VITE_WEB_ROOT_URL + '#/cart'],
-                    WebsiteLogoImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/RDS_logo_white.svg'],
-                    WebsitePinpointImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
-                    ShoppingCartItemImageURL:  productImages,
-                    ShoppingCartItemTitle :  productTitles,
-                    ShoppingCartItemURL : productURLs,
-                    HasShoppingCart: hasItem ? ['true'] : ['false']
+                options: {
+                    userAttributes: {
+                        WebsiteCartURL : [import.meta.env.VITE_WEB_ROOT_URL + '#/cart'],
+                        WebsiteLogoImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/RDS_logo_white.svg'],
+                        WebsitePinpointImageURL : [import.meta.env.VITE_WEB_ROOT_URL + '/icon_Pinpoint_orange.svg'],
+                        ShoppingCartItemImageURL:  productImages,
+                        ShoppingCartItemTitle :  productTitles,
+                        ShoppingCartItemURL : productURLs,
+                        HasShoppingCart: hasItem ? ['true'] : ['false']
+                    }
                 }
             })
             return hasItem
@@ -447,7 +449,7 @@ export const AnalyticsHandler = {
                window.mParticle.logEvent('AbandonedCartEvent',window.mParticle.EventType.Transaction, customAttributes);
             }
 
-            AmplifyAnalytics.record({
+            record({
                 name: '_session.stop',
             })
         }
@@ -455,7 +457,7 @@ export const AnalyticsHandler = {
 
     productRemovedFromCart(user, cart, cartItem, origQuantity) {
         if (user && user.id) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'RemoveFromCart',
                 attributes: {
                     userId: user.id,
@@ -468,10 +470,12 @@ export const AnalyticsHandler = {
                 }
             })
 
-            AmplifyAnalytics.updateEndpoint({
+            identifyUser({
                 userId: user.id,
-                userAttributes: {
-                    HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false']
+                options: {
+                    userAttributes: {
+                        HasShoppingCart: cart.items.length > 0 ? ['true'] : ['false']
+                    },
                 },
                 metrics: {
                     ItemsInCart: cart.items.length
@@ -488,11 +492,11 @@ export const AnalyticsHandler = {
 
         if (this.mParticleEnabled()) {
             let product1 = window.mParticle.eCommerce.createProduct(
-            cartItem.product_name, // Name
-            cartItem.product_id, // SKU
-            cartItem.price, // Price
-            origQuantity // Quantity
-        );
+                cartItem.product_name, // Name
+                cartItem.product_id, // SKU
+                cartItem.price, // Price
+                origQuantity // Quantity
+            );
 
             window.mParticle.eCommerce.logProductAction(window.mParticle.ProductActionType.RemoveFromCart, product1, {mpid: window.mParticle.Identity.getCurrentUser().getMPID()},{},{});
         }
@@ -525,7 +529,7 @@ export const AnalyticsHandler = {
 
     productQuantityUpdatedInCart(user, cart, cartItem, change) {
         if (user && user.id) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'UpdateQuantity',
                 attributes: {
                     userId: user.id,
@@ -541,14 +545,14 @@ export const AnalyticsHandler = {
         }
 
         if (this.personalizeEventTrackerEnabled()) {
-            AmplifyAnalytics.record({
+            personalizeRecord({
                 eventType: 'UpdateQuantity',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: cartItem.product_id,
                     discount: "No"
                 }
-            }, 'AmazonPersonalize')
+            })
             AmplifyStore.commit('incrementSessionEventsRecorded');
         }
 
@@ -581,7 +585,7 @@ export const AnalyticsHandler = {
     },
     productViewed(user, product, feature, experimentCorrelationId, discount) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'View',
                 attributes: {
                     userId: user.id,
@@ -599,14 +603,14 @@ export const AnalyticsHandler = {
         }
 
         if (this.personalizeEventTrackerEnabled()) {
-            AmplifyAnalytics.record({
+            personalizeRecord({
                 eventType: 'View',
                 userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                 properties: {
                     itemId: product.id,
                     discount: discount?"Yes":"No"
                 }
-            }, 'AmazonPersonalize');
+            });
             AmplifyStore.commit('incrementSessionEventsRecorded');
         }
 
@@ -671,7 +675,7 @@ export const AnalyticsHandler = {
 
     cartViewed(user, cart, cartQuantity, cartTotal) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'ViewCart',
                 attributes: {
                     userId: user.id,
@@ -686,14 +690,14 @@ export const AnalyticsHandler = {
 
         if (this.personalizeEventTrackerEnabled()) {
             for (var item in cart.items) {
-                AmplifyAnalytics.record({
+                personalizeRecord({
                     eventType: 'ViewCart',
                     userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                     properties: {
                         itemId: cart.items[item].product_id,
                         discount: "No"
                     }
-                }, 'AmazonPersonalize')
+                })
                 AmplifyStore.commit('incrementSessionEventsRecorded');
             }
         }
@@ -760,7 +764,7 @@ export const AnalyticsHandler = {
 
     checkoutStarted(user, cart, cartQuantity, cartTotal) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'StartCheckout',
                 attributes: {
                     userId: user.id,
@@ -775,14 +779,14 @@ export const AnalyticsHandler = {
 
         if (this.personalizeEventTrackerEnabled()) {
             for (var item in cart.items) {
-                AmplifyAnalytics.record({
+                personalizeRecord({
                     eventType: 'StartCheckout',
                     userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                     properties: {
                         itemId: cart.items[item].product_id,
                         discount: "No"
                     }
-                }, 'AmazonPersonalize')
+                })
                 AmplifyStore.commit('incrementSessionEventsRecorded');
             }
         }
@@ -847,7 +851,7 @@ export const AnalyticsHandler = {
 
     orderCompleted(user, cart, order) {
         if (user) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'Purchase',
                 attributes: {
                     userId: user.id,
@@ -864,7 +868,7 @@ export const AnalyticsHandler = {
             let orderItem = order.items[itemIdx]
 
             if (user) {
-                AmplifyAnalytics.record({
+                record({
                     name: '_monetization.purchase',
                     attributes: {
                         userId: user.id,
@@ -881,14 +885,14 @@ export const AnalyticsHandler = {
             }
 
             if (this.personalizeEventTrackerEnabled()) {
-                AmplifyAnalytics.record({
+                personalizeRecord({
                     eventType: 'Purchase',
                     userId: user ? user.id : AmplifyStore.state.provisionalUserID,
                     properties: {
                         itemId: orderItem.product_id,
                         discount: "No"
                     }
-                }, 'AmazonPersonalize')
+                })
                 AmplifyStore.commit('incrementSessionEventsRecorded');
             }
 
@@ -903,11 +907,13 @@ export const AnalyticsHandler = {
         }
 
         if (user && user.id) {
-            AmplifyAnalytics.updateEndpoint({
+            identifyUser({
                 userId: user.id,
-                userAttributes: {
-                    HasShoppingCart: ['false'],
-                    HasCompletedOrder: ['true']
+                options: {
+                    userAttributes: {
+                        HasShoppingCart: ['false'],
+                        HasCompletedOrder: ['true']
+                    },
                 },
                 metrics: {
                     ItemsInCart: 0
@@ -983,7 +989,7 @@ export const AnalyticsHandler = {
 
     productSearched(user, query, numResults) {
         if (user && user.id) {
-            AmplifyAnalytics.record({
+            record({
                 name: 'Search',
                 attributes: {
                     userId: user ? user.id : null,
@@ -995,10 +1001,12 @@ export const AnalyticsHandler = {
                 }
             })
 
-            AmplifyAnalytics.updateEndpoint({
+            identifyUser({
                 userId: user.id,
-                attributes: {
-                    HashPerformedSearch: ['true']
+                userProfile: {
+                    customProperties: {
+                        HashPerformedSearch: ['true']
+                    }
                 }
             })
         }
