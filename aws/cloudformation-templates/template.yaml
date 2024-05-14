@@ -598,7 +598,7 @@ Resources:
         WebRootUrl: !If 
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}
-          - !GetAtt Base.Outputs.WebUICDNUR
+          - !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ImageRootUrl: !If 
           - ConditionCustomDomain
