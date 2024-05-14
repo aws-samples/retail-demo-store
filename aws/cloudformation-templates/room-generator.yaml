@@ -1125,7 +1125,7 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_caption.zip'
       Runtime: python3.12
-      Timeout: 15
+      Timeout: 30
       FunctionName: RoomGeneratorCreateProductCaption
       Environment:
         Variables:
@@ -1173,7 +1173,7 @@ Resources:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/room_generator_load_embedding.zip'
       Runtime: python3.12
-      Timeout: 15
+      Timeout: 30
       FunctionName: RoomGeneratorGetProductEmbedding
       Environment:
         Variables:
