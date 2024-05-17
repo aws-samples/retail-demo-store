@@ -251,6 +251,7 @@ Resources:
 
   GetCategory:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetProduct
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /products/category/{name}'
@@ -263,6 +264,7 @@ Resources:
 
   GetFeatured:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCategory
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /products/featured'
@@ -275,6 +277,7 @@ Resources:
 
   GetCategories:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetFeatured
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /categories/all'
@@ -287,6 +290,7 @@ Resources:
 
   CreateUser:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCategories
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /users'
@@ -311,6 +315,7 @@ Resources:
 
   UpdateUser:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetUserById
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /users/id/{id}'
@@ -323,6 +328,7 @@ Resources:
 
   GetUserByUsername:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: UpdateUser
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/username/{username}'
@@ -335,6 +341,7 @@ Resources:
 
   GetUnclaimedUser:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetUserByUsername
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/unclaimed'
@@ -347,6 +354,7 @@ Resources:
 
   GetRandomUser:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetUnclaimedUser
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/random'
@@ -359,6 +367,7 @@ Resources:
 
   ClaimUser:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetRandomUser
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /users/id/{userId}/claim'
@@ -383,6 +392,7 @@ Resources:
 
   CreateCart:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: VerifyPhone
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /carts'
@@ -395,6 +405,7 @@ Resources:
 
   GetCart:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: CreateCart
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /carts/{cartId}'
@@ -407,6 +418,7 @@ Resources:
 
   GetCartbyUsername:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCart
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /carts'
@@ -419,6 +431,7 @@ Resources:
 
   UpdateCart:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCartbyUsername
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /carts/{cartId}'
@@ -431,6 +444,7 @@ Resources:
 
   Sign:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: UpdateCart
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /sign'
@@ -455,6 +469,7 @@ Resources:
 
   GetOrders:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: CreateOrder
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/all'
@@ -467,6 +482,7 @@ Resources:
 
   GetOrderById:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetOrders
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/id/{orderId}'
@@ -479,6 +495,7 @@ Resources:
   
   PutOrderById:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetOrderById
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /orders/id/{orderId}'
@@ -491,6 +508,7 @@ Resources:
 
   GetOrderByUsername:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: PutOrderById
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/username/{username}'
@@ -503,6 +521,7 @@ Resources:
 
   GetRecommendations:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetOrderByUsername
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /recommendations'
@@ -527,6 +546,7 @@ Resources:
 
   GetRelated:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetPopular
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /related'
@@ -539,6 +559,7 @@ Resources:
 
   Rerank:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetRelated
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /rerank'
@@ -551,6 +572,7 @@ Resources:
 
   GetDiscounts:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: Rerank
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /choose_discounted'
@@ -563,6 +585,7 @@ Resources:
 
   GetCouponOffer:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetDiscounts
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /coupon_offer'
@@ -575,6 +598,7 @@ Resources:
 
   RecordExperimentOutcome:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCouponOffer
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /experiment/outcome'
@@ -599,6 +623,7 @@ Resources:
 
   SearchProducts:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: VideoStream
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /search/products'
@@ -611,6 +636,7 @@ Resources:
 
   GetStoreLocation:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: SearchProducts
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /store_location'
@@ -623,6 +649,7 @@ Resources:
 
   GetCustomerRoute:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetStoreLocation
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /customer_route'
@@ -635,6 +662,7 @@ Resources:
 
   GetCStoreLocation:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCustomerRoute
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /cstore_location'
@@ -647,6 +675,7 @@ Resources:
 
   GetCStoreRoute:
     Type: 'AWS::ApiGatewayV2::Route'
+    DependsOn: GetCStoreLocation
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /cstore_route'
