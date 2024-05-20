@@ -1017,11 +1017,7 @@ Outputs:
 
   WebURL:
     Description: Retail Demo Store Web UI URL
-    Value: !If [
-            ConditionCustomDomain,
-            !Sub 'https://${CloudfrontCustomDomain}' ,
-            !GetAtt Base.Outputs.WebUICDNURL
-          ]
+    Value: !GetAtt Base.Outputs.WebUICDNURL
 
   OpenSearchDomainEndpoint:
     Description: OpenSearch Endpoint

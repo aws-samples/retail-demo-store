@@ -8,4 +8,4 @@ optimizely-sdk==3.5.2
 expiring-dict==1.1.0
 aws-xray-sdk==2.12.0
 itsdangerous==2.1.2
-Jinja2==3.1.3
+Jinja2==3.1.4
