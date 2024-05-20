@@ -595,11 +595,15 @@ Resources:
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
-        WebRootUrl: !GetAtt Base.Outputs.WebUICDNURL
+        WebRootUrl: !If 
+          - ConditionCustomDomain
+          - !Sub https://${CloudfrontCustomDomain}
+          - !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
-        ImageRootUrl: !Sub
-          - "${RootURL}/images/"
-          - RootURL: !GetAtt Base.Outputs.WebUICDNURL
+        ImageRootUrl: !If 
+          - ConditionCustomDomain
+          - !Sub https://${CloudfrontCustomDomain}/images/
+          - !Sub ${Base.Outputs.WebUICDNURL}/images/
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
@@ -763,7 +767,12 @@ Resources:
         AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
         AmazonPayStoreId: !Ref AmazonPayStoreId
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
-        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        WebURL: 
+          !If [
+            ConditionCustomDomain,
+            !Sub 'https://${CloudfrontCustomDomain}' ,
+            !GetAtt Base.Outputs.WebUICDNURL
+          ]
 
   Alexa:
     Type: AWS::CloudFormation::Stack

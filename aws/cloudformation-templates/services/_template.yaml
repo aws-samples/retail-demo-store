@@ -467,16 +467,6 @@ Resources:
         LambdaVpcSecurityGroup: !Ref LambdaVpcSecurityGroup
         LambdaVpcSubnets: !Ref Subnets
 
-  # Custom resources
-  CustomResources:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/services/ProductsCustom.yaml
-      Parameters:
-        ProductsServiceUrl: !GetAtt ProductsService.Outputs.ServiceUrl
-        LambdaVpcSecurityGroup: !Ref LambdaVpcSecurityGroup
-        LambdaVpcSubnets: !Ref Subnets
-
   ####################### Delete Repository Custom Resource #######################
 
   DeleteRepositoryLambdaFunction:
