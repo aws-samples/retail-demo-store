@@ -51,9 +51,9 @@ The Retail Demo Store has been tested in the AWS regions indicated in the deploy
 | ------------- | ------------- | ------------- |
 | US East (N. Virginia) | us-east-1 | Fully supported |
 | US West (Oregon) | us-west-2 | Fully supported |
-| Europe (Ireland) | eu-west-1 | Partial support (personalized product descriptions and thematic similar product descriptions not supported) |
-| Europe (Frankfurt) | eu-central-1 | Partial support (thematic similar product descriptions not supported) |
-| Asia Pacific (Tokyo) | ap-northeast-1 | Partial support (personalized product descriptions not supported) |
+| Europe (Ireland) | eu-west-1 | Partial support (personalized product descriptions, thematic similar product descriptions and room makeover not supported) |
+| Europe (Frankfurt) | eu-central-1 | Partial support (thematic similar product descriptions and room makeover not supported) |
+| Asia Pacific (Tokyo) | ap-northeast-1 | Partial support (personalized product descriptions and room makeover not supported) |
 | Asia Pacific (Sydney) | ap-southeast-2 | Partial support (personalized product descriptions and thematic similar product descriptions not supported) |
 
 > [Note]
@@ -113,6 +113,7 @@ When deploying Retail Demo Store, enter the number as a parameter. The number sh
 
 #### Amazon Bedrock Demos
 Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Instructions on enabling model access can be found [here](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html). Amazon Bedrock is currently available in 5 regions globally, US East (N. Virginia), US West (Oregon), Asia Pacific (Tokyo), Europe (Frankfurt) and Asia Pacific (Singapore).
+To demo the Room Makeover, enable model access to Anthropic Claude 3 Haiku and Amazon Titan Multimodal Embeddings G1.
 
 ## Using the Retail Demo Store Web Application
 

@@ -1,5 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::LanguageExtensions'
 
 # Do NOT remove the RETAIL_DS prefix in the template description below!
 Description: >
@@ -34,6 +35,16 @@ Metadata:
           - PinpointEmailFromAddress
           - PinpointEmailFromName
           - PinpointSMSLongCode
+      - Label:
+          default: "Generative AI Optional Integrations"
+        Parameters:
+          - BedrockProductPersonalization
+          - DeployRoomMakeoverDemo
+          - SageMakerEndpointName
+          - EnableSageMakerAutoScaling
+          - SageMakerScalingMinCapacity
+          - SageMakerScalingMaxCapacity
+          - OpenSearchEmbeddingIndex
       - Label:
           default: "Use default IVS streams"
         Parameters:
@@ -73,8 +84,7 @@ Metadata:
           default: "Custom Cloudfront domain name (optional)"
         Parameters:
           - CloudfrontCustomDomain
-          - ACMCertificateArn
-          - BedrockProductPersonalization
+          - ACMCertificateArn          
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -173,6 +183,14 @@ Metadata:
         default: "Fenix Commerce X-Api-Key"
       BedrockProductPersonalization:
         default: "Enable Amazon Bedrock product personalization"
+      DeployRoomMakeoverDemo:
+        default: "Deploy Room Makeover Demo"
+      EnableSageMakerAutoScaling:
+        default: Enable Auto scaling for SageMaker Asynchronous endpoint        
+      SageMakerScalingMinCapacity:
+        default: Minimum capacity for SageMaker endpoint.
+      SageMakerScalingMaxCapacity:
+        default: Maximum capacity for SageMaker endpoint
 
 Parameters:
   ResourceBucket:
@@ -498,14 +516,67 @@ Parameters:
     Type: String
     Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
     AllowedValues:
-      - 'TRUE'
-      - 'FALSE'
-    Default: 'FALSE'
+      - 'Yes'
+      - 'No'
+    Default: 'No'
 
   SourceImagesPackage:
     Type: String
     Description : Full url to the images.tar.gz address (only change if you plan to upload custom pictures)
     Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
+
+  DeployRoomMakeoverDemo:
+    Type: String
+    Description: Flag to deploy the Room Makeover demo. Amazon Bedrock users need to request access to models before they are available for use. To demo the Room Makerover functionality make sure to enable access to Anthropic's Claude v3 & Titan Embeddings via the Amazon Bedrock Management Console. Check README Notes for more details.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'No'
+  
+  EnableSageMakerAutoScaling:
+    Type: String
+    Description: Enable Auto scaling for the SageMaker Asyncronous endpoint
+    AllowedValues:
+      - "Yes"
+      - "No"
+    Default: "Yes"
+
+  SageMakerScalingMaxCapacity:
+    Type: Number
+    Description: Maximum capacity to scale the SageMaker Asyncronous endpoint
+    MinValue: 1
+    Default: 1
+
+  SageMakerScalingMinCapacity:
+    Type: Number
+    Description: SageMaker Asynchronous endpoints can be scaled to zero.  The endpoint will scale up from zero and room requests will resume execution when there is an endpoint to invoke.
+    MinValue: 0
+    Default: 0
+  
+  SageMakerEndpointName:
+    Type: String
+    Description: The SageMaker async endpoint name used for image generation
+    Default: controlnet-depth-sdxl
+  
+  OpenSearchEmbeddingIndex:
+    Type: String
+    Description: Name of the embedding index
+    Default: embproducts
+
+
+Mappings:
+# Regions that support Amazon Bedrock and the required models of Room Maker demo: Claude 3 Haiku, Titan Multimodal Embeddings G1
+  BedrockRegionMap: 
+    us-east-1: 
+      SupportsRequiredModels: "Yes"
+    us-west-2: 
+      SupportsRequiredModels: "Yes"
+    ap-south-1: 
+      SupportsRequiredModels: "Yes"
+    ap-southeast-2: 
+      SupportsRequiredModels: "Yes"
+    eu-west-3: 
+      SupportsRequiredModels: "Yes"
 
 Conditions:
   DeploySegmentResources: !Equals
@@ -532,6 +603,14 @@ Conditions:
 
   ConditionCustomDomain: !Not
     - !Equals [!Ref CloudfrontCustomDomain, ""]
+
+  RegionSupportsRequiredBedrockModels: !Equals
+    - !FindInMap [BedrockRegionMap, !Ref 'AWS::Region', 'SupportsRequiredModels', DefaultValue: 'No']
+    - 'Yes'
+
+  DeployRoomMakeoverStack: !And
+    - !Equals [!Ref DeployRoomMakeoverDemo, "Yes"]
+    - !Condition RegionSupportsRequiredBedrockModels
 
 Resources:
   # Base Resources
@@ -560,6 +639,9 @@ Resources:
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
         ACMCertificateArn: !Ref ACMCertificateArn
+        ResourceBucketImages: !Ref ResourceBucketImages
+        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
+        SourceImagesPackage: !Ref SourceImagesPackage
 
   # Services Resources
   Services:
@@ -661,7 +743,7 @@ Resources:
         FenixEnabledCheckout: !Ref FenixEnabledCheckout
         FenixXapiKey: !Ref FenixXapiKey
         BedrockProductPersonalization: !Ref BedrockProductPersonalization
-
+        RoomImagesBucket: !If [DeployRoomMakeoverStack, !GetAtt RoomMakeover.Outputs.RoomImagesBucket, '']
         LocationResourceName:
           !If [
             DeployLocationStack,
@@ -686,9 +768,6 @@ Resources:
           - "${RootURL}/images/"
           - RootURL: !GetAtt Base.Outputs.WebUICDNURL
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
-        ResourceBucketImages: !Ref ResourceBucketImages
-        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
-        SourceImagesPackage: !Ref SourceImagesPackage
 
   # Swagger UI Pipeline
   SwaggerUIPipeline:
@@ -862,6 +941,46 @@ Resources:
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+
+  RoomMakeover:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployRoomMakeoverStack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/room-generator.yaml
+      Parameters:
+        LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+        LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+        LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
+        CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
+        OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
+        ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
+        LambdaAuthorizer: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
+        WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
+        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
+        SageMakerEndpointName: !Ref SageMakerEndpointName
+        EnableSageMakerAutoScaling: !Ref EnableSageMakerAutoScaling
+        SageMakerScalingMaxCapacity: !Ref SageMakerScalingMaxCapacity
+        SageMakerScalingMinCapacity: !Ref SageMakerScalingMinCapacity
+        SourceDeploymentType: !Ref SourceDeploymentType
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        GitHubToken: !Ref GitHubToken
+        GitHubUser: !Ref GitHubUser     
+
+  ApiGatewayDeploy:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - ApiGateway
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/apigateway-deploy.yaml
+      Parameters:
+        ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
+      Tags:
+        - Key: ConditionalDependsOn
+          Value: !If [DeployRoomMakeoverStack, !Ref RoomMakeover, Ignored]
 
 Outputs:
   UserPoolId:

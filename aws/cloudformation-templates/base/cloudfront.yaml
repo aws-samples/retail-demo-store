@@ -14,10 +14,35 @@ Parameters:
   ACMCertificateArn:
     Type: String
     Description: ACM Certificate ARN for CloudFront WebUICDN
+  
+  ResourceBucketImages:
+    Type: String
+    Description: >
+      (Leave empty in most cases) only specify if your product images are stored in a different bucket
+
+  ResourceBucketImagesPrefix:
+    Type: String
+    Description: >
+      (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
+
+  SourceImagesPackage:
+    Type: String
+    Description : full url to the images.tar.gz adress
+    Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
+
+  ResourceBucket:
+    Type: String
+    Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
+
+  ResourceBucketRelativePath:
+    Type: String
+    Description: S3Bucket Path where the Resources are stored (cloudformation, images, lambda code) (i.e. path/path2), can be empty if resources are at the root of the bucket. MUST contain trailing /
+
 
 Conditions:
   ACMCertificateArnExists: 
     !Not [!Equals [!Ref ACMCertificateArn, '']]
+  CustomResourceBucketImages: !Not [ !Equals [!Ref ResourceBucketImages, ""] ]
 
 Resources:
   
@@ -193,6 +218,141 @@ Resources:
           CachePolicyId: !Ref UICachePolicy
           OriginRequestPolicyId: !Ref UIOriginRequestPolicy
           ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c
+
+  CopyImagesLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'Retail Demo Store deployment utility function that copies catalog images from staging bucket to Web UI bucket'
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import tarfile
+          import urllib.request
+          import tempfile
+          import os          
+
+          def handler(event, context):
+            print(event)
+
+            response_data = {}
+            response_status = cfnresponse.SUCCESS
+
+            try:
+              source_bucket_name = event['ResourceProperties']['SourceBucket']
+              source_path = event['ResourceProperties']['SourceBucketPath']
+              target_bucket_name = event['ResourceProperties']['TargetBucket']
+              source_images_package = event['ResourceProperties']['SourceImagesPackage']
+
+              if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                os.makedirs('/tmp/images', exist_ok = True)
+                filename, _ = urllib.request.urlretrieve( source_images_package , '/tmp/images/images.tar.gz')              
+                print(filename)
+                file = tarfile.open('/tmp/images/images.tar.gz')
+                file.extractall('/tmp/images/')
+                file.close()
+                #remove images.tar.gz
+            
+                os.remove('/tmp/images/images.tar.gz')
+
+                s3 = boto3.resource('s3')
+                target_bucket = s3.Bucket(target_bucket_name)
+            
+                # For all files in tmpdirname
+                for root, dirs, files in os.walk('/tmp/images'):
+                  for filename in files:
+                    local_path = os.path.join(root, filename)
+                    relative_path = os.path.relpath(local_path, '/tmp/images')
+                    s3_path = os.path.join('images/', relative_path)
+                    # Upload file to target bucket
+                    target_bucket.upload_file(local_path, s3_path)
+  
+                response_data['Message'] = "Resource creation succeeded"
+              elif event['RequestType'] == 'Delete':
+                response_data['Message'] = "Resource deletion succeeded"
+
+            except Exception as e:
+              print("Error: " + str(e))
+              response_status = cfnresponse.FAILED
+              response_data['Message'] = "Resource {} failed: {}".format(event['RequestType'], e)
+
+            cfnresponse.send(event, context, response_status, response_data)
+
+      Handler: index.handler
+      Runtime: python3.12
+      EphemeralStorage:
+           Size: 2048
+      Timeout: 900
+      MemorySize: 1024
+      Role: !GetAtt CopyImagesLambdaExecutionRole.Arn
+
+  CustomCopyImagesLambdaFunction:
+    Type: Custom::CopyImagesToWebUI
+    Properties:
+      ServiceToken: !GetAtt CopyImagesLambdaFunction.Arn
+      SourceBucket:
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImages,
+            !Ref ResourceBucket
+          ]
+      SourceBucketPath:
+          !If [
+            CustomResourceBucketImages,
+            !Ref ResourceBucketImagesPrefix,
+            !Ref ResourceBucketRelativePath
+          ]
+      TargetBucket: !Ref WebUIBucket
+      SourceImagesPackage: !Ref SourceImagesPackage
+
+  CopyImagesLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+        - PolicyName: S3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Fn::If:
+                - CustomResourceBucketImages
+                - Effect: Allow
+                  Action:
+                    - s3:List*
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource:
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucketImages}/*
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucketImages}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}/*
+                - Effect: Allow
+                  Action:
+                    - s3:List*
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource:
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}/*
+                    - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}
+                    - !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}/*
 
 Outputs:
   # Web UI outputs

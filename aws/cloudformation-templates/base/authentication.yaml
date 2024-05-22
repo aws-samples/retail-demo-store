@@ -263,3 +263,6 @@ Outputs:
   IdentityPoolId:
     Description: Identity Pool Id
     Value: !Ref IdentityPool
+  CognitoAuthorizedRole:
+    Description: Cognito Authorized Role
+    Value: !Ref CognitoAuthorizedRole

@@ -1,0 +1,215 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ModelBucket:
+    Type: String
+    Description: Bucket containing the model
+  ModelPrefix:
+    Type: String
+    Description: Prefix that contains the model
+  ImageBucket:
+    Type: String
+    Description: The bucket that contains the uploaded images
+  InferenceBucket:
+    Type: String
+    Description: The bucket that contains the input and outpu payloads to be processed by the inference endpoint
+  SuccessTopic:
+    Type: String
+    Description: The Sns topic to send inference success notifications
+  EndpointName:
+    Type: String
+    Description: The name to use for the SageMaker endpoint
+  EnableAutoScaling:
+    Type: String
+    Description: Enable Auto scaling for the SageMaker Asyncronous endpoint
+    AllowedValues:
+      - "Yes"
+      - "No"
+    Default: "Yes"
+  ScalingMinCapacity:
+    Type: Number
+    MinValue: 0
+    Default: 0
+  ScalingMaxCapacity:
+    Type: Number
+    MinValue: 1
+    Default: 1
+
+Mappings: 
+  RegionMap: 
+    "us-east-1":
+      "DLC": "763104351884.dkr.ecr.us-east-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "us-west-2":
+      "DLC": "763104351884.dkr.ecr.us-west-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "ap-south-1":
+      "DLC": "763104351884.dkr.ecr.ap-south-1.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "ap-southeast-2":
+      "DLC": "763104351884.dkr.ecr.ap-southeast-2.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+    "eu-west-3":
+      "DLC": "763104351884.dkr.ecr.eu-west-3.amazonaws.com/huggingface-pytorch-inference:2.0.0-transformers4.28.1-gpu-py310-cu118-ubuntu20.04"
+
+Conditions:
+  DeployAutoScaling: !Equals
+    - !Ref EnableAutoScaling
+    - "Yes"
+
+Resources:
+  ExecutionRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - "sagemaker.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "root"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${ImageBucket}/*'
+              - Effect: Allow
+                Action: 
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ModelBucket}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ModelBucket}/*'
+              - Effect: Allow
+                Action: 
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${InferenceBucket}/*'
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref SuccessTopic
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource: '*'
+  
+  SageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      PrimaryContainer:
+        Image: !FindInMap [RegionMap, !Ref "AWS::Region", "DLC"]
+        ModelDataSource:
+          S3DataSource:
+            S3Uri: !Sub 's3://${ModelBucket}/${ModelPrefix}'
+            S3DataType: S3Prefix
+            CompressionType: None
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
+
+  EndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      AsyncInferenceConfig:
+        OutputConfig:
+          S3OutputPath: !Sub 's3://${InferenceBucket}/async_inference/output'
+          NotificationConfig:
+            SuccessTopic: !Ref SuccessTopic
+      ProductionVariants:
+        - InitialInstanceCount: 1
+          InitialVariantWeight: 1.0
+          InstanceType: ml.g5.2xlarge
+          ModelName: !GetAtt SageMakerModel.ModelName
+          VariantName: AllTraffic
+
+  Endpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+      EndpointName: !Ref EndpointName
+
+  ScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Condition: DeployAutoScaling
+    DependsOn: Endpoint
+    Properties:
+      MaxCapacity: !Ref ScalingMaxCapacity
+      MinCapacity: !Ref ScalingMinCapacity
+      ResourceId: !Sub 'endpoint/${EndpointName}/variant/AllTraffic'
+      RoleARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/sagemaker.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_SageMakerEndpoint'
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      ServiceNamespace: sagemaker
+
+  ScaleInScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Condition: DeployAutoScaling
+    Properties:
+      PolicyName: ScaleIn-ScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ServiceNamespace: sagemaker
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      ScalingTargetId: !Ref ScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 5
+        ScaleInCooldown: 300
+        ScaleOutCooldown: 300
+        CustomizedMetricSpecification:
+          MetricName: ApproximateBacklogSizePerInstance
+          Namespace: 'AWS/SageMaker'
+          Dimensions:
+            - Name: EndpointName
+              Value: !GetAtt Endpoint.EndpointName
+          Statistic: Average
+
+
+  # Scale up Policy
+  HasBacklogWithoutCapacityScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Condition: DeployAutoScaling
+    Properties:
+      PolicyName: HasBacklogWithoutCapacity-ScalingPolicy
+      PolicyType: StepScaling
+      ServiceNamespace: sagemaker
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      ScalingTargetId: !Ref ScalingTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        MetricAggregationType: Average
+        Cooldown: 300
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+  
+  ScalingOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: DeployAutoScaling
+    Properties:
+      AlarmName: RoomMakeoverScalingOutAlarm
+      MetricName: HasBacklogWithoutCapacity
+      Namespace: 'AWS/SageMaker'
+      Statistic: Average
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: missing
+      Dimensions:
+        - Name: EndpointName
+          Value: !GetAtt Endpoint.EndpointName
+      Period: 60
+      AlarmActions:
+        - !Ref HasBacklogWithoutCapacityScalingPolicy
+            

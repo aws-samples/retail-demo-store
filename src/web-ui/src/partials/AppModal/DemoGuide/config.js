@@ -38,7 +38,8 @@ export const Articles = {
   SHOPPER_PERSONAS: 'shopper-personas',
   ENABLING_SHOPPER_PROFILES: 'enabling-shopper-profiles',
   LOCATION_SERVICES: 'location-services',
-  PERSONALIZED_PRODUCT: 'personalized-product'
+  PERSONALIZED_PRODUCT: 'personalized-product',
+  ROOM_GENERATOR: 'room-generator',
 };
 
 export const articleTitles = {
@@ -67,7 +68,8 @@ export const articleTitles = {
   [Articles.DATASETS]: 'Datasets',
   [Articles.SHOPPER_PERSONAS]: 'Shopper Personas',
   [Articles.ENABLING_SHOPPER_PROFILES]: 'Enabling Shopper Profiles',
-  [Articles.PERSONALIZED_PRODUCT]: 'Personalized Product Descriptions'
+  [Articles.PERSONALIZED_PRODUCT]: 'Personalized Product Descriptions',
+  [Articles.ROOM_GENERATOR]: 'Room Makeover'
 };
 
 export const sections = [
@@ -85,6 +87,7 @@ export const sections = [
       Articles.OMNI_CHANNEL,
       Articles.LOCATION_SERVICES,
       Articles.PERSONALIZED_PRODUCT,
+      Articles.ROOM_GENERATOR,
     ],
   },
   {

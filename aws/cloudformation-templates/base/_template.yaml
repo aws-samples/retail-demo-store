@@ -106,6 +106,21 @@ Parameters:
     Type: String
     Description: ACM Certificate ARN for CloudFront WebUICDN
 
+  ResourceBucketImages:
+    Type: String
+    Description: >
+      (Leave empty in most cases) only specify if your product images are stored in a different bucket
+
+  ResourceBucketImagesPrefix:
+    Type: String
+    Description: >
+      (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
+
+  SourceImagesPackage:
+    Type: String
+    Description : full url to the images.tar.gz adress
+    Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
+
 Resources:
   # Authentication
   Authentication:
@@ -259,6 +274,11 @@ Resources:
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         LoggingBucketName: !GetAtt Buckets.Outputs.LoggingBucketName
         ACMCertificateArn: !Ref ACMCertificateArn
+        ResourceBucketImages: !Ref ResourceBucketImages
+        ResourceBucketImagesPrefix: !Ref ResourceBucketImagesPrefix
+        SourceImagesPackage: !Ref SourceImagesPackage
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   # Personalize Resources
   Personalize:
@@ -298,6 +318,10 @@ Outputs:
   IdentityPoolId:
     Description: Authentication Cognito Identity Pool Id.
     Value: !GetAtt Authentication.Outputs.IdentityPoolId
+
+  CognitoAuthorizedRole:
+    Description: Authentication Cognito Authorized Role name
+    Value: !GetAtt Authentication.Outputs.CognitoAuthorizedRole
 
   StackBucketName:
     Description: Stack Bucket

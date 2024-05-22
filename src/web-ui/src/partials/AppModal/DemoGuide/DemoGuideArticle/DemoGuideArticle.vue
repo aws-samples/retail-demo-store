@@ -30,6 +30,7 @@ import ShopperPersonas from './articles/ShopperPersonas.vue';
 import EnablingShopperProfiles from './articles/EnablingShopperProfiles.vue';
 import LocationServices from './articles/LocationServices.vue';
 import PersonalizedProductDescriptions from './articles/PersonalizedProductDescriptions.vue'
+import RoomGenerator from './articles/RoomGenerator.vue'
 
 export default {
   name: 'DemoGuideArticle',
@@ -91,6 +92,8 @@ export default {
           return LocationServices
         case Articles.PERSONALIZED_PRODUCT:
           return PersonalizedProductDescriptions
+        case Articles.ROOM_GENERATOR:
+          return RoomGenerator
       }
 
       throw new Error(`Invalid article id: ${this.article}`);

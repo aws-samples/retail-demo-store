@@ -40,3 +40,5 @@ workshop/datagenerator/*
 workshop/requirements.txt
 workshop/1-Personalization/generate_interactions_personalize.py
 workshop/1-Personalization/generate_interactions_personalize_offers.py
+dist
+*.code-workspace

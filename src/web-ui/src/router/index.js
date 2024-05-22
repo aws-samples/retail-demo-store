@@ -191,6 +191,8 @@ const Collections = () => import('@/public/Collections.vue')
 const Orders = () => import('@/authenticated/Orders.vue')
 const Admin = () => import('@/authenticated/Admin.vue')
 const ShopperSelectPage = () => import('@/authenticated/ShopperSelectPage.vue')
+const RoomGenerator = () => import('@/public/RoomGenerator.vue')
+
 
 // Routes
 const router = createRouter({
@@ -219,6 +221,12 @@ const router = createRouter({
       name: 'CategoryDetail',
       component: CategoryDetail,
       meta: { requiresAuth: false}
+    },
+    {
+      path: '/roomgenerator',
+      name: 'RoomGenerator',
+      component: RoomGenerator,
+      meta: { requiresAuth: true}
     },
     {
       path: '/live',
