@@ -1,5 +1,5 @@
 opensearch-py==2.4.2
-pillow==10.2.0
+pillow==10.3.0
 aws-lambda-powertools==2.33.1
 boto3==1.34.44
 botocore==1.34.44
