@@ -958,7 +958,10 @@ Resources:
         ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
         LambdaAuthorizer: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
-        WebURL: !GetAtt Base.Outputs.WebUICDNURL
+        WebURL: !If 
+          - ConditionCustomDomain
+          - !Sub https://${CloudfrontCustomDomain}
+          - !GetAtt Base.Outputs.WebUICDNURL        
         CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
         SageMakerEndpointName: !Ref SageMakerEndpointName
         EnableSageMakerAutoScaling: !Ref EnableSageMakerAutoScaling
