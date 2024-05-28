@@ -1,6 +1,7 @@
 import random
 from models import User, Address
 
+
 claimed_users = set()
 
 def get_all_users():

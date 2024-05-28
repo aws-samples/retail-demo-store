@@ -2,7 +2,7 @@ import boto3
 import os
 
 pinpoint_client = boto3.client("pinpoint", region_name=os.getenv("AWS_REGION", "us-west-2"))
-pinpoint_app_id = "YOUR_PINPOINT_APP_ID"
+pinpoint_app_id = os.Getenv("PINPOINT_APP_ID")
 
 def send_pinpoint_message(phone_number):
     send_message_address = {

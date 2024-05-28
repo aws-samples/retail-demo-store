@@ -2,6 +2,8 @@ from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 import os
+from main import app
+
 class AddressGlobalIndex(GlobalSecondaryIndex):
     class Meta:
         index_name = "address-index"
@@ -14,6 +16,7 @@ class Address(Model):
         region = os.getenv("AWS_REGION","us-west-2")
         ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
         if ddb_endpoint_override:
+            app.logger.info("Using DDB endpoint override: %s", ddb_endpoint_override)
             host = ddb_endpoint_override
 
         
@@ -33,6 +36,7 @@ class User(Model):
         region = os.getenv("AWS_REGION","us-west-2")
         ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
         if ddb_endpoint_override:
+            app.logger.info("Using DDB endpoint override: %s", ddb_endpoint_override)
             host = ddb_endpoint_override
         
     id = UnicodeAttribute(hash_key=True)
