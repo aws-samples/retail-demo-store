@@ -168,6 +168,7 @@ services:
       - DDB_TABLE_USERS
       - DDB_TABLE_ADDRESSES
       - DDB_ENDPOINT_OVERRIDE
+      - INIT_DONE
     build:
       context: ./users-py
     networks:

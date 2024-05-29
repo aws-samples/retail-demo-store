@@ -1,56 +1,95 @@
 from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
+from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
 import os
-from main import app
-
-class AddressGlobalIndex(GlobalSecondaryIndex):
+class UsernameIndex(GlobalSecondaryIndex):
+    """
+    A Global Secondary Index to be used for querying by username.
+    """
     class Meta:
-        index_name = "address-index"
+        index_name = 'username-index'
         projection = AllProjection()
-    postal_code = NumberAttribute(hash_key=True)
 
-class Address(Model):
+    username = UnicodeAttribute(hash_key=True)
+
+class IdentityIdIndex(GlobalSecondaryIndex):
+    """
+    A Global Secondary Index to be used for querying by identity_id.
+    """
     class Meta:
-        table_name = os.getenv("ADDRESS_TABLE", "addresses")
-        region = os.getenv("AWS_REGION","us-west-2")
-        ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
-        if ddb_endpoint_override:
-            app.logger.info("Using DDB endpoint override: %s", ddb_endpoint_override)
-            host = ddb_endpoint_override
+        index_name = 'identityId-index'
+        projection = AllProjection()
 
-        
-        
-    address_id = UnicodeAttribute(hash_key=True)
-    street_address = UnicodeAttribute()
+    identity_id = UnicodeAttribute(hash_key=True)
+    
+    
+class Address(MapAttribute):
+    first_name = UnicodeAttribute()
+    last_name = UnicodeAttribute()
+    address1 = UnicodeAttribute() 
+    address2 = UnicodeAttribute()
     city = UnicodeAttribute()
     state = UnicodeAttribute()
     country = UnicodeAttribute()
-    postal_code = NumberAttribute(null=False)
-    
-    address_global_index = AddressGlobalIndex()
-    
+    zipcode = UnicodeAttribute()
+    default = BooleanAttribute()
+
+    def to_dict(self):
+        """Serializes Address to a dictionary."""
+        return {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'address1': self.address1,
+            'address2': self.address2,
+            'city': self.city,
+            'state': self.state,
+            'country': self.country,
+            'zipcode': self.zipcode,
+            'default': self.default
+        }
+
 class User(Model):
     class Meta:
         table_name = os.getenv("USER_TABLE", "users")
-        region = os.getenv("AWS_REGION","us-west-2")
-        ddb_endpoint_override = os.getenv("DDB_ENDPOINT_OVERRIDE")
-        if ddb_endpoint_override:
-            app.logger.info("Using DDB endpoint override: %s", ddb_endpoint_override)
-            host = ddb_endpoint_override
-        
+        region = os.getenv("AWS_REGION", "us-west-2")
+        if os.getenv("DDB_ENDPOINT_OVERRIDE"):
+            host = os.getenv("DDB_ENDPOINT_OVERRIDE")
+
+    username_index = UsernameIndex()
+    identity_id_index = IdentityIdIndex()
     id = UnicodeAttribute(hash_key=True)
     username = UnicodeAttribute()
     email = UnicodeAttribute()
     first_name = UnicodeAttribute()
     last_name = UnicodeAttribute()
-    addresses = UnicodeAttribute()
+    addresses = ListAttribute(of=Address)  
     age = NumberAttribute()
     gender = UnicodeAttribute()
     persona = UnicodeAttribute()
     discount_persona = UnicodeAttribute()
-    sign_up_date = UTCDateTimeAttribute()
+    sign_up_date = UTCDateTimeAttribute(null=True)
     selectable_user = BooleanAttribute()
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True)
     phone_number = UnicodeAttribute(null=True)
+
+    def to_dict(self):
+        """Serializes User to a dictionary, including nested Address objects."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'addresses': [address.to_dict() for address in self.addresses] if self.addresses else [],
+            'age': self.age,
+            'gender': self.gender,
+            'persona': self.persona,
+            'discount_persona': self.discount_persona,
+            'sign_up_date': self.sign_up_date.isoformat() if self.sign_up_date else None,
+            'selectable_user': self.selectable_user,
+            'last_sign_in_date': self.last_sign_in_date.isoformat() if self.last_sign_in_date else None,
+            'identity_id': self.identity_id,
+            'phone_number': self.phone_number
+        }
+

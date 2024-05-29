@@ -1,9 +1,11 @@
 from fastapi import FastAPI
-from models import User, Address
+from models import User
+from repository import init
 import routes
 import logging
 import sys
 import uvicorn
+import os
 
 app = FastAPI(title="users")
 
@@ -19,6 +21,7 @@ logger.addHandler(stream_handler)
 logger.info("Starting users app")
 
 if __name__ == "__main__":
+    print(os.getenv("AWS_REGION"))
     if User.exists():
         logger.info("Users Table exists")
     else:
@@ -26,12 +29,7 @@ if __name__ == "__main__":
         User.create_table(billing_mode="PAY_PER_REQUEST")
         logger.info(f"Users Table created:{User.exists()}")
         
-    if Address.exists():
-        logger.info("Addresses Table exists")
-    else:
-        logger.info("Addresses Table does not exist")
-        Address.create_table(billing_mode="PAY_PER_REQUEST")
-        logger.info(f"Addresses Table created:{Address.exists()}")
+    init()
     uvicorn.run(app, host="0.0.0.0", port=80)
 
     
