@@ -141,6 +141,8 @@ services:
 
   users:
     container_name: users
+    depends_on:
+      - ddb
     environment:
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
@@ -148,6 +150,26 @@ services:
       - AWS_SESSION_TOKEN
     build:
       context: ./users
+    networks:
+      - dev-net
+    ports:
+      - "8002:80"
+
+  users-py:
+    container_name: users
+    depends_on:
+      - ddb
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_DEFAULT_REGION
+      - DDB_TABLE_USERS
+      - DDB_TABLE_ADDRESSES
+      - DDB_ENDPOINT_OVERRIDE
+    build:
+      context: ./users-py
     networks:
       - dev-net
     ports:
