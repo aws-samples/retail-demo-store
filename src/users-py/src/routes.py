@@ -47,8 +47,9 @@ def get_random(count: int = 1):
 
 @router.put("/users/id/{user_id}/claim")
 def claim_user_route(user_id: str):
-    if claim_user(user_id):
-        return {"message": f"User {user_id} claimed successfully"}
+    claimed = claim_user(user_id)
+    if claimed:
+        return {"message": claimed}
     raise HTTPException(status_code=404, detail="User not found")
 
 @router.post("/users")
