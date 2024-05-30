@@ -667,6 +667,7 @@ Resources:
         EnvOpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
+        UsersTable: !GetAtt Base.Outputs.UsersTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         CartsTable: !GetAtt Base.Outputs.CartsTable
         OrdersTable: !GetAtt Base.Outputs.OrdersTable
@@ -1116,6 +1117,7 @@ Outputs:
 
         # Users service
         AWS_REGION=${AWS::Region}
+        DDB_TABLE_USERS=${Base.Outputs.UsersTable}
 
         # Locations service
         RESOURCE_BUCKET=${ResourceBucket}
