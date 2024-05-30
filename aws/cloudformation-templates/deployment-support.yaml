@@ -100,9 +100,6 @@ Parameters:
   ProductsServiceExternalUrl:
     Type: String
 
-  UsersServiceExternalUrl:
-    Type: String
-
   DeployPersonalizedOffersCampaign:
     Type: String
     Default: No
@@ -226,7 +223,7 @@ Resources:
           - !Ref Subnet2
       Environment:
         Variables:
-          UsersServiceUrl: !Ref UsersServiceExternalUrl
+          UsersServiceUrl: !Ref ProductsServiceExternalUrl
       Code:
         ZipFile: |
           from urllib.request import Request, urlopen
