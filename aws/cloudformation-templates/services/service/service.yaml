@@ -398,8 +398,6 @@ Resources:
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
-            - Name: INIT_DONE
-              Value: "true"
             - Name: DDB_TABLE_USERS
               Value: !Ref UsersTable
             - Name: DDB_TABLE_PERSONALISED_PRODUCTS
