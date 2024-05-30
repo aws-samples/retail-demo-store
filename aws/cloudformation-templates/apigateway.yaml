@@ -301,6 +301,18 @@ Resources:
         - - integrations
           - !Ref UsersServiceIntegration
 
+  InitialiseUsers:
+    Type: 'AWS::ApiGatewayV2::Route'
+    Properties:
+      ApiId: !Ref HttpAPI
+      RouteKey: 'POST /users/init'
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref LambdaAuthorizer
+      Target: !Join 
+        - /
+        - - integrations
+          - !Ref UsersServiceIntegration
+
   GetUserById:
     Type: 'AWS::ApiGatewayV2::Route'
     Properties:

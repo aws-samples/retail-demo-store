@@ -22,14 +22,16 @@ logger.info("Starting users app")
 
 if __name__ == "__main__":
     print(os.getenv("AWS_REGION"))
-    if User.exists():
-        logger.info("Users Table exists")
-    else:
-        logger.info("Users Table does not exist")
-        User.create_table(billing_mode="PAY_PER_REQUEST")
-        logger.info(f"Users Table created:{User.exists()}")
+    if os.getenv("DDB_ENDPOINT_OVERRIDE"):
+        logger.info("DDB endpoint override provided- developing locally")
+        if User.exists():
+            logger.info("Users Table exists")
+        else:
+            logger.info("Users Table does not exist")
+            User.create_table(billing_mode="PAY_PER_REQUEST")
+            logger.info(f"Users Table created:{User.exists()}")
+        init()
         
-    init()
     uvicorn.run(app, host="0.0.0.0", port=80)
 
     

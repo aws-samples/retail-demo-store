@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from models import User
-from repository import get_all_users, get_user_by_id, get_user_by_username, get_user_by_identity_id, get_unclaimed_users, get_random_user, claim_user, create_user, update_user, verify_and_update_phone
+from repository import init, get_all_users, get_user_by_id, get_user_by_username, get_user_by_identity_id, get_unclaimed_users, get_random_user, claim_user, create_user, update_user, verify_and_update_phone
 from pinpoint import send_pinpoint_message
 
 router = APIRouter()
@@ -8,6 +8,13 @@ router = APIRouter()
 @router.get("/")
 def index():
     return {"message": "Welcome to the User Service"}
+
+@router.post('/users/init')
+def initialise_users():
+    users_loaded = init()
+    return {
+        "users": users_loaded
+    }
 
 @router.get("/users/all")
 def get_users():

@@ -12,6 +12,7 @@ def init():
         if os.getenv("INIT_DONE") != "true":
             load_users_into_dynamodb("/src/data/users.json.gz")
             os.environ["INIT_DONE"] = "true"
+            return True
     except Exception as e:
         raise e
 
