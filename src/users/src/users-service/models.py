@@ -17,7 +17,7 @@ class IdentityIdIndex(GlobalSecondaryIndex):
     A Global Secondary Index to be used for querying by identity_id.
     """
     class Meta:
-        index_name = 'identityId-index'
+        index_name = 'identity_id-index'
         projection = AllProjection()
 
     identity_id = UnicodeAttribute(hash_key=True)
