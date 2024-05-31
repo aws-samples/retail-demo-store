@@ -14,4 +14,4 @@ COPY src/users-service/*.* /src/
 
 ENV PYTHONUNBUFFERED 1
 EXPOSE 80
-CMD ["python3", "/src/main.py"]
+CMD ["python3", "/src/users-service/main.py"]
