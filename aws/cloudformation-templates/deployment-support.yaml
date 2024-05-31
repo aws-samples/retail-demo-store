@@ -100,6 +100,10 @@ Parameters:
   ProductsServiceExternalUrl:
     Type: String
 
+  UsersServiceExternalUrl:
+    Type: String
+    Default: none
+
   DeployPersonalizedOffersCampaign:
     Type: String
     Default: No
@@ -223,7 +227,7 @@ Resources:
           - !Ref Subnet2
       Environment:
         Variables:
-          UsersServiceUrl: !Ref ProductsServiceExternalUrl
+          UsersServiceUrl: !Ref UsersServiceExternalUrl
       Code:
         ZipFile: |
           from urllib.request import Request, urlopen
@@ -255,12 +259,12 @@ Resources:
   CustomLoadDataProducts:
     Type: Custom::CustomLoadData
     Properties:
-      ServiceToken: !GetAtt UsersLoadDataLambdaFunction.Arn
+      ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
 
   CustomLoadDataUsers:
     Type: Custom::CustomLoadData
     Properties:
-      ServiceToken: !GetAtt LoadDataLambdaFunction.Arn
+      ServiceToken: !GetAtt UsersLoadDataLambdaFunction.Arn
 
   ####################### Pre-Create Personalize Resources #######################
 

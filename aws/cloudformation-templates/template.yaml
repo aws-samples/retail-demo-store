@@ -906,6 +906,7 @@ Resources:
         PinpointEmailFromName: !Ref PinpointEmailFromName
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsServiceExternalUrl: !GetAtt Services.Outputs.ProductsServiceUrl
+        UsersServiceExternalUrl: !GetAtt Services.Outputs.UsersServiceUrl
         DeployPersonalizedOffersCampaign: !Ref DeployPersonalizedOffersCampaign
         PersonalizeRoleArn: !GetAtt Base.Outputs.PersonalizeRoleArn
         StackBucketName: !GetAtt Base.Outputs.StackBucketName
