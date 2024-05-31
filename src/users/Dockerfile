@@ -4,11 +4,11 @@ WORKDIR /src
 
 RUN apt-get update && apt-get install -y  && rm -rf /var/lib/apt/lists/*
 
-COPY src/data/*.* /src/data/
-COPY src/requirements.txt .
+COPY src/users-service/data/*.* /src/data/
+COPY src/users-service/requirements.txt .
 RUN python3 -m pip install --upgrade pip && python3 -m pip install --no-cache-dir -r requirements.txt
 
-COPY src/ ./
+COPY src/users-service/*.* /src/
 
 
 
