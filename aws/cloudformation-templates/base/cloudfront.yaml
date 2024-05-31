@@ -89,7 +89,10 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig:
-        Name: !Sub 'retaildemostore-${AWS::Region}-${!GetAtt DeploymentTime.Timestamp}'
+        Name: !Sub 
+        - 'retaildemostore-${Region}-${SafeStackId}'
+        - Region: !Ref 'AWS::Region'
+          SafeStackId: !Select [4, !Split ['-', !Ref 'AWS::StackId']]
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
@@ -101,7 +104,10 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         MinTTL: 86400
-        Name: !Sub 'retaildemostore-${AWS::Region}-${!GetAtt DeploymentTime.Timestamp}'
+        Name: !Sub 
+        - 'retaildemostore-${Region}-${SafeStackId}'
+        - Region: !Ref 'AWS::Region'
+          SafeStackId: !Select [4, !Split ['-', !Ref 'AWS::StackId']]
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
@@ -119,7 +125,10 @@ Resources:
           CookieBehavior: none
         HeadersConfig: 
           HeaderBehavior: none
-        Name: !Sub 'retaildemostore-${AWS::Region}-${!GetAtt DeploymentTime.Timestamp}'
+        Name: !Sub 
+        - 'retaildemostore-${Region}-${SafeStackId}'
+        - Region: !Ref 'AWS::Region'
+          SafeStackId: !Select [4, !Split ['-', !Ref 'AWS::StackId']]
         QueryStringsConfig: 
           QueryStringBehavior: all
 
