@@ -139,7 +139,7 @@ services:
     ports:
       - "8006:80"
 
-  users:
+  users-old:
     container_name: users
     depends_on:
       - ddb
@@ -149,13 +149,13 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
     build:
-      context: ./users
+      context: ./users-old
     networks:
       - dev-net
     ports:
       - "8002:80"
 
-  users-py:
+  users:
     container_name: users
     depends_on:
       - ddb
@@ -170,7 +170,7 @@ services:
       - DDB_ENDPOINT_OVERRIDE
       - INIT_DONE
     build:
-      context: ./users-py
+      context: ./users
     networks:
       - dev-net
     ports:

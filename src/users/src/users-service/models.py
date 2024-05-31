@@ -50,7 +50,7 @@ class Address(MapAttribute):
 
 class User(Model):
     class Meta:
-        table_name = os.getenv("USER_TABLE", "users")
+        table_name = os.getenv("DDB_TABLE_USERS", "users")
         region = os.getenv("AWS_REGION", "us-west-2")
         if os.getenv("DDB_ENDPOINT_OVERRIDE"):
             host = os.getenv("DDB_ENDPOINT_OVERRIDE")
