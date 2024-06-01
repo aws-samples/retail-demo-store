@@ -13,7 +13,7 @@ def init():
         return True
     except Exception as e:
         raise e
-def create_default_user():
+def create_empty_user():
     """
     Creates a User model instance with default zero values for all attributes.
     This function initializes all fields with their respective zero or empty values
@@ -68,7 +68,11 @@ def get_all_users():
     return User.scan()
 
 def get_user_by_id(user_id):
-    return User.get(user_id)
+    user = User.get(user_id)
+    if user:
+            return user
+    else:
+        return User()
 
 def get_user_by_username(username):
     try:
@@ -76,7 +80,7 @@ def get_user_by_username(username):
         if user:
             return user
         else:
-            return create_default_user()
+            return User()
     except StopIteration:
         return None
 
@@ -84,7 +88,10 @@ def get_user_by_username(username):
 def get_user_by_identity_id(identity_id):
     try:
         user = next(User.identity_id_index.query(identity_id), None)
-        return user
+        if user:
+            return user
+        else:
+            return User()
     except StopIteration:
         return None
 
@@ -117,7 +124,7 @@ def update_user(user_id, updated_data):
     if user:
         update_user_with_data(user, updated_data)
         return user
-    return None
+    return User()
 
 def verify_and_update_phone(user_id, phone_number):
     user = get_user_by_id(user_id)
