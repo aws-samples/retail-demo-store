@@ -13,7 +13,32 @@ def init():
         return True
     except Exception as e:
         raise e
-
+def create_default_user():
+    """
+    Creates a User model instance with default zero values for all attributes.
+    This function initializes all fields with their respective zero or empty values
+    in a PynamoDB context.
+    
+    Returns:
+        User: A new User instance with default values.
+    """
+    return User(
+        id="",
+        username="",
+        email="",
+        first_name="",
+        last_name="",
+        addresses=[],  
+        age=0,
+        gender="",
+        persona="",
+        discount_persona="",
+        sign_up_date=None, 
+        selectable_user=False,
+        last_sign_in_date=None,
+        identity_id="",
+        phone_number=""
+    )
 def load_users_into_dynamodb(filename):
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
         data = json.load(file)
@@ -48,7 +73,10 @@ def get_user_by_id(user_id):
 def get_user_by_username(username):
     try:
         user = next(User.username_index.query(username), None)
-        return user
+        if user:
+            return user
+        else:
+            return create_default_user()
     except StopIteration:
         return None
 
