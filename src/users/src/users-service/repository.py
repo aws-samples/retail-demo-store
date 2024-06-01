@@ -116,6 +116,7 @@ def claim_user(user_id):
 
 def create_user(user_data):
     user = User()
+    print(f"Creating new user: {user_data}")
     update_user_with_data(user, user_data)
     return user
 
