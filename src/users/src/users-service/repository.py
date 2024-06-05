@@ -1,6 +1,5 @@
 import random
 from models import User, Address
-import os
 import json
 import gzip
 from pynamodb.exceptions import DoesNotExist
