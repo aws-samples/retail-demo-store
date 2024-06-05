@@ -68,10 +68,10 @@ class User(Model):
     persona = UnicodeAttribute(default="")
     discount_persona = UnicodeAttribute(default="")
     sign_up_date = UTCDateTimeAttribute(null=True)
-    selectable_user = BooleanAttribute(null=True)
+    selectable_user = BooleanAttribute(default=False)
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True)
-    phone_number = UnicodeAttribute(null=True)
+    phone_number = UnicodeAttribute(default="")
 
     def to_dict(self):
         """Serializes User to a dictionary, including nested Address objects."""
