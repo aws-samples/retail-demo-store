@@ -5,7 +5,7 @@ import json
 import gzip
 from pynamodb.exceptions import DoesNotExist
 
-claimed_users = set()
+claimed_users = {}
 
 def init():
     try:
@@ -75,7 +75,7 @@ def get_user_by_identity_id(identity_id):
 def get_unclaimed_users():
     unclaimed_users = []
     for user in User.scan():
-        if user.selectable_user and user.id not in claimed_users:
+        if user.selectable_user and not claimed_users.get(user.id, False):
             unclaimed_users.append(user)
     return unclaimed_users
 
@@ -86,7 +86,7 @@ def get_random_user(count):
 def claim_user(user_id):
     user = get_user_by_id(user_id)
     if user and user.selectable_user:
-        claimed_users.add(user.id)
+        claimed_users[user.id] = True
         return True
     return False
 
