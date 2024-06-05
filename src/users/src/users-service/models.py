@@ -66,7 +66,7 @@ class User(Model):
     last_name = UnicodeAttribute(default="")
     addresses = ListAttribute(of=Address)
     age = NumberAttribute(default=0)
-    gender = UnicodeAttribute(null=True)
+    gender = UnicodeAttribute(default="")
     persona = UnicodeAttribute(default="")
     discount_persona = UnicodeAttribute(default="")
     sign_up_date = UTCDateTimeAttribute(null=True)
