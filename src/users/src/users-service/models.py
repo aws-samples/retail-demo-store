@@ -1,7 +1,10 @@
 from pynamodb.models import Model
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
+from datetime import datetime
+import pytz
 import os
+
 class UsernameIndex(GlobalSecondaryIndex):
     """
     A Global Secondary Index to be used for querying by username.
@@ -22,11 +25,10 @@ class IdentityIdIndex(GlobalSecondaryIndex):
 
     identity_id = UnicodeAttribute(hash_key=True)
     
-    
 class Address(MapAttribute):
     first_name = UnicodeAttribute()
     last_name = UnicodeAttribute()
-    address1 = UnicodeAttribute() 
+    address1 = UnicodeAttribute()
     address2 = UnicodeAttribute()
     city = UnicodeAttribute()
     state = UnicodeAttribute()
@@ -58,20 +60,20 @@ class User(Model):
     username_index = UsernameIndex()
     identity_id_index = IdentityIdIndex()
     id = UnicodeAttribute(hash_key=True)
-    username = UnicodeAttribute(default="")
-    email = UnicodeAttribute(default="")
-    first_name = UnicodeAttribute(default="")
-    last_name = UnicodeAttribute(default="")
-    addresses = ListAttribute(of=Address)  
+    username = UnicodeAttribute()
+    email = UnicodeAttribute()
+    first_name = UnicodeAttribute(null=True)
+    last_name = UnicodeAttribute(null=True)
+    addresses = ListAttribute(of=Address)
     age = NumberAttribute(default=0)
-    gender = UnicodeAttribute(default="")
-    persona = UnicodeAttribute(default="")
-    discount_persona = UnicodeAttribute(default="")
+    gender = UnicodeAttribute(null=True)
+    persona = UnicodeAttribute(null=True)
+    discount_persona = UnicodeAttribute(null=True)
     sign_up_date = UTCDateTimeAttribute(null=True)
-    selectable_user = BooleanAttribute(default=False)
+    selectable_user = BooleanAttribute(null=True)
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True)
-    phone_number = UnicodeAttribute(default="")
+    phone_number = UnicodeAttribute(null=True)
 
     def to_dict(self):
         """Serializes User to a dictionary, including nested Address objects."""
@@ -93,3 +95,24 @@ class User(Model):
             'phone_number': self.phone_number
         }
 
+    def preprocess_datetime_fields(self):
+        """Convert string representation of datetime to datetime objects for relevant fields."""
+        datetime_fields = ['sign_up_date', 'last_sign_in_date']
+        for field in datetime_fields:
+            value = getattr(self, field, None)
+            if isinstance(value, str):
+                setattr(self, field, self.parse_iso_datetime(value))
+
+    @staticmethod
+    def parse_iso_datetime(date_str):
+        """Convert ISO 8601 string to datetime object."""
+        try:
+            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
+        except ValueError as e:
+            print(f"Error parsing date: {e}")
+            return None
+
+    def save(self,**expected_values):
+        """Override save to preprocess datetime fields."""
+        self.preprocess_datetime_fields()
+        super(User, self).save(**expected_values)
