@@ -62,18 +62,18 @@ class User(Model):
     id = UnicodeAttribute(hash_key=True)
     username = UnicodeAttribute()
     email = UnicodeAttribute()
-    first_name = UnicodeAttribute(null=True)
-    last_name = UnicodeAttribute(null=True)
+    first_name = UnicodeAttribute(default="")
+    last_name = UnicodeAttribute(default="")
     addresses = ListAttribute(of=Address)
     age = NumberAttribute(default=0)
     gender = UnicodeAttribute(null=True)
     persona = UnicodeAttribute(default="")
-    discount_persona = UnicodeAttribute(null=True)
+    discount_persona = UnicodeAttribute(default="")
     sign_up_date = UTCDateTimeAttribute(null=True)
     selectable_user = BooleanAttribute(null=True)
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True)
-    phone_number = UnicodeAttribute(null=True)
+    phone_number = UnicodeAttribute(default="")
 
     def to_dict(self):
         """Serializes User to a dictionary, including nested Address objects."""
