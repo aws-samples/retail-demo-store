@@ -607,6 +607,7 @@ Resources:
             "Image Analyzer": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke",
+              "TimeoutSeconds": 120,
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
@@ -630,6 +631,7 @@ Resources:
             "Image Generator": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "TimeoutSeconds": 1800,
               "Parameters": {
                 "Payload": {
                   "token.$": "$$.Task.Token",
@@ -655,6 +657,7 @@ Resources:
             "Image Result Processor": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke",
+              "TimeoutSeconds": 120,
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
@@ -934,7 +937,7 @@ Resources:
                   StringLike:
                     iam:AWSServiceName: sagemaker.application-autoscaling.amazonaws.com                            
 
-  PipelineCodeCommit:
+  Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
@@ -997,7 +1000,7 @@ Resources:
                 Version: '1'
                 Provider: CloudFormation
               Configuration:
-                ActionMode: REPLACE_ON_FAILURE
+                ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 RoleArn: !GetAtt CFNRole.Arn
                 StackName: !Sub '${AWS::StackName}-InferenceStack'
@@ -1016,6 +1019,92 @@ Resources:
                     }
                 TemplatePath: 'source::src/roomgenerator/deploy.yaml'
               RunOrder: 1
+
+  CleanupInferenceStackLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}-InferenceStack/*
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource: !GetAtt CFNRole.Arn
+              - Effect: Allow
+                Action:
+                  - lambda:AddPermission
+                  - lambda:RemovePermission
+                  - events:PutRule
+                  - events:DeleteRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Resource: '*'
+
+  CleanupInferenceStackLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt CleanupInferenceStackLambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+            
+            import boto3
+            from crhelper import CfnResource
+
+            client = boto3.client('cloudformation')
+
+            helper = CfnResource()
+
+            @helper.delete
+            def delete_stack(event, _):
+              inference_stack_name = event['ResourceProperties']['InferenceStackName']              
+              role_arn = event['ResourceProperties']['RoleArn']
+              
+              client.delete_stack(StackName=inference_stack_name, RoleARN=role_arn)
+
+            @helper.poll_delete
+            def poll_delete(event, _):
+              inference_stack_name = event['ResourceProperties']['InferenceStackName']
+              try:
+                response = client.describe_stacks(StackName=inference_stack_name)
+              except:
+                return True
+              else:
+                if not response['Stacks'] or response['Stacks'][0]['StackStatus'] in ['DELETE_COMPLETE', 'DELETE_FAILED']:
+                  return True
+            
+            def lambda_handler(event, context):
+              helper(event, context)
+
+      Runtime: python3.12
+      Timeout: 50
+      Layers:
+        - !Ref BaseLambdaLayer
+
+  CleanupInferenceStackLambdaTrigger:
+    Type: Custom::LambdaTrigger
+    Properties:
+      ServiceToken: !GetAtt CleanupInferenceStackLambdaFunction.Arn
+      InferenceStackName: !Sub '${AWS::StackName}-InferenceStack'
+      RoleArn: !GetAtt CFNRole.Arn
 
 ##################################################################################
 #
