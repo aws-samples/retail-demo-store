@@ -2,7 +2,7 @@ name: mkdocs
 on:
   push:
     branches:
-      - BastLeblanc/master
+      - master
 permissions:
   contents: write
 jobs:
