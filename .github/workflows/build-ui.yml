@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches:
-      - dairiley/mkdocs
+      - master
     paths-ignore:
       - 'docs/**'
 jobs:
