@@ -20,7 +20,7 @@ A sample retail web application and workshop platform intended as an educational
 
 **This project is intended for educational purposes only and not for production use.**
 
-![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
+![Retail Demo Store Home Page](docs/assets/retaildemostore-home-devices.png)
 
 The Retail Demo Store is an eCommerce reference implementation designed to showcase how AWS services can be used to build compelling shopping experiences using modern architecture and design patterns.
 
@@ -28,7 +28,7 @@ At the heart of the Retail Demo Store is a collection of polyglot microservices 
 
 The architecture is supported by several managed services including [Amazon Cognito](https://aws.amazon.com/cognito/), [Amazon Pinpoint](https://aws.amazon.com/pinpoint/), [Amazon Personalize](https://aws.amazon.com/personalize/), and [Amazon OpenSearch Service](https://aws.amazon.com/opensearch-service/) (successor to Amazon Elasticsearch Service). The [web user interface](../src/web-ui]) is built using the [Vue.js](https://vuejs.org/) framework with [AWS Amplify](https://aws.amazon.com/amplify/) to provide integrations with Cognito for registration/authentication and event streaming to Pinpoint and Personalize (Event Tracker). Finally, [AWS CodePipeline](https://aws.amazon.com/codepipeline/) is leveraged to demonstrate how AWS development services can be used to orchestrate the build and deployment process with the Retail Demo Store.
 
-![Retail Demo Store Architecture](./workshop/images/retaildemostore-architecture.png)
+![Retail Demo Store Architecture](docs/assets/retaildemostore-architecture.png)
 
 ## Deployment
 

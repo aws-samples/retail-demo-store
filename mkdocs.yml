@@ -1,0 +1,7 @@
+site_name: Retail Demo Store
+repo_url: https://github.com/aws-samples/retail-demo-store
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
