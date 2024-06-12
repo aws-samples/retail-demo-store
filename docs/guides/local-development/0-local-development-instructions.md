@@ -22,6 +22,7 @@ aws cloudformation describe-stacks --stack-name retaildemostore \
 
 Then you can copy and override variables for each service in your .env file.
 
+
 ### Amazon ECR authorization
 
 Since some of the Docker images are hosted in Amazon ECR, you must authenticate your shell session before running docker-compose. Otherwise, the images will not be able to be downloaded. Run the following command to authenticate before running docker-compose. You should only have to do this once per shell session.
@@ -41,6 +42,7 @@ foo@bar:~$ aws sts get-session-token
 ```
 
 Docker compose will still pick variables set in your shell when building and launching the services.
+
 
 ## Run All Services
 

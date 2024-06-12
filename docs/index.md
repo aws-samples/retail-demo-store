@@ -1,9 +1,7 @@
 
-# About
+# Retail Demo Store 
 
 A sample retail web application and workshop platform intended as an educational tool for demonstrating how AWS infrastructure and services can be used to build compelling customer experiences for eCommerce, retail, and digital marketing use-cases.
-
-## Build Status
 
 ![Ruff](https://github.com/aws-samples/retail-demo-store/actions/workflows/ruff.yml/badge.svg?branch=master)
 ![UI Build](https://github.com/aws-samples/retail-demo-store/actions/workflows/build-ui.yml/badge.svg?branch=master)
@@ -22,4 +20,18 @@ The architecture is supported by several managed services including [Amazon Cogn
 
 ## Supported Regions
 
-The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below. Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.
+The Retail Demo Store has been tested in the AWS regions indicated in the deployment instructions below.
+
+
+| Region Name | Region | Supported |
+| ------------- | ------------- | ------------- |
+| US East (N. Virginia) | us-east-1 | Fully supported |
+| US West (Oregon) | us-west-2 | Fully supported |
+| Europe (Ireland) | eu-west-1 | Partial support (personalized product descriptions, thematic similar product descriptions and room makeover not supported) |
+| Europe (Frankfurt) | eu-central-1 | Partial support (thematic similar product descriptions and room makeover not supported) |
+| Asia Pacific (Tokyo) | ap-northeast-1 | Partial support (personalized product descriptions and room makeover not supported) |
+| Asia Pacific (Sydney) | ap-southeast-2 | Partial support (personalized product descriptions and thematic similar product descriptions not supported) |
+
+!!! Note
+
+Additional regions may be supported depending on [service availability](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/) and having the Retail Demo Store's deployment resources staged to an S3 bucket in the targeted region.
