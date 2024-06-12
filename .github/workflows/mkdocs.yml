@@ -1,8 +1,8 @@
-name: ci
+name: mkdocs
 on:
   push:
     branches:
-      - BastLeblanc/mkdocs
+      - BastLeblanc/master
 permissions:
   contents: write
 jobs:
