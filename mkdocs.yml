@@ -5,6 +5,7 @@ theme:
   features:
     - navigation.instant
     - navigation.tabs
+  logo: assets/logo.png
 markdown_extensions:
   - admonition
   - pymdownx.details

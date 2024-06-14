@@ -8,11 +8,11 @@ Thanks for considering working with this project.
 graph TB
   B[Install the requirements];
   B -->|if you want to customize the demo| C[Fork this Repo];
-  C --> B
-  B --> D[Create a Github Personal Access Token];
+  C --> D[Create a Github Personal Access Token]
+  B --> E;
   D --> E[Create a Staging Bucket];
-  E --> F[Stage the demo to this bucket];
-  F --> G[Deploy Cloudformation]
+  E --> F[Stage the code to this bucket];
+  F --> G[Deploy Cloudformation Template]
 ```
 
 ## Step 1 : Requirements
@@ -43,7 +43,7 @@ git clone https://github.com/aws-samples/retail-demo-store
 ```
 
 !!! Note
-If you plan to customize the demo, we recommend using your fork
+    If you plan to customize the demo, we recommend using your fork
 
 ## Install and configure the AWS CLI:
 
@@ -68,7 +68,7 @@ sudo apt install npm
 
 We recommend to create a fork of the Retail Demo Store respository in your own GitHub account. That enables you to customize the code before deployment.
 
-## Step 2: Create a GitHub Personal Access Token
+## (optional) Create a GitHub Personal Access Token
 
 Create a [GitHub Personal Access Token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in your GitHub account.
 
@@ -76,13 +76,12 @@ Make sure that your token has the "repo", "repo:status", and "admin:repo_hook" p
 
 Save your access token in a secure location, you will use it the CloudFormation parameters at deployment time.
 
-## Step 3: Create a S3 Staging Bucket
+## Step 2: Create a S3 Staging Bucket
 
 We recommend to create a dedicated bucket for deployment.
 
-### Bucket Region
-
-Your staging bucket must be in the region in which you plan to deploy the Retail Demo Store.
+!!! Note
+    Bucket Region: Your staging bucket must be in the **region** in which you plan to deploy the Retail Demo Store.
 
 ### Bucket Permissions
 
@@ -116,7 +115,7 @@ If you plan to enable the automated Personalize campaign creation process at dep
 
 
 
-## Step 4: Staging for Deployment
+## Step 3: Staging for Deployment
 
 We recommend to use a Python 3 virtual environment. Current supported version of python is 3.12 (other versions may work but we haven't tested all versions)
 
@@ -133,7 +132,7 @@ Example on how to stage your project to a custom bucket and path (note the path 
 ./stage.sh MY_CUSTOM_BUCKET S3_PATH/ --skip-virtualenv
 ```
 
-## Step 5: Deploy the Cloudformation template
+## Step 4: Deploy the Cloudformation template
 
 The stage script will output a path to your master deployment CloudFormation template.  You can use this link to your S3 bucket to start a new deployment via the CloudFormation console in your AWS Console. Please read and complete any required parameters. The mandatory parameters to fill up are:
 
@@ -145,8 +144,8 @@ All the others will work by default, take the time to read and decide which para
 
 !!!NOTE 
 
-You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
- 
-```bash
-./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
-```
+    You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
+    
+    ```bash
+    ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
+    ```
