@@ -1,10 +1,12 @@
-site_name: Retail Demo Store
+site_name: Retail Demo Store - Documentation
 repo_url: https://github.com/aws-samples/retail-demo-store
 theme:
   name: material
   features:
     - navigation.instant
     - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.footer
   logo: assets/logo.png
 markdown_extensions:
   - admonition
@@ -14,4 +16,13 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-
+  - attr_list
+  - md_in_html
+plugins: 
+  - search
+  - mkdocs-nav-weight:
+      section_renamed: false
+      index_weight: -10
+      warning: true
+      reverse: false
+      headless_included: false

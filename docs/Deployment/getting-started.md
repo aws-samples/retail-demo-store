@@ -124,7 +124,7 @@ python3.12 -m venv .venv/
 source .venv/bin/activate
 ```
 
-The [stage.sh](stage.sh) script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket. 
+The ``stage.sh`` script at the root of the repository must be used to upload the deployment resources to your staging S3 bucket if you use this option. The shell uses the local AWS credentials to build and push resources to your custom bucket. 
 
 Example on how to stage your project to a custom bucket and path (note the path is optional but, if specified, must end with '/'):
 

@@ -3,7 +3,7 @@ Batch recommendations let you generate personalized recommendations for a large 
 for a large number of items, in one go, and then use them in batch processes, such as sending emails or
 notifications.
 
-![Batch recommendations](../assets/batch-recommendations-architecture.png)
+![Batch recommendations](../../assets/batch-recommendations-architecture.png)
 
 ## AWS News Blog
 

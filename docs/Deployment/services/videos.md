@@ -1,6 +1,6 @@
 # Videos Service
 
-The Videos service streams product videos and synchronised metadata to [Amazon Interactive Video Service](https://aws.amazon.com/ivs/) and provides stream metadata (stream endpoints and products contained within the stream) via a Flask API. The [Web UI](/guide/local-development/local-development-instructions) makes calls to the service when a user views the 'Live' view. The endpoint provides a list of stream ingest endpoints, each with a list of their associated products, allowing the UI to present all products from the video before they appear in the stream.
+The Videos service streams product videos and synchronised metadata to [Amazon Interactive Video Service](https://aws.amazon.com/ivs/) and provides stream metadata (stream endpoints and products contained within the stream) via a Flask API. The [Web UI](../local-development/0-local-development-instructions.md) makes calls to the service when a user views the 'Live' view. The endpoint provides a list of stream ingest endpoints, each with a list of their associated products, allowing the UI to present all products from the video before they appear in the stream.
 
 When deployed to AWS, CodePipeline is used to build and deploy the Videos service as a Docker container to Amazon ECS behind an Application Load Balancer. The Videos service can also be run locally in a Docker container. This makes it easier to iterate on and test changes locally before commiting.
 
@@ -16,7 +16,7 @@ To create and use IVS channels hosted in your own account, the option 'Use defau
 To enable full UI integration with custom videos, metadata must be embedded into the .mkv file.
 
 Metadata must be created in the `.srt` format, with each timestamped entry containing data in the form:
-`{"productId": <PRODUCT_ID>}`. The Videos service sends the metadata at the start of the timestamp. The latter section of the timestamp is not used. The file can either be edited manually or using an SRT editor (either software or online). An example metadata file can be seen [here](../../videos/sample.srt).
+`{"productId": <PRODUCT_ID>}`. The Videos service sends the metadata at the start of the timestamp. The latter section of the timestamp is not used. The file can either be edited manually or using an SRT editor (either software or online). An example metadata file can be seen [here](https://github.com/aws-samples/retail-demo-store/blob/master/videos/sample.srt).
 
 This metadata can then be combined with a video file to create an encoded `.mkv` file with embedded metadata by running the following command:
 ```
@@ -29,7 +29,7 @@ The command also pre-encodes the video in a format designed to reduce the CPU & 
 
 ## Local Development
 
-The Videos service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](/guide/local-development/local-development-instructions/) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Videos service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker compose up --build videos

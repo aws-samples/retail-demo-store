@@ -24,4 +24,4 @@
 
 ## Reporting Bugs
 
-If you encounter a bug, please create a new issue with as much detail as possible and steps for reproducing the bug. See the [Contributing Guidelines](./CONTRIBUTING.md) for more details.
+If you encounter a bug, please create a new issue with as much detail as possible and steps for reproducing the bug. See the [Contributing Guidelines](https://github.com/aws-samples/retail-demo-store/blob/master/CONTRIBUTING.md) for more details.

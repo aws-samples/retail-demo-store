@@ -1,6 +1,6 @@
 # Carts Service
 
-The Carts web service provides a RESTful API for adding, changing, and deleting shopping carts. The [Web UI](/guide/local-development/local-development-instructions) makes calls to this service as a user adds and removes items from their cart and during checkout.
+The Carts web service provides a RESTful API for adding, changing, and deleting shopping carts. The Web UI makes calls to this service as a user adds and removes items from their cart and during checkout.
 
 When deployed to AWS, CodePipeline is used to build and deploy the Carts service as a Docker container to Amazon ECS behind an Application Load Balancer. The Carts service can also be run locally in a Docker container. This makes it easier to iterate on and test changes locally before commiting.
 

@@ -2,7 +2,7 @@
 
 The Recommendations web service provides a RESTful API for retrieving personalized product recommendations,
  related products, product reranking, and suggested discounts (powered by Amazon Personalize).
-  The [Web UI](/guide/local-development/local-development-instructions) makes calls to this service when a user is viewing the home view (recommended products), product detail view (related products), or the category view (personalized ranking of products). If Amazon Personalize campaigns have been created for these use-cases (either by the deployment Lambda option or by stepping through the [Personalization](https://github.com/aws-samples/retail-demo-store/tree/master/workshop/1-Personalization/Lab-1-Introduction-and-data-preparation.ipynb) workshop), then those campaigns will be called by the Recommendations service. Otherwise, the service will call the [Products](../products) service to provide a suitable default behavior such as displaying featured products or products from the same category as the displayed product.
+  The [Web UI](../local-development/0-local-development-instructions.md) makes calls to this service when a user is viewing the home view (recommended products), product detail view (related products), or the category view (personalized ranking of products). If Amazon Personalize campaigns have been created for these use-cases (either by the deployment Lambda option or by stepping through the [Personalization](https://github.com/aws-samples/retail-demo-store/tree/master/workshop/1-Personalization/Lab-1-Introduction-and-data-preparation.ipynb) workshop), then those campaigns will be called by the Recommendations service. Otherwise, the service will call the [Products](./products.md) service to provide a suitable default behavior such as displaying featured products or products from the same category as the displayed product.
 
 This service also provides support for running experiments for personalization approaches using techniques such as A/B testing, interleaving results testing, and multi-armed bandit testing. The [Experimentation](https://github.com/aws-samples/retail-demo-store/tree/master/workshop/3-Experimentation/3.1-Overview.ipynb) workshops are designed to walk you through how to setup, run, and evaluate experiments.
 
@@ -10,7 +10,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Recommendatio
 
 ## Local Development
 
-The Recommendations service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](/guide/local-development/local-development-instructions/) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Recommendations service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker compose up --build recommendations

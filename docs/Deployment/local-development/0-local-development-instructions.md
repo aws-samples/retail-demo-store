@@ -54,7 +54,7 @@ foo@bar:~$ docker compose up --build
 
 ## Run Specific Services
 
-You can also choose to run specific services locally by appending the service names to the above command. For example, the following command builds and launches the [products](./products) and [web-ui](./web-ui) services only. Note that some configuration of the [web-ui](./web-ui) environment will likely be needed to match your configuration.
+You can also choose to run specific services locally by appending the service names to the above command. For example, the following command builds and launches the [products](https://github.com/aws-samples/retail-demo-store/tree/master/src/products) and [web-ui](https://github.com/aws-samples/retail-demo-store/tree/master/src/web-ui) services only. Note that some configuration of the [web-ui](https://github.com/aws-samples/retail-demo-store/tree/master/src/web-ui) environment will likely be needed to match your configuration.
 
 ```console
 foo@bar:~$ docker compose up --build products web-ui
@@ -64,7 +64,7 @@ For instructions specific to each Retail Demo Store web service, view the README
 
 ## Web UI Service
 
-When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the `web-ui/.env` file for which there is an example at [web-ui/.env.template](web-ui/.env.template) to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
+When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the `web-ui/.env` file for which there is an example at ``web-ui/.env.template`` to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
 
 
 ## Swagger UI

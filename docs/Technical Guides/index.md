@@ -2,7 +2,7 @@
 
 !!! Note 
 
-    This part of the documentation is also inside the demo itself
+    This part of the documentation is also inside the demo itself (look for the "demo guide" on the bottom of each page)
 
 
 

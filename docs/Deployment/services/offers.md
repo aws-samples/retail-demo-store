@@ -9,7 +9,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Offers servic
 
 ## Local Development
 
-The Offers service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](/guide/local-development/local-development-instructions/) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Offers service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker compose up --build offers

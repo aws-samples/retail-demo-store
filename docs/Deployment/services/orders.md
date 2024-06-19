@@ -1,12 +1,12 @@
 # Orders Service
 
-The Orders web service provides a RESTful API for creating and retrieving orders. The [Web UI](/guide/local-development/local-development-instructions) makes calls to this service when a user goes through the checkout process or when viewing their orders.
+The Orders web service provides a RESTful API for creating and retrieving orders. The [Web UI](../local-development/0-local-development-instructions.md) makes calls to this service when a user goes through the checkout process or when viewing their orders.
 
 When deployed to AWS, CodePipeline is used to build and deploy the Orders service as a Docker container to Amazon ECS behind an Application Load Balancer. The Orders service can also be run locally in a Docker container. This makes it easier to iterate on and test changes locally before commiting.
 
 ## Local Development
 
-The Orders service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](/guide/local-development/local-development-instructions/) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Orders service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker-compose up --build orders
