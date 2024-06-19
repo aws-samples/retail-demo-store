@@ -31,7 +31,7 @@ class ProductionConfig(Config):
     @staticmethod
     def init_app(app):
         patch_all()
-        xray_recorder.configure(service='Products Service')
+        xray_recorder.configure(service='Users Service')
         XRayMiddleware(app, xray_recorder)
 
 config = {
