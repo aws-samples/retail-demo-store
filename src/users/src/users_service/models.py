@@ -52,8 +52,8 @@ class Address(MapAttribute):
 
 class User(Model):
     class Meta:
-        table_name = 'default_table_name'  # Default, to be overridden in init_app
-        region = 'default_region' 
+        table_name = 'users'
+        region = 'us-east-1' 
 
     @classmethod
     def init_app(cls, app: Flask) -> None:
