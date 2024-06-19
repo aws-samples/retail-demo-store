@@ -1,3 +1,5 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 from flask import jsonify, request, current_app, Blueprint, g
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound, Unauthorized
