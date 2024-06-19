@@ -55,22 +55,14 @@ def get_user_by_id(user_id):
 
 def get_user_by_username(username):
     try:
-        user = next(User.username_index.query(username), None)
-        if user:
-            return user
-        else:
-            return User()
+        return next(User.username_index.query(username), User())
     except Exception as e:
         current_app.logger.error(f"Error getting user by username: {e}")
 
 
 def get_user_by_identity_id(identity_id):
     try:
-        user = next(User.identity_id_index.query(identity_id), None)
-        if user:
-            return user
-        else:
-            return User()
+        return next(User.identity_id_index.query(identity_id), User())
     except Exception as e:
         current_app.logger.error(f"Error getting user by username: {e}")
 
