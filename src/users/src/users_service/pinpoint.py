@@ -1,7 +1,5 @@
 import boto3
-import os
-from flask import Flask, current_app
-from botocore.exceptions import ClientError
+from flask import Flask
 
 
 class Pinpoint():

@@ -60,8 +60,8 @@ def get_user_by_username(username):
             return user
         else:
             return User()
-    except StopIteration:
-        return None
+    except Exception as e:
+        current_app.logger.error(f"Error getting user by username: {e}")
 
 
 def get_user_by_identity_id(identity_id):
@@ -71,8 +71,8 @@ def get_user_by_identity_id(identity_id):
             return user
         else:
             return User()
-    except StopIteration:
-        return None
+    except Exception as e:
+        current_app.logger.error(f"Error getting user by username: {e}")
 
 
 def get_unclaimed_users():
