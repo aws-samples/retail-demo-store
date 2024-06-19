@@ -26,16 +26,16 @@ def load_users_into_dynamodb(filename):
 def create_or_update_user(user_data):
     try:
         user = User.get(user_data["id"])
-        print(f"User already exists: {user_data['id']}")
+        current_app.logger.info(f"User already exists: {user_data['id']}")
         #update_user_with_data(user, user_data)
     except DoesNotExist:
-        print(f"Creating new user: {user_data['id']}")
+        current_app.logger.info(f"Creating new user: {user_data['id']}")
         user = User()
         update_user_with_data(user, user_data)
         user.save()
 
 def update_user_with_data(user, user_data):
-    print(f"Updating user:{user} with data: {user_data}")
+    current_app.logger.info(f"Updating user:{user} with data: {user_data}")
     addresses_data = user_data.pop("addresses", [])
     addresses = [Address(**ad) for ad in addresses_data]
     user.addresses = addresses
@@ -95,7 +95,7 @@ def claim_user(user_id):
 
 def create_user(user_data):
     user = User()
-    print(f"Creating new user: {user_data}")
+    current_app.logger.info(f"Creating new user: {user_data}")
     update_user_with_data(user, user_data)
     return user
 

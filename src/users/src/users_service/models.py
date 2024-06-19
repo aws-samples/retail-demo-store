@@ -127,7 +127,7 @@ class User(Model):
         try:
             return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
         except ValueError as e:
-            print(f"Error parsing date: {e}")
+            current_app.logger.info(f"Error parsing date: {e}")
             return None
 
     def save(self,**expected_values):
