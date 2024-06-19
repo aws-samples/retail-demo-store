@@ -7,7 +7,12 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.footer
-  logo: assets/logo.png
+  logo: assets/aws_smile-header-desktop-en-white_59x35@2x.png
+  favicon: https://a0.awsstatic.com/libra-css/images/site/fav/favicon.ico
+  palette:
+    primary: black
+  font:
+    text: Roboto
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -26,3 +31,9 @@ plugins:
       warning: true
       reverse: false
       headless_included: false
+extra:
+  social:
+    - icon: fontawesome/brands/aws 
+      link: https://aws.amazon.com/retail/
+    - icon: fontawesome/brands/github 
+      link: https://github.com/aws-samples/retail-demo-store
