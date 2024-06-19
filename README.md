@@ -20,7 +20,7 @@ The Retail Demo Store is an eCommerce reference implementation designed to showc
 
 **This project is intended for educational purposes only and not for production use.**
 
-![Retail Demo Store Home Page](./workshop/images/retaildemostore-home-devices.png)
+![Retail Demo Store Home Page](./docs/assets/retaildemostore-home-devices.png)
 
 
 ## Build Status
