@@ -250,7 +250,7 @@ Resources:
                 with urlopen(request) as response:
                   logger.info(f"Product Service init method success: {response.read()}")
               except URLError as e:
-                logger.error(f"Error calling product service init: {e.code} : {e.reason}")
+                logger.error(f"Error calling user service init: {e.code} : {e.reason}")
                 response_status = cfnresponse.FAILED
                 response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"
                             
