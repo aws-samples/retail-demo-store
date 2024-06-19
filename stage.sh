@@ -134,7 +134,7 @@ if [ "$only_cfn_template" = false ]; then
 
     echo " + Upload seed data"
     aws s3 cp src/products/data/ s3://${BUCKET}/${S3PATH}data --recursive  $S3PUBLIC
-    aws s3 cp src/users/src/users-service/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
+    aws s3 cp src/users/data/ s3://${BUCKET}/${S3PATH}data --recursive $S3PUBLIC
 
     echo " + Upload IVS videos"
     aws s3 cp videos/ s3://${BUCKET}/${S3PATH}videos --recursive $S3PUBLIC
