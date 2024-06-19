@@ -1,5 +1,5 @@
 ---
-weight: 50
+weight: 5
 ---
 # Room Makeover: Revolutionizing Interior Design with genAI
 

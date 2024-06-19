@@ -1,5 +1,5 @@
 ---
-weight: 40
+weight: 7
 ---
 # Personalized Product Descriptions with genAI
 
