@@ -3,7 +3,7 @@ from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
 from datetime import datetime
 import pytz
-import os
+from flask import Flask, current_app
 
 class UsernameIndex(GlobalSecondaryIndex):
     """
@@ -52,10 +52,28 @@ class Address(MapAttribute):
 
 class User(Model):
     class Meta:
-        table_name = os.getenv("DDB_TABLE_USERS", "users")
-        region = os.getenv("AWS_REGION", "us-west-2")
-        if os.getenv("DDB_ENDPOINT_OVERRIDE"):
-            host = os.getenv("DDB_ENDPOINT_OVERRIDE")
+        table_name = 'default_table_name'  # Default, to be overridden in init_app
+        region = 'default_region' 
+
+    @classmethod
+    def init_app(cls, app: Flask) -> None:
+        """
+        Initialize the Pynamodb model with Flask application settings.
+        """
+        cls.Meta.table_name = app.config.get('DDB_TABLE_USERS', cls.Meta.table_name)
+        cls.Meta.region = app.config.get('AWS_DEFAULT_REGION', cls.Meta.region)
+        if 'DDB_ENDPOINT_OVERRIDE' in app.config:
+            cls.Meta.host = app.config['DDB_ENDPOINT_OVERRIDE']
+            app.logger.info(f"DynamoDB endpoint overridden: {app.config['DDB_ENDPOINT_OVERRIDE']}")
+            
+    @classmethod
+    def init_tables(cls):
+        if cls.exists():
+            current_app.logger.info(f"Table {cls.Meta.table_name} already exists")
+        else:
+            current_app.logger.info(f"Creating table {cls.Meta.table_name}")
+            cls.create_table(billing_mode="PAY_PER_REQUEST")
+            current_app.logger.info(f"Users Table created:{cls.exists()}")
 
     username_index = UsernameIndex()
     identity_id_index = IdentityIdIndex()

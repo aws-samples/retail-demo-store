@@ -1,5 +1,0 @@
-fastapi
-pynamodb
-uvicorn
-boto3
-pytz

@@ -1,17 +1,21 @@
 import random
-from models import User, Address
+from users_service.models import User, Address
+from flask import current_app
 import json
 import gzip
 from pynamodb.exceptions import DoesNotExist
+from users_service import pinpoint
 
 claimed_users = {}
 
 def init():
+    User.init_tables()
     try:
-        load_users_into_dynamodb("/src/data/users.json.gz")
+        load_users_into_dynamodb(f"{current_app.config.get('DATA_DIR')}/users.json.gz")
         return True
     except Exception as e:
         raise e
+    
     
 def load_users_into_dynamodb(filename):
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
@@ -109,3 +113,6 @@ def verify_and_update_phone(user_id, phone_number):
         user.save()
         return user
     return None
+
+def send_pinpoint_message(phone_number):
+    pinpoint.send_pinpoint_message(phone_number)

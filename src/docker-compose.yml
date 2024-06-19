@@ -160,15 +160,16 @@ services:
     depends_on:
       - ddb
     environment:
-      - AWS_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
       - AWS_DEFAULT_REGION
       - DDB_TABLE_USERS
-      - DDB_TABLE_ADDRESSES
       - DDB_ENDPOINT_OVERRIDE
-      - INIT_DONE
+      - FLASK_CONFIG
+      - COGNITO_USER_POOL_ID
+      - COGNITO_USER_POOL_CLIENT_ID
+      - VERIFY_IDENTITY_TOKEN
     build:
       context: ./users
     networks:
