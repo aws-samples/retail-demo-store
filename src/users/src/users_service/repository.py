@@ -28,9 +28,6 @@ def upsert_user(user_data, user_id: Optional[str]=None):
         user_id = user_data.pop('id', None)
     user = User(id=user_id) 
     
-    if 'claimed_user' in user_data:
-        user_data['claimed_user'] = int(user_data['claimed_user']) 
-    
     update_actions = []
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
@@ -59,6 +56,7 @@ def upsert_user(user_data, user_id: Optional[str]=None):
     else:
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
 
+    current_app.logger.info(f"User {user} has been created or updated.")
     return user
 
 def get_all_users():
@@ -97,10 +95,15 @@ def get_random_user(count):
 
 def claim_user(user_id):
     user = get_user_by_id(user_id)
-    if user and user.selectable_user and not user.claimed_user:
+    current_app.logger.info(f"Claiming user with ID {user}.")
+    if user:
+        if not user.selectable_user:
+            return False, "User not selectable"
+        if user.claimed_user:
+            return False, "User already claimed"
         user.update(actions=[User.claimed_user.set(1)])
-        return True
-    return False
+        return True, "User claimed successfully"
+    return False, "User not found or not selectable"
 
 def verify_and_update_phone(user_id, phone_number):
     user = get_user_by_id(user_id)

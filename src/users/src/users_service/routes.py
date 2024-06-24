@@ -78,11 +78,11 @@ def get_random(count: int = 1):
 
 @api.route("/users/id/<user_id>/claim", methods=['PUT'])
 def claim_user_route(user_id):
-    claimed = claim_user(user_id)
+    claimed, message = claim_user(user_id)
     if claimed:
         return jsonify({"message": claimed}), 200
     else:
-        raise NotFound(f"User with ID {user_id} not found")
+        raise NotFound(f"User with ID {user_id} {message}")
 
 @api.route("/users", methods=['POST'])
 def create_user_route():
