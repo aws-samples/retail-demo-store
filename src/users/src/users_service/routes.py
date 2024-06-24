@@ -31,6 +31,10 @@ def initialise_users():
     users_loaded = init()
     return jsonify({"users": users_loaded}), 200
 
+@api.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"}), 200
+
 @api.route('/users/all', methods=['GET'])
 def get_users():
     users = get_all_users()
