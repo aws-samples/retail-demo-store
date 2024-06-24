@@ -32,6 +32,12 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
+        - IndexName: claimed-index
+          KeySchema:
+            - AttributeName: "claimed_user"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
 
   ProductsTable:
     Type: AWS::DynamoDB::Table

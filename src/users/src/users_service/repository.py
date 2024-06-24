@@ -8,8 +8,6 @@ import gzip
 from typing import Optional
 from users_service import pinpoint
 
-claimed_users = {}
-
 def init():
     User.init_tables()
     try:
@@ -17,8 +15,7 @@ def init():
         return True
     except Exception as e:
         raise e
-    
-    
+
 def load_users_into_dynamodb(filename):
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
         data = json.load(file)
@@ -31,11 +28,14 @@ def upsert_user(user_data, user_id: Optional[str]=None):
         user_id = user_data.pop('id', None)
     user = User(id=user_id) 
     
+    if 'claimed_user' in user_data:
+        user_data['claimed_user'] = int(user_data['claimed_user']) 
+    
     update_actions = []
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
     
-    complex_keys = {"addresses","id"} 
+    complex_keys = {"addresses", "id"} 
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -61,39 +61,35 @@ def upsert_user(user_data, user_id: Optional[str]=None):
 
     return user
 
-
-
-
 def get_all_users():
     return User.scan()
 
 def get_user_by_id(user_id):
-    user = User.get(user_id)
-    if user:
-            return user
-    else:
-        return User()
+    try:
+        return User.get(user_id)
+    except User.DoesNotExist:
+        return None
 
 def get_user_by_username(username):
     try:
         return next(User.username_index.query(username), User())
     except Exception as e:
         current_app.logger.error(f"Error getting user by username: {e}")
-
+        return None
 
 def get_user_by_identity_id(identity_id):
     try:
         return next(User.identity_id_index.query(identity_id), User())
     except Exception as e:
-        current_app.logger.error(f"Error getting user by username: {e}")
-
+        current_app.logger.error(f"Error getting user by identity_id: {e}")
+        return None
 
 def get_unclaimed_users():
-    unclaimed_users = []
-    for user in User.scan():
-        if user.selectable_user and not claimed_users.get(user.id, False):
-            unclaimed_users.append(user)
-    return unclaimed_users
+    try:
+        return list(User.claimed_index.query(0))
+    except Exception as e:
+        current_app.logger.error(f"Error getting unclaimed users: {e}")
+        return []
 
 def get_random_user(count):
     unclaimed_users = get_unclaimed_users()
@@ -101,17 +97,15 @@ def get_random_user(count):
 
 def claim_user(user_id):
     user = get_user_by_id(user_id)
-    if user and user.selectable_user:
-        claimed_users[user.id] = True
+    if user and user.selectable_user and not user.claimed_user:
+        user.update(actions=[User.claimed_user.set(1)])
         return True
     return False
-
 
 def verify_and_update_phone(user_id, phone_number):
     user = get_user_by_id(user_id)
     if user:
-        user.phone_number = phone_number
-        user.save()
+        user.update(actions=[User.phone_number.set(phone_number)])
         return user
     return None
 

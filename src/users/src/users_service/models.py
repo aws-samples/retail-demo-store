@@ -16,6 +16,16 @@ class UsernameIndex(GlobalSecondaryIndex):
         projection = AllProjection()
 
     username = UnicodeAttribute(hash_key=True)
+    
+class ClaimedIndex(GlobalSecondaryIndex):
+    """
+    A Global Secondary Index to be used for querying by username.
+    """
+    class Meta:
+        index_name = 'claimed-index'
+        projection = AllProjection()
+
+    claimed_user = NumberAttribute(hash_key=True)
 
 class IdentityIdIndex(GlobalSecondaryIndex):
     """
@@ -79,8 +89,10 @@ class User(Model):
 
     username_index = UsernameIndex()
     identity_id_index = IdentityIdIndex()
+    claimed_index = ClaimedIndex()
     id = UnicodeAttribute(hash_key=True)
     username = UnicodeAttribute()
+    claimed_user = NumberAttribute(default=0)
     email = UnicodeAttribute()
     first_name = UnicodeAttribute(default="")
     last_name = UnicodeAttribute(default="")
