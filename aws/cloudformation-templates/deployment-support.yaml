@@ -235,25 +235,47 @@ Resources:
           import logging
           import cfnresponse
           import os
+          import time
 
           logger = logging.getLogger()
           logger.setLevel(logging.INFO)
+          def is_service_ready(url):
+              try:
+                  request = Request(f"{url}/health", method='GET')
+                  with urlopen(request) as response:
+                      return response.getcode() == 200
+              except URLError:
+                  return False
+          
 
           def handler(event, context):
             response_data = {}
             response_status = cfnresponse.SUCCESS
 
             if event['RequestType'] in ['Create', 'Update']:     
-              url = os.environ['UsersServiceUrl']
-              request = Request(f"{url}/users/init", method='POST')
-              try:
-                with urlopen(request) as response:
-                  logger.info(f"Product Service init method success: {response.read()}")
-              except URLError as e:
-                logger.error(f"Error calling user service init: {e.code} : {e.reason}")
-                response_status = cfnresponse.FAILED
-                response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"
-                            
+                url = os.environ['UsersServiceUrl']
+                max_retries = 10
+                retry_delay = 30  # seconds
+                
+                for attempt in range(max_retries):
+                    if is_service_ready(url):
+                        try:
+                            request = Request(f"{url}/users/init", method='POST')
+                            with urlopen(request) as response:
+                                logger.info(f"User Service init method success: {response.read()}")
+                                break  # Success, exit the retry loop
+                        except URLError as e:
+                            logger.warning(f"Attempt {attempt + 1}: Error calling user service init: {e.code} : {e.reason}")
+                    else:
+                        logger.warning(f"Attempt {attempt + 1}: User service not ready yet")
+            
+                    if attempt < max_retries - 1:  # Don't sleep on the last attempt
+                        time.sleep(retry_delay)
+                    else:
+                        logger.error(f"Max retries reached. User service init failed.")
+                        response_status = cfnresponse.FAILED
+                        response_data['Message'] = "Resource creation/update failed: User service not ready or init failed"
+
             cfnresponse.send(event, context, response_status, response_data)
 
   CustomLoadDataProducts:
