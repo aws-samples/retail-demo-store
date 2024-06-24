@@ -5,4 +5,4 @@ workers = 1
 accesslog = '-'
 loglevel = 'info'
 capture_output = True
-timeout = 60
+timeout = 300

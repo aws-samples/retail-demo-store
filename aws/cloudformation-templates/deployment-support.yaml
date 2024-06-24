@@ -218,7 +218,7 @@ Resources:
       Role: !GetAtt LoadDataLambdaRole.Arn
       Runtime: python3.12
       MemorySize: 128
-      Timeout: 120
+      Timeout: 600
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaVpcSecurityGroup
