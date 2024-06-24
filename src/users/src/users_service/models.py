@@ -101,8 +101,8 @@ class User(Model):
     gender = UnicodeAttribute(default="")
     persona = UnicodeAttribute(default="")
     discount_persona = UnicodeAttribute(default="")
-    sign_up_date = UTCDateTimeAttribute(null=True)
     selectable_user = BooleanAttribute(null=True)
+    sign_up_date = UTCDateTimeAttribute(null=True)
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True)
     phone_number = UnicodeAttribute(default="")
@@ -144,7 +144,26 @@ class User(Model):
             current_app.logger.info(f"Error parsing date: {e}")
             return None
 
-    def save(self,**expected_values):
-        """Override save to preprocess datetime fields."""
+    def save(self, **kwargs):
         self.preprocess_datetime_fields()
-        super(User, self).save(**expected_values)
+        super(User, self).save(**kwargs)
+
+    def update(self, **kwargs):
+        self.preprocess_datetime_fields()
+        super(User, self).update(**kwargs)
+
+    def preprocess_datetime_fields(self):
+        datetime_fields = ['sign_up_date', 'last_sign_in_date']
+        for field in datetime_fields:
+            value = getattr(self, field, None)
+            if isinstance(value, str):
+                try:
+                    parsed_date = datetime.fromisoformat(value.rstrip('Z'))
+                    if parsed_date.tzinfo is None:
+                        parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
+                    setattr(self, field, parsed_date)
+                except ValueError:
+                    current_app.logger.warning(f"Invalid date format for {field}: {value}")
+                    setattr(self, field, None)
+            elif isinstance(value, datetime) and value.tzinfo is None:
+                setattr(self, field, value.replace(tzinfo=pytz.UTC))
