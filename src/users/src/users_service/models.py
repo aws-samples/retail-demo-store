@@ -132,30 +132,6 @@ class User(Model):
         for field in datetime_fields:
             value = getattr(self, field, None)
             if isinstance(value, str):
-                setattr(self, field, self.parse_iso_datetime(value))
-
-    @staticmethod
-    def parse_iso_datetime(date_str):
-        """Convert ISO 8601 string to datetime object."""
-        try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
-        except ValueError as e:
-            current_app.logger.info(f"Error parsing date: {e}")
-            return None
-
-    def save(self, **kwargs):
-        self.preprocess_datetime_fields()
-        super(User, self).save(**kwargs)
-
-    def update(self, **kwargs):
-        self.preprocess_datetime_fields()
-        super(User, self).update(**kwargs)
-
-    def preprocess_datetime_fields(self):
-        datetime_fields = ['sign_up_date', 'last_sign_in_date']
-        for field in datetime_fields:
-            value = getattr(self, field, None)
-            if isinstance(value, str):
                 try:
                     parsed_date = datetime.fromisoformat(value.rstrip('Z'))
                     if parsed_date.tzinfo is None:
@@ -166,3 +142,20 @@ class User(Model):
                     setattr(self, field, None)
             elif isinstance(value, datetime) and value.tzinfo is None:
                 setattr(self, field, value.replace(tzinfo=pytz.UTC))
+
+    @staticmethod
+    def parse_iso_datetime(date_str):
+        """Convert ISO 8601 string to datetime object."""
+        try:
+            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
+        except ValueError as e:
+            current_app.logger.error(f"Error parsing date: {e}")
+            return None
+
+    def save(self, **kwargs):
+        self.preprocess_datetime_fields()
+        super(User, self).save(**kwargs)
+
+    def update(self, **kwargs):
+        self.preprocess_datetime_fields()
+        super(User, self).update(**kwargs)
