@@ -126,7 +126,7 @@ class User(Model):
             'phone_number': self.phone_number
         }
 
-    def preprocess_datetime_fields(self):
+    '''def preprocess_datetime_fields(self):
         """Convert string representation of datetime to datetime objects for relevant fields."""
         datetime_fields = ['sign_up_date', 'last_sign_in_date']
         for field in datetime_fields:
@@ -148,8 +148,15 @@ class User(Model):
                     setattr(self, field, None)
             elif isinstance(value, datetime) and value.tzinfo is None:
                 current_app.logger.debug(f" datetmie:{value}")
-                setattr(self, field, value.replace(tzinfo=pytz.UTC))
+                setattr(self, field, value.replace(tzinfo=pytz.UTC))'''
 
+    def preprocess_datetime_fields(self):
+        """Convert string representation of datetime to datetime objects for relevant fields."""
+        datetime_fields = ['sign_up_date', 'last_sign_in_date']
+        for field in datetime_fields:
+            value = getattr(self, field, None)
+            if isinstance(value, str):
+                setattr(self, field, self.parse_iso_datetime(value))
     @staticmethod
     def parse_iso_datetime(date_str):
         """Convert ISO 8601 string to datetime object."""
