@@ -46,7 +46,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
     
-    complex_keys = {"addresses", "id", "claimed_user", "sign_up_date", "last_sign_in_date"} 
+    complex_keys = {"addresses", "id", "claimed_user"} 
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -59,14 +59,6 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
                     current_app.logger.error(f"Error setting attribute '{key}' on User model: {e}")
             else:
                 current_app.logger.warning(f"Attribute '{key}' on User model does not support 'set' operation.")
-        elif key in ["sign_up_date", "last_sign_in_date"]:
-            try:
-                parsed_date = datetime.fromisoformat(value.rstrip('Z'))
-                if parsed_date.tzinfo is None:
-                    parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
-                update_actions.append(getattr(User, key).set(parsed_date))
-            except ValueError:
-                current_app.logger.warning(f"Invalid date format for {key}: {value}")
         else:
             if key not in complex_keys:
                 current_app.logger.warning(f"Attribute '{key}' not found on User model; ignoring.")
