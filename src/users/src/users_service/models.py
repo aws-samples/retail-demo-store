@@ -131,18 +131,21 @@ class User(Model):
         datetime_fields = ['sign_up_date', 'last_sign_in_date']
         for field in datetime_fields:
             value = getattr(self, field, None)
+            current_app.logger.warning(f"value:{value}")
             if isinstance(value, str):
                 try:
-                    current_app.logger.info(f"value:{value}")
+                    current_app.logger.warning(f"value:{value}")
                     parsed_date = datetime.fromisoformat(value.rstrip('Z'))
-                    print(parsed_date)
+                    current_app.logger.warning(f"parsed_date:{parsed_date}")
                     if parsed_date.tzinfo is None:
                         parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
+                        current_app.logger.warning(f"replace parsed_date:{parsed_date}")
                     setattr(self, field, parsed_date)
                 except ValueError:
                     current_app.logger.warning(f"Invalid date format for {field}: {value}")
                     setattr(self, field, None)
             elif isinstance(value, datetime) and value.tzinfo is None:
+                current_app.logger.warning(f" datetmie:{value}")
                 setattr(self, field, value.replace(tzinfo=pytz.UTC))
 
     @staticmethod
