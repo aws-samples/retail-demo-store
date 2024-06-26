@@ -5,6 +5,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound, Unauthorized
 from botocore.exceptions import BotoCoreError
 
+
 from users_service.repository import (
     send_pinpoint_message, init, get_all_users, get_user_by_id,
     get_user_by_username, get_user_by_identity_id, get_unclaimed_users,
@@ -75,34 +76,34 @@ def get_unclaimed():
 def get_random(count: int = 1):
     users = get_random_user(count)
     result = [user.to_dict() for user in users]
-    current_app.logger.info(f"Returning {result} random users")
     return result, 200
 
 @api.route("/users/id/<user_id>/claim", methods=['PUT'])
 def claim_user_route(user_id):
-    claimed, message = claim_user(user_id)
-    if claimed:
-        return jsonify({"message": claimed}), 200
+    user, message = claim_user(user_id)
+    current_app.logger.debug(f"claim_user_route: Claiming user with ID {user_id}: {message}")
+    if user:
+        return jsonify({"message": message}), 200
     else:
         raise NotFound(f"User with ID {user_id} {message}")
 
 @api.route("/users", methods=['POST'])
 def create_user_route():
     user_data = request.get_json(force=True)
-    new_user = upsert_user(user_data)
+    new_user, message = upsert_user(user_data)
     return jsonify(new_user.to_dict()), 201
 
 @api.route("/users/id/<user_id>", methods=['PUT'])
 def update_user_route(user_id):
     updated_data = request.get_json(force=True)
-    current_app.logger.info(f"Updating user with ID {user_id}: {updated_data}")
+    current_app.logger.debug(f"update_user_route: Updating user with ID {user_id}: {updated_data}")
     if not updated_data:
         raise BadRequest("No data provided")
-    user = upsert_user(updated_data, user_id=user_id)
+    user,message = upsert_user(updated_data, user_id=user_id)
     if user:
         return jsonify(user.to_dict()), 200
     else:
-        raise NotFound(f"User with ID {user_id} not found")
+        raise NotFound(f"User with ID {user_id} not found, Message: {message}")
 
 @api.route("/users/id/<user_id>/verifyphone", methods=['PUT'])
 def verify_and_update_phone_route(user_id):

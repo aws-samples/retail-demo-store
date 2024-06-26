@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT-0
 from datetime import datetime
 import random
-
 import pytz
 from users_service.models import User, Address
 from flask import current_app
@@ -10,6 +9,9 @@ import json
 import gzip
 from typing import Optional
 from users_service import pinpoint
+from botocore.exceptions import ClientError
+from typing import Any, Dict
+
 
 
 
@@ -17,21 +19,24 @@ from users_service import pinpoint
 def init():
     User.init_tables()
     try:
-        load_users_into_dynamodb(f"{current_app.config.get('DATA_DIR')}/users.json.gz")
+        count = load_users_into_dynamodb(f"{current_app.config.get('DATA_DIR')}/users.json.gz")
         unclaimed_count = User.claimed_index.count(0)
         claimed_count = User.claimed_index.count(1)
         current_app.logger.debug(f"Loaded {claimed_count} claimed users and {unclaimed_count} unclaimed users.")
-        return True
+        return count
     except Exception as e:
         raise e
 
 def load_users_into_dynamodb(filename):
+    count = 0
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
         data = json.load(file)
         for user_data in data:
             upsert_user(user_data)
+            count += 1
+    return count
 
-def upsert_user(user_data, user_id: Optional[str]=None):
+def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, conditions: Optional[Any] = None):
     current_app.logger.debug(f"Upserting user with data: {user_data}")
     if not user_id:
         user_id = user_data.pop('id', None)
@@ -76,13 +81,23 @@ def upsert_user(user_data, user_id: Optional[str]=None):
         update_actions.append(User.claimed_user.set(0))
 
     if update_actions:
-        user.update(actions=update_actions)
-        current_app.logger.debug(f"User with ID {user_id} has been created or updated.")
+        try:
+            user.update(actions=update_actions, condition=conditions)
+            current_app.logger.debug(f"User {user} has been created or updated.")
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+                current_app.logger.error(f"Conditional check failed for user {user_id}")
+                return None, "Condition check failed"
+            else:
+                current_app.logger.error(f"Unexpected ClientError for user {user_id}: {str(e)}")
+                return None, "Unexpected error during upsert"
+        except Exception as e:
+            current_app.logger.error(f"Unexpected error during upsert for user {user_id}: {str(e)}")
+            return None, "Unexpected error during upsert"
     else:
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
 
-    current_app.logger.debug(f"User {user} has been created or updated.")
-    return user
+    return user, True
 
 def get_all_users():
     return User.scan()
@@ -133,20 +148,14 @@ def get_unclaimed_users():
 
 def get_random_user(count):
     unclaimed_users = get_unclaimed_users()
-    current_app.logger.debug(f"Found {unclaimed_users}")
+    current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
+
+
 def claim_user(user_id):
-    user = get_user_by_id(user_id)
-    current_app.logger.debug(f"Claiming user with ID {user}.")
-    if user:
-        if not user.selectable_user:
-            return False, "User not selectable"
-        if user.claimed_user:
-            return False, "User already claimed"
-        user.update(actions=[User.claimed_user.set(1)])
-        return True, "User claimed successfully"
-    return False, "User not found or not selectable"
+    user, message = upsert_user({"claimed_user": 1},user_id=user_id, conditions=(User.selectable_user == True)&(User.claimed_user == 0)) # noqa: E712
+    return user, message
 
 def verify_and_update_phone(user_id, phone_number):
     user = get_user_by_id(user_id)
