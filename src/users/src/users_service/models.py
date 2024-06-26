@@ -126,37 +126,28 @@ class User(Model):
             'phone_number': self.phone_number
         }
 
-    '''def preprocess_datetime_fields(self):
-        """Convert string representation of datetime to datetime objects for relevant fields."""
-        datetime_fields = ['sign_up_date', 'last_sign_in_date']
-        for field in datetime_fields:
-            value = getattr(self, field, None)
-            current_app.logger.debug(f"value:{value}")
-            if not value:
-                return
-            if isinstance(value, str):
-                try:
-                    current_app.logger.debug(f"value:{value}")
-                    parsed_date = self.parse_iso_datetime(value)
-                    current_app.logger.debug(f"parsed_date:{parsed_date}")
-                    if parsed_date.tzinfo is None:
-                        parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
-                        current_app.logger.debug(f"replace parsed_date:{parsed_date}")
-                    setattr(self, field, parsed_date)
-                except ValueError:
-                    current_app.logger.debug(f"Invalid date format for {field}: {value}")
-                    setattr(self, field, None)
-            elif isinstance(value, datetime) and value.tzinfo is None:
-                current_app.logger.debug(f" datetmie:{value}")
-                setattr(self, field, value.replace(tzinfo=pytz.UTC))'''
-
     def preprocess_datetime_fields(self):
         """Convert string representation of datetime to datetime objects for relevant fields."""
         datetime_fields = ['sign_up_date', 'last_sign_in_date']
         for field in datetime_fields:
             value = getattr(self, field, None)
+            current_app.logger.info(f"value:{value}")
             if isinstance(value, str):
-                setattr(self, field, self.parse_iso_datetime(value))
+                try:
+                    current_app.logger.info(f"value:{value}")
+                    parsed_date = datetime.fromisoformat(value.rstrip('Z'))
+                    current_app.logger.info(f"parsed_date:{parsed_date}")
+                    if parsed_date.tzinfo is None:
+                        parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
+                        current_app.logger.info(f"replace parsed_date:{parsed_date}")
+                    setattr(self, field, parsed_date)
+                except ValueError:
+                    current_app.logger.info(f"Invalid date format for {field}: {value}")
+                    setattr(self, field, None)
+            elif isinstance(value, datetime) and value.tzinfo is None:
+                current_app.logger.info(f" datetmie:{value}")
+                setattr(self, field, value.replace(tzinfo=pytz.UTC))
+
     @staticmethod
     def parse_iso_datetime(date_str):
         """Convert ISO 8601 string to datetime object."""
