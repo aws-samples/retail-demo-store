@@ -9,7 +9,8 @@ from typing import Optional
 from users_service import pinpoint
 from botocore.exceptions import ClientError
 from typing import Any, Dict
-
+from datetime import datetime
+import pytz
 
 
 
@@ -24,7 +25,7 @@ def init():
         return count
     except Exception as e:
         raise e
-
+        
 def load_users_into_dynamodb(filename):
     count = 0
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
@@ -44,7 +45,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
     
-    complex_keys = {"addresses", "id", "claimed_user"} 
+    complex_keys = {"addresses", "id", "claimed_user","sign_up_date","last_sign_in_date"} 
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -57,6 +58,12 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
                     current_app.logger.error(f"Error setting attribute '{key}' on User model: {e}")
             else:
                 current_app.logger.warning(f"Attribute '{key}' on User model does not support 'set' operation.")
+        elif key in ["sign_up_date", "last_sign_in_date"]:
+            parsed_date = parse_iso_datetime(value)
+            if parsed_date:
+                update_actions.append(getattr(User, key).set(parsed_date))
+            else:
+                current_app.logger.warning(f"Invalid date format for '{key}': {value}")
         else:
             if key not in complex_keys:
                 current_app.logger.warning(f"Attribute '{key}' not found on User model; ignoring.")
@@ -88,6 +95,14 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
 
     return user, True
+
+def parse_iso_datetime(date_str):
+        """Convert ISO 8601 string to datetime object."""
+        try:
+            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
+        except ValueError as e:
+            current_app.logger.error(f"Error parsing date: {e}")
+            return None
 
 def get_all_users():
     return User.scan()

@@ -3,8 +3,6 @@
 from pynamodb.models import Model
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
-from datetime import datetime
-import pytz
 from flask import Flask, current_app
 
 class UsernameIndex(GlobalSecondaryIndex):
@@ -126,41 +124,11 @@ class User(Model):
             'phone_number': self.phone_number
         }
 
-    def preprocess_datetime_fields(self):
-        """Convert string representation of datetime to datetime objects for relevant fields."""
-        datetime_fields = ['sign_up_date', 'last_sign_in_date']
-        for field in datetime_fields:
-            value = getattr(self, field, None)
-            current_app.logger.info(f"value:{value}")
-            if isinstance(value, str):
-                try:
-                    current_app.logger.info(f"value:{value}")
-                    parsed_date = datetime.fromisoformat(value.rstrip('Z'))
-                    current_app.logger.info(f"parsed_date:{parsed_date}")
-                    if parsed_date.tzinfo is None:
-                        parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
-                        current_app.logger.info(f"replace parsed_date:{parsed_date}")
-                    setattr(self, field, parsed_date)
-                except ValueError:
-                    current_app.logger.info(f"Invalid date format for {field}: {value}")
-                    setattr(self, field, None)
-            elif isinstance(value, datetime) and value.tzinfo is None:
-                current_app.logger.info(f" datetmie:{value}")
-                setattr(self, field, value.replace(tzinfo=pytz.UTC))
 
-    @staticmethod
-    def parse_iso_datetime(date_str):
-        """Convert ISO 8601 string to datetime object."""
-        try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
-        except ValueError as e:
-            current_app.logger.error(f"Error parsing date: {e}")
-            return None
+   
 
     def save(self, **kwargs):
-        self.preprocess_datetime_fields()
         super(User, self).save(**kwargs)
 
     def update(self, **kwargs):
-        self.preprocess_datetime_fields()
         super(User, self).update(**kwargs)
