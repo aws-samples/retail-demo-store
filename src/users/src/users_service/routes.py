@@ -69,14 +69,28 @@ def get_user_by_identity(identity_id):
 
 @api.route("/users/unclaimed", methods=['GET'])
 def get_unclaimed():
-    users = get_unclaimed_users()
+    primary_persona = request.args.get('primaryPersona')
+    age_range = request.args.get('ageRange')
+    
+    query = {}
+    if primary_persona:
+        query['primaryPersona'] = primary_persona
+    if age_range:
+        query['ageRange'] = age_range
+    
+    users = get_unclaimed_users(query if query else None)
+    if query:
+        current_app.logger.debug(f"Found {users} unclaimed users")
     return [user.to_dict() for user in users], 200
 
 @api.route("/users/random", methods=['GET'])
-def get_random(count: int = 1):
+def get_random():
+    count = request.args.get('count', default=1, type=int)
     users = get_random_user(count)
     result = [user.to_dict() for user in users]
     return result, 200
+
+
 
 @api.route("/users/id/<user_id>/claim", methods=['PUT'])
 def claim_user_route(user_id):

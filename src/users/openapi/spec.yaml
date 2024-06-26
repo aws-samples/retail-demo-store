@@ -1,0 +1,359 @@
+openapi: '3.0.2'
+info:
+  title: Users API
+  version: v1
+  description: |- 
+    The Users web service provides a RESTful API for creating, updating, and retrieving users. The [Web UI](../../web-ui) makes calls to this service. 
+    
+    The users in this service is not related to Cognito user pool that we signed up to use Retail Demo Store. They are the shopper persona that we can switch.
+    When the system is deployed, 6000 users are generated and stored in this service. The users are initially "unclaimed". We can find unclaimed users via two APIs:
+    
+    1. /users/random - Return an array of random unclaimed users
+    2. /users/unclaimed - Return an array of users with given criteria (age range and interest)
+
+    After finding the user, the Web UI claims a user by making PUT requests to "/users/id/{userId}/claim" and "/users/id/{userId}" to associate the user with Cognito's identity id.
+
+  license: 
+    url: https://github.com/aws-samples/retail-demo-store/blob/master/LICENSE
+    name: MIT No Attribution (MIT-0)
+
+tags:
+  - name: Users
+    description: Users API
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: 'localhost'
+      port:
+        default: '8002' 
+        description: Use the port from ../docker-compose.yml
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      description: Create a new product
+      requestBody:
+        description: Details for creating a new product
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestBody'
+      responses:
+        '201':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '502':
+          description: Error (e.g. username has already existed)
+  /users/all:
+    get:
+      tags:
+        - Users
+      description: Return an array of users
+      parameters:
+        - name: count
+          description: a number of users to be returned
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            example: 20
+            default: 20
+        - name: offset
+          description: a starting index of users to return
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            example: 1000
+            default: 0
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '422':
+          description: count query parameter must be between 1 - 10000
+  /users/id/{userId}:
+    parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '1'
+    get:
+      tags:
+        - Users
+      description: Return a user of a given id, by default, there are 6000 users
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put: 
+      tags:
+        - Users
+      description: Update a user of a given id. This is used by web-ui to assign identity id (from Cognito) to a user
+      requestBody:
+        description: Details for the user to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestBody'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: 'Error: Unprocessable Entity (cannot pass the request body payload'
+  /users/username/{username}:
+    get:
+      tags:
+        - Users
+      description: Return the user of the given id. 
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 'user1'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/identityid/{identityId}:
+    parameters:
+      - name: identityId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: 'eu-west-1:12345678-1234-1234-1234-c777c9720775'
+    get:
+      tags:
+        - Users
+      description: Return the user claimed by the given identity id (Cognito id of the log on user). Note that this only return the latest claimed user, not those previously claimed before.
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/unclaimed:
+    get:
+      tags:
+        - Users
+      description: Find unclaimed user(s) based on interest and age range. Unclaimed user has no "identity_id" assigned to it yet.
+      parameters:
+        - name: primaryPersona
+          description: Product category the user is interested in
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 'tools'
+        - name: ageRange
+          description: Age range of the user
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - '18-24'
+              - '25-34'
+              - '35-44'
+              - '45-54'
+              - '54-70'
+              - '70-and-above'
+            example: '18-24'
+        - name: count
+          description: a number of users to be returned
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            example: 2
+            default: 1
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/random:
+    get:
+      tags:
+        - Users
+      description: An array of random unclaimed users based on the given count query param
+      parameters:
+        - name: count
+          description: a number of users to be returned
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            example: 2
+            default: 1
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      
+  /users/id/{userId}/claim:
+    parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '1'
+    put:
+      tags:
+        - Users
+      description: Claim a user. This operation doesn't update the user information to the current Cognito identity. It just marks the user as claimed and exclude it being found as an unclaimed. Clients must make a PUT request to /users/id/{userId} with "identity_id" to complete the claiming step separately.
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+  /users/id/{userId}/verifyphone:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '16'
+    put:
+      tags:
+        - Users
+      description: Verify and update phone no on the given user
+      requestBody:
+        description: Phone number and user id to associate it with
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyPhoneRequestBody'
+      responses:
+        '200':
+          description: Successful
+components:
+  schemas:
+    UserRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '1'
+        username:
+          type: string
+          example: 'user1'
+        email:
+          type: string
+          example: 'mark.johnson@example.com'
+        first_name:
+          type: string
+          example: 'Mark'
+        last_name:
+          type: string
+          example: 'Johnson'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        age:
+          type: integer
+          example: 31
+          minimum: 0
+        gender:
+          type: string
+          enum: ['M', 'F']
+        persona:
+          type: string
+          example: 'furniture_homedecor_housewares'
+        discount_persona:
+          type: string
+          enum: ['lower_priced_products', 'all_discounts', 'discount_indifferent' ]
+          example: 'lower_priced_products'
+        identity_id:
+          description: Identity id from Cognito user
+          type: string
+          example: 'eu-west-1:12345678-1234-1234-1234-c777c9720775'
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserRequestBody'
+    Address:
+      type: object
+      properties:
+        first_name: 
+          type: string
+          example: 'Mark'
+        last_name:
+          type: string
+          example: 'Johnson'
+        address1:
+          type: string
+          example: '51161 Maurice Fort'
+        address2:
+          type: string
+          example: ''
+        country:
+          type: string
+          example: 'US'
+        city:
+          type: string
+          example: 'South Davidside'
+        state:
+          type: string
+          example: 'HI'
+        zipcode:
+          type: string
+          example: '96721'
+        default:
+          type: boolean
+          example: true
+    VerifyPhoneRequestBody:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          example: '+11234567891'
+        user_id: 
+          type: string
+          example: '1'

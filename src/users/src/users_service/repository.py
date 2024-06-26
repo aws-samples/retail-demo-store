@@ -5,15 +5,47 @@ from users_service.models import User, Address
 from flask import current_app
 import json
 import gzip
-from typing import Optional
+from typing import Optional, List, Dict
 from users_service import pinpoint
 from botocore.exceptions import ClientError
 from typing import Any, Dict
 from datetime import datetime
 import pytz
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-
+def get_age_range(age: int) -> str:
+    '''
+    if age < 18 {
+         return ""
+    }else if age < 25 {
+        return "18-24"
+    }else if age < 35 {
+        return "25-34"
+    }else if age < 45 {
+        return "35-44"
+    }else if age < 55 {
+        return "45-54"
+    }else if age < 70 {
+        return "54-70"
+    }else {
+        return "70-and-above"
+    }
+}'''
+    if age < 18:
+        return ""
+    elif age < 25:
+        return "18-24"
+    elif age < 35:
+        return "25-34"
+    elif age < 45:
+        return "35-44"
+    elif age < 55:
+        return "45-54"
+    elif age < 70:
+        return "54-70"
+    else:
+        return "70-and-above"
 
 def init():
     User.init_tables()
@@ -45,7 +77,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
     
-    complex_keys = {"addresses", "id", "claimed_user","sign_up_date","last_sign_in_date"} 
+    complex_keys = {"addresses", "id", "claimed_user","sign_up_date","last_sign_in_date", "age", "age_range"} 
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -68,6 +100,10 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
             if key not in complex_keys:
                 current_app.logger.warning(f"Attribute '{key}' not found on User model; ignoring.")
 
+    if "age" in user_data:
+        age_range = get_age_range(user_data['age'])
+        update_actions.append(User.age.set(user_data['age']))
+        update_actions.append(User.age_range.set(age_range))
     if "addresses" in user_data:
         addresses = [Address(**ad) for ad in user_data['addresses']]
         update_actions.append(User.addresses.set(addresses))
@@ -95,6 +131,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
 
     return user, True
+
 
 def parse_iso_datetime(date_str):
         """Convert ISO 8601 string to datetime object."""
@@ -141,17 +178,34 @@ def get_user_by_identity_id(identity_id):
         current_app.logger.error(f"Error in update_claimed_index: {e}")
         return {"error": str(e)}'''
 
-def get_unclaimed_users():
-    try:
-        unclaimed_users = list(User.claimed_index.query(0))
-        current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
-        return unclaimed_users
-    except Exception as e:
-        current_app.logger.error(f"Error getting unclaimed users: {e}")
-        return []
 
+def filter_users(user: User, query: Optional[Dict]) -> bool:
+    if 'primaryPersona' in query:
+        if query['primaryPersona'] not in user.persona.split('_'):
+            return False
+    if 'ageRange' in query and user.age_range != query['ageRange']:
+        return False
+    return True
 
-def get_random_user(count):
+def get_unclaimed_users(query: Optional[Dict] = None) -> List[User]:
+    current_app.logger.debug(f"Querying for unclaimed users with query: {query}")
+
+    all_unclaimed_users = list(User.claimed_index.query(0))
+
+    if not query:
+        return all_unclaimed_users
+
+    filtered_users = []
+    with ThreadPoolExecutor() as executor:
+        future_to_user = {executor.submit(filter_users, user, query): user for user in all_unclaimed_users}
+        for future in as_completed(future_to_user):
+            user = future_to_user[future]
+            if future.result():
+                filtered_users.append(user)
+
+    return filtered_users
+
+def get_random_user(count: int) -> List[User]:
     unclaimed_users = get_unclaimed_users()
     current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))

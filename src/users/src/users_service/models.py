@@ -23,6 +23,7 @@ class ClaimedIndex(GlobalSecondaryIndex):
     claimed_user = NumberAttribute(hash_key=True, attr_name='claimed_user')
 
 
+
 class IdentityIdIndex(GlobalSecondaryIndex):
     """
     A Global Secondary Index to be used for querying by identity_id.
@@ -87,12 +88,15 @@ class User(Model):
     claimed_user = NumberAttribute(attr_name='claimed_user')
     claimed_index = ClaimedIndex()
     id = UnicodeAttribute(hash_key=True, attr_name='id')
+    traits = MapAttribute(null=True)
+    platforms = MapAttribute(null=True)
     username = UnicodeAttribute(attr_name='username')
     email = UnicodeAttribute()
     first_name = UnicodeAttribute(default="")
     last_name = UnicodeAttribute(default="")
     addresses = ListAttribute(of=Address)
     age = NumberAttribute(default=0)
+    age_range = UnicodeAttribute(null=True)
     gender = UnicodeAttribute(default="")
     persona = UnicodeAttribute(default="")
     discount_persona = UnicodeAttribute(default="")
@@ -101,6 +105,7 @@ class User(Model):
     last_sign_in_date = UTCDateTimeAttribute(null=True)
     identity_id = UnicodeAttribute(null=True, attr_name='identity_id')
     phone_number = UnicodeAttribute(default="")
+    
     username_index = UsernameIndex()
     identity_id_index = IdentityIdIndex()
 
