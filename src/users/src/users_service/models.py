@@ -135,6 +135,7 @@ class User(Model):
                 try:
                     current_app.logger.info(f"value:{value}")
                     parsed_date = datetime.fromisoformat(value.rstrip('Z'))
+                    print(parsed_date)
                     if parsed_date.tzinfo is None:
                         parsed_date = parsed_date.replace(tzinfo=pytz.UTC)
                     setattr(self, field, parsed_date)

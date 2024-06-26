@@ -1,8 +1,6 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
-from datetime import datetime
 import random
-import pytz
 from users_service.models import User, Address
 from flask import current_app
 import json
