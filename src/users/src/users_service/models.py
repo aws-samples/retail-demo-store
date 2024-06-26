@@ -15,17 +15,15 @@ class UsernameIndex(GlobalSecondaryIndex):
         index_name = 'username-index'
         projection = AllProjection()
 
-    username = UnicodeAttribute(hash_key=True)
+    username = UnicodeAttribute(hash_key=True, attr_name='username')
     
 class ClaimedIndex(GlobalSecondaryIndex):
-    """
-    A Global Secondary Index to be used for querying by username.
-    """
     class Meta:
         index_name = 'claimed-index'
         projection = AllProjection()
 
-    claimed_user = NumberAttribute(hash_key=True)
+    claimed_user = NumberAttribute(hash_key=True, attr_name='claimed_user')
+
 
 class IdentityIdIndex(GlobalSecondaryIndex):
     """
@@ -35,7 +33,7 @@ class IdentityIdIndex(GlobalSecondaryIndex):
         index_name = 'identity_id-index'
         projection = AllProjection()
 
-    identity_id = UnicodeAttribute(hash_key=True)
+    identity_id = UnicodeAttribute(hash_key=True, attr_name='identity_id')
     
 class Address(MapAttribute):
     first_name = UnicodeAttribute()
@@ -87,12 +85,11 @@ class User(Model):
             cls.create_table(billing_mode="PAY_PER_REQUEST")
             current_app.logger.info(f"Users Table created:{cls.exists()}")
 
-    username_index = UsernameIndex()
-    identity_id_index = IdentityIdIndex()
+    
+    claimed_user = NumberAttribute(attr_name='claimed_user')
     claimed_index = ClaimedIndex()
-    id = UnicodeAttribute(hash_key=True)
-    username = UnicodeAttribute()
-    claimed_user = NumberAttribute(default=0)
+    id = UnicodeAttribute(hash_key=True, attr_name='id')
+    username = UnicodeAttribute(attr_name='username')
     email = UnicodeAttribute()
     first_name = UnicodeAttribute(default="")
     last_name = UnicodeAttribute(default="")
@@ -104,8 +101,10 @@ class User(Model):
     selectable_user = BooleanAttribute(null=True)
     sign_up_date = UTCDateTimeAttribute(null=True)
     last_sign_in_date = UTCDateTimeAttribute(null=True)
-    identity_id = UnicodeAttribute(null=True)
+    identity_id = UnicodeAttribute(null=True, attr_name='identity_id')
     phone_number = UnicodeAttribute(default="")
+    username_index = UsernameIndex()
+    identity_id_index = IdentityIdIndex()
 
     def to_dict(self):
         """Serializes User to a dictionary, including nested Address objects."""

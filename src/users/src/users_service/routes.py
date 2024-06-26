@@ -74,7 +74,9 @@ def get_unclaimed():
 @api.route("/users/random", methods=['GET'])
 def get_random(count: int = 1):
     users = get_random_user(count)
-    return [user.to_dict() for user in users], 200
+    result = [user.to_dict() for user in users]
+    current_app.logger.info(f"Returning {result} random users")
+    return result, 200
 
 @api.route("/users/id/<user_id>/claim", methods=['PUT'])
 def claim_user_route(user_id):
@@ -93,6 +95,7 @@ def create_user_route():
 @api.route("/users/id/<user_id>", methods=['PUT'])
 def update_user_route(user_id):
     updated_data = request.get_json(force=True)
+    current_app.logger.info(f"Updating user with ID {user_id}: {updated_data}")
     if not updated_data:
         raise BadRequest("No data provided")
     user = upsert_user(updated_data, user_id=user_id)

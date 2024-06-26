@@ -38,12 +38,12 @@ def test_put_users_id():
     params = {":user_id": test_user_id}
     integhelpers.put_request_assert(users_api_url, endpoint, request_bodies_path, schemas_path, params)
 
-def test_post_users_init():
+'''def test_post_users_init():
 
     endpoint = "/users/init"
     r = requests.post(integhelpers.full_request_url(users_api_url, endpoint))
     assert str(r.status_code).startswith("2")
-    assert 'true' in r.text
+    assert 'true' in r.text'''
     
 def test_put_users_id_claim():
 

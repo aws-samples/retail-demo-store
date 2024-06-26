@@ -8,10 +8,16 @@ import gzip
 from typing import Optional
 from users_service import pinpoint
 
+
+
+
 def init():
     User.init_tables()
     try:
         load_users_into_dynamodb(f"{current_app.config.get('DATA_DIR')}/users.json.gz")
+        unclaimed_count = User.claimed_index.count(0)
+        claimed_count = User.claimed_index.count(1)
+        current_app.logger.debug(f"Loaded {claimed_count} claimed users and {unclaimed_count} unclaimed users.")
         return True
     except Exception as e:
         raise e
@@ -23,7 +29,7 @@ def load_users_into_dynamodb(filename):
             upsert_user(user_data)
 
 def upsert_user(user_data, user_id: Optional[str]=None):
-    current_app.logger.info(f"Upserting user with data: {user_data}")
+    current_app.logger.debug(f"Upserting user with data: {user_data}")
     if not user_id:
         user_id = user_data.pop('id', None)
     user = User(id=user_id) 
@@ -32,14 +38,17 @@ def upsert_user(user_data, user_id: Optional[str]=None):
 
     valid_keys = {attr for attr in dir(User) if not callable(getattr(User, attr)) and not attr.startswith("__")}
     
-    complex_keys = {"addresses", "id"} 
+    complex_keys = {"addresses", "id", "claimed_user"} 
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
         if key in valid_keys:
             attribute = getattr(User, key)
             if hasattr(attribute, 'set'):
-                update_actions.append(attribute.set(value))
+                try:
+                    update_actions.append(attribute.set(value))
+                except Exception as e:
+                    current_app.logger.error(f"Error setting attribute '{key}' on User model: {e}")
             else:
                 current_app.logger.warning(f"Attribute '{key}' on User model does not support 'set' operation.")
         else:
@@ -49,14 +58,19 @@ def upsert_user(user_data, user_id: Optional[str]=None):
     if "addresses" in user_data:
         addresses = [Address(**ad) for ad in user_data['addresses']]
         update_actions.append(User.addresses.set(addresses))
+        
+    if "claimed_user" in user_data:
+        update_actions.append(User.claimed_user.set(user_data['claimed_user']))
+    else:
+        update_actions.append(User.claimed_user.set(0))
 
     if update_actions:
         user.update(actions=update_actions)
-        current_app.logger.info(f"User with ID {user_id} has been created or updated.")
+        current_app.logger.debug(f"User with ID {user_id} has been created or updated.")
     else:
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
 
-    current_app.logger.info(f"User {user} has been created or updated.")
+    current_app.logger.debug(f"User {user} has been created or updated.")
     return user
 
 def get_all_users():
@@ -81,21 +95,39 @@ def get_user_by_identity_id(identity_id):
     except Exception as e:
         current_app.logger.error(f"Error getting user by identity_id: {e}")
         return None
+    
+
+'''def update_claimed_index():
+    try:
+        update_count = 0
+        for user in User.scan():
+            # Force an update to trigger index recalculation
+            user.update(actions=[User.claimed_user.set(user.claimed_user)])
+            update_count += 1
+        current_app.logger.debug(f"Updated {update_count} users to refresh the index")
+        return {"updated_count": update_count}
+    except Exception as e:
+        current_app.logger.error(f"Error in update_claimed_index: {e}")
+        return {"error": str(e)}'''
 
 def get_unclaimed_users():
     try:
-        return list(User.claimed_index.query(0))
+        unclaimed_users = list(User.claimed_index.query(0))
+        current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
+        return unclaimed_users
     except Exception as e:
         current_app.logger.error(f"Error getting unclaimed users: {e}")
         return []
 
+
 def get_random_user(count):
     unclaimed_users = get_unclaimed_users()
+    current_app.logger.debug(f"Found {unclaimed_users}")
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
 def claim_user(user_id):
     user = get_user_by_id(user_id)
-    current_app.logger.info(f"Claiming user with ID {user}.")
+    current_app.logger.debug(f"Claiming user with ID {user}.")
     if user:
         if not user.selectable_user:
             return False, "User not selectable"
