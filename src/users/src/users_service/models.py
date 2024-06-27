@@ -31,6 +31,7 @@ class User:
     id: str
     name: str
     username: str
+    claimed_user: int
     email: str
     primary_persona: str
     first_name: str = ""
@@ -46,7 +47,6 @@ class User:
     last_sign_in_date: Optional[datetime] = None
     identity_id: Optional[str] = None
     phone_number: str = ""
-    claimed_user: int = 0
     traits: Dict[str, Any] = field(default_factory=dict)
     platforms: Dict[str, Any] = field(default_factory=dict)
     username: str
@@ -106,7 +106,8 @@ class User:
         user_dict = asdict(self)
         if self.age:
             user_dict['age'] = int(self.age)
-        
+        if self.claimed_user:
+            user_dict['claimed_user'] = int(self.claimed_user)
         if self.sign_up_date:
             user_dict['sign_up_date'] = self.sign_up_date.isoformat()
         if self.last_sign_in_date:
@@ -115,6 +116,10 @@ class User:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'User':
+        if 'age' in data:
+            data['age'] = int(data['age'])
+        if 'claimed_user' in data:
+            data['claimed_user'] = int(data['claimed_user'])
         if 'addresses' in data:
             data['addresses'] = [Address(**addr) for addr in data['addresses']]
         if 'sign_up_date' in data and data['sign_up_date']:

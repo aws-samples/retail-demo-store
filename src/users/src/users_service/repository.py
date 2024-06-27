@@ -33,10 +33,11 @@ def load_users_into_dynamodb(filename: str) -> int:
     return count
 
 def claim_user(user_id: str) -> Tuple[Optional[User], str]:
-    condition = "attribute_exists(id) AND selectable_user = :selectable AND (attribute_not_exists(claimed_user) OR claimed_user = :claimed_user)"
-    expression_values = {':selectable': True, ':claimed_user': 0}
+    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :unclaimed"
+    expression_values = {':selectable': True, ':unclaimed': 0}
+    update_data = {"claimed_user": 1}
     user, message = upsert_user(
-        {"claimed_user": 1}, 
+        update_data, 
         user_id=user_id, 
         conditions=condition,
         expression_values=expression_values
@@ -53,8 +54,8 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
     expression_attribute_names = {}
 
     valid_keys = get_valid_keys(User)
-    complex_keys = {"addresses", "id", "claimed_user", "sign_up_date", "last_sign_in_date", 
-                    "age", "age_range", "primary_persona"}
+    complex_keys = {"addresses", "id", "claimed_user", "sign_up_date", "last_sign_in_date",
+                    "age_range", "primary_persona"}
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -76,10 +77,8 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
 
     if "age" in user_data:
         age_range = get_age_range(user_data['age'])
-        update_expression += "#age = :age, #age_range = :age_range, "
-        expression_attribute_names["#age"] = "age"
+        update_expression += "#age_range = :age_range, "
         expression_attribute_names["#age_range"] = "age_range"
-        expression_attribute_values[":age"] = user_data['age']
         expression_attribute_values[":age_range"] = age_range
 
     if "addresses" in user_data:
@@ -97,10 +96,10 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
     if "claimed_user" in user_data:
         update_expression += "#claimed_user = :claimed_user, "
         expression_attribute_names["#claimed_user"] = "claimed_user"
-        expression_attribute_values[":claimed_user"] = user_data['claimed_user']
+        expression_attribute_values[":claimed_user"] = Decimal(user_data['claimed_user'])
     else:
         update_expression += "claimed_user = if_not_exists(claimed_user, :claimed_user), "
-        expression_attribute_values[":claimed_user"] = 0
+        expression_attribute_values[":claimed_user"] = Decimal(0)
 
     update_expression = update_expression.rstrip(", ")
 
@@ -192,7 +191,7 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         if query and 'primaryPersona' in query:
             # Use primary_persona-index if primaryPersona is provided
             index_name = 'primary_persona-index'
-            key_condition_expression = Key('primary_persona').eq(query['primaryPersona']) & Key('claimed_user').eq(Decimal(str(0)))
+            key_condition_expression = Key('primary_persona').eq(query['primaryPersona']) & Key('claimed_user').eq(Decimal(0))
             
             # Add age_range filter if provided
             if 'ageRange' in query:
@@ -200,7 +199,7 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         elif query and 'ageRange' in query:
             # Use age_range-index if only ageRange is provided
             index_name = 'age_range-index'
-            key_condition_expression = Key('age_range').eq(query['ageRange'])&Key('claimed_user').eq(Decimal(str(0)))
+            key_condition_expression = Key('age_range').eq(query['ageRange'])&Key('claimed_user').eq(Decimal(0))
         else:
             # Use claimed-index if neither primaryPersona nor ageRange is provided
             index_name = 'claimed-index'
