@@ -16,7 +16,7 @@ LAST_TIMESTAMP = 1599579782  # 2020-09-08, 18:43:02
 RANDOM_SEED = 1
 
 IN_PRODUCTS_FILENAME = "src/products/data/products.yaml"
-IN_USERS_FILENAME = "src/users/src/users-service/data/users.json.gz"
+IN_USERS_FILENAME = "src/users/data/users.json.gz"
 IN_OFFERS_FILENAME = "src/offers/src/offers-service/data/offers.json"
 
 # Where to put the generated data so that it is picked up by stage.sh
