@@ -303,6 +303,8 @@ def batch_write_users(users: List[User]) -> Tuple[int, int]:
     """
     Batch write users to DynamoDB table.
     Returns a tuple of (success_count, failure_count)
+    
+    next: Adjust this and upsert_user to allow dynamodb load to this
     """
     success_count = 0
     failure_count = 0
@@ -315,59 +317,3 @@ def batch_write_users(users: List[User]) -> Tuple[int, int]:
                 current_app.logger.error(f"Error batch writing user {user.id}: {str(e)}")
                 failure_count += 1
     return success_count, failure_count
-
-def delete_user(user_id: str) -> bool:
-    """
-    Delete a user from the DynamoDB table.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        User.table.delete_item(Key={'id': user_id})
-        return True
-    except ClientError as e:
-        current_app.logger.error(f"Error deleting user {user_id}: {str(e)}")
-        return False
-
-def get_users_by_age_range(age_range: str) -> List[User]:
-    """
-    Get users by age range using a secondary index.
-    """
-    try:
-        response = User.table.query(
-            IndexName='age_range-index',
-            KeyConditionExpression=Key('age_range').eq(age_range)
-        )
-        return [User.from_dict(item) for item in response.get('Items', [])]
-    except ClientError as e:
-        current_app.logger.error(f"Error getting users by age range: {str(e)}")
-        return []
-
-def update_user_persona(user_id: str, new_persona: str) -> Optional[User]:
-    """
-    Update a user's persona.
-    """
-    return upsert_user({"persona": new_persona}, user_id=user_id)[0]
-
-def get_users_by_persona(persona: str) -> List[User]:
-    """
-    Get users by persona using a scan operation with a filter.
-    """
-    try:
-        response = User.table.scan(
-            FilterExpression=Attr('persona').contains(persona)
-        )
-        users = [User.from_dict(item) for item in response.get('Items', [])]
-        
-        # Handle pagination
-        while 'LastEvaluatedKey' in response:
-            response = User.table.scan(
-                FilterExpression=Attr('persona').contains(persona),
-                ExclusiveStartKey=response['LastEvaluatedKey']
-            )
-            users.extend([User.from_dict(item) for item in response.get('Items', [])])
-        
-        return users
-    except ClientError as e:
-        current_app.logger.error(f"Error getting users by persona: {str(e)}")
-        return []
-
