@@ -182,8 +182,8 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         index_name = None
 
         if query and 'primaryPersona' in query:
-            # Use persona-claimed-index if primaryPersona is provided
-            index_name = 'persona-claimed-index'
+            # Use persona-index if primaryPersona is provided
+            index_name = 'persona-index'
             persona_prefix = f"{query['primaryPersona']}#"
             key_condition_expression = Key('persona').begins_with(persona_prefix) & Key('claimed_user').eq(0)
             
