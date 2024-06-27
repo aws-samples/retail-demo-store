@@ -203,7 +203,7 @@ def get_user_by_username(username: str) -> Optional[User]:
             KeyConditionExpression=Key('username').eq(username)
         )
         items = response.get('Items', [])
-        return User.from_dict(items[0])
+        return User.from_dict(items[0]) if items else User()
     except ClientError as e:
         current_app.logger.error(f"Error getting user by username: {str(e)}")
         return None
@@ -215,7 +215,7 @@ def get_user_by_identity_id(identity_id: str) -> Optional[User]:
             KeyConditionExpression=Key('identity_id').eq(identity_id)
         )
         items = response.get('Items', [])
-        return User.from_dict(items[0])
+        return User.from_dict(items[0]) if items else User()
     except ClientError as e:
         current_app.logger.error(f"Error getting user by identity_id: {str(e)}")
         return None
