@@ -31,6 +31,7 @@ def load_users_into_dynamodb(filename: str) -> int:
     with gzip.open(filename, 'rt', encoding='utf-8') as file:
         data = json.load(file)
         for user_data in data:
+            user_data = create_valid_dict(user_data)
             users_batch.append(user_data)
             
             if len(users_batch) == batch_size:
@@ -63,13 +64,17 @@ def claim_user(user_id: str) -> Tuple[Optional[User], str]:
 
 def create_user(user_data: Dict[str, Any]) -> Tuple[Optional[User], str]:
     current_app.logger.info(f"Creating user with raw data: {user_data}")
+    user_data = create_valid_dict(user_data)
+    current_app.logger.info(f"Creating user with updated data: {user_data}")
+    user, message = upsert_user(user_data)
+    return user, message
+
+def create_valid_dict(user_data: Dict[str, Any]) -> Dict[str, Any]:
     empty_user = User()
     empty_user_dict= empty_user.to_dict()
     empty_user_dict.update(user_data)
     user_data = empty_user_dict
-    current_app.logger.info(f"Creating user with updated data: {user_data}")
-    user, message = upsert_user(user_data)
-    return user, message
+    return user_data
 
 def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, conditions: Optional[Any] = None, expression_values: Optional[Any] = None) -> Tuple[Optional[User], bool]:
     current_app.logger.debug(f"Upserting user with data: {user_data}")
