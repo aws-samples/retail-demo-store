@@ -17,6 +17,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "claimed_user"
           AttributeType: "N"
+        - AttributeName: "age_range"
+          AttributeType: "S"
+        - AttributeName: "persona"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
@@ -38,6 +42,22 @@ Resources:
           KeySchema:
             - AttributeName: "claimed_user"
               KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: age_range-index
+          KeySchema:
+            - AttributeName: "age_range"
+              KeyType: "HASH"
+            - AttributeName: "claimed_user"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: persona-index
+          KeySchema:
+            - AttributeName: "persona"
+              KeyType: "HASH"
+            - AttributeName: "claimed_user"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
 

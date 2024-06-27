@@ -192,8 +192,8 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
                 filter_expression = Attr('age_range').eq(query['ageRange'])
         
         elif query and 'ageRange' in query:
-            # Use age_range-claimed-index if only ageRange is provided
-            index_name = 'age_range-claimed-index'
+            # Use age_range-index if only ageRange is provided
+            index_name = 'age_range-index'
             key_condition_expression = Key('age_range').eq(query['ageRange']) & Key('claimed_user').eq(0)
         
         else:

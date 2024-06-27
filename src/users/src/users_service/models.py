@@ -160,7 +160,7 @@ GLOBAL_SECONDARY_INDEXES = [
       "Projection": {"ProjectionType": "ALL"}
     },
     {
-      "IndexName": "age_range-claimed-index",
+      "IndexName": "age_range-index",
       "KeySchema": [
         {"AttributeName": "age_range", "KeyType": "HASH"},
         {"AttributeName": "claimed_user", "KeyType": "RANGE"}
