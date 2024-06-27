@@ -39,7 +39,7 @@ class User:
     addresses: List[Address] = field(default_factory=list)
     age: int = 0
     age_range: Optional[str] = "0"
-    gender: str = None
+    gender: str = "gender"
     persona: str = "0_0"
     discount_persona: str = None
     selectable_user: Optional[bool] = None
