@@ -9,7 +9,7 @@ from botocore.exceptions import BotoCoreError
 from users_service.repository import (
     send_pinpoint_message, init, get_all_users, get_user_by_id,
     get_user_by_username, get_user_by_identity_id, get_unclaimed_users,
-    get_random_user, claim_user, upsert_user, verify_and_update_phone
+    get_random_user, claim_user, upsert_user, verify_and_update_phone,create_user
 )
 from users_service import auth
 
@@ -104,7 +104,7 @@ def claim_user_route(user_id):
 @api.route("/users", methods=['POST'])
 def create_user_route():
     user_data = request.get_json(force=True)
-    new_user, message = upsert_user(user_data)
+    new_user, message = create_user(user_data)
     return jsonify(new_user.to_dict()), 201
 
 @api.route("/users/id/<user_id>", methods=['PUT'])

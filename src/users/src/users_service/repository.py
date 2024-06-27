@@ -61,6 +61,15 @@ def claim_user(user_id: str) -> Tuple[Optional[User], str]:
     )
     return user, message
 
+def create_user(user_data: Dict[str, Any]) -> Tuple[Optional[User], str]:
+    empty_user = User()
+    empty_user_dict= empty_user.to_dict()
+    empty_user_dict.update(user_data)
+    user_data = empty_user_dict
+    current_app.logger.debug(f"Creating user with data: {user_data}")
+    user, message = upsert_user(user_data)
+    return user, message
+
 def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, conditions: Optional[Any] = None, expression_values: Optional[Any] = None) -> Tuple[Optional[User], bool]:
     current_app.logger.debug(f"Upserting user with data: {user_data}")
     if not user_id:
@@ -135,6 +144,7 @@ def prepare_user_data_for_dynamodb(user_data: Dict[str, Any]) -> Tuple[Dict[str,
             expression_attribute_names[f"#{key}"] = key
             expression_attribute_data[key] = expression_attribute_values[f":{key}"] = value
         elif key in ["sign_up_date", "last_sign_in_date"]:
+            parsed_date = None
             if value:
                 parsed_date = parse_iso_datetime(value)
             if parsed_date:
