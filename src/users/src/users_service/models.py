@@ -70,8 +70,8 @@ class User:
             cls.dynamodb = boto3.resource(
                 'dynamodb',
                 endpoint_url=app.config.get('DDB_ENDPOINT_OVERRIDE'),
-                aws_access_key_id='XXXXk',
-                aws_secret_access_key='XXXkX'
+                aws_access_key_id='XX',
+                aws_secret_access_key='XX'
             )     
             app.logger.info(f"DynamoDB endpoint overridden: {app.config['DDB_ENDPOINT_OVERRIDE']}")
         else:
@@ -84,20 +84,19 @@ class User:
     def init_tables(cls):
         try:
             current_app.logger.info(f"Creating table {cls.table_name}")
-            table = cls.dynamodb.meta.client.create_table(
+            cls.dynamodb.meta.client.create_table(
                 TableName=cls.table_name,
                 KeySchema=KEY_SCHEMA,
                 AttributeDefinitions=ATTRIBUTE_DEFINITIONS,
                 GlobalSecondaryIndexes=GLOBAL_SECONDARY_INDEXES,
                 BillingMode='PAY_PER_REQUEST'
             )
-            table.meta.client.get_waiter('table_exists').wait(TableName=cls.table_name)
+            cls.table.meta.client.get_waiter('table_exists').wait(TableName=cls.table_name)
             current_app.logger.info(f"Table {cls.table_name} created successfully")
             return True
         except cls.dynamodb.meta.client.exceptions.ResourceInUseException:
             current_app.logger.info(f"Table {cls.table_name} already existst")
             return True
-        
         except ClientError as e:
             current_app.logger.error(f"Error initializing tables: {str(e)}")
             return False
@@ -142,30 +141,48 @@ def get_age_range(age: int) -> str:
 # DynamoDB table and index definitions
 KEY_SCHEMA = [
     {
-        'AttributeName': 'id',
-        'KeyType': 'HASH'  # Partition key
+      "AttributeName": "id",
+      "KeyType": "HASH"
     }
-]
+  ]
 ATTRIBUTE_DEFINITIONS = [
-    {'AttributeName': 'id', 'AttributeType': 'S'},
-    {'AttributeName': 'username', 'AttributeType': 'S'},
-    {'AttributeName': 'claimed_user', 'AttributeType': 'N'},
-    {'AttributeName': 'identity_id', 'AttributeType': 'S'}
-]
+    {"AttributeName": "id", "AttributeType": "S"},
+    {"AttributeName": "username", "AttributeType": "S"},
+    {"AttributeName": "claimed_user", "AttributeType": "N"},
+    {"AttributeName": "identity_id", "AttributeType": "S"},
+    {"AttributeName": "age_range", "AttributeType": "S"},
+    {"AttributeName": "persona", "AttributeType": "S"}
+  ]
 GLOBAL_SECONDARY_INDEXES = [
     {
-        'IndexName': 'username-index',
-        'KeySchema': [{'AttributeName': 'username', 'KeyType': 'HASH'}],
-        'Projection': {'ProjectionType': 'ALL'}
+      "IndexName": "username-index",
+      "KeySchema": [{"AttributeName": "username", "KeyType": "HASH"}],
+      "Projection": {"ProjectionType": "ALL"}
     },
     {
-        'IndexName': 'claimed-index',
-        'KeySchema': [{'AttributeName': 'claimed_user', 'KeyType': 'HASH'}],
-        'Projection': {'ProjectionType': 'ALL'}
+      "IndexName": "age_range-claimed-index",
+      "KeySchema": [
+        {"AttributeName": "age_range", "KeyType": "HASH"},
+        {"AttributeName": "claimed_user", "KeyType": "RANGE"}
+      ],
+      "Projection": {"ProjectionType": "ALL"}
     },
     {
-        'IndexName': 'identity_id-index',
-        'KeySchema': [{'AttributeName': 'identity_id', 'KeyType': 'HASH'}],
-        'Projection': {'ProjectionType': 'ALL'}
+      "IndexName": "claimed-index",
+      "KeySchema": [{"AttributeName": "claimed_user", "KeyType": "HASH"}],
+      "Projection": {"ProjectionType": "ALL"}
+    },
+    {
+      "IndexName": "identity_id-index",
+      "KeySchema": [{"AttributeName": "identity_id", "KeyType": "HASH"}],
+      "Projection": {"ProjectionType": "ALL"}
+    },
+    {
+      "IndexName": "persona-claimed-index",
+      "KeySchema": [
+        {"AttributeName": "persona", "KeyType": "HASH"},
+        {"AttributeName": "claimed_user", "KeyType": "RANGE"}
+      ],
+      "Projection": {"ProjectionType": "ALL"}
     }
-]
+  ]

@@ -31,6 +31,17 @@ def load_users_into_dynamodb(filename: str) -> int:
             count += 1
     return count
 
+def claim_user(user_id: str) -> Tuple[Optional[User], str]:
+    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :claimed_user"
+    expression_values = {':selectable': True, ':claimed_user': 0}
+    user, message = upsert_user(
+        {"claimed_user": 1}, 
+        user_id=user_id, 
+        conditions=condition,
+        expression_values=expression_values
+    )
+    return user, message
+
 def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, conditions: Optional[Any] = None, expression_values: Optional[Any] = None) -> Tuple[Optional[User], bool]:
     current_app.logger.debug(f"Upserting user with data: {user_data}")
     if not user_id:
@@ -120,6 +131,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
     else:
         current_app.logger.warning(f"No valid update actions were found for user ID {user_id}.")
         return None, "No valid update actions"
+    
 def parse_iso_datetime(date_str: str) -> Optional[datetime]:
     try:
         return datetime.fromisoformat(date_str.replace('Z', '+00:00')).astimezone(pytz.utc)
@@ -167,23 +179,32 @@ def get_user_by_identity_id(identity_id: str) -> Optional[User]:
 def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
     current_app.logger.debug(f"Querying for unclaimed users with query: {query}")
     try:
-        key_condition_expression = Key('claimed_user').eq(0)
+        key_condition_expression = None
         filter_expression = None
+        index_name = None
 
-        if query:
-            if 'primaryPersona' in query:
-                if filter_expression:
-                    filter_expression &= Attr('persona').contains(query['primaryPersona'])
-                else:
-                    filter_expression = Attr('persona').contains(query['primaryPersona'])
+        if query and 'primaryPersona' in query:
+            # Use persona-claimed-index if primaryPersona is provided
+            index_name = 'persona-claimed-index'
+            persona_prefix = f"{query['primaryPersona']}#"
+            key_condition_expression = Key('persona').begins_with(persona_prefix) & Key('claimed_user').eq(0)
+            
+            # Add age_range filter if provided
             if 'ageRange' in query:
-                if filter_expression:
-                    filter_expression &= Attr('age_range').eq(query['ageRange'])
-                else:
-                    filter_expression = Attr('age_range').eq(query['ageRange'])
+                filter_expression = Attr('age_range').eq(query['ageRange'])
+        
+        elif query and 'ageRange' in query:
+            # Use age_range-claimed-index if only ageRange is provided
+            index_name = 'age_range-claimed-index'
+            key_condition_expression = Key('age_range').eq(query['ageRange']) & Key('claimed_user').eq(0)
+        
+        else:
+            # Use claimed-index if neither primaryPersona nor ageRange is provided
+            index_name = 'claimed-index'
+            key_condition_expression = Key('claimed_user').eq(0)
 
         query_params = {
-            'IndexName': 'claimed-index',
+            'IndexName': index_name,
             'KeyConditionExpression': key_condition_expression,
         }
 
@@ -191,7 +212,6 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
             query_params['FilterExpression'] = filter_expression
 
         response = User.table.query(**query_params)
-
         users = [User.from_dict(item) for item in response.get('Items', [])]
 
         # Pagination handling
@@ -199,6 +219,10 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
             query_params['ExclusiveStartKey'] = response['LastEvaluatedKey']
             response = User.table.query(**query_params)
             users.extend([User.from_dict(item) for item in response.get('Items', [])])
+
+        # Additional filtering for secondary persona if needed
+        if query and 'secondaryPersona' in query:
+            users = [user for user in users if query['secondaryPersona'] in user.persona]
 
         return users
     except ClientError as e:
@@ -210,16 +234,6 @@ def get_random_user(count: int) -> List[User]:
     current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
-def claim_user(user_id: str) -> Tuple[Optional[User], str]:
-    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :claimed_user"
-    expression_values = {':selectable': True, ':claimed_user': 0}
-    user, message = upsert_user(
-        {"claimed_user": 1}, 
-        user_id=user_id, 
-        conditions=condition,
-        expression_values=expression_values
-    )
-    return user, message
 
 def verify_and_update_phone(user_id: str, phone_number: str) -> Optional[User]:
     user, _ = upsert_user({"phone_number": phone_number}, user_id=user_id)
