@@ -32,7 +32,7 @@ class User:
     name: Optional[str] = None
     username: Optional[str] = "0"
     claimed_user: Optional[int] = 0
-    email: Optional[str] = None
+    email: Optional[str] = "email"
     primary_persona: Optional[str] = "0"
     first_name: str = "first_name"
     last_name: str = "last_name"

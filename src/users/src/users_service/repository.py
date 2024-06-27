@@ -236,6 +236,21 @@ def get_user_by_identity_id(identity_id: str) -> Optional[User]:
         current_app.logger.error(f"Error getting user by identity_id: {str(e)}")
         return None
 
+random_retry = 0
+def get_random_user(count: int) -> List[User]:
+    unclaimed_users = get_unclaimed_users()
+    current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
+    if not unclaimed_users:
+        global random_retry
+        if random_retry < 3:
+            random_retry += 1
+            current_app.logger.warning("No unclaimed users found. Retrying...")
+            return get_random_user(count)
+        else:
+            current_app.logger.error("No unclaimed users found after multiple retries.")
+            return []
+    return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
+
 def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
     current_app.logger.debug(f"Querying for unclaimed users with query: {query}")
     try:
@@ -258,6 +273,7 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         else:
             # Use claimed-index if neither primaryPersona nor ageRange is provided
             index_name = 'claimed-index'
+            filter_expression = Attr('age').eq(random.randrange(18, 75))
             key_condition_expression = Key('claimed_user').eq(0)
 
         query_params = {
@@ -288,11 +304,6 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
     except ClientError as e:
         current_app.logger.error(f"Error getting unclaimed users: {str(e)}")
         return []
-
-def get_random_user(count: int) -> List[User]:
-    unclaimed_users = get_unclaimed_users()
-    current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
-    return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
 
 def verify_and_update_phone(user_id: str, phone_number: str) -> Optional[User]:
