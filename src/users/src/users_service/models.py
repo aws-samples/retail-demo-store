@@ -40,7 +40,7 @@ class User:
     age: int = 0
     age_range: Optional[str] = "0"
     gender: str = None
-    persona: str = None
+    persona: str = "0_0"
     discount_persona: str = None
     selectable_user: Optional[bool] = None
     sign_up_date: Optional[datetime] = None
@@ -128,7 +128,7 @@ class User:
 
 def get_age_range(age: int) -> str:
     if age < 18:
-        return ""
+        return "<18"
     elif age < 25:
         return "18-24"
     elif age < 35:
