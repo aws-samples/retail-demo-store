@@ -28,12 +28,12 @@ class Address:
 
 @dataclass
 class User:
-    id: str
-    name: str
-    username: str
-    claimed_user: int
-    email: str
-    primary_persona: str
+    id: Optional[str] = None
+    name: Optional[str] = None
+    username: Optional[str] = None
+    claimed_user: Optional[int] = None
+    email: Optional[str] = None
+    primary_persona: Optional[str] = None
     first_name: str = ""
     last_name: str = ""
     addresses: List[Address] = field(default_factory=list)
@@ -49,8 +49,6 @@ class User:
     phone_number: str = ""
     traits: Dict[str, Any] = field(default_factory=dict)
     platforms: Dict[str, Any] = field(default_factory=dict)
-    username: str
-
     table_name = 'users'
     region = 'us-east-1'
     table = None
