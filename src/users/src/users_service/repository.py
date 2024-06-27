@@ -62,11 +62,12 @@ def claim_user(user_id: str) -> Tuple[Optional[User], str]:
     return user, message
 
 def create_user(user_data: Dict[str, Any]) -> Tuple[Optional[User], str]:
+    current_app.logger.info(f"Creating user with raw data: {user_data}")
     empty_user = User()
     empty_user_dict= empty_user.to_dict()
     empty_user_dict.update(user_data)
     user_data = empty_user_dict
-    current_app.logger.debug(f"Creating user with data: {user_data}")
+    current_app.logger.info(f"Creating user with updated data: {user_data}")
     user, message = upsert_user(user_data)
     return user, message
 
