@@ -247,8 +247,6 @@ def get_random_user(count: int, retry_count, retry_limit:Optional[int]=3) -> Lis
         else:
             current_app.logger.error("No unclaimed users found after multiple retries.")
             return []
-    else:
-        random_retry = 0
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
 def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
