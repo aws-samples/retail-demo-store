@@ -1,4 +1,3 @@
-pynamodb
 boto3
 pytz
 pydantic

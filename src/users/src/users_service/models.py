@@ -1,139 +1,171 @@
-# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: MIT-0
-from pynamodb.models import Model
-from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
-from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass, asdict, field
+from datetime import datetime
+import boto3
+from botocore.exceptions import ClientError
 from flask import Flask, current_app
+from dataclasses import fields
 
-class UsernameIndex(GlobalSecondaryIndex):
-    """
-    A Global Secondary Index to be used for querying by username.
-    """
-    class Meta:
-        index_name = 'username-index'
-        projection = AllProjection()
-
-    username = UnicodeAttribute(hash_key=True, attr_name='username')
     
-class ClaimedIndex(GlobalSecondaryIndex):
-    class Meta:
-        index_name = 'claimed-index'
-        projection = AllProjection()
-
-    claimed_user = NumberAttribute(hash_key=True, attr_name='claimed_user')
-
-
-
-class IdentityIdIndex(GlobalSecondaryIndex):
-    """
-    A Global Secondary Index to be used for querying by identity_id.
-    """
-    class Meta:
-        index_name = 'identity_id-index'
-        projection = AllProjection()
-
-    identity_id = UnicodeAttribute(hash_key=True, attr_name='identity_id')
+def get_valid_keys(cls):
+        return {field.name for field in fields(cls)}
     
-class Address(MapAttribute):
-    first_name = UnicodeAttribute()
-    last_name = UnicodeAttribute()
-    address1 = UnicodeAttribute()
-    address2 = UnicodeAttribute()
-    city = UnicodeAttribute()
-    state = UnicodeAttribute()
-    country = UnicodeAttribute()
-    zipcode = UnicodeAttribute()
-    default = BooleanAttribute()
+@dataclass
+class Address:
+    first_name: str
+    last_name: str
+    address1: str
+    address2: str
+    city: str
+    state: str
+    country: str
+    zipcode: str
+    default: bool
 
-    def to_dict(self):
-        """Serializes Address to a dictionary."""
-        return {
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'address1': self.address1,
-            'address2': self.address2,
-            'city': self.city,
-            'state': self.state,
-            'country': self.country,
-            'zipcode': self.zipcode,
-            'default': self.default
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        address_dict = asdict(self)
+        return address_dict
 
-class User(Model):
-    class Meta:
-        table_name = 'users'
-        region = 'us-east-1' 
+@dataclass
+class User:
+    id: str
+    name: str
+    username: str
+    email: str
+    first_name: str = ""
+    last_name: str = ""
+    addresses: List[Address] = field(default_factory=list)
+    age: int = 0
+    age_range: Optional[str] = None
+    gender: str = ""
+    persona: str = ""
+    discount_persona: str = ""
+    selectable_user: Optional[bool] = None
+    sign_up_date: Optional[datetime] = None
+    last_sign_in_date: Optional[datetime] = None
+    identity_id: Optional[str] = None
+    phone_number: str = ""
+    claimed_user: int = 0
+    traits: Dict[str, Any] = field(default_factory=dict)
+    platforms: Dict[str, Any] = field(default_factory=dict)
+    username: str
+
+    table_name = 'users'
+    region = 'us-east-1'
+    table = None
+    
+    
+
 
     @classmethod
     def init_app(cls, app: Flask) -> None:
         """
-        Initialize the Pynamodb model with Flask application settings.
+        Initialize the DynamoDB table with Flask application settings.
         """
-        cls.Meta.table_name = app.config.get('DDB_TABLE_USERS', cls.Meta.table_name)
-        cls.Meta.region = app.config.get('AWS_DEFAULT_REGION', cls.Meta.region)
+        cls.table_name = app.config.get('DDB_TABLE_USERS', cls.table_name)
+        cls.region = app.config.get('AWS_DEFAULT_REGION', cls.region)
+        
+        
         if 'DDB_ENDPOINT_OVERRIDE' in app.config:
-            cls.Meta.host = app.config['DDB_ENDPOINT_OVERRIDE']
+            cls.dynamodb = boto3.resource(
+                'dynamodb',
+                endpoint_url=app.config.get('DDB_ENDPOINT_OVERRIDE'),
+                aws_access_key_id='XXXXk',
+                aws_secret_access_key='XXXkX'
+            )     
             app.logger.info(f"DynamoDB endpoint overridden: {app.config['DDB_ENDPOINT_OVERRIDE']}")
-            
+        else:
+            cls.dynamodb = boto3.resource(
+                'dynamodb'
+                )     
+        cls.table = cls.dynamodb.Table(cls.table_name)
+
     @classmethod
     def init_tables(cls):
-        if cls.exists():
-            current_app.logger.info(f"Table {cls.Meta.table_name} already exists")
-        else:
-            current_app.logger.info(f"Creating table {cls.Meta.table_name}")
-            cls.create_table(billing_mode="PAY_PER_REQUEST")
-            current_app.logger.info(f"Users Table created:{cls.exists()}")
+        try:
+            existing_tables = cls.dynamodb.meta.client.list_tables()['TableNames']
+            if cls.table_name not in existing_tables:
+                current_app.logger.info(f"Creating table {cls.table_name}")
+                table = cls.dynamodb.create_table(
+                    TableName=cls.table_name,
+                    KeySchema=KEY_SCHEMA,
+                    AttributeDefinitions=ATTRIBUTE_DEFINITIONS,
+                    GlobalSecondaryIndexes=GLOBAL_SECONDARY_INDEXES,
+                    BillingMode='PAY_PER_REQUEST'
+                )
+                table.meta.client.get_waiter('table_exists').wait(TableName=cls.table_name)
+                current_app.logger.info(f"Table {cls.table_name} created successfully")
+            else:
+                current_app.logger.info(f"Table {cls.table_name} already exists")
+            return True
+        except ClientError as e:
+            current_app.logger.error(f"Error initializing tables: {str(e)}")
+            return False
 
-    
-    claimed_user = NumberAttribute(attr_name='claimed_user')
-    claimed_index = ClaimedIndex()
-    id = UnicodeAttribute(hash_key=True, attr_name='id')
-    traits = MapAttribute(null=True)
-    platforms = MapAttribute(null=True)
-    username = UnicodeAttribute(attr_name='username')
-    email = UnicodeAttribute()
-    first_name = UnicodeAttribute(default="")
-    last_name = UnicodeAttribute(default="")
-    addresses = ListAttribute(of=Address)
-    age = NumberAttribute(default=0)
-    age_range = UnicodeAttribute(null=True)
-    gender = UnicodeAttribute(default="")
-    persona = UnicodeAttribute(default="")
-    discount_persona = UnicodeAttribute(default="")
-    selectable_user = BooleanAttribute(null=True)
-    sign_up_date = UTCDateTimeAttribute(null=True)
-    last_sign_in_date = UTCDateTimeAttribute(null=True)
-    identity_id = UnicodeAttribute(null=True, attr_name='identity_id')
-    phone_number = UnicodeAttribute(default="")
-    
-    username_index = UsernameIndex()
-    identity_id_index = IdentityIdIndex()
+    def to_dict(self) -> Dict[str, Any]:
+        user_dict = asdict(self)
+        if self.age:
+            user_dict['age'] = int(self.age)
+        
+        if self.sign_up_date:
+            user_dict['sign_up_date'] = self.sign_up_date.isoformat()
+        if self.last_sign_in_date:
+            user_dict['last_sign_in_date'] = self.last_sign_in_date.isoformat()
+        return user_dict
 
-    def to_dict(self):
-        """Serializes User to a dictionary, including nested Address objects."""
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'addresses': [address.to_dict() for address in self.addresses] if self.addresses else [],
-            'age': self.age,
-            'gender': self.gender,
-            'persona': self.persona,
-            'discount_persona': self.discount_persona,
-            'sign_up_date': self.sign_up_date.isoformat() if self.sign_up_date else None,
-            'selectable_user': self.selectable_user,
-            'last_sign_in_date': self.last_sign_in_date.isoformat() if self.last_sign_in_date else None,
-            'identity_id': self.identity_id,
-            'phone_number': self.phone_number
-        }
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'User':
+        if 'addresses' in data:
+            data['addresses'] = [Address(**addr) for addr in data['addresses']]
+        if 'sign_up_date' in data and data['sign_up_date']:
+            data['sign_up_date'] = datetime.fromisoformat(data['sign_up_date'].replace('Z', '+00:00'))
+        if 'last_sign_in_date' in data and data['last_sign_in_date']:
+            data['last_sign_in_date'] = datetime.fromisoformat(data['last_sign_in_date'].replace('Z', '+00:00'))
+        return cls(**data)
 
+def get_age_range(age: int) -> str:
+    if age < 18:
+        return ""
+    elif age < 25:
+        return "18-24"
+    elif age < 35:
+        return "25-34"
+    elif age < 45:
+        return "35-44"
+    elif age < 55:
+        return "45-54"
+    elif age < 70:
+        return "54-70"
+    else:
+        return "70-and-above"
 
-   
-
-    def save(self, **kwargs):
-        super(User, self).save(**kwargs)
-
-    def update(self, **kwargs):
-        super(User, self).update(**kwargs)
+# DynamoDB table and index definitions
+KEY_SCHEMA = [
+    {
+        'AttributeName': 'id',
+        'KeyType': 'HASH'  # Partition key
+    }
+]
+ATTRIBUTE_DEFINITIONS = [
+    {'AttributeName': 'id', 'AttributeType': 'S'},
+    {'AttributeName': 'username', 'AttributeType': 'S'},
+    {'AttributeName': 'claimed_user', 'AttributeType': 'N'},
+    {'AttributeName': 'identity_id', 'AttributeType': 'S'}
+]
+GLOBAL_SECONDARY_INDEXES = [
+    {
+        'IndexName': 'username-index',
+        'KeySchema': [{'AttributeName': 'username', 'KeyType': 'HASH'}],
+        'Projection': {'ProjectionType': 'ALL'}
+    },
+    {
+        'IndexName': 'claimed-index',
+        'KeySchema': [{'AttributeName': 'claimed_user', 'KeyType': 'HASH'}],
+        'Projection': {'ProjectionType': 'ALL'}
+    },
+    {
+        'IndexName': 'identity_id-index',
+        'KeySchema': [{'AttributeName': 'identity_id', 'KeyType': 'HASH'}],
+        'Projection': {'ProjectionType': 'ALL'}
+    }
+]
