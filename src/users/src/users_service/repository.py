@@ -211,8 +211,8 @@ def get_random_user(count: int) -> List[User]:
     return random.sample(unclaimed_users, min(count, len(unclaimed_users)))
 
 def claim_user(user_id: str) -> Tuple[Optional[User], str]:
-    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :unclaimed"
-    expression_values = {':selectable': True, ':unclaimed': 0}
+    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :claimed_user"
+    expression_values = {':selectable': True, ':claimed_user': 0}
     user, message = upsert_user(
         {"claimed_user": 1}, 
         user_id=user_id, 
