@@ -34,8 +34,8 @@ class User:
     claimed_user: Optional[int] = 0
     email: Optional[str] = None
     primary_persona: Optional[str] = "0"
-    first_name: str = None
-    last_name: str = None
+    first_name: str = "first_name"
+    last_name: str = "last_name"
     addresses: List[Address] = field(default_factory=list)
     age: int = 0
     age_range: Optional[str] = "0"
