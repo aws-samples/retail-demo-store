@@ -28,25 +28,25 @@ class Address:
 
 @dataclass
 class User:
-    id: Optional[str] = ""
+    id: Optional[str] = "0"
     name: Optional[str] = None
     username: Optional[str] = "0"
     claimed_user: Optional[int] = 0
     email: Optional[str] = None
     primary_persona: Optional[str] = "0"
-    first_name: str = ""
-    last_name: str = ""
+    first_name: str = None
+    last_name: str = None
     addresses: List[Address] = field(default_factory=list)
     age: int = 0
     age_range: Optional[str] = "0"
-    gender: str = ""
-    persona: str = ""
-    discount_persona: str = ""
+    gender: str = None
+    persona: str = None
+    discount_persona: str = None
     selectable_user: Optional[bool] = None
     sign_up_date: Optional[datetime] = None
     last_sign_in_date: Optional[datetime] = None
     identity_id: Optional[str] = "0"
-    phone_number: str = ""
+    phone_number: str = None
     traits: Dict[str, Any] = field(default_factory=dict)
     platforms: Dict[str, Any] = field(default_factory=dict)
     table_name = 'users'
