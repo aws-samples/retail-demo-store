@@ -86,7 +86,7 @@ def get_unclaimed():
 @api.route("/users/random", methods=['GET'])
 def get_random():
     count = request.args.get('count', default=1, type=int)
-    users = get_random_user(count)
+    users = get_random_user(count, 0)
     result = [user.to_dict() for user in users]
     return result, 200
 

@@ -236,16 +236,14 @@ def get_user_by_identity_id(identity_id: str) -> Optional[User]:
         current_app.logger.error(f"Error getting user by identity_id: {str(e)}")
         return None
 
-random_retry = 0
-def get_random_user(count: int) -> List[User]:
+def get_random_user(count: int, retry_count, retry_limit:Optional[int]=3) -> List[User]:
     unclaimed_users = get_unclaimed_users()
     current_app.logger.debug(f"Found {len(unclaimed_users)} unclaimed users")
     if not unclaimed_users:
-        global random_retry
-        if random_retry < 3:
-            random_retry += 1
+        if retry_count < retry_limit:
+            retry_count += 1
             current_app.logger.warning("No unclaimed users found. Retrying...")
-            return get_random_user(count)
+            return get_random_user(count,retry_count)
         else:
             current_app.logger.error("No unclaimed users found after multiple retries.")
             return []
