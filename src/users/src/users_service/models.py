@@ -32,6 +32,7 @@ class User:
     name: str
     username: str
     email: str
+    primary_persona: str
     first_name: str = ""
     last_name: str = ""
     addresses: List[Address] = field(default_factory=list)
@@ -70,8 +71,8 @@ class User:
             cls.dynamodb = boto3.resource(
                 'dynamodb',
                 endpoint_url=app.config.get('DDB_ENDPOINT_OVERRIDE'),
-                aws_access_key_id='XX',
-                aws_secret_access_key='XX'
+                aws_access_key_id='XXXXX',
+                aws_secret_access_key='XXXXX'
             )     
             app.logger.info(f"DynamoDB endpoint overridden: {app.config['DDB_ENDPOINT_OVERRIDE']}")
         else:
@@ -151,7 +152,7 @@ ATTRIBUTE_DEFINITIONS = [
     {"AttributeName": "claimed_user", "AttributeType": "N"},
     {"AttributeName": "identity_id", "AttributeType": "S"},
     {"AttributeName": "age_range", "AttributeType": "S"},
-    {"AttributeName": "persona", "AttributeType": "S"}
+    {"AttributeName": "primary_persona", "AttributeType": "S"}
   ]
 GLOBAL_SECONDARY_INDEXES = [
     {
@@ -178,9 +179,9 @@ GLOBAL_SECONDARY_INDEXES = [
       "Projection": {"ProjectionType": "ALL"}
     },
     {
-      "IndexName": "persona-index",
+      "IndexName": "primary_persona-index",
       "KeySchema": [
-        {"AttributeName": "persona", "KeyType": "HASH"},
+        {"AttributeName": "primary_persona", "KeyType": "HASH"},
         {"AttributeName": "claimed_user", "KeyType": "RANGE"}
       ],
       "Projection": {"ProjectionType": "ALL"}

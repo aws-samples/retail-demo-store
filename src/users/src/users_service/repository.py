@@ -7,8 +7,9 @@ from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime
 import pytz
 import random
-from users_service.models import User, Address, get_age_range, get_valid_keys
+from users_service.models import User, get_age_range, get_valid_keys
 from users_service import pinpoint
+from decimal import Decimal
 
 def init():
     User.init_tables()
@@ -52,7 +53,8 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
     expression_attribute_names = {}
 
     valid_keys = get_valid_keys(User)
-    complex_keys = {"addresses", "id", "claimed_user", "sign_up_date", "last_sign_in_date", "age", "age_range"}
+    complex_keys = {"addresses", "id", "claimed_user", "sign_up_date", "last_sign_in_date", 
+                    "age", "age_range", "primary_persona"}
     valid_keys = valid_keys - complex_keys
 
     for key, value in user_data.items():
@@ -85,6 +87,12 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
         update_expression += "#addresses = :addresses, "
         expression_attribute_names["#addresses"] = "addresses"
         expression_attribute_values[":addresses"] = addresses
+        
+    if "persona" in user_data:
+        primary_persona = user_data["persona"].split("_")[0]
+        update_expression += "#primary_persona = :primary_persona, "
+        expression_attribute_names["#primary_persona"] = "primary_persona"
+        expression_attribute_values[":primary_persona"] = primary_persona
 
     if "claimed_user" in user_data:
         update_expression += "#claimed_user = :claimed_user, "
@@ -182,20 +190,17 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         index_name = None
 
         if query and 'primaryPersona' in query:
-            # Use persona-index if primaryPersona is provided
-            index_name = 'persona-index'
-            persona_prefix = f"{query['primaryPersona']}#"
-            key_condition_expression = Key('persona').begins_with(persona_prefix) & Key('claimed_user').eq(0)
+            # Use primary_persona-index if primaryPersona is provided
+            index_name = 'primary_persona-index'
+            key_condition_expression = Key('primary_persona').eq(query['primaryPersona']) & Key('claimed_user').eq(Decimal(str(0)))
             
             # Add age_range filter if provided
             if 'ageRange' in query:
                 filter_expression = Attr('age_range').eq(query['ageRange'])
-        
         elif query and 'ageRange' in query:
             # Use age_range-index if only ageRange is provided
             index_name = 'age_range-index'
-            key_condition_expression = Key('age_range').eq(query['ageRange']) & Key('claimed_user').eq(0)
-        
+            key_condition_expression = Key('age_range').eq(query['ageRange'])&Key('claimed_user').eq(Decimal(str(0)))
         else:
             # Use claimed-index if neither primaryPersona nor ageRange is provided
             index_name = 'claimed-index'
@@ -208,6 +213,8 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
 
         if filter_expression:
             query_params['FilterExpression'] = filter_expression
+        current_app.logger.debug(f"query_params is {query_params}")
+
 
         response = User.table.query(**query_params)
         users = [User.from_dict(item) for item in response.get('Items', [])]
@@ -222,6 +229,7 @@ def get_unclaimed_users(query: Optional[Dict[str, Any]] = None) -> List[User]:
         if query and 'secondaryPersona' in query:
             users = [user for user in users if query['secondaryPersona'] in user.persona]
 
+        current_app.logger.debug(f"Found {len(users)} unclaimed users")
         return users
     except ClientError as e:
         current_app.logger.error(f"Error getting unclaimed users: {str(e)}")
