@@ -32,7 +32,7 @@ def load_users_into_dynamodb(filename: str) -> int:
     return count
 
 def claim_user(user_id: str) -> Tuple[Optional[User], str]:
-    condition = "attribute_exists(id) AND selectable_user = :selectable AND claimed_user = :claimed_user"
+    condition = "attribute_exists(id) AND selectable_user = :selectable AND (attribute_not_exists(claimed_user) OR claimed_user = :claimed_user)"
     expression_values = {':selectable': True, ':claimed_user': 0}
     user, message = upsert_user(
         {"claimed_user": 1}, 
@@ -81,7 +81,7 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
         expression_attribute_values[":age_range"] = age_range
 
     if "addresses" in user_data:
-        addresses = [Address(**ad).to_dict() for ad in user_data['addresses']]
+        addresses = user_data['addresses']
         update_expression += "#addresses = :addresses, "
         expression_attribute_names["#addresses"] = "addresses"
         expression_attribute_values[":addresses"] = addresses
@@ -91,15 +91,13 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
         expression_attribute_names["#claimed_user"] = "claimed_user"
         expression_attribute_values[":claimed_user"] = user_data['claimed_user']
     else:
-        update_expression += "#claimed_user = :claimed_user, "
-        expression_attribute_names["#claimed_user"] = "claimed_user"
+        update_expression += "claimed_user = if_not_exists(claimed_user, :claimed_user), "
         expression_attribute_values[":claimed_user"] = 0
 
     update_expression = update_expression.rstrip(", ")
 
     if update_expression != "SET ":
         try:
-            # Merge expression_values if provided
             if expression_values:
                 expression_attribute_values.update(expression_values)
             
