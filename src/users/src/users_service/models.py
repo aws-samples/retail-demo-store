@@ -83,21 +83,21 @@ class User:
     @classmethod
     def init_tables(cls):
         try:
-            existing_tables = cls.dynamodb.meta.client.list_tables()['TableNames']
-            if cls.table_name not in existing_tables:
-                current_app.logger.info(f"Creating table {cls.table_name}")
-                table = cls.dynamodb.create_table(
-                    TableName=cls.table_name,
-                    KeySchema=KEY_SCHEMA,
-                    AttributeDefinitions=ATTRIBUTE_DEFINITIONS,
-                    GlobalSecondaryIndexes=GLOBAL_SECONDARY_INDEXES,
-                    BillingMode='PAY_PER_REQUEST'
-                )
-                table.meta.client.get_waiter('table_exists').wait(TableName=cls.table_name)
-                current_app.logger.info(f"Table {cls.table_name} created successfully")
-            else:
-                current_app.logger.info(f"Table {cls.table_name} already exists")
+            current_app.logger.info(f"Creating table {cls.table_name}")
+            table = cls.dynamodb.meta.client.create_table(
+                TableName=cls.table_name,
+                KeySchema=KEY_SCHEMA,
+                AttributeDefinitions=ATTRIBUTE_DEFINITIONS,
+                GlobalSecondaryIndexes=GLOBAL_SECONDARY_INDEXES,
+                BillingMode='PAY_PER_REQUEST'
+            )
+            table.meta.client.get_waiter('table_exists').wait(TableName=cls.table_name)
+            current_app.logger.info(f"Table {cls.table_name} created successfully")
             return True
+        except cls.dynamodb.meta.client.exceptions.ResourceInUseException:
+            current_app.logger.info(f"Table {cls.table_name} already existst")
+            return True
+        
         except ClientError as e:
             current_app.logger.error(f"Error initializing tables: {str(e)}")
             return False
