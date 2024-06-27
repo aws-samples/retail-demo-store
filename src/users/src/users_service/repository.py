@@ -50,7 +50,8 @@ def upsert_user(user_data: Dict[str, Any], user_id: Optional[str] = None, condit
             expression_attribute_names[f"#{key}"] = key
             expression_attribute_values[f":{key}"] = value
         elif key in ["sign_up_date", "last_sign_in_date"]:
-            parsed_date = parse_iso_datetime(value)
+            if value:
+                parsed_date = parse_iso_datetime(value)
             if parsed_date:
                 update_expression += f"#{key} = :{key}, "
                 expression_attribute_names[f"#{key}"] = key
