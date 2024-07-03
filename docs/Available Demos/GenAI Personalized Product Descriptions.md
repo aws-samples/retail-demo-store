@@ -1,7 +1,7 @@
 ---
 weight: 7
 ---
-# Personalized Product Descriptions with genAI
+# Personalized Product Descriptions with GenAI
 
 ## Overview
 

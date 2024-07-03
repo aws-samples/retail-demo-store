@@ -1,7 +1,7 @@
 ---
 weight: 5
 ---
-# Room Makeover: Revolutionizing Interior Design with genAI
+# Room Makeover: Revolutionizing Interior Design with GenAI
 
 In today's fast-paced world, consumers are constantly seeking new and innovative ways to personalize their living spaces. The Retail Demo Store's Room Makeover demo harnesses the power of cutting-edge AI technologies to enable an unprecedented level of personalization in interior design.
 
