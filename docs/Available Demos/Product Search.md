@@ -5,6 +5,8 @@ weight: 60
 
 The Search demo in the Retail Demo Store showcases how to integrate Amazon OpenSearch Service (formerly Amazon Elasticsearch Service) to provide a powerful and customizable search experience for an ecommerce application.
 
+The current demo presents only type-ahead search at the moment, but the principles could be extended to support a fully fledged search solution.
+
 ## How it Works
 
 ![search](../assets/search.png)

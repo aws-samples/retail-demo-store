@@ -5,7 +5,7 @@ The Retail Demo Store features several demo components that showcase different A
 
 1. :fontawesome-solid-couch: **[Room Makeover](./Room%20Makeover.md)**: _NEW_
     
-    Combines Stable Diffusion, Amazon Sagemaker, Amazon Bedrock, and Amazon Rekognition to generate re-styled rooms from user-uploaded images.
+    Combines Stable Diffusion, Anthropic Claude, Amazon Sagemaker, Amazon Bedrock, and Amazon Rekognition to generate re-styled rooms from user-uploaded images.
 
 1. :fontawesome-solid-pencil: **[Personalized Product Descriptions](./GenAI%20Personalized%20Product%20Descriptions.md)**: _NEW_
     

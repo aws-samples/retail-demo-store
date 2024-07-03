@@ -38,7 +38,6 @@ If not: ```sudo apt install python3```
 sudo apt install git
 mkdir RetailDemoStore
 cd RetailDemoStore/
-git init
 git clone https://github.com/aws-samples/retail-demo-store
 ```
 
