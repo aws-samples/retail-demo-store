@@ -26,7 +26,7 @@ The Room Makeover demo revolutionizes this experience by seamlessly integrating 
 
 5. **Stable Diffusion Generation**: The prompt is then passed to a custom Stable Diffusion model deployed on Amazon SageMaker, which generates a new image depicting the room in the selected design style.
 
-6. **Continuous Optimization**: The generated image is further analyzed to identify additional furniture and decor elements, which are matched back to the product catalog to provide a comprehensive, personalized room makeover experience.
+6. **Continuous Optimization**: The generated image is further analyzed to identify additional furniture and decor elements, which are matched back to the product catalog to allow customers to select and purchase straight from the generated room image.
 
 
 ## The Benefits
@@ -35,11 +35,9 @@ The Room Makeover demo offers several key benefits for businesses and consumers:
 
 1. **Personalization at Scale**: By leveraging the power of AI, the demo can generate personalized room designs for each customer, at scale, rather than relying on manual, labor-intensive processes.
 
-2. **Increased Engagement and Conversion**: The immersive, AI-powered experience helps customers visualize how their spaces could be transformed, driving increased engagement and ultimately, higher conversion rates.
+2. **Increased Engagement and Conversion**: The immersive, AI-powered experience helps customers visualize how their spaces could be transformed. The generated product in the image is automatically linked to the product catalog and features a direct "add to basket" functionality, driving increased engagement and ultimately, higher conversion rates. 
 
 3. **Streamlined Workflows**: The automated product matching and prompt generation capabilities reduce the time and effort required by interior design professionals, enabling them to focus on higher-value tasks.
-
-4. **Continuous Improvement**: The feedback loop between image analysis, product matching, and room generation allows the system to continuously learn and improve, delivering increasingly accurate and personalized results over time.
 
 ## Conclusion
 
