@@ -84,33 +84,7 @@ aws cloudformation deploy \
   --capabilities CAPABILITY_NAMED_IAM \
   --region "${REGION}" \
   --parameter-overrides \
-  ResourceBucket="${S3_BUCKET}" \
-  SourceDeploymentType="CodeCommit" \
-  AlexaSkillId="" \
-  AlexaDefaultSandboxEmail="" \
-  ResourceBucketRelativePath="" \
-  mParticleSecretKey="" \
-  AmazonPayPublicKeyId="" \
-  mParticleApiKey="" \
-  mParticleS2SSecretKey="" \
-  mParticleS2SApiKey="" \
-  mParticleOrgId="" \
-  GoogleAnalyticsMeasurementId="" \
-  PinpointSMSLongCode="" \
-  PinpointEmailFromAddress="" \
-  SegmentWriteKey="" \
-  AmazonPayPrivateKey="" \
-  AmazonPayStoreId="" \
-  AmazonPayMerchantId="" \
-  OptimizelySdkKey="" \
-  GitHubToken="" \
-  AmplitudeApiKey="" \
-  CreateOpenSearchServiceLinkedRole="No" \
-  ACMCertificateArn="" \
-  PreCreatePersonalizeResources="${param_personalize}" \
-  PreIndexElasticsearch="${param_elasticsearch}" \
-  ResourceBucketImages="" \
-  ResourceBucketImagesPrefix=""
+  ResourceBucket="${S3_BUCKET}" 
   
 
 
