@@ -204,17 +204,19 @@ Parameters:
     Description: >
       Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
       Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+    Default: ''
 
   ResourceBucketImages:
     Type: String
     Description: >
       (Leave empty in most cases) only specify if your product images are stored in a different bucket
+    Default: ''
 
   ResourceBucketImagesPrefix:
     Type: String
     Description: >
       (Leave empty in most cases) Images bucket prefix only specify if your product images are stored in a different bucket
-
+    Default: ''
 
   CreateOpenSearchServiceLinkedRole:
     Type: String
@@ -260,7 +262,8 @@ Parameters:
       If you are linking and deploying from a private fork of the Retail Demo Store repository in your GitHub account, a GitHub Personal
       Access Token is required. Otherwise, leave blank. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
     NoEcho: true
-
+    Default: ''
+    
   PreIndexOpenSearch:
     Type: String
     Description: >
@@ -299,6 +302,7 @@ Parameters:
     Description: >
       Email address to use as Reply-To when sending emails from Pinpoint. This parameter is required when 'Auto-Configure Pinpoint'
       is set to 'Yes'.
+    Default: ''
 
   PinpointEmailFromName:
     Type: String
@@ -323,16 +327,19 @@ Parameters:
     Description: >
       A dedicated long code (i.e. a phone number) obtained for Amazon Pinpoint to send and receive messages at. Be sure to enable two way SMS for this long code using Pinpoint. Follow steps 2 and 3 in the Messaging workshop(https://github.com/aws-samples/retail-demo-store/blob/master/workshop/4-Messaging/4.1-Pinpoint.ipynb)
       to get a long code. This parameter only applies when 'Auto-Configure Pinpoint' is set to 'Yes'. Enter the number along with the country code and without any spaces or brackets. For Example: enter "+1XXXXXXXXXX" for a long code based in the United States.
+    Default: ''
 
   AmplitudeApiKey:
     Type: String
     Description: Amplitude API key for integrated product analytics and A/B testing results (optional).
     NoEcho: true
+    Default: ''
 
   OptimizelySdkKey:
     Type: String
     Description: Optimizely SDK key for experimentation (optional).
     NoEcho: true
+    Default: ''
 
   DeployLocationServices:
     Type: String
@@ -356,18 +363,21 @@ Parameters:
       This demonstration store contains an example of signing Amazon Pay payloads for integration with an Amazon Pay sandbox.
       This parameter is the Public Key ID for the Amazon Pay sandbox account being used.
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+    Default: ''
 
   AmazonPayStoreId:
     Type: String
     Description: >
       The Store ID of the Amazon Pay sandbox account being used.
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+    Default: ''
 
   AmazonPayMerchantId:
     Type: String
     Description: >
       Merchant ID of the Amazon Pay sandbox account being used.
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
+    Default: ''
 
   AmazonPayPrivateKey:
     Type: String
@@ -376,6 +386,7 @@ Parameters:
       You will need to copy the whole contents of the .pem file into this parameter.
       For more information see "Amazon Pay Integration" under the README file in the amazon-pay-signing subfolder in the repository.
     NoEcho: true
+    Default: ''
 
   AlexaSkillId:
     Type: String
@@ -384,12 +395,14 @@ Parameters:
       of this CloudFormation stack. The back-end Lambda supports the C-Store demo allowing hands-free location
       based searching with Location Service (if enabled), integration with the Retail Demo Store back-end, online recommendations,
       and checkout.
+    Default: ''
 
   AlexaDefaultSandboxEmail:
     Type: String
     Description: >
       Fallback email address to receive order confirmation emails.  This will be used until the steps are followed to enable Alexa to authenticate with Cognito,
       after which it will be able to retrieve the user's details.
+    Default: ''
 
   IncludeSegmentDependencies:
     Type: String
@@ -405,6 +418,7 @@ Parameters:
     Description: >
       Segment write key for real-time data collection (optional). Be sure the Segment resources are deployed (above) if you specify a write key.
     NoEcho: true
+    Default: ''
 
   IncludemParticleDependencies:
     Type: String
@@ -420,36 +434,42 @@ Parameters:
     Description: >
       mParticle organization ID from your workspace.
     NoEcho: true
+    Default: ''
 
   mParticleApiKey:
     Type: String
     Description: >
       mParticle event API Key for your mParticle tenant.
     NoEcho: true
+    Default: ''
 
   mParticleSecretKey:
     Type: String
     Description: >
       mParticle event API secret key coupled with your API key.
     NoEcho: true
+    Default: ''
 
   mParticleS2SApiKey:
     Type: String
     Description: >
       mParticle server to server API Key for your mParticle tenant.
     NoEcho: true
+    Default: ''
 
   mParticleS2SSecretKey:
     Type: String
     Description: >
       mParticle server to server secret key coupled with your API key.
     NoEcho: true
+    Default: ''
 
   GoogleAnalyticsMeasurementId:
     Type: String
     Description: >
       Google Analytics Measurement Identifier (optional). If specified, the Google Analytics integration in the web application is activated and
       events are sent to the data stream associated with the Measurement ID.
+    Default: ''
 
   ACMCertificateArn:
     Type: String
