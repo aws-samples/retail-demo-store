@@ -1,11 +1,11 @@
-import { Storage } from 'aws-amplify';
+import { getUrl } from 'aws-amplify/storage';
 
 export const downloadImageS3 = async (key) => {
     try {
-      const signedUrl = await Storage.get(key, {
-        level: 'private',
+      const signedUrl = await getUrl({
+        path: ({identityId}) => `private/${identityId}/${key}`
       });
-      return signedUrl
+      return signedUrl.url
     } catch (error) {
       console.error('Error fetching the image:', error);
     }

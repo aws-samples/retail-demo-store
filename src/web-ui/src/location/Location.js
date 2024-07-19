@@ -1,41 +1,76 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { RestClient } from '@aws-amplify/api-rest';
+import { Amplify } from 'aws-amplify';
+import { get, post } from 'aws-amplify/api';
+
+const existingConfig = Amplify.getConfig();
 
 const resourceName = import.meta.env.VITE_LOCATION_RESOURCE_NAME;
 const awsRegion = import.meta.env.VITE_AWS_REGION
 
+Amplify.configure({
+    ...existingConfig,
+    API: {
+      ...existingConfig.API,
+      REST: {
+        ...existingConfig.API?.REST,
+        maps: {
+          endpoint:
+            `https://maps.geo.${awsRegion}.amazonaws.com$`,
+          region: awsRegion,
+          service: 'geo'
+        },
+        geofencing: {
+            endpoint:
+              `https://geofencing.geo.${awsRegion}.amazonaws.com`,
+            region: awsRegion,
+            service: 'geo'
+        },
+        tracking: {
+            endpoint:
+              `https://tracking.geo.${awsRegion}.amazonaws.com`,
+            region: awsRegion,
+            service: 'geo'
+        }
+      }
+    }
+  });
+
 class Location {
-    region = awsRegion
-    api = new RestClient({
-        headers: { accept: 'application/json' },
-    });
 
     async getRequest(service, endpoint, nextToken = null) {
         const queryStringParameters = {};
         if (nextToken) {
             queryStringParameters['next-token'] = nextToken;
         }
-
-        return await this.api.get(
-            {
-                endpoint: `https://${service}.geo.${this.region}.amazonaws.com${endpoint}`,
-                service: 'geo',
-                region: this.region,
-            },
-            { queryStringParameters }
-        );
+        const restOperation = get({ 
+            apiName: service,
+            path: endpoint,
+            options: {
+                queryParams: queryStringParameters,
+                headers: {
+                    accept: 'application/json'
+                }
+            }
+          });
+        return await restOperation.response
+        
     }
 
-    async postRequest(service, endpoint, body = {}) {
-        return await this.api.post(
-            {
-                endpoint: `https://${service}.geo.${this.region}.amazonaws.com${endpoint}`,
-                service: 'geo',
-                region: this.region,
-            }, { body }
-        );
+    async postRequest(service, endpoint, payload = {}) {
+        const restOperation = post({ 
+            apiName: service,
+            path: endpoint,
+            options: {
+                headers: {
+                    accept: 'application/json'
+                },
+                body: payload
+            }
+          });
+        const { body } = await restOperation.response;
+        return await body.json()
     }
 
     async getMaps(nextToken = null) {
@@ -59,12 +94,12 @@ class Location {
         const timestamp = new Date();
         const isoString = timestamp.toISOString()
 
-        let body = {Updates: []}
+        let payload = {Updates: []}
         positions.map(position => {
-            body.Updates.push({...position, SampleTime: isoString})
+          payload.Updates.push({...position, SampleTime: isoString})
         })
 
-        return this.postRequest('tracking', `/tracking/v0/trackers/${resourceName}/positions`, body)
+        return this.postRequest('tracking', `/tracking/v0/trackers/${resourceName}/positions`, payload)
     }
 }
 

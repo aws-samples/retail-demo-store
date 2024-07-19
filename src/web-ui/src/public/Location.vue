@@ -26,7 +26,7 @@
 <script>
 import AmplifyMap from "@/public/components/AmplifyMap.vue";
 import Location from "@/location/Location";
-import { Auth } from 'aws-amplify';
+import { getCurrentUser, updateUserAttributes } from 'aws-amplify/auth';
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
 import AmplifyStore from "@/store/store";
 import swal from 'sweetalert';
@@ -57,12 +57,12 @@ export default {
   async created () {
     this.getIncompleteCollectionOrders();
     this.fetchStoreLocation();
-    await this.getCognitoUser();
+    this.getCognitoUser();
     this.fetchCustomerRoute()
         .then(() => {
           this.customerPosition = this.customerRoute[0];
           locationApi.updateDevicePositions([{
-            'DeviceId': this.cognitoUser.username,
+            'DeviceId': this.cognitoUser,
             'Position': this.customerRoute[0]
           }])
         });
@@ -91,17 +91,17 @@ export default {
       }
     },
     async getCognitoUser() {
-      this.cognitoUser = await Auth.currentAuthenticatedUser()
+      this.cognitoUser = (await getCurrentUser()).username;
     },
     async setCollectionDemoJourney() {
-      await Auth.updateUserAttributes(this.cognitoUser, {
+      await updateUserAttributes({ userAttributes: {
         'custom:demo_journey': 'COLLECTION',
-      })
+      }})
     },
     async setPurchaseDemoJourney() {
-      await Auth.updateUserAttributes(this.cognitoUser, {
+      await updateUserAttributes({ userAttributes: {
         'custom:demo_journey': 'PURCHASE',
-      })
+      }})
     },
     async getIncompleteCollectionOrders() {
       const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
@@ -174,7 +174,7 @@ export default {
         setTimeout(() => {
           this.customerPosition = location;
           locationApi.updateDevicePositions([{
-            'DeviceId': this.cognitoUser.username,
+            'DeviceId': this.cognitoUser,
             'Position': location
           }]);
           if (journeySteps === index + 1) {
