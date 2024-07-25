@@ -5,8 +5,9 @@
 <script>
 import mapbox from 'mapbox-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
-import {Credentials, Signer} from "@aws-amplify/core";
+import { fetchAuthSession } from 'aws-amplify/auth';
 import Location from "@/location/Location";
+import { signRequest } from "@/location/signRequest"
 
 const resourceName = import.meta.env.VITE_LOCATION_RESOURCE_NAME;
 const locationApi = new Location();
@@ -39,19 +40,20 @@ export default {
   },
   mounted () {
     this.getCreds()
+    this.loadMap()
   },
   methods: {
     getCreds() {
-      Credentials.get()
-        .then(creds => this.creds = creds)
-        .then(this.loadMap)
+      fetchAuthSession()
+        .then( ({ credentials }) => this.creds = credentials)
+        .then(this.loadMap)        
     },
     async loadMap() {
       if (!this.storePosition) {
         return
-      }
-      console.log(this.$refs)
+      }      
       const mapContainer = this.$refs.mapContainer
+      
       this.map = new mapbox.Map({
         attributionControl: false,
         center: this.storePosition || [0, 0],
@@ -211,7 +213,7 @@ export default {
       }
     },
     transformMapboxRequest(url, resourceType) {
-      let newUrl = url;
+      let newUrl = url;      
       const resourceTypeAccept = {
         Style: 'application/json',
         Tile: 'application/octet-stream',
@@ -233,15 +235,20 @@ export default {
           headers,
         };
       }
-      return Signer.sign(
-          { headers, method: 'GET', url: newUrl },
-          {
-            access_key: this.creds.accessKeyId,
-            secret_key: this.creds.secretAccessKey,
-            session_token: this.creds.sessionToken,
-          }
-      );
-    }
+
+      const signedRequest = signRequest(
+        {headers, method: 'GET', url: new URL(newUrl)},
+        {        
+          credentials: this.creds,
+          signingRegion: import.meta.env.VITE_AWS_REGION,
+          signingService: 'geo',
+        });
+      
+      return {
+        url: newUrl,
+        headers: signedRequest.headers
+      }
+    },
   },
   watch: {
     devicePositions: function () {

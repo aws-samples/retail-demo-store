@@ -50,7 +50,8 @@
 </template>
 
 <script>
-import { Logger, Interactions } from 'aws-amplify';
+import { ConsoleLogger } from 'aws-amplify/utils';
+import { Interactions as InteractionsLexV1 } from '@aws-amplify/interactions/lex-v1';
 
 const STATES = {
   INITIAL: { MESSAGE: "Type your message or click  🎤", ICON: "🎤" },
@@ -86,7 +87,7 @@ export default {
     }
   },
   mounted() {
-    this.logger = new Logger(this.$options.name);
+    this.logger = new ConsoleLogger(this.$options.name);
     if (!this.options.bot) {
       this.setError("Bot not provided.");
     }
@@ -95,10 +96,10 @@ export default {
       this.currentVoiceState = STATES.INITIAL.MESSAGE;
     }
 
-    Interactions.onComplete(
-      this.options.bot,
-      this.performOnComplete
-    );
+    InteractionsLexV1.onComplete( {
+      botName: this.options.bot,
+      callback: this.performOnComplete
+    });
   },
   methods: {
     performOnComplete(evt) {
@@ -122,7 +123,7 @@ export default {
         bot: "",
         botSentTime: ""
       };
-      Interactions.send(this.options.bot, this.inputText)
+      InteractionsLexV1.send({ botName: this.options.bot, message: this.inputText })
         .then(response => {
             this.$emit("chatResponse", response);
             this.inputText = "";

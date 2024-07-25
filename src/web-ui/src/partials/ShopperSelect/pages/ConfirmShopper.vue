@@ -75,7 +75,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { Hub } from 'aws-amplify';
+import { Hub } from 'aws-amplify/utils';
 
 import { RepositoryFactory } from '@/repositories/RepositoryFactory';
 import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
