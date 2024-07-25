@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import resolveBaseURL from './resolveBaseURL'
-import { Auth } from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const baseURL = resolveBaseURL(
     import.meta.env.VITE_PRODUCTS_SERVICE_DOMAIN,
@@ -33,9 +33,9 @@ export default {
         let headers = {}
         if (user) {
             params['user'] = user
-            await Auth.currentSession()
-                    .then((session) => session.idToken.jwtToken)
-                    .then((idToken) => headers['Authorization'] = "Bearer " + idToken)
+            const { tokens } = await fetchAuthSession();
+            const { idToken } = tokens
+            headers['Authorization'] = "Bearer " + idToken
         } 
         return connection.get(`${resource}/id/${productID}`, { params: params, headers: headers })        
     },

@@ -41,7 +41,7 @@
 </template>
 <script>
 import { v4 as uuidv4 } from 'uuid';
-import { Storage } from 'aws-amplify';
+import { uploadData } from 'aws-amplify/storage';
 import { RepositoryFactory } from "@/repositories/RepositoryFactory";
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css';
@@ -116,15 +116,19 @@ export default {
                 if (blob) {
                     // Proceed with the upload process
                     const uniqueID = uuidv4();
-                    const response = await Storage.put(`${uniqueID}/original.png`, blob, {
-                        contentType: 'image/png',
-                        level: 'private',
-                        progressCallback: (progress) => {
-                            this.progress = Math.round((progress.loaded / progress.total) * 100);
-                        },
+                    const operation = uploadData({
+                        path: ({ identityId }) => `private/${identityId}/${uniqueID}/original.png`, 
+                        data: blob, 
+                        options: {
+                            contentType: 'image/png',                        
+                            onProgress: ({ transferredBytes, totalBytes }) => {
+                                this.progress = Math.round((transferredBytes / totalBytes) * 100);
+                            },
+                        }
                     });
-                    imageKey = response.key;
-                    console.log('Upload successful:', response);
+                    const result = await operation.result;
+                    imageKey = result.path;
+                    console.log('Upload successful:', result);
                 } else {
                     // Use current active room for the original image
                     imageKey = this.activeRoom.image_key.split('/').slice(2).join('/');

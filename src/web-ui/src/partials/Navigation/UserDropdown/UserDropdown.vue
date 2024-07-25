@@ -46,7 +46,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { Auth } from 'aws-amplify';
+import { signOut } from 'aws-amplify/auth';
 import swal from 'sweetalert';
 
 import { Modals } from '@/partials/AppModal/config';
@@ -95,7 +95,7 @@ export default {
       this.openModal(Modals.ShopperSelect);
     },
     signOut() {
-      Auth.signOut({ global: true })
+      signOut({ global: true })
         .then(() => {
           swal('You have been logged out!');
         })

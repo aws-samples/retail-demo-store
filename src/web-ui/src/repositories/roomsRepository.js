@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import resolveBaseURL from './resolveBaseURL'
-import { Auth } from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 
 const baseURL = resolveBaseURL(
@@ -16,6 +16,7 @@ const connection = axios.create({
     baseURL
 })
 
+
 const resource = "rooms";
 export default {
     async getRoom(roomId) {
@@ -23,30 +24,25 @@ export default {
         if (!roomId) {
             throw Error("user or roomId not defined")
         }
-        await Auth.currentSession()
-                .then((session) => session.idToken.jwtToken)
-                .then((idToken) => headers['Authorization'] = "Bearer " + idToken)
+        const idToken = (await fetchAuthSession()).tokens?.idToken?.toString();
+        
+        headers['Authorization'] = "Bearer " + idToken
         const response = await connection.get(`${resource}/${roomId}`, { headers: headers })    
         return response.data     
     },
     async getRooms() {
         let headers = {}
-        await Auth.currentSession()
-                .then((session) => session.idToken.jwtToken)
-                .then((idToken) => headers['Authorization'] = "Bearer " + idToken)
+        const idToken = (await fetchAuthSession()).tokens?.idToken?.toString();
+        
+        headers['Authorization'] = "Bearer " + idToken
         const response = await connection.get(`${resource}`, { headers: headers }) 
         return response.data
     },
     async createRoom(uploadKey, style) {
-        const session = await Auth.currentSession(); // Fetch the current session
-        const idToken = session.getIdToken().getJwtToken(); // Get the ID token
-
-        console.log(uploadKey)
-        const credentials= await Auth.currentCredentials();
-        
+        const idToken = (await fetchAuthSession()).tokens?.idToken?.toString();
 
         const requestBody = {
-            s3_key: `private/${credentials.identityId}/${uploadKey}`,
+            s3_key: uploadKey,
             style: style
         }
         console.log(requestBody)
