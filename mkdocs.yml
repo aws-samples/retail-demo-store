@@ -7,6 +7,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.footer
+    - content.code.copy
   logo: assets/aws_smile-header-desktop-en-white_59x35@2x.png
   favicon: https://a0.awsstatic.com/libra-css/images/site/fav/favicon.ico
   palette:

@@ -33,20 +33,21 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 
 ### AWS credentials
 
-Docker compose will still pick variables set in your shell when building and launching the services. Make sure you set the correct environnement variables in your shell before doing the docker compose up command. (AWS_SESSION_TOKEN is only for temporary credentials)
+Docker compose will pick variables set in your shell when building and launching the services. Make sure you set the correct environement variables in your shell before doing the docker compose up command. You can find more information about all the different ways of setting aws credentials in this [documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
 
 ```
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
-AWS_SESSION_TOKEN
+export AWS_ACCESS_KEY_ID=xxx
+export AWS_SECRET_ACCESS_KEY=xxx
+export AWS_SESSION_TOKEN=xxx
 ```
+
 
 ## Run All Services
 
 The following command will build and launch all Retail Demo Store web services in your local Docker engine.
 
 ```console
-foo@bar:~$ docker compose up --build
+docker compose up --build
 ```
 
 ## Run Specific Services
@@ -54,7 +55,7 @@ foo@bar:~$ docker compose up --build
 You can also choose to run specific services locally by appending the service names to the above command. For example, the following command builds and launches the [products](https://github.com/aws-samples/retail-demo-store/tree/master/src/products) and [web-ui](https://github.com/aws-samples/retail-demo-store/tree/master/src/web-ui) services only. Note that some configuration of the [web-ui](https://github.com/aws-samples/retail-demo-store/tree/master/src/web-ui) environment will likely be needed to match your configuration.
 
 ```console
-foo@bar:~$ docker compose up --build products web-ui
+docker compose up --build products web-ui
 ```
 
 For instructions specific to each Retail Demo Store web service, view the README page in each service sub-directory.
@@ -66,6 +67,7 @@ When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFr
 !!! Note
     If you are going to work on frontend updates, instead of using docker you can run:
     ```
+    npm install
     npm run dev
     ```
     Which makes frontend development easier
@@ -73,6 +75,6 @@ When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFr
 
 ## Swagger UI
 
-There is a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request agains the service via Swagger UI.
+There is a `swagger-ui` service in the `docker-compose.yml`. You can access it via [localhost:8081](http://localhost:8081). From there, you can select which service you want to check and send request against the service via Swagger UI.
 
 The `Dockerfile` of `swagger-ui` copies OpenAPI spec from each service (located at `<serviceName>/openapi/spec.yaml`). If you add a new service, please ensure that you write the OpenAPI spec and update the `Dockerfile` to copy yours.
