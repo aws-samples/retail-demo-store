@@ -111,20 +111,17 @@ export default {
   },
   methods: {
     async getUsers (){
-      const { data } = await UsersRepository.get(0, 300)
-      this.users = data
+      this.users = await UsersRepository.get(0, 300);
     },    
     async getProducts (){
-      const { data } = await ProductsRepository.get()
-      this.products = data
+      this.products = await ProductsRepository.get();
     },    
     async getCategories (){
       const { data } = await ProductsRepository.getCategories()
       this.categories = data
     },    
     async getOrders (){
-      const { data } = await OrdersRepository.get()
-      this.orders = data
+      this.orders = await OrdersRepository.get();
     },    
     async getCarts (){
       const { data } = await CartsRepository.get()

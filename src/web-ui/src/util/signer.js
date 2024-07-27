@@ -4,6 +4,11 @@ import { Sha256 } from '@aws-crypto/sha256-js';
 // query params
 const AMZ_DATE_QUERY_PARAM = 'X-Amz-Date';
 const TOKEN_QUERY_PARAM = 'X-Amz-Security-Token';
+const ALGORITHM_QUERY_PARAM = 'X-Amz-Algorithm';
+const CREDENTIAL_QUERY_PARAM = 'X-Amz-Credential';
+const SIGNED_HEADERS_QUERY_PARAM = 'X-Amz-SignedHeaders';
+const EXPIRES_QUERY_PARAM = 'X-Amz-Expires';
+const SIGNATURE_QUERY_PARAM = 'X-Amz-Signature';
 // headers
 const AUTH_HEADER = 'authorization';
 const HOST_HEADER = 'host';
@@ -36,6 +41,37 @@ const signRequest = (request, options) => {
   headers[AUTH_HEADER] =
       `${SHA256_ALGORITHM_IDENTIFIER} ${credentialEntry}, ${signedHeadersEntry}, ${signatureEntry}`;
   return requestToSign;
+};
+
+const signUrl = async (url, options, expiration) => {
+
+  const signingValues = getSigningValues(options);
+    
+  const { accessKeyId, credentialScope, longDate, sessionToken } = signingValues;
+  const presignedUrl = new URL(url);
+  
+  Object.entries({
+		[ALGORITHM_QUERY_PARAM]: SHA256_ALGORITHM_IDENTIFIER,
+		[CREDENTIAL_QUERY_PARAM]: `${accessKeyId}/${credentialScope}`,
+		[AMZ_DATE_QUERY_PARAM]: longDate,
+		[SIGNED_HEADERS_QUERY_PARAM]: HOST_HEADER,
+		...(expiration && { [EXPIRES_QUERY_PARAM]: expiration.toString() }),
+		...(sessionToken && { [TOKEN_QUERY_PARAM]: sessionToken }),
+	}).forEach(([key, value]) => {
+		presignedUrl.searchParams.append(key, value);
+	});
+	const requestToSign = {
+		body: undefined,
+		headers: { [HOST_HEADER]: presignedUrl.host },
+		method: 'GET',
+		url: presignedUrl,
+	};
+
+	// calculate and add the signature to the url
+	const signature = getSignature(requestToSign, signingValues);
+	presignedUrl.searchParams.append(SIGNATURE_QUERY_PARAM, signature);
+
+  return presignedUrl;
 };
 
 const getSigningValues = ({ credentials, signingDate = new Date(), signingRegion, signingService, uriEscapePath = true, }) => {
@@ -163,4 +199,4 @@ const getHashedData = (key, data) => {
   return hashedData;
 };
 
-export { signRequest };
+export { signRequest, signUrl };

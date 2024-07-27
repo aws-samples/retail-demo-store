@@ -303,22 +303,8 @@ Resources:
             Value: !Sub ${UserPoolClientId}
           - Name: COGNITO_IDENTITY_POOL_ID
             Value: !Sub ${IdentityPoolId}
-          - Name: PRODUCTS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: USERS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: CARTS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: ORDERS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: RECOMMENDATIONS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: LOCATION_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: SEARCH_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: VIDEOS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
+          - Name: API_GATEWAY_URL
+            Value: !Ref APIGatewayUrl          
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
           - Name: PINPOINT_APP_ID

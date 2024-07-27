@@ -8,4 +8,3 @@ pyyaml==6.0.1
 requests==2.31.0
 urllib3<2
 uuid==1.30
-pyjwt[crypto]==2.8.0

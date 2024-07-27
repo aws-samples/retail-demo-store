@@ -28,10 +28,10 @@ const amplifyConfig = {
   },
   Interactions: {
     LexV1: {
-      "RetailDemoStore": {
-        "name": import.meta.env.VITE_BOT_NAME,
-        "alias": import.meta.env.VITE_BOT_ALIAS,
-        "region": import.meta.env.VITE_BOT_REGION,
+      RetailDemoStore: {
+        name: import.meta.env.VITE_BOT_NAME,
+        alias: import.meta.env.VITE_BOT_ALIAS,
+        region: import.meta.env.VITE_BOT_REGION
       },
     }
   },
@@ -40,8 +40,33 @@ const amplifyConfig = {
       bucket: import.meta.env.VITE_ROOM_IMAGES_BUCKET,
       region: import.meta.env.VITE_AWS_REGION, 
     }
+  },
+  API: {    
+    REST: {
+      demoServices: {
+        endpoint: import.meta.env.VITE_API_GATEWAY,
+        region: import.meta.env.VITE_AWS_REGION
+      },
+      fenixEDD: {
+        endpoint: import.meta.env.VITE_FENIX_EDD_ENDPOINT
+      }
+    }
   }
 }
+
+const customHeaders = {
+    API: {
+      REST: {
+        headers: async ({ apiName }) => {
+          const headers = {};
+          if (apiName == 'fenixEDD') {
+            headers['x-api-key'] = import.meta.env.VITE_FENIX_X_API_KEY;
+          }
+          return headers;
+        }
+      }
+    }
+  };
 
 if (typeof import.meta.env.VITE_PINPOINT_APP_ID != 'undefined') {
   amplifyConfig.Analytics.Pinpoint = {
@@ -86,7 +111,7 @@ if (import.meta.env.VITE_MPARTICLE_API_KEY && import.meta.env.VITE_MPARTICLE_API
 }
 
 // Set the configuration
-Amplify.configure(amplifyConfig);
+Amplify.configure(amplifyConfig, customHeaders);
 
 const app = createApp(App)
 app.use(router)

@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     async fetchCustomerRoute() {
-      const customerRouteGeojson = (await LocationRepository.get_customer_route()).data
+      const customerRouteGeojson = await LocationRepository.get_customer_route();
       if (customerRouteGeojson.type === "FeatureCollection") {
         if (customerRouteGeojson.features.length > 1) {
           console.log("Found more than one route in response. Only the first route will be used")
@@ -80,7 +80,7 @@ export default {
       }
     },
     async fetchStoreLocation() {
-      const storeLocationGeojson = (await LocationRepository.get_store_location()).data
+      const storeLocationGeojson = await LocationRepository.get_store_location();
       if (storeLocationGeojson.type === "FeatureCollection") {
         if (storeLocationGeojson.features.length > 1) {
           console.log("Found more than one location in response. Only the first route will be used")
@@ -104,7 +104,7 @@ export default {
       }})
     },
     async getIncompleteCollectionOrders() {
-      const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
+      const data = await OrdersRepository.getOrdersByUsername(this.user.username);
       this.orders = data.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE")
     },
     async createOrder(collectionPhone) {

@@ -1,40 +1,53 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-
-import axios from "axios";
-import resolveBaseURL from './resolveBaseURL'
-
-const baseURL = resolveBaseURL(
-    import.meta.env.VITE_ORDERS_SERVICE_DOMAIN,
-    import.meta.env.VITE_ORDERS_SERVICE_PORT,
-    import.meta.env.VITE_ORDERS_SERVICE_PATH
-)
-
-const connection = axios.create({
-    baseURL
-})
+import { get, post, put } from 'aws-amplify/api';
 
 const resource = "/orders";
+const apiName = 'demoServices';
+
 export default {
-    get() {
-        return connection.get(`${resource}/all`)
+    async get() {
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/all`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getOrderByID(orderID) {
+    async getOrderByID(orderID) {
         if (!orderID || orderID.length == 0)
             throw "orderID required"
-        return connection.get(`${resource}/id/${orderID}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/id/${orderID}`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getOrdersByUsername(username) {
+    async getOrdersByUsername(username) {
         if (!username || username.length == 0)
             throw "username required"
-        return connection.get(`${resource}/username/${username}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/username/${username}`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    updateOrder(order) {
+    async updateOrder(order) {
         if (!order)
             throw "order required"
-        return connection.put(`${resource}/id/${order.id}`, order)
+        const restOperation = put({
+            apiName: apiName,
+            path: `${resource}/id/${order.id}`,
+            options: {
+                body: order
+              }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    createOrder(order) {
+    async createOrder(order) {
         if (!order)
             throw "order required"
         order.channel = 'WEB'
@@ -43,7 +56,15 @@ export default {
             channel_geo: 'US'
         }
         delete order.ttl
-
-        return connection.post(`${resource}`, order)
+        
+        const restOperation = post({
+            apiName: apiName,
+            path: resource,
+            options: {
+                body: order
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },  
 }

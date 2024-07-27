@@ -3,11 +3,9 @@
 from flask import Flask
 
 from products_service.db import DynamoDB
-from products_service.auth import Auth
 import logging
 
 dynamodb = DynamoDB()
-auth = Auth()
 
 def create_app(config) -> Flask:
     app = Flask(__name__)
@@ -24,7 +22,6 @@ def create_app(config) -> Flask:
 
 def initialize_extensions(app: Flask) -> None:
     dynamodb.init_app(app)
-    auth.init_app(app)
 
 def register_blueprints(app: Flask) -> None:
     from . import routes

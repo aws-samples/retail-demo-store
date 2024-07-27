@@ -133,28 +133,27 @@ export default {
 
       let intermediate = null
       if (categoryName == 'featured') {
-        const { data } = await ProductsRepository.getFeatured()
-        intermediate = data
+        intermediate = await ProductsRepository.getFeatured();
       }
       else {
-        const { data } = await ProductsRepository.getProductsByCategory(categoryName)
-        intermediate = data
+        intermediate = await ProductsRepository.getProductsByCategory(categoryName);
       }
 
       if (this.personalizeUserID && intermediate.length > 0) {
-        const response = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
+        const { body, headers } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, intermediate, ExperimentFeature)
 
 
-        if (response.headers) {
-          const personalizeRecipe = response.headers['x-personalize-recipe'];
-          const experimentName = response.headers['x-experiment-name'];
+        if (headers) {
+          const personalizeRecipe = headers['x-personalize-recipe'];
+          const experimentName = headers['x-experiment-name'];
 
           if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
 
           if (experimentName) this.experiment = `Active experiment: ${experimentName}`
         }
 
-        this.products = response.data.slice(0, MaxProducts)
+        const data = await body.json();
+        this.products = data.slice(0, MaxProducts)
 
         if (this.products.length > 0 && 'experiment' in this.products[0]) {
           AnalyticsHandler.identifyExperiment(this.user, this.products[0].experiment)

@@ -394,8 +394,7 @@ export const AnalyticsHandler = {
             const hasItem = cart.items.length > 0
             var productImages, productTitles, productURLs
             if (hasItem) {
-                const product = await ProductsRepository.getProduct(cart.items[0].product_id);
-                const cartItem = product.data
+                const cartItem = await ProductsRepository.getProduct(cart.items[0].product_id);
                 productImages = [cartItem.image]
                 productTitles = [cartItem.name]
                 productURLs = [cartItem.url]
@@ -430,8 +429,7 @@ export const AnalyticsHandler = {
 
             if (this.mParticleEnabled()) {
 
-                const product = await ProductsRepository.getProduct(cart.items[0].product_id);
-                const cartItem = product.data
+                const cartItem = await ProductsRepository.getProduct(cart.items[0].product_id);
                 productImages = [cartItem.image]
                 productTitles = [cartItem.name]
                 productURLs = [cartItem.url]

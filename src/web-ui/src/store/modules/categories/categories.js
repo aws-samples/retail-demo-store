@@ -15,7 +15,7 @@ export const categories = {
     getCategories: async ({ commit }) => {
       commit('setCategories', null);
 
-      const { data: categories } = await ProductsRepository.getCategories();
+      const categories = await ProductsRepository.getCategories();
 
       commit('setCategories', categories);
     },
