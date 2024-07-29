@@ -9,7 +9,8 @@ from http import HTTPStatus
 import json
 import boto3
 
-import products_service.products as product_service 
+import products_service.products as product_service
+from products_service import auth
 
 cognito_idp = boto3.client('cognito-idp')
 
@@ -47,16 +48,7 @@ def get_products_by_id(product_ids):
     # If the personalization parameter is passed in then Bedrock is called for personalised product descriptions       
     if request.args.get('personalized') == 'true':
         cognito_authentication_provider = request.headers.get('cognitoAuthenticationProvider')
-        cognito_signin = [sign_in for sign_in in cognito_authentication_provider.split(',') if "CognitoSignIn" in sign_in]
-        _, _, user_sub = cognito_signin[0].split(":")
-        users = cognito_idp.list_users(UserPoolId=current_app.config['COGNITO_USER_POOL_ID'], Filter=f"sub = \"{user_sub}\"")
-        user_attributes = users['Users'][0]['Attributes']
-        data = {attribute['Name']: attribute['Value'] for attribute in user_attributes}
-        user = {
-            "user_id": data['custom:profile_user_id'],
-            "persona": data['custom:profile_persona'],
-            "age": int(data['custom:profile_age'])            
-        }
+        user = auth.auth_user(cognito_authentication_provider)
     
     product = product_service.get_product_by_id(product_ids[0], should_fully_qualify_image_urls(), user)
     if not product:
