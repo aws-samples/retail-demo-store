@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from decimal import Decimal
-from flask import jsonify, request, Response, current_app, Blueprint, g
+from flask import jsonify, request, Response, current_app, Blueprint
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound, Unauthorized
 from botocore.exceptions import BotoCoreError

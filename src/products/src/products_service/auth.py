@@ -1,4 +1,4 @@
-from flask import Flask, current_app
+from flask import Flask
 from typing import Dict, Any
 import boto3
 
