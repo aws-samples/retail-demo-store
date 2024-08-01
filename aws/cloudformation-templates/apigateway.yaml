@@ -143,10 +143,8 @@ Resources:
       IntegrationUri: !Ref ProductsServiceELBListener
       PassthroughBehavior: WHEN_NO_MATCH
       PayloadFormatVersion: '1.0'
-      RequestParameters: |-
-        {
-          "overwrite:header.cognitoAuthenticationProvider": "$context.identity.cognitoAuthenticationProvider"
-        }
+      RequestParameters:
+        "overwrite:header.cognitoAuthenticationProvider": "$context.identity.cognitoAuthenticationProvider"
   
   UsersServiceIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
