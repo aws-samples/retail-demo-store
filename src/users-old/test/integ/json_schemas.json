@@ -30,7 +30,7 @@
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
         "selectable_user": {"type":  "boolean"},
-        "identity_id": {"type":  ["string", "null"]}
+        "identity_id": {"type":  "string"}
       }
     }
   },
@@ -63,7 +63,7 @@
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
       "selectable_user": {"type":  "boolean"},
-      "identity_id": {"type":  ["string", "null"]}
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/username/:username": {
@@ -95,7 +95,7 @@
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
       "selectable_user": {"type":  "boolean"},
-      "identity_id": {"type":  ["string", "null"]}
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/identityid/:identity_id": {
@@ -127,7 +127,7 @@
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
       "selectable_user": {"type":  "boolean"},
-      "identity_id": {"type":  ["string", "null"]}
+      "identity_id": {"type":  "string"}
     }
   },
   "/users/unclaimed": {
@@ -161,7 +161,7 @@
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
         "selectable_user": {"type":  "boolean"},
-        "identity_id": {"type":  ["string", "null"]}
+        "identity_id": {"type":  "string"}
       }
     }
   },
@@ -196,7 +196,7 @@
         "persona": {"type":  "string"},
         "discount_persona": {"type":  "string"},
         "selectable_user": {"type":  "boolean"},
-        "identity_id": {"type":  ["string", "null"]}
+        "identity_id": {"type":  "string"}
       }
     }
   },
@@ -229,7 +229,7 @@
       "persona": {"type":  "string"},
       "discount_persona": {"type":  "string"},
       "selectable_user": {"type":  "boolean"},
-      "identity_id": {"type":  ["string", "null"]}
+      "identity_id": {"type":  "string"}
     }
   }
 }

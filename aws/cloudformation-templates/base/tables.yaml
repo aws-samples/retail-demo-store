@@ -5,6 +5,61 @@ Description: >
     This template deploys the Retail Demo Store DynamoDB Tables.
 
 Resources:
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "username"
+          AttributeType: "S"
+        - AttributeName: "identity_id"
+          AttributeType: "S"
+        - AttributeName: "claimed_user"
+          AttributeType: "N"
+        - AttributeName: "age_range"
+          AttributeType: "S"
+        - AttributeName: "primary_persona"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: identity_id-index
+          KeySchema:
+            - AttributeName: "identity_id"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: claimed-index
+          KeySchema:
+            - AttributeName: "claimed_user"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: age_range-index
+          KeySchema:
+            - AttributeName: "age_range"
+              KeyType: "HASH"
+            - AttributeName: "claimed_user"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: primary_persona-index
+          KeySchema:
+            - AttributeName: "primary_persona"
+              KeyType: "HASH"
+            - AttributeName: "claimed_user"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
 
   ProductsTable:
     Type: AWS::DynamoDB::Table
@@ -146,6 +201,10 @@ Outputs:
   ProductsTable:
     Description: DynamoDB Table for Products
     Value: !Ref ProductsTable
+
+  UsersTable:
+    Description: DynamoDB Table for Users
+    Value: !Ref UsersTable
 
   CategoriesTable:
     Description: DynamoDB Table for Categories

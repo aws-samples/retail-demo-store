@@ -89,6 +89,10 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -207,6 +211,7 @@ Resources:
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
+        UsersTable: !Ref UsersTable
         PinpointAppId: !Ref PinpointAppId
         CleanupBucketLambdaArn: !Ref CleanupBucketLambdaArn
         DeleteRepositoryLambdaArn: !GetAtt DeleteRepositoryLambdaFunction.Arn
