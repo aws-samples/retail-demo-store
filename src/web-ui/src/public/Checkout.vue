@@ -186,8 +186,7 @@ export default {
     async getCart (){
       if (this.cartID) {
         console.log('Ready for checkout - getting card fresh from server - ID: ' + this.cartID.toString())
-        const { data } = await CartsRepository.getCartByID(this.cartID)
-        this.cart = data
+        this.cart = await CartsRepository.getCartByID(this.cartID);
         this.order = this.cart
         this.order.total = this.cartTotal
         this.order.collection_phone = ''
@@ -263,9 +262,9 @@ export default {
         this.order.delivery_type = 'DELIVERY'
       }
       console.log(this.order)
-      OrdersRepository.createOrder(this.cart).then(response => {
+      OrdersRepository.createOrder(this.cart).then(order => {
 
-      AnalyticsHandler.orderCompleted(this.user, this.cart, response.data)
+      AnalyticsHandler.orderCompleted(this.user, this.cart, order)
       AmplifyStore.dispatch('getNewCart')
       callback()
 

@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     async getOrders () {
-      const allOrders = (await OrdersRepository.get()).data;
+      const allOrders = await OrdersRepository.get();
       console.log("All your orders:")
       console.log(allOrders)
       this.orders = allOrders.filter(order => order.delivery_type === "COLLECTION" && order.delivery_status !== "COMPLETE");

@@ -28,10 +28,10 @@ const amplifyConfig = {
   },
   Interactions: {
     LexV1: {
-      "RetailDemoStore": {
-        "name": import.meta.env.VITE_BOT_NAME,
-        "alias": import.meta.env.VITE_BOT_ALIAS,
-        "region": import.meta.env.VITE_BOT_REGION,
+      RetailDemoStore: {
+        name: import.meta.env.VITE_BOT_NAME,
+        alias: import.meta.env.VITE_BOT_ALIAS,
+        region: import.meta.env.VITE_BOT_REGION
       },
     }
   },
@@ -39,6 +39,14 @@ const amplifyConfig = {
     S3: {
       bucket: import.meta.env.VITE_ROOM_IMAGES_BUCKET,
       region: import.meta.env.VITE_AWS_REGION, 
+    }
+  },
+  API: {    
+    REST: {
+      demoServices: {
+        endpoint: import.meta.env.VITE_API_GATEWAY,
+        region: import.meta.env.VITE_AWS_REGION
+      }
     }
   }
 }

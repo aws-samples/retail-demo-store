@@ -61,7 +61,7 @@ For instructions specific to each Retail Demo Store web service, view the README
 
 ## Web UI Service
 
-When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can deploy the Web UI in a Docker container. Since the Web UI makes REST API calls to all of the other services, you can configure the [Web UI's .env](web-ui/.env) file for which there is an example at [web-ui/.env.template](web-ui/.env.template) to point to services running either locally or deployed on AWS or a combination. Just update the appropiate environment variables to match your desired configuration.
+When deployed to AWS, the Web UI is hosted in an S3 bucket and served by CloudFront. For local development, you can either deploy the Web UI in a Docker container or run it natively using `npm run dev`. Since the Web UI makes REST API calls to all of the other services through Amazon API Gateway, there is no option at the moment for a locally running web-ui to make calls directly to your locally running services.
 
 
 ## Swagger UI

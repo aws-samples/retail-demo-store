@@ -31,43 +31,12 @@ Parameters:
     Type: String
   ResourceBucketRelativePath:
     Type: String
-  CognitoUserPoolId:
+  CognitoAuthorizedRole:
     Type: String
-  CognitoAppClientId:
+  CognitoUnAuthorizedRole:
     Type: String
 
 Resources:
-  LambdaAuthorizerRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        Path: /
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  LambdaAuthorizerFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/apigw-authorizer.zip'
-      Handler: index.handler
-      Runtime: nodejs18.x
-      Role: !GetAtt LambdaAuthorizerRole.Arn
-      MemorySize: 512
-      Timeout: 60
-      Environment:
-        Variables:
-          USER_POOL_ID: !Ref CognitoUserPoolId
-          CLIENT_ID: !Ref CognitoAppClientId
 
   VpcLinkSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
@@ -102,12 +71,10 @@ Resources:
           - "POST"
           - "PUT"
         AllowHeaders:
-          - "accept"
-          - "accept-encoding"
           - "authorization"
-          - "content-length"
           - "content-type"
-          - "x-csrf-token"
+          - "x-amz-date"
+          - "x-amz-security-token"
         MaxAge: 600
         AllowCredentials: false
         AllowOrigins:
@@ -115,23 +82,54 @@ Resources:
         ExposeHeaders:
           - '*'
 
-  LambdaAuthorizer:
-    Type: 'AWS::ApiGatewayV2::Authorizer'
-    Properties:
-      Name: LambdaAuthorizer
-      ApiId: !Ref HttpAPI
-      AuthorizerPayloadFormatVersion: "2.0"
-      AuthorizerType: REQUEST
-      AuthorizerUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaAuthorizerFunction.Arn}/invocations"
-      EnableSimpleResponses: true
+  ApiGatewayUnAuthenticatedAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:      
+      PolicyName: ApiGatewayUnAuthenticatedAccessPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "execute-api:Invoke"              
+            Resource: 
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/*/carts"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/*/carts/*"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/categories/all"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/coupon_offer"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/experiment/outcome"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/orders"              
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/popular"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/products/*"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/recommendations"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/related"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/rerank"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/search/products"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/sign"                            
+      Roles: 
+        - !Ref CognitoUnAuthorizedRole
+        - !Ref CognitoAuthorizedRole
 
-  LambdaAuthorizerFunctionPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:invokeFunction
-      FunctionName: !GetAtt LambdaAuthorizerFunction.Arn
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/authorizers/${LambdaAuthorizer}"
+  ApiGatewayAuthenticatedAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:      
+      PolicyName: ApiGatewayAuthenticatedAccessPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "execute-api:Invoke"              
+            Resource:
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/choose_discounted"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/cstore_location"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/cstore_route"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/customer_route"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/*/orders/*"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/POST/users"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/*/users/*"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/store_location"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpAPI}/*/GET/stream_details"
+      Roles: 
+        - !Ref CognitoAuthorizedRole
   
   ProductsServiceIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
@@ -145,6 +143,8 @@ Resources:
       IntegrationUri: !Ref ProductsServiceELBListener
       PassthroughBehavior: WHEN_NO_MATCH
       PayloadFormatVersion: '1.0'
+      RequestParameters:
+        "overwrite:header.cognitoAuthenticationProvider": "$context.identity.cognitoAuthenticationProvider"
   
   UsersServiceIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
@@ -242,8 +242,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /products/id/{id}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -255,8 +254,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /products/category/{name}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -268,8 +266,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /products/featured'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -281,8 +278,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /categories/all'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -294,8 +290,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /users'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -306,8 +301,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/id/{id}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -319,8 +313,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /users/id/{id}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -332,8 +325,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/username/{username}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -345,8 +337,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/unclaimed'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -358,8 +349,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /users/random'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -371,8 +361,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /users/id/{userId}/claim'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -383,8 +372,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /users/id/{userId}/verifyphone'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -396,8 +384,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /carts'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -409,8 +396,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /carts/{cartId}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -422,8 +408,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /carts'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -435,8 +420,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /carts/{cartId}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -448,8 +432,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /sign'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -460,8 +443,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /orders'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -473,8 +455,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/all'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -486,8 +467,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/id/{orderId}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -499,8 +479,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'PUT /orders/id/{orderId}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -512,8 +491,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /orders/username/{username}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -525,8 +503,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /recommendations'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -537,8 +514,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /popular'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -550,8 +526,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /related'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -563,8 +538,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /rerank'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -576,8 +550,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /choose_discounted'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -589,8 +562,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /coupon_offer'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -602,8 +574,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'POST /experiment/outcome'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -614,8 +585,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /stream_details'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -627,8 +597,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /search/products'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -640,8 +609,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /store_location'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -653,8 +621,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /customer_route'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -666,8 +633,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /cstore_location'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -679,8 +645,7 @@ Resources:
     Properties:
       ApiId: !Ref HttpAPI
       RouteKey: 'GET /cstore_route'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -690,9 +655,6 @@ Outputs:
   APIEndpoint:
     Description: "API Gateway endpoint URL"
     Value: !GetAtt HttpAPI.ApiEndpoint
-  ApiGatewayAuthorizer:
-    Description: API Gateway Authorizer id
-    Value: !Ref LambdaAuthorizer
   ApiGatewayId:
     Description: API Gateway Id
     Value: !Ref HttpAPI

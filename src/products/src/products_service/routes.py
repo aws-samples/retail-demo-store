@@ -1,25 +1,21 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 from decimal import Decimal
-from flask import jsonify, request, Response, current_app, Blueprint, g
+from flask import jsonify, request, Response, current_app, Blueprint
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType, NotFound, Unauthorized
 from botocore.exceptions import BotoCoreError
 from http import HTTPStatus
 import json
+import boto3
 
-import products_service.products as product_service 
+import products_service.products as product_service
 from products_service import auth
+
+cognito_idp = boto3.client('cognito-idp')
 
 api = Blueprint('api', __name__)
 CORS(api)
-
-
-@api.before_request
-def load_user():
-    if auth_header := request.headers.get('Authorization'):
-        token = auth_header.split()[1]
-        g.user = auth.auth_user(token)
 
 @api.route('/')
 def welcome():
@@ -48,13 +44,11 @@ def get_products_by_id(product_ids):
         products = product_service.get_products_by_ids(product_ids, should_fully_qualify_image_urls())
         return jsonify(products), 200
 
-    # If the user parameter is passed in then Bedrock is called for personalised product descriptions       
     user = None
-    if user_id := request.args.get('user'):
-        # Validate that the user_id parameter equals the user id on the identity token
-        user = g.user if hasattr(g, 'user') and g.user and g.user['user_id'] == user_id else None
-        if not user:
-            raise Unauthorized(description=f"No identity token provided or paramerer user_id:{user_id} does not match token")        
+    # If the personalization parameter is passed in then Bedrock is called for personalised product descriptions       
+    if request.args.get('personalized') == 'true':
+        cognito_authentication_provider = request.headers.get('cognitoAuthenticationProvider')
+        user = auth.auth_user(cognito_authentication_provider)
     
     product = product_service.get_product_by_id(product_ids[0], should_fully_qualify_image_urls(), user)
     if not product:

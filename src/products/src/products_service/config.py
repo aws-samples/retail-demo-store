@@ -18,9 +18,7 @@ class Config:
     CATEGORY_DATA                   = os.path.join(DATA_DIR, os.environ.get('CATEGORY_DATA', "categories.yaml"))
     PRODUCT_DATA                    = os.path.join(DATA_DIR, os.environ.get('PRODUCT_DATA', "products.yaml"))
     AWS_DEFAULT_REGION              = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-    USER_POOL_ID                    = os.environ.get('COGNITO_USER_POOL_ID', 'xxxx')
-    TOKEN_AUDIENCE                  = os.environ.get('COGNITO_USER_POOL_CLIENT_ID', 'xxxx')
-    VERIFY_IDENTITY_TOKEN           = os.environ.get('VERIFY_IDENTITY_TOKEN', 'true').lower() == 'true'
+    COGNITO_USER_POOL_ID            = os.environ.get('COGNITO_USER_POOL_ID', 'xxxx')
 
     @staticmethod
     def init_app(app):

@@ -21,7 +21,7 @@ const ProductsRepository = RepositoryFactory.get('products');
 const lookupItems = (component) => {
     if (component.itemIds.length > 0) {
         ProductsRepository.getProduct(component.itemIds)
-            .then(({ data }) => component.matchingProducts = Array.isArray(data) ? data : [data])
+            .then((data) => component.matchingProducts = Array.isArray(data) ? data : [data])
     }
 }
 

@@ -132,24 +132,26 @@ export default {
       this.featuredProductsExperiment = null;
       this.featuredProducts = null;
 
-      const { data: featuredProducts } = await ProductsRepository.getFeatured();
+      const featuredProducts = await ProductsRepository.getFeatured();
 
       if (this.personalizeUserID && featuredProducts.length > 0) {
-        const { data: rerankedProducts, headers } = await RecommendationsRepository.getRerankedItems(
+        const { body, headers } = await RecommendationsRepository.getRerankedItems(
           this.personalizeUserID,
           featuredProducts,
           EXPERIMENT_RERANK_FEATURE,
         );
-
+        const rerankedProducts = await body.json();
         const personalizeRecipe = headers['x-personalize-recipe'];
         const experimentName = headers['x-experiment-name'];
 
         if (personalizeRecipe)
           this.featuredProductsDemoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
 
-        if (experimentName) this.featuredProductsExperiment = `Active experiment: ${experimentName}`;
-
+        if (experimentName) 
+          this.featuredProductsExperiment = `Active experiment: ${experimentName}`;
+        
         this.featuredProducts = rerankedProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
+
       } else {
         this.featuredProducts = featuredProducts.slice(0, MAX_RECOMMENDATIONS).map((product) => ({ product }));
       }
@@ -182,10 +184,10 @@ export default {
           this.featureUserRecs
         );
       }
-
-      if (response.headers) {
-        const experimentName = response.headers['x-experiment-name'];
-        const personalizeRecipe = response.headers['x-personalize-recipe'];
+      const { body: data, headers } = response;
+      if (headers) {
+        const experimentName = headers['x-experiment-name'];
+        const personalizeRecipe = headers['x-personalize-recipe'];
 
         if (experimentName || personalizeRecipe) {
           if (experimentName) this.recommendationsExperiment = `Active experiment: ${experimentName}`;
@@ -200,7 +202,7 @@ export default {
             this.userRecommendationsTitle = 'Recommended for you';
           }
 
-          this.userRecommendations = response.data;
+          this.userRecommendations = await data.json();
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);

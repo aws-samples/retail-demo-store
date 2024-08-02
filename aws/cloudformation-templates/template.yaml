@@ -729,8 +729,8 @@ Resources:
         VpcCidr: !GetAtt Base.Outputs.VpcCidr
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        CognitoUserPoolId: !GetAtt Base.Outputs.UserPoolId
-        CognitoAppClientId: !GetAtt Base.Outputs.UserPoolClientId
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
+        CognitoUnAuthorizedRole: !GetAtt Base.Outputs.CognitoUnAuthorizedRole
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -854,6 +854,7 @@ Resources:
           ]
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
 
   AmazonPay:
     Type: AWS::CloudFormation::Stack
@@ -976,7 +977,6 @@ Resources:
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
-        LambdaAuthorizer: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebURL: !If 
           - ConditionCustomDomain

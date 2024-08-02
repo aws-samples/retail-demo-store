@@ -1,52 +1,85 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import axios from "axios";
-import resolveBaseURL from './resolveBaseURL'
-
-const baseURL = resolveBaseURL(
-    import.meta.env.VITE_USERS_SERVICE_DOMAIN,
-    import.meta.env.VITE_USERS_SERVICE_PORT,
-    import.meta.env.VITE_USERS_SERVICE_PATH
-)
-
-const connection = axios.create({
-    baseURL
-})
+import { get, post, put } from 'aws-amplify/api';
 
 const resource = "/users";
+const apiName = 'demoServices';
+
 export default {
-    get(offset, count) {
+    async get(offset, count) {
         if (!offset) {
             offset = 0
         }
         if (!count) {
             count = 50
         }
-        return connection.get(`${resource}/all?offset=${offset}&count=${count}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/all`,
+            options: {
+                queryParams: {
+                    offset: offset,
+                    count: count
+                }
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getUnclaimedUser({primaryInterest, ageRange}) {
-        return connection.get(`${resource}/unclaimed?primaryPersona=${primaryInterest}&ageRange=${ageRange}`)
+    async getUnclaimedUser({primaryInterest, ageRange}) {
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/unclaimed`,
+            options: {
+                queryParams: {
+                    primaryPersona: primaryInterest,
+                    ageRange: ageRange
+                }
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getRandomUser() {
-        return connection.get(`${resource}/random`)
+    async getRandomUser() {
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/random`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getUserByID(userID) {
+    async getUserByID(userID) {
         if (!userID || userID.length == 0)
             throw "userID required"
-        return connection.get(`${resource}/id/${userID}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/id/${userID}`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getUserByUsername(username) {
+    async getUserByUsername(username) {
         if (!username || username.length == 0)
             throw "username required"
-        return connection.get(`${resource}/username/${username}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/username/${username}`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    getUserByIdentityId(identityId) {
+    async getUserByIdentityId(identityId) {
         if (!identityId || identityId.length == 0)
             throw "identityId required"
-        return connection.get(`${resource}/identityid/${identityId}`)
+        const restOperation = get({
+            apiName: apiName,
+            path: `${resource}/identityid/${identityId}`
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    createUser(provisionalUserId, username, email, identityId) {
+    async createUser(provisionalUserId, username, email, identityId) {
         if (!username || username.length == 0)
             throw "username required"
         let user = {
@@ -55,23 +88,52 @@ export default {
             email: email,
             identity_id: identityId
         }
-        return connection.post(`${resource}`, user)
+        const restOperation = post({
+            apiName: apiName,
+            path: resource,
+            options: {
+              body: user
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    updateUser(user) {
+    async updateUser(user) {
         if (!user)
             throw "user required"
-        return connection.put(`${resource}/id/${user.id}`, user)
+        const restOperation = put({
+            apiName: apiName,
+            path: `${resource}/id/${user.id}`,
+            options: {
+              body: user
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    claimUser(userId) {
-        return connection.put(`${resource}/id/${userId}/claim`);
+    async claimUser(userId) {
+        const restOperation = put({
+            apiName: apiName,
+            path: `${resource}/id/${userId}/claim`,
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     },
-    verifyAndUpdateUserPhoneNumber(userId, phoneNumber) {
+    async verifyAndUpdateUserPhoneNumber(userId, phoneNumber) {
         if (!userId || userId.length == 0)
             throw "userId required"
         let payload = {
             user_id: userId,
             phone_number: phoneNumber        
         }
-        return connection.put(`${resource}/id/${userId}/verifyphone`, payload)
+        const restOperation = put({
+            apiName: apiName,
+            path: `${resource}/id/${userId}/verifyphone`,
+            options: {
+              body: payload
+            }
+        });
+        const { body } = await restOperation.response;
+        return body.json();
     }
 }

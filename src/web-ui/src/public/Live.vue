@@ -165,7 +165,7 @@ export default {
       let products = [];
       for (const product of productIds) {
         try {
-          let {data} = await ProductsRepository.getProduct(product);
+          let data = await ProductsRepository.getProduct(product);
           data["itemId"] = data["id"];
           products.push(data);
         } catch (e) {
@@ -175,7 +175,7 @@ export default {
       return products;
     },
     async getDiscounts (products) {
-      let { data } = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, PRODUCT_DISCOUNT_FEATURE);
+      let data = await RecommendationsRepository.chooseDiscounts(this.user ? this.user.id : '', products, PRODUCT_DISCOUNT_FEATURE);
       return data;
     },
     async getRelatedProducts() {
@@ -183,7 +183,7 @@ export default {
       this.productRecommended = null;
       this.demoGuideBadgeArticle = null;
 
-      const response = await RecommendationsRepository.getRelatedProducts(
+      const { body: data, headers } = await RecommendationsRepository.getRelatedProducts(
           this.personalizeUserID ?? '',
           this.activeProductId,
           '',
@@ -191,16 +191,16 @@ export default {
           PRODUCT_EXPERIMENT_FEATURE,
       );
 
-      if (response.headers) {
-        const experimentName = response.headers['x-experiment-name'];
-        const personalizeRecipe = response.headers['x-personalize-recipe'];
+      if (headers) {
+        const experimentName = headers['x-experiment-name'];
+        const personalizeRecipe = headers['x-personalize-recipe'];
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`
 
         if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe)
       }
 
-      this.productRecommended = response.data;
+      this.productRecommended = await data.json();
 
       if (this.productRecommended.length > 0 && 'experiment' in this.productRecommended[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.productRecommended[0].experiment);
@@ -249,7 +249,7 @@ export default {
 
       // Setup stream and play
       let videoResponse = await VideosRepository.get();
-      this.streamDetails = videoResponse.data.streams;
+      this.streamDetails = videoResponse.streams;
       this.activeProductId = this.streamDetails[this.activeStreamId].products[0]
       player.setAutoplay(true);
       player.setVolume(0.5);

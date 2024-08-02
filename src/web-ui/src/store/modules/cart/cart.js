@@ -37,7 +37,7 @@ export const cart = {
   actions: {
     createCart: async ({ commit, getters }) => {
       console.log('Creating cart with username ' + getters.username.toString())
-      const { data } = await CartsRepository.createCart(getters.username);
+      const data = await CartsRepository.createCart(getters.username);
       let newCart = parseCart(data);
       newCart.username = getters.username;
       commit({ type: 'setCart', cart: newCart });
@@ -48,7 +48,7 @@ export const cart = {
       // Make sure our cart was returned. Otherwise create a new one.
       if (!state.cart || !state.cart.id) {
         console.log('Looking up your cart by username: ' + getters.username.toString())
-        const { data } = await CartsRepository.getCartByUsername(getters.username);
+        const data = await CartsRepository.getCartByUsername(getters.username);
         if (data.length > 0) {
           commit({ type: 'setCart', cart: parseCart(data[0]) });
         } else {
@@ -56,7 +56,7 @@ export const cart = {
         }
       } else {
         console.log('Looking up your cart by ID: ' + state.cart.id.toString())
-        const { data } = await CartsRepository.getCartByID(state.cart.id);
+        const data = await CartsRepository.getCartByID(state.cart.id);
         if (data.id !== state.cart.id) {
           console.warn(`Cart ${state.cart.id} not found. Creating new cart. Was cart service restarted?`);
           return dispatch('createCart');
@@ -70,7 +70,7 @@ export const cart = {
 
     updateCart: async ({ state, commit, dispatch, getters }) => {
       maybeUpdateUsername(state, commit, dispatch, getters);
-      const { data } = await CartsRepository.updateCart(state.cart);
+      const data = await CartsRepository.updateCart(state.cart);
       commit({ type: 'setCart', cart: parseCart(data) });
       console.log("Updated cart with id "+state.cart.id+" and username "+state.cart.username);
     },

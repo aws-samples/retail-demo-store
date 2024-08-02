@@ -29,14 +29,12 @@ const authListener = async (data) => {
       const hasAssignedShopperProfile = !!userAttributes?.['custom:profile_user_id'];
 
       if (hasAssignedShopperProfile) {
-        const { data } = await UsersRepository.getUserByID(userAttributes['custom:profile_user_id'])
-        storeUser = data
+        storeUser = await UsersRepository.getUserByID(userAttributes['custom:profile_user_id']);
       }
       else {
         // Perhaps our auth user is one without an associated "profile" - so there may be no profile_user_id on the
         // cognito record - so we see if we've created a user in the user service (see below) for this non-profile user        
-        const { data } = await UsersRepository.getUserByUsername(username)
-        storeUser = data
+        storeUser = await UsersRepository.getUserByUsername(username);
       }
 
       const { identityId } = await fetchAuthSession();
@@ -45,8 +43,7 @@ const authListener = async (data) => {
         // This takes the personalize User ID which was a UUID4 for the current session and turns it into a user user ID.
         console.log('store user does not exist for cognito user... creating on the fly')
         let provisionalUserId = AmplifyStore.getters.personalizeUserID;
-        const { data } = await UsersRepository.createUser(provisionalUserId, username, userAttributes.email, identityId)
-        storeUser = data
+        storeUser = await UsersRepository.createUser(provisionalUserId, username, userAttributes.email, identityId);
       }
 
       console.log('Syncing store user state to cognito user custom attributes')

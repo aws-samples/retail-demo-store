@@ -91,7 +91,7 @@ export default {
       var comp = this;
       const size = this.personalizeRecommendationsForVisitor ? EXTENDED_SEARCH_PAGE_SIZE * Math.max(1, 4 - Math.min(val.length, 3)) : DISPLAY_SEARCH_PAGE_SIZE;
       await SearchRepository.searchProducts(val, size)
-        .then(response => this.rerank(response.data))
+        .then(response => this.rerank(response))
         .then(response => this.lookupProducts(response))
         .then(response => AnalyticsHandler.productSearched(this.user, val, response.length))
         .catch((error) => {
@@ -110,7 +110,8 @@ export default {
     },
     async rerank(items) {
       if (this.personalizeRecommendationsForVisitor && items && items.length > 0) {
-        const { data } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
+        const { body } = await RecommendationsRepository.getRerankedItems(this.personalizeUserID, items, EXPERIMENT_FEATURE);
+        const data = await body.json();
         this.isReranked = JSON.stringify(items) !== JSON.stringify(data);
         return data.slice(0, DISPLAY_SEARCH_PAGE_SIZE);
       } else {
@@ -122,7 +123,7 @@ export default {
       if (items && items.length > 0) {
         const itemIds = items.map(item => item.itemId);
 
-        const { data } = await ProductsRepository.getProduct(itemIds);
+        const data = await ProductsRepository.getProduct(itemIds);
         if (Array.isArray(data)) {
           this.results = items.map((item) => ({
             ...item,

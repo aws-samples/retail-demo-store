@@ -32,8 +32,6 @@ Parameters:
     Default: controlnet-depth-sdxl
   ApiGatewayId:
     Type: String
-  LambdaAuthorizer:
-    Type: String
   WebURL:
     Type: String
   CognitoAuthorizedRole:
@@ -694,6 +692,23 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayId}/*/*/*"
 
+  ApiGatewayRoomAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:      
+      PolicyName: ApiGatewayRoomAccessPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "execute-api:Invoke"              
+            Resource:
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayId}/*/POST/rooms"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayId}/*/GET/rooms"
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayId}/*/GET/rooms/*"
+      Roles: 
+        - !Ref CognitoAuthorizedRole
+  
+
   ApiIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
     Properties:
@@ -710,8 +725,7 @@ Resources:
     Properties:
       ApiId: !Ref ApiGatewayId
       RouteKey: 'GET /rooms/{id}'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -722,8 +736,7 @@ Resources:
     Properties:
       ApiId: !Ref ApiGatewayId
       RouteKey: 'GET /rooms'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations
@@ -734,8 +747,7 @@ Resources:
     Properties:
       ApiId: !Ref ApiGatewayId
       RouteKey: 'POST /rooms'
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       Target: !Join 
         - /
         - - integrations

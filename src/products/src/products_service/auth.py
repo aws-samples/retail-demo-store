@@ -1,7 +1,8 @@
-from flask import Flask, current_app
+from flask import Flask
 from typing import Dict, Any
-import jwt
-from jwt import PyJWKClient
+import boto3
+
+cognito_idp = boto3.client('cognito-idp')
 
 class Auth:
 
@@ -10,32 +11,23 @@ class Auth:
             self.init_app(app)
 
     def init_app(self, app: Flask):
-        region = app.config['AWS_DEFAULT_REGION']
-        self.user_pool_id = app.config['USER_POOL_ID']
-        self.verify = app.config.get('VERIFY_IDENTITY_TOKEN', True)
-        self.audience = app.config['TOKEN_AUDIENCE']
-        self.issuer = f"https://cognito-idp.{region}.amazonaws.com/{self.user_pool_id}"
-        url = f"https://cognito-idp.{region}.amazonaws.com/{self.user_pool_id}/.well-known/jwks.json"
-        self.jwks_client = PyJWKClient(url)
+        self.user_pool_id = app.config['COGNITO_USER_POOL_ID']
 
-    def auth_user(self, id_token: str) -> Dict[str, Any]:
-        try:
-            signing_key = self.jwks_client.get_signing_key_from_jwt(id_token).key if self.verify else None
-            data = jwt.decode(
-                id_token,
-                signing_key,
-                algorithms=["RS256"],
-                audience=self.audience,
-                issuer=self.issuer,
-                options={"verify_exp": self.verify, "verify_signature": self.verify}
-            )            
-        except Exception as e:
-            current_app.logger.error("Error decoding JWT token", exc_info=e)
-            return None
-        else:
-            current_app.logger.debug("Authenticated identity token")
-            return {
-                "user_id": data['custom:profile_user_id'],
-                "persona": data['custom:profile_persona'],
-                "age": int(data['custom:profile_age'])
-            }
+    def auth_user(self, cognito_authentication_provider: str) -> Dict[str, Any]:
+        """
+        cognito_authentication_provider: string with the following format: 
+        cognito-idp.us-east-1.amazonaws.com/us-east-1_xxxxxxxx,cognito-idp.us-east-1.amazonaws.com/us-east-1_xxxxxxxxx:CognitoSignIn:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        The identity after the 'CognitoSignIn:' string represents the signed in user sub, which we use to lookup the user.
+        """
+        cognito_signin = [sign_in for sign_in in cognito_authentication_provider.split(',') if "CognitoSignIn" in sign_in]
+        
+        _, _, user_sub = cognito_signin[0].split(":")
+        users = cognito_idp.list_users(UserPoolId=self.user_pool_id, Filter=f"sub = \"{user_sub}\"")
+        user_attributes = users['Users'][0]['Attributes']
+        data = {attribute['Name']: attribute['Value'] for attribute in user_attributes}
+        
+        return {
+            "user_id": data['custom:profile_user_id'],
+            "persona": data['custom:profile_persona'],
+            "age": int(data['custom:profile_age'])            
+        }

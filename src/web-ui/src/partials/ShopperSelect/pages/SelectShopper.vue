@@ -96,7 +96,7 @@ export default {
     async onSubmit() {
       const { primaryInterest, ageRange } = this;
 
-      const { data } = await UsersRepository.getUnclaimedUser({ primaryInterest, ageRange });
+      const data = await UsersRepository.getUnclaimedUser({ primaryInterest, ageRange });
 
       if (!data) {
         this.shopperNotFound = true;

@@ -57,8 +57,8 @@ export default {
             });
         },
         async signPayload () {
-          const signatureResponse = await CartsRepository.signAmazonPayPayload(this.payload);
-          this.payloadSignature = signatureResponse.data.body.Signature;
+          const data = await CartsRepository.signAmazonPayPayload(this.payload);
+          this.payloadSignature = data.Signature;
           return this.payloadSignature
         }
     },

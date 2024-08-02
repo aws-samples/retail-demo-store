@@ -1,6 +1,4 @@
 import os
-import base64
-import json
 from typing import Any
 from enum import StrEnum
 from pathlib import PurePath
@@ -9,6 +7,7 @@ from botocore.exceptions import ClientError
 from aws_lambda_powertools.event_handler.exceptions import UnauthorizedError, NotFoundError, BadRequestError
 from aws_lambda_powertools.event_handler import APIGatewayHttpResolver, Response, content_types
 from aws_lambda_powertools.event_handler.openapi.exceptions import RequestValidationError
+from aws_lambda_powertools.event_handler.middlewares import NextMiddleware
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -18,7 +17,22 @@ from room_generator.db import RoomGenerationRequests
 input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
 signed_s3_url_expiry = os.environ.get('SIGNED_S3_URL_EXPIRY', 600)
 
+def populate_user_sub(app: APIGatewayHttpResolver, next_middleware: NextMiddleware) -> Response:
+    """
+    Middleware to extract user sub from cognito and add to context
+    """
+    cognito_amr = app.current_event.request_context.authorizer.iam.cognito_amr
+    cognito_signin = [sign_in for sign_in in cognito_amr if "CognitoSignIn" in sign_in]
+    _, _, user_sub = cognito_signin[0].split(":")
+    app.append_context(user_sub=user_sub)
+    app.append_context(user_identity=app.current_event.request_context.authorizer.iam.cognito_identity_id)
+    
+    result = next_middleware(app)
+
+    return result
+
 app = APIGatewayHttpResolver(enable_validation=True)
+app.use(middlewares=[populate_user_sub]) 
 
 dynamodb = boto3.resource('dynamodb')
 db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))
@@ -53,24 +67,7 @@ def handle_validation_error(ex: RequestValidationError) -> Response:
         body="Invalid data",
     )
 
-def __get_user_identity() -> str:
-    """
-    Returns the user identity (sub) associated with the identity token passed in the Authorization header for the request.
-    No validation needed as already performed by the API Gateway Lambda authorizer.
-    """
-    authorization_header = app.current_event.get_header_value(name="Authorization", case_sensitive=False, default_value="")
-    
-    if not authorization_header:
-        raise UnauthorizedError("Unauthorized")
-    
-    identity_token = authorization_header.lstrip("Bearer").strip()
-    _, payload, _ = identity_token.split(".")
-    padded_payload = payload + "="*(-len(payload) % 4)
-    decoded_payload = json.loads(base64.urlsafe_b64decode(padded_payload))
-
-    return decoded_payload["sub"]
-
-def __verify_s3_key(s3_key: str, user_identity: str) -> None:
+def __verify_s3_key(s3_key: str) -> None:
     """
     S3 Key should be of format: private/{token.sub}/{uuid}/filename.suffix
     Performs a number of verification checks on the S3 key:
@@ -85,6 +82,8 @@ def __verify_s3_key(s3_key: str, user_identity: str) -> None:
     path = PurePath(s3_key)
     if len(path.parts) != 4 or path.parts[0] != 'private':
         raise BadRequestError(f"S3 key should be of format private/token.sub/uuid/filename, received: {s3_key}")
+    if path.parts[1] != app.context['user_identity']:
+        raise UnauthorizedError(f"Unauthorized access to image path: {s3_key}")
 
     try:
         s3_client.head_object(
@@ -97,11 +96,9 @@ def __verify_s3_key(s3_key: str, user_identity: str) -> None:
     
 @app.post("/rooms")
 def create_room(request: RoomGenerationRequest):
-    user_identity: str = __get_user_identity()
-
-    __verify_s3_key(request.s3_key, user_identity)
+    __verify_s3_key(request.s3_key)
     
-    room_generation_id = db.create(room_owner=user_identity, room_style=request.style, image_key=request.s3_key)
+    room_generation_id = db.create(room_owner=app.context['user_sub'], room_style=request.style, image_key=request.s3_key)
 
     metrics.add_metric(name="RoomRequest", unit=MetricUnit.Count, value=1)
     return {'room_generation_id': room_generation_id}, 201
@@ -109,18 +106,16 @@ def create_room(request: RoomGenerationRequest):
 
 @app.get("/rooms")
 def get_rooms():
-    return db.list(__get_user_identity())
+    return db.list(app.context['user_sub'])
         
 @app.get("/rooms/<id>")
 def get_room(id: str):
-    user_identity: str = __get_user_identity()
-
     room = db.get(id, attrs="id, room_owner, room_state, room_style, prompt, labels, image_key, final_image_key, thumbnail_image_key")
     
     if not room:
         raise NotFoundError('Room details not found')
     
-    if user_identity != room['room_owner']:
+    if app.context['user_sub'] != room['room_owner']:
         raise UnauthorizedError('Unauthorized access')
     
     return room
