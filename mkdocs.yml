@@ -1,0 +1,43 @@
+site_name: Retail Demo Store - Documentation
+repo_url: https://github.com/aws-samples/retail-demo-store
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.footer
+    - content.code.copy
+  logo: assets/aws_smile-header-desktop-en-white_59x35@2x.png
+  favicon: https://a0.awsstatic.com/libra-css/images/site/fav/favicon.ico
+  palette:
+    primary: black
+  font:
+    text: Roboto
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+plugins: 
+  - search
+  - mkdocs-nav-weight:
+      section_renamed: false
+      index_weight: -10
+      warning: true
+      reverse: false
+      headless_included: false
+extra:
+  social:
+    - icon: fontawesome/brands/aws 
+      link: https://aws.amazon.com/retail/
+    - icon: fontawesome/brands/github 
+      link: https://github.com/aws-samples/retail-demo-store
