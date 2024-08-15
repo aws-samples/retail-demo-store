@@ -816,6 +816,7 @@ Resources:
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   # Lex personalization function
   ChatbotFunctions:
