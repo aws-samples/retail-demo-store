@@ -35,8 +35,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - 'S3'
+    Default: 'S3'
 
   GitHubRepo:
     Type: String

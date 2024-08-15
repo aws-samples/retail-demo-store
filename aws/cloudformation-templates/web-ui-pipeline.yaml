@@ -37,8 +37,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - 'S3'
+    Default: 'S3'
 
   GitHubRepo:
     Type: String
@@ -169,7 +169,7 @@ Parameters:
 
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
-  LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+  LinkToS3: !Equals [ !Ref SourceDeploymentType, 'S3' ]
 
 Resources:
 
@@ -238,19 +238,15 @@ Resources:
                   - s3:GetObject
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
-              - Resource: "*"
+              - Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}
                 Effect: Allow
                 Action:
-                  - codebuild:StartBuild
-                  - codebuild:BatchGetBuilds
-              - Resource: !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
-                Effect: Allow
-                Action:
-                  - "codecommit:GetBranch"
-                  - "codecommit:GetCommit"
-                  - "codecommit:UploadArchive"
-                  - "codecommit:GetUploadArchiveStatus"
-                  - "codecommit:CancelUploadArchive"
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
@@ -400,8 +396,8 @@ Resources:
                 ProjectName: !Ref CodeBuildProject
               RunOrder: 1
 
-  PipelineCodeCommit:
-    Condition: LinkToCodeCommit
+  PipelineS3:
+    Condition: LinkToS3
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
@@ -420,10 +416,10 @@ Resources:
                 Category: Source
                 Owner: AWS
                 Version: '1'
-                Provider: CodeCommit
+                Provider: S3
               Configuration:
-                RepositoryName: retaildemostore-src
-                BranchName: main
+                S3Bucket: your-s3-bucket-name
+                S3ObjectKey: store/source/retaildemostore-source.zip
                 PollForSourceChanges: false
               OutputArtifacts:
                 - Name: App
@@ -443,61 +439,63 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildProject
               RunOrder: 1
-  EventRole:
-    Condition: LinkToCodeCommit
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          -
-            Effect: Allow
-            Principal:
-              Service:
-                - events.amazonaws.com
-            Action: sts:AssumeRole
-      Path: /
-      Policies:
-        -
-          PolicyName: eb-pipeline-execution
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              -
-                Effect: Allow
-                Action: codepipeline:StartPipelineExecution
-                Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
 
-  EventRule:
-    Condition: LinkToCodeCommit
-    Type: AWS::Events::Rule
-    Properties:
-      EventPattern:
-        source:
-          - aws.codecommit
-        detail-type:
-          - 'CodeCommit Repository State Change'
-        resources:
-          - !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
-        detail:
-          event:
-            - referenceCreated
-            - referenceUpdated
-          referenceType:
-            - branch
-          referenceName:
-            - main
-      Targets:
-        -
-          Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
-          RoleArn: !GetAtt EventRole.Arn
-          Id: codepipeline-AppPipeline
+# TODO: Is this still needed?
+#  EventRole:
+#    Condition: LinkToCodeCommit
+#    Type: AWS::IAM::Role
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: 2012-10-17
+#        Statement:
+#          -
+#            Effect: Allow
+#            Principal:
+#              Service:
+#                - events.amazonaws.com
+#            Action: sts:AssumeRole
+#      Path: /
+#      Policies:
+#        -
+#          PolicyName: eb-pipeline-execution
+#          PolicyDocument:
+#            Version: 2012-10-17
+#            Statement:
+#              -
+#                Effect: Allow
+#                Action: codepipeline:StartPipelineExecution
+#                Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
+#
+#  EventRule:
+#    Condition: LinkToCodeCommit
+#    Type: AWS::Events::Rule
+#    Properties:
+#      EventPattern:
+#        source:
+#          - aws.codecommit
+#        detail-type:
+#          - 'CodeCommit Repository State Change'
+#        resources:
+#          - !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+#        detail:
+#          event:
+#            - referenceCreated
+#            - referenceUpdated
+#          referenceType:
+#            - branch
+#          referenceName:
+#            - main
+#      Targets:
+#        -
+#          Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
+#          RoleArn: !GetAtt EventRole.Arn
+#          Id: codepipeline-AppPipeline
 
 Outputs:
   PipelineForGitHubUrl:
     Condition: LinkToGitHub
     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineGitHub}
 
-  PipelineForCodeCommitUrl:
-    Condition: LinkToCodeCommit
-    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineCodeCommit}
+  PipelineForS3Url:
+    Condition: LinkToS3
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineS3}

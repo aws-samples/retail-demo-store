@@ -23,8 +23,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - "GitHub"
-      - "CodeCommit"
-    Default: "CodeCommit"
+      - "S3"
+    Default: "S3"
 
   CreateOpenSearchServiceLinkedRole:
     Type: String
@@ -248,16 +248,6 @@ Resources:
         mParticleS2SSecretKey: !Ref mParticleS2SSecretKey
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
-
-  # CodeCommit Repository
-  CodeCommitRepository:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/codecommit.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        SourceDeploymentType: !Ref SourceDeploymentType
 
   # Pinpoint Resources
   Pinpoint:
