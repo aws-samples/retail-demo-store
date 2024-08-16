@@ -23,6 +23,12 @@ Parameters:
     Type: String
     Description: S3Bucket Bucket where the Resources are stored (cloudformation, images, lambda code)
 
+  ResourceBucketRelativePath:
+    Type: String
+    Description: >
+      Optional path in the Deployment Resources Staging bucket where the deployment resources are stored (e.g. path/path2/).
+      Leave blank if resources are at the root of the Staging Resource Bucket. If specified, MUST end with '/'.
+
   GitHubRepo:
     Type: String
 
@@ -437,7 +443,7 @@ Resources:
                   Provider: S3
                 Configuration:
                   S3Bucket: !Ref ResourceBucket
-                  S3ObjectKey: store/source/retaildemostore-source.zip
+                  S3ObjectKey: !Sub '${ResourceBucketRelativePath}source/retaildemostore-source.zip'
                   PollForSourceChanges: false
                 OutputArtifacts:
                   - Name: App

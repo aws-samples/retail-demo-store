@@ -260,6 +260,7 @@ Resources:
         TaskExecutionRoleArn: !GetAtt Service.Outputs.TaskExecutionRoleArn
         LoggingBucketName: !Ref LoggingBucketName
         ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   Service:
     Type: AWS::CloudFormation::Stack
