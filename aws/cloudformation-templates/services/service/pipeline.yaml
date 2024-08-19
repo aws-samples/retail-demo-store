@@ -502,7 +502,7 @@ Resources:
               -
                 Effect: Allow
                 Action: codepipeline:StartPipelineExecution
-                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineCodeCommit ] ]
+                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineS3 ] ]
 
   EventRule:
     Condition: LinkToS3Bucket
