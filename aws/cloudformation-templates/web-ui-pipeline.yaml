@@ -492,9 +492,10 @@ Resources:
               key:
                 - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
       Targets:
-        - Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${Pipeline}'
+        - Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineS3}'
           RoleArn: !GetAtt EventRole.Arn
           Id: codepipeline-AppPipeline
+
 Outputs:
   PipelineForGitHubUrl:
     Condition: LinkToGitHub
