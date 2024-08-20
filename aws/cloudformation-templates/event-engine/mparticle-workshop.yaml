@@ -42,7 +42,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         CreateElasticsearchServiceLinkedRole: "No" # DO NOT CHANGE - should be managed by EE module in the "IAM Service Linked Roles" field
-        SourceDeploymentType: "CodeCommit" # DO NOT CHANGE
+        SourceDeploymentType: "S3" # DO NOT CHANGE
         GitHubRepo: "retail-demo-store" # N/A SO DO NOT CHANGE
         GitHubBranch: "master" # N/A SO DO NOT CHANGE
         GitHubToken: "dummy" # N/A SO DO NOT CHANGE
