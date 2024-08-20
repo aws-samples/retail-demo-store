@@ -76,7 +76,7 @@ export default {
       this.$emit('chooseAShopper');
     },
     async autoSelectShopper() {
-      const { data } = await UsersRepository.getRandomUser();
+      const data = await UsersRepository.getRandomUser();
 
       this.$emit('autoSelectShopper', {
         assignedShopper: data[0],
@@ -85,7 +85,7 @@ export default {
     async useDefaultProfile() {
       const cognitoUser = await this.$Amplify.Auth.currentAuthenticatedUser();
 
-      const { data: user } = await UsersRepository.getUserByUsername(cognitoUser.username);
+      const user = await UsersRepository.getUserByUsername(cognitoUser.username);
 
       this.setUser(user);
 

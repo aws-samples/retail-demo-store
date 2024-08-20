@@ -7,7 +7,7 @@ import mapbox from 'mapbox-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { fetchAuthSession } from 'aws-amplify/auth';
 import Location from "@/location/Location";
-import { signRequest } from "@/location/signRequest"
+import { signRequest } from "@/util/signer"
 
 const resourceName = import.meta.env.VITE_LOCATION_RESOURCE_NAME;
 const locationApi = new Location();

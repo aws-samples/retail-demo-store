@@ -5,10 +5,11 @@
 </template>
 
 <script>
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import swal from "sweetalert";
 import AmplifyStore from "@/store/store";
 import {RepositoryFactory} from "@/repositories/RepositoryFactory";
+import { signUrl } from "@/util/signer"
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations');
 const ProductsRepository = RepositoryFactory.get('products')
@@ -31,16 +32,24 @@ export default {
       const { username } = await getCurrentUser()
       this.cognitoUser = username
     },
-    openWebsocketConnection() {
+    async openWebsocketConnection() {
 
       if (!this.notificationsEnabled) {
         return
       }
 
-      this.connection = new WebSocket(`${import.meta.env.VITE_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser}`)
+      const { credentials } = await fetchAuthSession();
+      const wssUrl = `${import.meta.env.VITE_LOCATION_NOTIFICATION_URL}?userId=${this.cognitoUser}`;
+      const options = { 
+          credentials, 
+          signingRegion: import.meta.env.VITE_AWS_REGION, 
+          signingService: 'execute-api' 
+      };
+      const signedUrl = await signUrl(wssUrl, options);
+
+      this.connection = new WebSocket(signedUrl);
 
       this.connection.onopen = (e) => {
-        console.log(e)
         console.log("Websocket connection open for notifcations.")
       }
 
@@ -48,6 +57,7 @@ export default {
         console.log("Received notification message:")
         const messageData = JSON.parse(e.data)
         console.log(messageData)
+        
         if (this.isInstoreView) {
           if (messageData.EventType === "COLLECTION") {
             const customerName = `${messageData.Orders[0].billing_address.first_name} ${messageData.Orders[0].billing_address.last_name}`
@@ -71,7 +81,7 @@ export default {
           if (messageData.EventType === "PURCHASE") {
             RecommendationsRepository.getCouponOffer(this.user.id)
                 .then((offer_recommendation) => {
-                  const offer = offer_recommendation.data.offer;
+                  const offer = offer_recommendation.offer;
 
                   let offerDiv = document.createElement("div");
                   offerDiv.innerHTML = `
@@ -92,7 +102,7 @@ export default {
 
             const ordersHtml = orders.slice(0, 3).map((order) => {
               const orderHtml = order.items.slice(0, 3).map(async (product) => {
-                const { data } = await ProductsRepository.getProduct(product.product_id)
+                const data = await ProductsRepository.getProduct(product.product_id)
                 const productImageUrl = this.getProductImageURL(data)
                 return `<div class="col-4"><img src="${productImageUrl}" style="width: 100%"><small>${data.name}</small></div>`
               })
@@ -144,6 +154,7 @@ export default {
   watch: {
     user () {
       if (this.connection) {
+        console.log("Closing Websocket connection")
         this.connection.close();
       }
       this.getCognitoUser().then(() => this.openWebsocketConnection()).catch(() => this.cognitoUser = null);

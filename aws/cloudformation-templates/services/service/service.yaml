@@ -300,6 +300,9 @@ Resources:
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
                   - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
+              - Effect: Allow
+                Action: cognito-idp:ListUsers
+                Resource: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}'
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess

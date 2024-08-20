@@ -323,6 +323,10 @@ Outputs:
     Description: Authentication Cognito Authorized Role name
     Value: !GetAtt Authentication.Outputs.CognitoAuthorizedRole
 
+  CognitoUnAuthorizedRole:
+    Description: Authentication Cognito UnAuthorized Role name
+    Value: !GetAtt Authentication.Outputs.CognitoUnAuthorizedRole
+
   StackBucketName:
     Description: Stack Bucket
     Value: !GetAtt Buckets.Outputs.StackBucketName
