@@ -305,7 +305,7 @@ Resources:
           - Name: COGNITO_IDENTITY_POOL_ID
             Value: !Sub ${IdentityPoolId}
           - Name: API_GATEWAY_URL
-            Value: !Ref APIGatewayUrl          
+            Value: !Ref APIGatewayUrl
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
           - Name: PINPOINT_APP_ID
@@ -480,17 +480,12 @@ Resources:
         detail-type:
           - 'Object Created'
         detail:
-          eventSource:
-            - s3.amazonaws.com
-          eventName:
-            - PutObject
-          detail:
-            bucket:
-              name:
-                - !Ref ResourceBucket
-            object:
-              key:
-                - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
+          bucket:
+            name:
+              - !Ref ResourceBucket
+          object:
+            key:
+              - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
       Targets:
         - Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineS3}'
           RoleArn: !GetAtt EventRole.Arn

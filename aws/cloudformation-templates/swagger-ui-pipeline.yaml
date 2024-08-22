@@ -380,17 +380,12 @@ Resources:
         detail-type:
           - 'Object Created'
         detail:
-          eventSource:
-            - s3.amazonaws.com
-          eventName:
-            - PutObject
-          detail:
-            bucket:
-              name:
-                - !Ref ResourceBucket
-            object:
-              key:
-                - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
+          bucket:
+            name:
+              - !Ref ResourceBucket
+          object:
+            key:
+              - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
       Targets:
         -
           Arn:
