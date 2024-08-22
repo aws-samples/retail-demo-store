@@ -9,7 +9,7 @@ set -e
 # Delete .env if it exists
 [ -e ".env" ] && rm .env
 
-printf 'VITE_API_GATEWAY=$s\n' "$API_GATEWAY_URL" >> .env
+printf 'VITE_API_GATEWAY=%s\n' "$API_GATEWAY_URL" >> .env
 printf 'VITE_AWS_REGION=%s\n' "$DEPLOYED_REGION" >> .env
 printf 'VITE_AWS_IDENTITY_POOL_ID=%s\n' "$COGNITO_IDENTITY_POOL_ID" >> .env
 printf 'VITE_AWS_USER_POOL_ID=%s\n' "$COGNITO_USER_POOL_ID" >> .env
