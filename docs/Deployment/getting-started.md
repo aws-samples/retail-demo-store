@@ -77,10 +77,23 @@ Save your access token in a secure location, you will use it the CloudFormation 
 
 ## Step 2: Create a S3 Staging Bucket
 
-We recommend to create a dedicated bucket for deployment.
+We recommend to create a dedicated bucket for deployment with **versioning enabled.**
 
 !!! Note
     Bucket Region: Your staging bucket must be in the **region** in which you plan to deploy the Retail Demo Store.
+
+### Enabling Event Notifications
+
+Setting Up Event Notifications to Amazon EventBridge on an S3 Bucket
+
+Follow these steps to configure your S3 bucket to send event notifications to Amazon EventBridge:
+
+1. Navigate to your S3 bucket in the AWS Management Console. 
+2. Click on the Properties tab.
+3. Scroll down to the Amazon EventBridge section. 
+4. Click the Edit button. 
+5. Toggle the option Send notifications to Amazon EventBridge for all events in this bucket to On. 
+6. Click Save changes.
 
 ### Bucket Permissions
 
