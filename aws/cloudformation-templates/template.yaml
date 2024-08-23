@@ -230,12 +230,12 @@ Parameters:
   SourceDeploymentType:
     Type: String
     Description: >
-      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store
-      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline
-      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing
-      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for
-      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
-      source repositories provisioned. (TODO: fix desc)
+      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store 
+      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline can 
+      be configured to use your personal GitHub repository or an S3 bucket. Use GitHub if you're actively developing against 
+      Retail Demo Store in your own fork. S3 is useful when you just want to get up and going quickly for a demo or 
+      evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own source 
+      repositories provisioned.
     AllowedValues:
       - "GitHub"
       - "S3"
