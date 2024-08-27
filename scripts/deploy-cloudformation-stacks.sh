@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Deploy to AWS with all default values. 
+# Deploy to AWS with all default values.
 # You can use the following flags to pre create resources
 #
 # Example usage
@@ -14,7 +14,7 @@ set -e
 ########################################################################################################################################
 # The script parses the command line argument and extract these variables:
 # 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this script, we use only 2 arguments (S3_BUCKET, REGION)
-# 2. "pre_create_personalize" contains a boolean value whether "--pre-create-personalize" is presented 
+# 2. "pre_create_personalize" contains a boolean value whether "--pre-create-personalize" is presented
 # 3. "pre_index_elasticsearch" contains a boolean value whether "--pre-index-elasticsearch" is presented
 ########################################################################################################################################
 args=()
@@ -85,10 +85,10 @@ aws cloudformation deploy \
   --region "${REGION}" \
   --parameter-overrides \
   ResourceBucket="${S3_BUCKET}" \
-  SourceDeploymentType="CodeCommit" \
+  SourceDeploymentType="S3" \
   AlexaSkillId="" \
   AlexaDefaultSandboxEmail="" \
-  ResourceBucketRelativePath="" \
+  ResourceBucketRelativePath="store/" \
   mParticleSecretKey="" \
   AmazonPayPublicKeyId="" \
   mParticleApiKey="" \
@@ -111,7 +111,7 @@ aws cloudformation deploy \
   PreIndexElasticsearch="${param_elasticsearch}" \
   ResourceBucketImages="" \
   ResourceBucketImagesPrefix=""
-  
+
 
 
 # Wait until stack creation completes
