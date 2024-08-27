@@ -98,6 +98,10 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -177,8 +181,10 @@ Resources:
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${OrdersTable}'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExperimentStrategyTable}'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}/index/*'
+                  - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${PersonalisedProductsTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CategoriesTable}/index/*'
                   - !Sub 'arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CartsTable}/index/*'
@@ -396,6 +402,8 @@ Resources:
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
+            - Name: DDB_TABLE_USERS
+              Value: !Ref UsersTable
             - Name: DDB_TABLE_PERSONALISED_PRODUCTS
               Value: !Ref PersonalisedProductsTable
             - Name: DDB_TABLE_CATEGORIES

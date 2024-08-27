@@ -152,6 +152,10 @@ Parameters:
     Type: String
     Default: none
 
+  UsersTable:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -289,6 +293,7 @@ Resources:
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
         ProductsTable: !Ref ProductsTable
+        UsersTable: !Ref UsersTable
         CategoriesTable: !Ref CategoriesTable
         CartsTable: !Ref CartsTable
         OrdersTable: !Ref OrdersTable

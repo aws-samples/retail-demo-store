@@ -1,0 +1,10 @@
+boto3
+pytz
+pydantic
+aws_xray_sdk
+
+
+Flask
+flask-cors
+gunicorn
+pyjwt[crypto]
