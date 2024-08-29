@@ -1670,7 +1670,7 @@ Resources:
   PrepareProductDataSfnLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/sfn/${AWS::StackName}-PrepareProductData
+      LogGroupName: !Sub /aws/vendedlogs/${AWS::StackName}-PrepareProductData
 
   PrepareProductDataStateMachine:
     Type: AWS::StepFunctions::StateMachine
