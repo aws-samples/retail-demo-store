@@ -58,7 +58,7 @@
     "is-buffer": "^2.0.4",
     "lodash": "^4.17.21",
     "vite": "^4.5.3",
-    "webpack": "^5.79.0",
+    "webpack": "^5.94.0",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^5.0.1"
   },
