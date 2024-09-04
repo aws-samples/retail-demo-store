@@ -77,10 +77,10 @@ Save your access token in a secure location, you will use it the CloudFormation 
 
 ## Step 2: Create a S3 Staging Bucket
 
-Create a dedicated S3 bucket specifically for deployment, and ensure that [**versioning is enabled**](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) for this bucket.
+Create a dedicated S3 bucket specifically for staging/deployment, and ensure that [**versioning is enabled**](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) for this bucket.
 
-!!! Note
-    Bucket Region: Your staging bucket must be in the **region** in which you plan to deploy the Retail Demo Store.
+> [!IMPORTANT]  
+> Your staging bucket must be in the **region** with in which you plan to deploy the Retail Demo Store.
 
 ### Enabling Event Notifications
 
