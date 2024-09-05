@@ -42,16 +42,8 @@ git clone https://github.com/aws-samples/retail-demo-store
 ```
 
 !!! Note
-    If you plan to customize the demo, we recommend using your fork
+    If you plan to customize the demo, we recommend using your fork instead of the aws-samples one (see [fork this repo](#optional-fork-this-repo))
 
-## Install and configure the AWS CLI:
-
-```
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip
-sudo ./aws/install
-aws configure
-```
 
 ## Packages required for building staging:
 
@@ -62,6 +54,16 @@ sudo apt install python3.12-venv
 sudo apt install nodejs
 sudo apt install npm
 ```
+
+## Install and configure the AWS CLI:
+
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip
+sudo ./aws/install
+aws configure
+```
+
 
 ## (optional) Fork this Repo
 
@@ -156,7 +158,8 @@ All the others will work by default, take the time to read and decide which para
 
 !!!NOTE 
 
-    You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
+    You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value).
+    This script deploys the retail demo store with standard options, you cannot change any parameters directly
     
     ```bash
     ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
