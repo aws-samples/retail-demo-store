@@ -1,6 +1,6 @@
 # Personalization
 
-[1 - Creating the Account](1-Creating-account.md) > 2 - Personalization
+[1 - Creating the Account](../../Deployment/1-Creating-account.md) > 2 - Personalization
 
 Personalized user experiences are implemented across several features within the Retail Demo Store web user interface that demonstrate three core use-cases of Amazon Personalize as well as real-time recommendations.
 

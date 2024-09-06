@@ -42,16 +42,8 @@ git clone https://github.com/aws-samples/retail-demo-store
 ```
 
 !!! Note
-    If you plan to customize the demo, we recommend using your fork
+    If you plan to customize the demo, we recommend using your fork instead of the aws-samples one (see [fork this repo](#optional-fork-this-repo))
 
-## Install and configure the AWS CLI:
-
-```
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip
-sudo ./aws/install
-aws configure
-```
 
 ## Packages required for building staging:
 
@@ -62,6 +54,16 @@ sudo apt install python3.12-venv
 sudo apt install nodejs
 sudo apt install npm
 ```
+
+## Install and configure the AWS CLI:
+
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip
+sudo ./aws/install
+aws configure
+```
+
 
 ## (optional) Fork this Repo
 
@@ -77,10 +79,10 @@ Save your access token in a secure location, you will use it the CloudFormation 
 
 ## Step 2: Create a S3 Staging Bucket
 
-We recommend to create a dedicated bucket for deployment with **versioning enabled.**
+Create a dedicated S3 bucket specifically for staging/deployment, and ensure that [**versioning is enabled**](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) for this bucket.
 
-!!! Note
-    Bucket Region: Your staging bucket must be in the **region** in which you plan to deploy the Retail Demo Store.
+> [!IMPORTANT]  
+> Your staging bucket must be in the **region** with in which you plan to deploy the Retail Demo Store.
 
 ### Enabling Event Notifications
 
@@ -156,7 +158,8 @@ All the others will work by default, take the time to read and decide which para
 
 !!!NOTE 
 
-    You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value)
+    You can also use the command line below.  (replace REGION, MY_CUSTOM_BUCKET and S3_PATH value).
+    This script deploys the retail demo store with standard options, you cannot change any parameters directly
     
     ```bash
     ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
