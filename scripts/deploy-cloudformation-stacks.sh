@@ -4,7 +4,7 @@
 # You can use the following flags to pre create resources
 #
 # Example usage
-# ./scripts/deploy-cloudformation-stacks.sh S3_BUCKET REGION [--pre-create-personalize] [--pre-index-elasticsearch]
+# ./scripts/deploy-cloudformation-stacks.sh S3_BUCKET S3_PATH REGION STACK_NAME [--pre-create-personalize] [--pre-index-elasticsearch]
 #
 
 set -e
@@ -13,7 +13,7 @@ set -e
 # Parse arguments and flag
 ########################################################################################################################################
 # The script parses the command line argument and extract these variables:
-# 1. "args" contains an array of arguments (e.g. args[0], args[1], etc.) In this script, we use only 2 arguments (S3_BUCKET, REGION)
+# 1. "args" contains an array of arguments (e.g. args[0], args[1], args[2], args[3], etc.) In this script, we use only 3 arguments (S3_BUCKET, S3_PATH, REGION, STACK_NAME)
 # 2. "pre_create_personalize" contains a boolean value whether "--pre-create-personalize" is presented
 # 3. "pre_index_elasticsearch" contains a boolean value whether "--pre-index-elasticsearch" is presented
 ########################################################################################################################################
@@ -56,13 +56,15 @@ do
 done
 
 S3_BUCKET=${args[0]}
-REGION=${args[1]}
-STACK_NAME=${args[2]}
+S3_PATH=${args[1]}
+REGION=${args[2]}
+STACK_NAME=${args[3]}
 
 echo "=============================================="
 echo "Executing the script with following arguments:"
 echo "=============================================="
 echo "S3_BUCKET = ${S3_BUCKET}"
+echo "S3_PATH = ${S3_PATH}"
 echo "pre_create_personalize = ${pre_create_personalize}"
 echo "pre_index_elasticsearch = ${pre_index_elasticsearch}"
 echo "=============================================="
@@ -88,7 +90,7 @@ aws cloudformation deploy \
   SourceDeploymentType="S3" \
   AlexaSkillId="" \
   AlexaDefaultSandboxEmail="" \
-  ResourceBucketRelativePath="store/" \
+  ResourceBucketRelativePath="${S3_PATH}/" \
   mParticleSecretKey="" \
   AmazonPayPublicKeyId="" \
   mParticleApiKey="" \
