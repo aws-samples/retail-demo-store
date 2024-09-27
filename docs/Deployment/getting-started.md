@@ -162,5 +162,5 @@ All the others will work by default, take the time to read and decide which para
     This script deploys the retail demo store with standard options, you cannot change any parameters directly
     
     ```bash
-    ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET REGION STACK_NAME
+    ./scripts/deploy-cloudformation-stacks.sh DEPLOYMENT_S3_BUCKET S3_PATH REGION STACK_NAME
     ```
