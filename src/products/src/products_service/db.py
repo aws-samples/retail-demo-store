@@ -112,8 +112,13 @@ class DynamoBase(ABC):
             return response['Responses'][self.table.name]
     
     def get_all(self):
+        items = []
         response = self.table.scan()
-        return response['Items'] if 'Items' in response else []
+        while 'LastEvaluatedKey' in response:
+            items.extend(response['Items'])
+            response = self.table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        items.extend(response['Items'])
+        return items
 
     def upsert(self, item):
         self.table.put_item(Item=item)
