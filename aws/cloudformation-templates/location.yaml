@@ -60,6 +60,9 @@ Parameters:
   LambdaVpcSubnets:
     Type: String
 
+  CognitoAuthorizedRole:
+    Type: String
+
 Conditions:
   DefaultGeofence: !Equals
       - !Ref DeployDefaultGeofence
@@ -326,60 +329,26 @@ Resources:
       DeploymentId: !Ref LocationGeofenceBrowserNotificationApiDeployment
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
 
-  LambdaAuthorizerRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        Path: /
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  LambdaAuthorizerFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: !Ref ResourceBucket
-        S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/apigw-ws-authorizer.zip'
-      Handler: index.handler
-      Runtime: nodejs18.x
-      Role: !GetAtt LambdaAuthorizerRole.Arn
-      MemorySize: 512
-      Timeout: 60
-      Environment:
-        Variables:
-          ALLOWED_ORIGIN: !Ref WebURL
-  
-  LambdaAuthorizer:
-    Type: 'AWS::ApiGatewayV2::Authorizer'
-    Properties:
-      Name: LambdaAuthorizer
-      ApiId: !Ref LocationGeofenceBrowserNotificationApi
-      AuthorizerType: REQUEST
-      AuthorizerUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaAuthorizerFunction.Arn}/invocations"
-
-  LambdaAuthorizerFunctionPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:invokeFunction
-      FunctionName: !GetAtt LambdaAuthorizerFunction.Arn
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LocationGeofenceBrowserNotificationApi}/authorizers/${LambdaAuthorizer}"
+  ApiGatewayLocationAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:      
+      PolicyName: ApiGatewayLocationAccessPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "execute-api:Invoke"              
+            Resource:
+              - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LocationGeofenceBrowserNotificationApi}/${LocationGeofenceBrowserNotificationApiStage}/POST/@connections"
+      Roles: 
+        - !Ref CognitoAuthorizedRole
 
   LocationGeofenceBrowserNotificationApiConnectRoute:
     Type: 'AWS::ApiGatewayV2::Route'
     Properties:
       ApiId: !Ref LocationGeofenceBrowserNotificationApi
       RouteKey: $connect
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref LambdaAuthorizer
+      AuthorizationType: AWS_IAM
       OperationName: ConnectRoute
       Target: !Join
         - '/'

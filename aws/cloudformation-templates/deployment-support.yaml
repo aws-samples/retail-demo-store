@@ -168,7 +168,7 @@ Resources:
       Role: !GetAtt LoadDataLambdaRole.Arn
       Runtime: python3.12
       MemorySize: 128
-      Timeout: 120
+      Timeout: 600
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaVpcSecurityGroup
@@ -184,25 +184,35 @@ Resources:
           from urllib.error import URLError
           import logging
           import cfnresponse
+          import time
           import os
-
           logger = logging.getLogger()
           logger.setLevel(logging.INFO)
-
           def handler(event, context):
             response_data = {}
             response_status = cfnresponse.SUCCESS
-
+            max_retries = 15  # Maximum number of retries - should be less than the timeout
+            retries = 0
             if event['RequestType'] in ['Create', 'Update']:     
               url = os.environ['ProductsServiceUrl']
               request = Request(f"{url}/init", method='POST')
-              try:
-                with urlopen(request) as response:
-                  logger.info(f"Product Service init method success: {response.read()}")
-              except URLError as e:
-                logger.error(f"Error calling product service init: {e.code} : {e.reason}")
-                response_status = cfnresponse.FAILED
-                response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"
+              while retries < max_retries:
+                  try:
+                      with urlopen(request) as response:
+                          logger.info(f"Product Service init method success: {response.read()}")
+                          # exit while, success.
+                          break
+                  except URLError as e:
+                      retries += 1
+                      print(f"Request failed. Retrying in 30 seconds... (Attempt {retries}/{max_retries})")
+                      print(f"Error: {e}")
+                      time.sleep(30)
+
+              #
+              if retries >= max_retries:
+                  logger.error(f"Error calling product service init: {e.code} : {e.reason}")
+                  response_status = cfnresponse.FAILED
+                  response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"        
                             
             cfnresponse.send(event, context, response_status, response_data)
   
@@ -316,6 +326,7 @@ Resources:
                   - personalize:Describe*
                 Resource:
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
+                  - arn:aws:personalize:::recipe/aws*
               - Effect: Allow
                 Action:
                   - personalize:DescribeEventTracker

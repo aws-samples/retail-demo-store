@@ -2,7 +2,7 @@ Flask==2.3.2
 requests==2.31.0
 urllib3<2
 boto3==1.26.135
-flask-cors==3.0.10
+flask-cors==5.0.0
 numpy==1.22.2
 optimizely-sdk==3.5.2
 expiring-dict==1.1.0

@@ -266,3 +266,6 @@ Outputs:
   CognitoAuthorizedRole:
     Description: Cognito Authorized Role
     Value: !Ref CognitoAuthorizedRole
+  CognitoUnAuthorizedRole:
+    Description: Cognito UnAuthorized Role
+    Value: !Ref CognitoUnAuthorizedRole

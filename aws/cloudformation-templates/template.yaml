@@ -84,7 +84,7 @@ Metadata:
           default: "Custom Cloudfront domain name (optional)"
         Parameters:
           - CloudfrontCustomDomain
-          - ACMCertificateArn          
+          - ACMCertificateArn
       - Label:
           default: "Fenix Commerce EDD Integration"
         Parameters:
@@ -186,7 +186,7 @@ Metadata:
       DeployRoomMakeoverDemo:
         default: "Deploy Room Makeover Demo"
       EnableSageMakerAutoScaling:
-        default: Enable Auto scaling for SageMaker Asynchronous endpoint        
+        default: Enable Auto scaling for SageMaker Asynchronous endpoint
       SageMakerScalingMinCapacity:
         default: Minimum capacity for SageMaker endpoint.
       SageMakerScalingMaxCapacity:
@@ -198,6 +198,8 @@ Parameters:
     Description: >
       S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).
+      REQUIRED: If you plan to use S3 for the deployment type (which is the default). The S3 bucket has to have versioning enabled for the pipeline to work
+
 
   ResourceBucketRelativePath:
     Type: String
@@ -230,16 +232,17 @@ Parameters:
   SourceDeploymentType:
     Type: String
     Description: >
-      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store
-      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline
-      can be configured to use your personal GitHub repository or CodeCommit. Use GitHub if you're actively developing
-      against Retail Demo Store in your own fork. CodeCommit is useful when you just want to get up and going quickly for
-      a demo or evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own
-      source repositories provisioned.
+      The Retail Demo Store deployment includes a CodePipeline configuration that will build and deploy Retail Demo Store 
+      microservices to ECS when a change is detected in the source repository. The source repository for CodePipeline can 
+      be configured to use your personal GitHub repository or an S3 bucket. Use GitHub if you're actively developing against 
+      Retail Demo Store in your own fork. S3 is useful when you just want to get up and going quickly for a demo or 
+      evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own source 
+      repositories provisioned.
+      REQUIRED: The S3 bucket has to have versioning enabled for the pipeline to work
     AllowedValues:
       - "GitHub"
-      - "CodeCommit"
-    Default: "CodeCommit"
+      - "S3"
+    Default: "S3"
 
   GitHubRepo:
     Type: String
@@ -263,7 +266,7 @@ Parameters:
       Access Token is required. Otherwise, leave blank. Be sure that your token has the "repo", "repo:status", and "admin:repo_hook" permission scopes.
     NoEcho: true
     Default: ''
-    
+
   PreIndexOpenSearch:
     Type: String
     Description: >
@@ -552,7 +555,7 @@ Parameters:
       - 'Yes'
       - 'No'
     Default: 'No'
-  
+
   EnableSageMakerAutoScaling:
     Type: String
     Description: Enable Auto scaling for the SageMaker Asyncronous endpoint
@@ -572,12 +575,12 @@ Parameters:
     Description: SageMaker Asynchronous endpoints can be scaled to zero.  The endpoint will scale up from zero and room requests will resume execution when there is an endpoint to invoke.
     MinValue: 0
     Default: 0
-  
+
   SageMakerEndpointName:
     Type: String
     Description: The SageMaker async endpoint name used for image generation
     Default: controlnet-depth-sdxl
-  
+
   OpenSearchEmbeddingIndex:
     Type: String
     Description: Name of the embedding index
@@ -586,16 +589,16 @@ Parameters:
 
 Mappings:
 # Regions that support Amazon Bedrock and the required models of Room Maker demo: Claude 3 Haiku, Titan Multimodal Embeddings G1
-  BedrockRegionMap: 
-    us-east-1: 
+  BedrockRegionMap:
+    us-east-1:
       SupportsRequiredModels: "Yes"
-    us-west-2: 
+    us-west-2:
       SupportsRequiredModels: "Yes"
-    ap-south-1: 
+    ap-south-1:
       SupportsRequiredModels: "Yes"
-    ap-southeast-2: 
+    ap-southeast-2:
       SupportsRequiredModels: "Yes"
-    eu-west-3: 
+    eu-west-3:
       SupportsRequiredModels: "Yes"
 
 Conditions:
@@ -697,18 +700,19 @@ Resources:
         ParameterOptimizelySdkKey: !GetAtt Base.Outputs.ParameterOptimizelySdkKey
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
-        WebRootUrl: !If 
+        WebRootUrl: !If
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}
           - !GetAtt Base.Outputs.WebUICDNURL
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams
-        ImageRootUrl: !If 
+        ImageRootUrl: !If
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}/images/
           - !Sub ${Base.Outputs.WebUICDNURL}/images/
         EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
+
 
   # Services Resources
   ApiGateway:
@@ -729,8 +733,8 @@ Resources:
         VpcCidr: !GetAtt Base.Outputs.VpcCidr
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        CognitoUserPoolId: !GetAtt Base.Outputs.UserPoolId
-        CognitoAppClientId: !GetAtt Base.Outputs.UserPoolClientId
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
+        CognitoUnAuthorizedRole: !GetAtt Base.Outputs.CognitoUnAuthorizedRole
 
   # Web UI Pipeline
   WebUIPipeline:
@@ -814,6 +818,8 @@ Resources:
         OffersServiceExternalUrl: !GetAtt ApiGateway.Outputs.APIEndpoint
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
 
   # Lex personalization function
   ChatbotFunctions:
@@ -854,6 +860,7 @@ Resources:
           ]
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
+        CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
 
   AmazonPay:
     Type: AWS::CloudFormation::Stack
@@ -866,7 +873,7 @@ Resources:
         AmazonPayPublicKeyId: !Ref AmazonPayPublicKeyId
         AmazonPayStoreId: !Ref AmazonPayStoreId
         AmazonPayPrivateKey: !Ref AmazonPayPrivateKey
-        WebURL: 
+        WebURL:
           !If [
             ConditionCustomDomain,
             !Sub 'https://${CloudfrontCustomDomain}' ,
@@ -976,12 +983,11 @@ Resources:
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
         OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
-        LambdaAuthorizer: !GetAtt ApiGateway.Outputs.ApiGatewayAuthorizer
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
-        WebURL: !If 
+        WebURL: !If
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}
-          - !GetAtt Base.Outputs.WebUICDNURL        
+          - !GetAtt Base.Outputs.WebUICDNURL
         CognitoAuthorizedRole: !GetAtt Base.Outputs.CognitoAuthorizedRole
         SageMakerEndpointName: !Ref SageMakerEndpointName
         EnableSageMakerAutoScaling: !Ref EnableSageMakerAutoScaling
@@ -991,7 +997,7 @@ Resources:
         GitHubRepo: !Ref GitHubRepo
         GitHubBranch: !Ref GitHubBranch
         GitHubToken: !Ref GitHubToken
-        GitHubUser: !Ref GitHubUser     
+        GitHubUser: !Ref GitHubUser
 
   ApiGatewayDeploy:
     Type: AWS::CloudFormation::Stack

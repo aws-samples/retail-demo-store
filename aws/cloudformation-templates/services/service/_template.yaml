@@ -37,8 +37,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - 'S3'
+    Default: 'S3'
 
   GitHubRepo:
     Type: String
@@ -259,7 +259,9 @@ Resources:
         TaskRoleArn: !GetAtt Service.Outputs.TaskRoleArn
         TaskExecutionRoleArn: !GetAtt Service.Outputs.TaskExecutionRoleArn
         LoggingBucketName: !Ref LoggingBucketName
-        
+        ResourceBucket: !Ref ResourceBucket
+        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
+
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:

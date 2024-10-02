@@ -23,8 +23,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - "GitHub"
-      - "CodeCommit"
-    Default: "CodeCommit"
+      - "S3"
+    Default: "S3"
 
   CreateOpenSearchServiceLinkedRole:
     Type: String
@@ -249,16 +249,6 @@ Resources:
         PinpointSMSLongCode: !Ref PinpointSMSLongCode
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
-  # CodeCommit Repository
-  CodeCommitRepository:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/codecommit.yaml
-      Parameters:
-        ResourceBucket: !Ref ResourceBucket
-        ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
-        SourceDeploymentType: !Ref SourceDeploymentType
-
   # Pinpoint Resources
   Pinpoint:
     Type: AWS::CloudFormation::Stack
@@ -322,6 +312,10 @@ Outputs:
   CognitoAuthorizedRole:
     Description: Authentication Cognito Authorized Role name
     Value: !GetAtt Authentication.Outputs.CognitoAuthorizedRole
+
+  CognitoUnAuthorizedRole:
+    Description: Authentication Cognito UnAuthorized Role name
+    Value: !GetAtt Authentication.Outputs.CognitoUnAuthorizedRole
 
   StackBucketName:
     Description: Stack Bucket

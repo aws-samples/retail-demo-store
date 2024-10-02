@@ -214,7 +214,7 @@ export default {
     },
     async personalizeDescription() {
       this.loadingPersonalizedProductDescription = true
-      await this.getPersonalizedProduct(this.$route.params.id, this.user.id)
+      await this.getPersonalizedProduct(this.$route.params.id)
       .catch((error) => {
         console.log("Error getting personalised descriptions", error)
         this.product.description = "<b>Error getting personalised description</b><br/>" + this.product.description
@@ -239,7 +239,7 @@ export default {
       this.experiment = null;
       this.demoGuideBadgeArticle = null;
 
-      const response = await RecommendationsRepository.getRelatedProducts(
+      const { body: data, headers} = await RecommendationsRepository.getRelatedProducts(
         this.personalizeUserID ?? '',
         this.product.id,
         this.product.category,
@@ -247,20 +247,20 @@ export default {
         EXPERIMENT_FEATURE,
       );
 
-      if (response.headers) {
-        const experimentName = response.headers['x-experiment-name'];
+      if (headers) {
+        const experimentName = headers['x-experiment-name'];
         // For composite use cases such as this one, we may get more than one recipe (comma delimited). Use the first recipe to lookup demo badge.
-        const personalizeRecipe = response.headers['x-personalize-recipe'] ? response.headers['x-personalize-recipe'].split(',')[0] : null;
+        const personalizeRecipe = headers['x-personalize-recipe'] ? headers['x-personalize-recipe'].split(',')[0] : null;
 
         if (experimentName) this.experiment = `Active experiment: ${experimentName}`;
         if (personalizeRecipe) this.demoGuideBadgeArticle = getDemoGuideArticleFromPersonalizeARN(personalizeRecipe);
-        if (response.headers["x-related-items-theme"]) {
-          this.relatedProductsSectionTitle = response.headers["x-related-items-theme"];
+        if (headers["x-related-items-theme"]) {
+          this.relatedProductsSectionTitle = headers["x-related-items-theme"];
           this.demoGuideBadgeArticle = Articles.SIMILAR_ITEMS_WITH_THEME;
         }
       }
 
-      this.relatedProducts = response.data;
+      this.relatedProducts = await data.json();
 
       if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);

@@ -63,9 +63,7 @@ export default {
     async getOrders (){
       this.orders = null;
 
-      const { data } = await OrdersRepository.getOrdersByUsername(this.user.username)
-      
-      this.orders = data
+      this.orders = await OrdersRepository.getOrdersByUsername(this.user.username);
     },    
   },
   computed: {

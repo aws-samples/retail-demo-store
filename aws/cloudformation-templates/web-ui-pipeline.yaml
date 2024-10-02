@@ -37,8 +37,8 @@ Parameters:
     Description: Retail Demo Store source deployment type
     AllowedValues:
       - 'GitHub'
-      - 'CodeCommit'
-    Default: 'CodeCommit'
+      - 'S3'
+    Default: 'S3'
 
   GitHubRepo:
     Type: String
@@ -169,7 +169,7 @@ Parameters:
 
 Conditions:
   LinkToGitHub: !Equals [ !Ref SourceDeploymentType, 'GitHub' ]
-  LinkToCodeCommit: !Equals [ !Ref SourceDeploymentType, 'CodeCommit' ]
+  LinkToS3: !Equals [ !Ref SourceDeploymentType, 'S3' ]
 
 Resources:
 
@@ -243,14 +243,15 @@ Resources:
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-              - Resource: !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+              - Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}/*
+                  - !Sub arn:${AWS::Partition}:s3:::${ResourceBucket}
                 Effect: Allow
                 Action:
-                  - "codecommit:GetBranch"
-                  - "codecommit:GetCommit"
-                  - "codecommit:UploadArchive"
-                  - "codecommit:GetUploadArchiveStatus"
-                  - "codecommit:CancelUploadArchive"
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
@@ -303,21 +304,7 @@ Resources:
             Value: !Sub ${UserPoolClientId}
           - Name: COGNITO_IDENTITY_POOL_ID
             Value: !Sub ${IdentityPoolId}
-          - Name: PRODUCTS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: USERS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: CARTS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: ORDERS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: RECOMMENDATIONS_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: LOCATION_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: SEARCH_SERVICE_URL
-            Value: !Ref APIGatewayUrl
-          - Name: VIDEOS_SERVICE_URL
+          - Name: API_GATEWAY_URL
             Value: !Ref APIGatewayUrl
           - Name: DEPLOYED_REGION
             Value: !Ref AWS::Region
@@ -414,8 +401,8 @@ Resources:
                 ProjectName: !Ref CodeBuildProject
               RunOrder: 1
 
-  PipelineCodeCommit:
-    Condition: LinkToCodeCommit
+  PipelineS3:
+    Condition: LinkToS3
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
@@ -434,10 +421,10 @@ Resources:
                 Category: Source
                 Owner: AWS
                 Version: '1'
-                Provider: CodeCommit
+                Provider: S3
               Configuration:
-                RepositoryName: retaildemostore-src
-                BranchName: main
+                S3Bucket: !Ref ResourceBucket
+                S3ObjectKey: !Sub '${ResourceBucketRelativePath}source/retaildemostore-source.zip'
                 PollForSourceChanges: false
               OutputArtifacts:
                 - Name: App
@@ -457,8 +444,9 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildProject
               RunOrder: 1
+
   EventRole:
-    Condition: LinkToCodeCommit
+    Condition: LinkToS3
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -480,30 +468,26 @@ Resources:
               -
                 Effect: Allow
                 Action: codepipeline:StartPipelineExecution
-                Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
+                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Ref PipelineS3 ] ]
 
   EventRule:
-    Condition: LinkToCodeCommit
+    Condition: LinkToS3
     Type: AWS::Events::Rule
     Properties:
       EventPattern:
         source:
-          - aws.codecommit
+          - aws.s3
         detail-type:
-          - 'CodeCommit Repository State Change'
-        resources:
-          - !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:retaildemostore-src'
+          - 'Object Created'
         detail:
-          event:
-            - referenceCreated
-            - referenceUpdated
-          referenceType:
-            - branch
-          referenceName:
-            - main
+          bucket:
+            name:
+              - !Ref ResourceBucket
+          object:
+            key:
+              - !Sub ${ResourceBucketRelativePath}source/retaildemostore-source.zip
       Targets:
-        -
-          Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineCodeCommit}'
+        - Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineS3}'
           RoleArn: !GetAtt EventRole.Arn
           Id: codepipeline-AppPipeline
 
@@ -512,6 +496,6 @@ Outputs:
     Condition: LinkToGitHub
     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineGitHub}
 
-  PipelineForCodeCommitUrl:
-    Condition: LinkToCodeCommit
-    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineCodeCommit}
+  PipelineForS3Url:
+    Condition: LinkToS3
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${PipelineS3}

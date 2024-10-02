@@ -47,7 +47,7 @@ export const confirmationModal = {
       commit('setConfirmationModal', { name: ConfirmationModals.TextAlerts });
 
       try {
-        const { data } = await UsersRepository.verifyAndUpdateUserPhoneNumber(rootState.user.id, `${phoneNumber}`);
+        const data = await UsersRepository.verifyAndUpdateUserPhoneNumber(rootState.user.id, `${phoneNumber}`);
 
         dispatch('setUser', data);
 

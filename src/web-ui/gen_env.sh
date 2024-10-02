@@ -9,14 +9,7 @@ set -e
 # Delete .env if it exists
 [ -e ".env" ] && rm .env
 
-printf 'VITE_PRODUCTS_SERVICE_DOMAIN=%s\n' "$PRODUCTS_SERVICE_URL" >> .env
-printf 'VITE_USERS_SERVICE_DOMAIN=%s\n' "$USERS_SERVICE_URL" >> .env
-printf 'VITE_CARTS_SERVICE_DOMAIN=%s\n' "$CARTS_SERVICE_URL" >> .env
-printf 'VITE_ORDERS_SERVICE_DOMAIN=%s\n' "$ORDERS_SERVICE_URL" >> .env
-printf 'VITE_RECOMMENDATIONS_SERVICE_DOMAIN=%s\n' "$RECOMMENDATIONS_SERVICE_URL" >> .env
-printf 'VITE_LOCATION_SERVICE_DOMAIN=%s\n' "$LOCATION_SERVICE_URL" >> .env
-printf 'VITE_SEARCH_SERVICE_DOMAIN=%s\n' "$SEARCH_SERVICE_URL" >> .env
-printf 'VITE_VIDEOS_SERVICE_DOMAIN=%s\n' "$VIDEOS_SERVICE_URL" >> .env
+printf 'VITE_API_GATEWAY=%s\n' "$API_GATEWAY_URL" >> .env
 printf 'VITE_AWS_REGION=%s\n' "$DEPLOYED_REGION" >> .env
 printf 'VITE_AWS_IDENTITY_POOL_ID=%s\n' "$COGNITO_IDENTITY_POOL_ID" >> .env
 printf 'VITE_AWS_USER_POOL_ID=%s\n' "$COGNITO_USER_POOL_ID" >> .env
