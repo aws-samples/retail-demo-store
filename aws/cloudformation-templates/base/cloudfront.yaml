@@ -257,7 +257,15 @@ Resources:
 
                 s3 = boto3.resource('s3')
                 target_bucket = s3.Bucket(target_bucket_name)
-            
+
+                # Sync custom images from SourceBucket to TargetBucket
+                source_bucket = s3.Bucket(source_bucket_name)
+                for obj in source_bucket.objects.filter(Prefix=source_path + 'images/'):
+                   source = { 'Bucket': source_bucket_name, 'Key': obj.key }
+                   target_key = obj.key.replace(source_path, '')
+                   print(f'Copying {source} to {target_bucket_name}/{target_key}')
+                   target_bucket.copy(source, target_key)
+
                 # For all files in tmpdirname
                 for root, dirs, files in os.walk('/tmp/images'):
                   for filename in files:

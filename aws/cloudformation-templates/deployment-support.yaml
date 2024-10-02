@@ -326,6 +326,7 @@ Resources:
                   - personalize:Describe*
                 Resource:
                   - !Sub 'arn:aws:personalize:${AWS::Region}:${AWS::AccountId}:*/retaildemo*'
+                  - arn:aws:personalize:::recipe/aws*
               - Effect: Allow
                 Action:
                   - personalize:DescribeEventTracker
