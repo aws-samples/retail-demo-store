@@ -198,6 +198,8 @@ Parameters:
     Description: >
       S3 bucket name where the Retail Demo Store deployment resources are staged (product images, nested CloudFormation templates, source code snapshot,
       notebooks, deployment Lambda code, etc).
+      REQUIRED: If you plan to use S3 for the deployment type (which is the default). The S3 bucket has to have versioning enabled for the pipeline to work
+
 
   ResourceBucketRelativePath:
     Type: String
@@ -236,6 +238,7 @@ Parameters:
       Retail Demo Store in your own fork. S3 is useful when you just want to get up and going quickly for a demo or 
       evaluation or for workshop scenarios, such as Event Engine, where you want attendees to have their own source 
       repositories provisioned.
+      REQUIRED: The S3 bucket has to have versioning enabled for the pipeline to work
     AllowedValues:
       - "GitHub"
       - "S3"

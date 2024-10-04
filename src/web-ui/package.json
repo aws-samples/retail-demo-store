@@ -18,7 +18,7 @@
     "layer0:update": "npm i -D @layer0/cli@latest && npm i @layer0/core@latest @layer0/prefetch@latest @layer0/devtools@latest"
   },
   "dependencies": {
-    "@aws-amplify/interactions": "^6.0.35",
+    "@aws-amplify/interactions": "^6.0.41",
     "@aws-amplify/ui-vue": "^4.2.8",
     "@aws-crypto/sha256-js": "^5.2.0",
     "@mparticle/web-sdk": "^2.23.2",
@@ -26,7 +26,7 @@
     "@smithy/signature-v4": "^3.1.1",
     "amplitude-js": "^5.8.0",
     "autoprefixer": "^10.4.13",
-    "aws-amplify": "^6.3.8",
+    "aws-amplify": "^6.5.0",
     "axios": "^1.7.0",
     "jsonfile": "^6.1.0",
     "mapbox-gl": "^1.12.0",
