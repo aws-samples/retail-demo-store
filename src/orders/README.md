@@ -6,7 +6,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Orders servic
 
 ## Local Development
 
-The Orders service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Orders service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](https://github.com/aws-samples/retail-demo-store/blob/master/docs/Deployment/local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker-compose up --build orders
