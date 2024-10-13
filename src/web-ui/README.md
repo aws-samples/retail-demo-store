@@ -15,7 +15,7 @@ To get your local Web UI container to make calls to other Retail Demo Store web 
 5. In the "Build logs" tab, scroll down through the build log output until you see the output for the `cat .env` command. You should see a block of several lines that start with `VITE_...`. These lines represent the environment variables used when building the Web UI assets when deployed to S3. Select all of these lines (except the variables with `***` as their values--these are resolved as system parameters) with your mouse and copy them to your clipboard. Alternatively, if you only want to connect to some Retail Demo Store services in ECS and others running locally, just copy the lines that you need for remote services.
 6. Open your local `.env` file and paste over the top of the lines you selected. There is already a [.env.template](.env.template) file with examples of what this would look like.
 
-Once your `.env` is setup, run Docker Compose **from the `../src` directory** as described in the [local development instructions](../) to build and run the Web UI container locally.
+Once your `.env` is setup, run Docker Compose **from the `../src` directory** as described in the [local development instructions](https://github.com/aws-samples/retail-demo-store/blob/master/docs/Deployment/local-development/0-local-development-instructions.md) to build and run the Web UI container locally.
 
 ```console
 foo@bar:~$ docker compose up --build web-ui
