@@ -12,7 +12,7 @@ The Users service comes preloaded with 5,000 fake user profiles. The [generate_u
 
 ## Local Development
 
-The Users service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
+The Users service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](https://github.com/aws-samples/retail-demo-store/blob/master/docs/Deployment/local-development/0-local-development-instructions.md) for details. **From the `../src` directory**, run the following command to build and deploy the service locally.
 
 ```console
 foo@bar:~$ docker compose up --build users
