@@ -4,7 +4,7 @@ When deployed to AWS, CodePipeline is used to build and deploy the Retail Demo S
 
 ## Local Development
 
-The Web UI service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](../) for details. Note that you still must first deploy the Retail Demo Store project to AWS to satisfy resource dependencies.
+The Web UI service can be built and run locally (in Docker) using Docker Compose. See the [local development instructions](https://github.com/aws-samples/retail-demo-store/blob/master/docs/Deployment/local-development/0-local-development-instructions.md) for details. Note that you still must first deploy the Retail Demo Store project to AWS to satisfy resource dependencies.
 
 To get your local Web UI container to make calls to other Retail Demo Store web services (either running locally in Docker or in ECS on AWS or a combination of the two) and AWS resources such as Cognito, Pinpoint, or a Personalize Event Tracker, you will need to copy the environment variables in the [.env](./env) file on your local system to match your desired configuration. If you want your local instance of web-ui to connect to resources running in your AWS account, follow these steps to get up and running quickly.
 
