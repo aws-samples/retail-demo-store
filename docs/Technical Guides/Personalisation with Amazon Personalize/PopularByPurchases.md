@@ -20,8 +20,3 @@ a great way to ensure that a user-defined percentage of recommended items match 
 relevant to the user. This can be used to highlight products on sale or new products recently added to the catalog.
 
 
-
-You can read more about promotional filters on the .
-
-
-  
