@@ -24,24 +24,7 @@ to your shopping cart. In the shopping cart page, click on the button that says 
 email”. This action will emulate a signed out event and will trigger the abandoned cart email sent by Amazon
 Pinpoint. Next, check the email account provided during account creation. The Abandoned Shopping Cart email will be in your
 inbox.
-  
-  
-![img](../../assets/netflix.png)
-    Migrated 100% of email sending activities to Amazon SES
-    100M+ emails sent per day in 190n countries
-    Inbox placement rate > 99%
-    Reputation score 97/100
 
-“Amazon SES helped us be elastic, we could pay as we went along, and we could stop worrying about optimizing
-settings for each ISP.”
-Devika Chawla
-Director of Messaging and Platform Engineering. Netflix
-
-
-
-
-
-  
 
 
   

@@ -29,6 +29,4 @@ relevant to the user. This can be used to highlight products on sale or new prod
 
 
 
-You can read more about promotional filters on the .
-
   
