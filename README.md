@@ -6,20 +6,16 @@ The Retail Demo Store is an eCommerce reference implementation designed to showc
 > [!IMPORTANT]  
 > The documentation is now supported by [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) 
 >
-> You can read / browse directly on github [here](./docs/index.md)
+> You can read directly on github [https://aws-samples.github.io/retail-demo-store/](https://aws-samples.github.io/retail-demo-store/)
 >
-> Alternatively you can clone the repo and run mkdocs locally to view the documentation:
->  * Install [Mkdocs](https://squidfunk.github.io/mkdocs-material/getting-started/)
->  * run `mkdocs serve` from the root of this repo
-
 > [!NOTE]
 > Jump directly to a section of the documentation:
 >
-> * [How to deploy an instance in your account ](./docs/Deployment/getting-started.md)
-> * [Hands-on Workshops](./docs/workshops/hands-on-workshops.md)
-> * [Partner Integrations](./docs/partner-integrations/partner-integrations.md)
-> * [Delivering a Demo of the Retail Demo Store ](./docs/Available%20Demos/index.md)
-> * [Troubleshooting - FAQs](./docs/Deployment/troubleshooting.md)
+> * [How to deploy an instance in your account ](https://aws-samples.github.io/retail-demo-store/Deployment/getting-started/)
+> * [Hands-on Workshops](https://aws-samples.github.io/retail-demo-store/workshops/hands-on-workshops/)
+> * [Partner Integrations](https://aws-samples.github.io/retail-demo-store/partner-integrations/partner-integrations/)
+> * [Delivering a Demo of the Retail Demo Store](https://aws-samples.github.io/retail-demo-store/Available%20Demos/)
+> * [Troubleshooting - FAQs](https://aws-samples.github.io/retail-demo-store/Deployment/troubleshooting/)
 
 
 **This project is intended for educational purposes only and not for production use.**
