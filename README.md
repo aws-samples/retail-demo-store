@@ -8,6 +8,8 @@ The Retail Demo Store is an eCommerce reference implementation designed to showc
 >
 > You can read directly on github [https://aws-samples.github.io/retail-demo-store/](https://aws-samples.github.io/retail-demo-store/)
 >
+
+
 > [!NOTE]
 > Jump directly to a section of the documentation:
 >
