@@ -24,4 +24,4 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 30
-      LogGroupName: !Sub "/${AWS::StackName}/APIAccessLogs"
+      LogGroupName: !Sub /aws/vendedlogs/${AWS::StackName}/APIAccessLogs
