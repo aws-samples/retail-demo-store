@@ -99,7 +99,7 @@ class MultiArmedBanditExperiment(BuiltInExperiment):
 
         # Sample from posterior (this is the Thompson Sampling approach)
         # This leads to more exploration because variations with > uncertainty can then be selected
-        theta = np.random.beta(conversions + 1, exposures + 1)
+        theta = np.random.beta(conversions + 1, exposures - conversions + 1)
 
         # Select variation index with highest posterior p of converting
         return np.argmax(theta)
