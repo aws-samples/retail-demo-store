@@ -1,4 +1,4 @@
-diffusers==0.26.3
+diffusers==0.31.0
 transformers
 accelerate
 datasets
