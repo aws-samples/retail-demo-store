@@ -41,7 +41,7 @@ cd RetailDemoStore/
 git clone https://github.com/aws-samples/retail-demo-store
 ```
 
-!!! Note
+!!! note 
     If you plan to customize the demo, we recommend using your fork instead of the aws-samples one (see [fork this repo](#optional-fork-this-repo))
 
 
@@ -59,7 +59,7 @@ sudo apt install npm
 
 ```
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip
+unzip awscliv2.zip
 sudo ./aws/install
 aws configure
 ```
@@ -79,10 +79,13 @@ Save your access token in a secure location, you will use it the CloudFormation 
 
 ## Step 2: Create a S3 Staging Bucket
 
-Create a dedicated S3 bucket specifically for staging/deployment, and ensure that [**versioning is enabled**](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) for this bucket.
+Create a dedicated S3 bucket specifically for staging/deployment.
 
-> [!IMPORTANT]  
-> Your staging bucket must be in the **region** with in which you plan to deploy the Retail Demo Store.
+!!! warning 
+    Ensure that [**versioning is enabled**](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) for this bucket.
+
+!!! warning 
+    Your staging bucket must be in the **region** with in which you plan to deploy the Retail Demo Store.
 
 ### Enabling Event Notifications
 

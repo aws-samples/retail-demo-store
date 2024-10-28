@@ -1,10 +1,10 @@
 # Personalization
 
-[1 - Creating the Account](../../Deployment/1-Creating-account.md) > 2 - Personalization
+
 
 Personalized user experiences are implemented across several features within the Retail Demo Store web user interface that demonstrate three core use-cases of Amazon Personalize as well as real-time recommendations.
 
-> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](../workshop/1-Personalization/Lab-01-(Core)-Introduction-and-data-preparation.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
+> In order to demonstrate the personalization capabilities of the Retail Demo Store, the required Amazon Personalize Solutions and Campaigns must already be created and enabled via Amazon SSM Parameters. These Solutions and Campaigns can be created as part of the [Personalization workshop](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/Lab-01-(Core)-Introduction-and-data-preparation.ipynb) bundled with the Retail Demo Store or automatically when the Retail Demo Store is deployed via CloudFormation. If you’re demonstrating with the Retail Demo Store this should already be done for you but still good to be aware if personalization features are not working as expected.
 
 ## Datasets
 
@@ -39,9 +39,9 @@ Events for multiple event types are generated to mimic shopping behavior. For ex
 
 ## Emulating Shopper Profiles
 
-With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](1-Creating-account.md). Once signed in, you can click on your username in the top right-corner and then select Switch Shoppers.
+With Amazon Personalize Solutions and Campaigns created based on the generated users, items, and interactions datasets, we can emulate (or assume) user profiles for different personas in the web user interface to see recommendations that should be consistent with the persona. In order to emulate a profile, you must first sign in to the user account you created for yourself as described in [Creating a Retail Demo Store account](../../Deployment/getting-started.md). Once signed in, you can click on your username in the top right-corner and then select Switch Shoppers.
 
-![image.png](../workshop/images/retaildemostore-user-menu.png)
+![image.png](../../assets/retaildemostore-user-menu.png)
 
 Figure 7. Access Profile Page.
 
@@ -57,7 +57,7 @@ The user personalization use-case is implemented on the bottom half of the Retai
 
 > Since the Retail Demo Store is using a Personalize Event Tracker to record real-time interaction events, it is important to keep in mind that recommendations will change as a result of your clicking and browsing activity in the web application. Therefore, the recommendations may not match up to the original shopper persona used to train the model. This is a powerful demo feature, though, since it shows how Personalize adapts to evolving user intent. It can also show how recommendations adapt for new users (i.e. cold starting users).
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-product-recs.jpg)
+![image.png](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/images/retaildemostore-product-recs.jpg?raw=true)
 
 Figure 8. User recommendation use-case.
 
@@ -67,7 +67,7 @@ Figure 8. User recommendation use-case.
 
 The related products use-case is implemented on the product detail page in the Retail Demo Store. Since inference calls to campaigns built with the SIMS recipe do not require a user, we are able to display related products using SIMS whether you are signed in as a user or anonymous.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-related-products.jpg)
+![image.png](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/images/retaildemostore-related-products.jpg?raw=true)
 
 Figure 9. Related products use-case.
 
@@ -77,13 +77,13 @@ Figure 9. Related products use-case.
 
 When you are signed in as a Retail Demo Store user, the personalized ranking use-case is implemented on the category view in the Retail Demo Store. When you are an anonymous user, products are displayed in their natural order (i.e. not ranked). The most effective view to demonstrate this use-case is on the “Featured” product view. The reason for this is that this is the one category view that includes products from multiple categories. Therefore, the ranking should be more impactful.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-ranking.jpg)
+![image.png](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/images/retaildemostore-personalized-ranking.jpg?raw=true)
 
 Figure 10. Personalized Ranking use-case.
 
 You can also see personalized ranking in product search results. That is, if you are signed in as a user, search results are reranked based on the user's historical and real-time activity.
 
-![image.png](../workshop/1-Personalization/images/retaildemostore-personalized-search.jpg)
+![image.png](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/1-Personalization/images/retaildemostore-personalized-search.jpg?raw=true)
 
 ## Event Tracking
 
@@ -109,7 +109,7 @@ To assess the impact of real-time event tracking in recommendations made by the 
 
 If you are demonstrating the Retail Demo Store to a more technical audience, you can illustrate how the events are sent to Pinpoint and Personalize in the background. To do so, open up the Developer Tools in the web browser you’re using (i.e. Chrome), select the Network view, and find the calls to “events” (Personalize) and “legacy” (Pinpoint). The screenshot below illustrates how to display the network call to the Personalize Event Tracker for the “put\_events” endpoint. This is implemented using AWS Amplify to instrument events in the web user interface.
 
-![image.png](../workshop/images/Eventinstrumentationcalls.png)
+![image.png](https://github.com/aws-samples/retail-demo-store/blob/master/workshop/images/Eventinstrumentationcalls.png?raw=True)
 
 Figure 11. Event instrumentation calls
 
