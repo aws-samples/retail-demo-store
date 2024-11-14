@@ -204,10 +204,6 @@ Parameters:
     Type: String
     Default: false
 
-  EvidentlyProjectName:
-    Type: String
-    Description: Evidently project name
-
   LoggingBucketName:
     Type: String
     Description: S3 Bucket For logging
@@ -297,7 +293,6 @@ Resources:
         PinpointAppId: !Ref PinpointAppId
         WebRootUrl: !Ref WebRootUrl
         ImageRootUrl: !Ref ImageRootUrl
-        EvidentlyProjectName: !Ref EvidentlyProjectName
         UserPoolId: !Ref UserPoolId
         UserPoolClientId: !Ref UserPoolClientId
 

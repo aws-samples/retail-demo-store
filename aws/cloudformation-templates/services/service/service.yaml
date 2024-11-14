@@ -120,10 +120,6 @@ Parameters:
 
   PinpointAppId:
     Type: String
-
-  EvidentlyProjectName:
-    Type: String
-    Description: Evidently project name
   
   UserPoolId:
     Type: String
@@ -294,13 +290,6 @@ Resources:
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
               - Effect: Allow
-                Action:
-                  - evidently:BatchEvaluateFeature
-                  - evidently:PutProjectEvents
-                Resource:
-                  - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}*'
-                  - !Sub 'arn:${AWS::Partition}:evidently:${AWS::Region}:${AWS::AccountId}:project/${EvidentlyProjectName}/feature/*'
-              - Effect: Allow
                 Action: cognito-idp:ListUsers
                 Resource: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}'
 
@@ -412,8 +401,6 @@ Resources:
               Value: 'RetailDemoStore-PersonalizePreCreateScheduledRule'
             - Name: PINPOINT_APP_ID
               Value: !Ref PinpointAppId
-            - Name: EVIDENTLY_PROJECT_NAME
-              Value: !Ref EvidentlyProjectName
             - Name: AWS_DEFAULT_REGION
               Value: !Ref "AWS::Region"
             - Name: COGNITO_USER_POOL_ID
