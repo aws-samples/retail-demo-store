@@ -12,7 +12,6 @@ This readme explains the use and utility of each of the listed CloudFormation st
 - codecommit.yaml
 - ecs-cluster.yaml
 - [event-driven.yaml](#event-driven)
-- evidently.yaml
 - notebook.yaml
 - opensearch.yaml
 - personalize.yaml

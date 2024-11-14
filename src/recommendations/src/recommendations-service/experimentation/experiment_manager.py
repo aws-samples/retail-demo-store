@@ -8,7 +8,6 @@ from boto3.dynamodb.conditions import Key
 from experimentation.experiment_ab import ABExperiment
 from experimentation.experiment_interleaving import InterleavingExperiment
 from experimentation.experiment_mab import MultiArmedBanditExperiment
-from experimentation.evidently_feature_resolver import EvidentlyFeatureResolver
 from experimentation.experiment_optimizely import OptimizelyFeatureTest, optimizely_sdk, optimizely_configured
 from experimentation.tracking import KinesisTracker
 
@@ -22,7 +21,6 @@ class ExperimentManager:
     TYPE_AB = 'ab'
     TYPE_INTERLEAVING = 'interleaving'
     TYPE_MAB = 'mab'
-    TYPE_EVIDENTLY = 'evidently'
     TYPE_OPTIMIZELY = 'optimizely'
 
     __table_name = None
@@ -60,12 +58,7 @@ class ExperimentManager:
                                 'variations': []}
                         return OptimizelyFeatureTest(**data)
 
-        # 2. Check for active Evidently experiment.
-        evidently_experiment = EvidentlyFeatureResolver().evaluate_feature(user_id, feature)
-        if evidently_experiment:
-            return evidently_experiment
-
-        # 3. Lastly, check for an active built-in experiment.
+        # 2. Lastly, check for an active built-in experiment.
         experiment = None
 
         table = self.__get_table()
@@ -100,8 +93,6 @@ class ExperimentManager:
         id_bits = correlation_id.split('~')
 
         experiment_id = id_bits[0]
-        if experiment_id == ExperimentManager.TYPE_EVIDENTLY:
-            return EvidentlyFeatureResolver().create_from_correlation_id(correlation_id)
 
         return self.get_by_id(experiment_id)
 

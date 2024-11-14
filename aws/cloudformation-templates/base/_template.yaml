@@ -157,7 +157,6 @@ Resources:
         PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
-        EvidentlyProjectName: !GetAtt Evidently.Outputs.EvidentlyProjectName
 
   # Tables
   Tables:
@@ -279,14 +278,6 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
-
-  # Evidently
-  Evidently:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/evidently.yaml
-      Parameters:
-        Uid: !Sub ${ParentStackName}-${AWS::Region}
 
   # Event-Driven Architecture
   EventDrivenArchitecture:
@@ -456,10 +447,6 @@ Outputs:
   SwaggerUICDNURL:
     Description: The URL for the web application
     Value: !GetAtt CloudFront.Outputs.SwaggerUICDNURL
-
-  EvidentlyProjectName:
-    Description: Evidently project name
-    Value: !GetAtt Evidently.Outputs.EvidentlyProjectName
 
   EventBusName:
     Description: EventBridge event bus name

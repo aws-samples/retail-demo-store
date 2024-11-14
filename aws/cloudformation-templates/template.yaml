@@ -709,7 +709,6 @@ Resources:
           - ConditionCustomDomain
           - !Sub https://${CloudfrontCustomDomain}/images/
           - !Sub ${Base.Outputs.WebUICDNURL}/images/
-        EvidentlyProjectName: !GetAtt Base.Outputs.EvidentlyProjectName
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
 
@@ -1103,10 +1102,6 @@ Outputs:
   APIEndpoint:
     Value: !GetAtt ApiGateway.Outputs.APIEndpoint
 
-  EvidentlyProjectName:
-    Description: ARN for the CloudWatch Evidently project
-    Value: !GetAtt Base.Outputs.EvidentlyProjectName
-
   ExportEnvVarScript:
     Description: A script to export all required environment variable for running docker-compose locally, but connecting to Cloud resources. Replace the existing .env file with this output.
     Value: !Sub |
@@ -1136,9 +1131,6 @@ Outputs:
         OPENSEARCH_DOMAIN_SCHEME=https
         OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
         OPENSEARCH_DOMAIN_PORT=9200
-
-        # Evidently
-        EVIDENTLY_PROJECT_NAME="${Base.Outputs.EvidentlyProjectName}"
 
         # Users service
         AWS_REGION=${AWS::Region}
