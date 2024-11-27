@@ -20,7 +20,3 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-
-# Layer0
-.layer0/
-dist-layer0/
