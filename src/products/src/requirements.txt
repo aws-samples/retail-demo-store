@@ -9,7 +9,7 @@ certifi==2023.11.17
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
-cryptography==41.0.7
+cryptography==44.0.0
 distro==1.8.0
 filelock==3.13.1
 Flask==3.1.0
