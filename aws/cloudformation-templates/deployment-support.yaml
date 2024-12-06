@@ -203,6 +203,7 @@ Resources:
                           # exit while, success.
                           break
                   except URLError as e:
+                      error = e
                       retries += 1
                       print(f"Request failed. Retrying in 30 seconds... (Attempt {retries}/{max_retries})")
                       print(f"Error: {e}")
@@ -210,9 +211,9 @@ Resources:
 
               #
               if retries >= max_retries:
-                  logger.error(f"Error calling product service init: {e.code} : {e.reason}")
+                  logger.error(f"Error calling product service init: {error.reason}")
                   response_status = cfnresponse.FAILED
-                  response_data['Message'] = f"Resource {event['RequestType']} failed: {e}"        
+                  response_data['Message'] = f"Resource {event['RequestType']} failed: {error}"        
                             
             cfnresponse.send(event, context, response_status, response_data)
   
