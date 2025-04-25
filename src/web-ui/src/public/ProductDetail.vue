@@ -262,6 +262,8 @@ export default {
 
       this.relatedProducts = await data.json();
 
+      window['amazon_connect']['products'] = this.relatedProducts;
+
       if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);
       }

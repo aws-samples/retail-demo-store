@@ -202,6 +202,8 @@ export default {
 
       this.productRecommended = await data.json();
 
+      window['amazon_connect']['products'] = this.productRecommended;
+
       if (this.productRecommended.length > 0 && 'experiment' in this.productRecommended[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.productRecommended[0].experiment);
       }

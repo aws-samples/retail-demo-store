@@ -203,6 +203,7 @@ export default {
           }
 
           this.userRecommendations = await data.json();
+          window['amazon_connect']['products'] = this.userRecommendations;
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);

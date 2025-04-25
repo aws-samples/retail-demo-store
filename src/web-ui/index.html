@@ -26,9 +26,23 @@
     <script src="/js/popper-1.14.7.min.js"></script>
     <script src="/js/bootstrap-4.3.1.min.js"></script>
     <script type="module" src="/src/main.js"></script>
+<!--    <script src="http://localhost:8081/clickstream-web.min.js"></script>-->
     <script>
       window.global = window;
       var exports = {};
-    </script>  
+    </script>
+    <script>
+        (function(w, d, x, id){
+            s=d.createElement('script');
+            s.src='https://d9of466tpzr5e.cloudfront.net/amazon-connect-chat-interface-client.js';
+            s.async=1;
+            s.id=id;
+            d.getElementsByTagName('head')[0].appendChild(s);
+            w[x] =  w[x] || function() { (w[x].ac = w[x].ac || []).push(arguments) };
+        })(window, document, 'amazon_connect', '811bc752-de1a-47fd-9410-253ed9e586fc');
+            amazon_connect('styles', { iconType: 'CHAT_VOICE', openChat: { color: '#ffffff', backgroundColor: '#123456' }, closeChat: { color: '#ffffff', backgroundColor: '#123456'} });
+            amazon_connect('snippetId', 'QVFJREFIZ2ZibWFadU4zTkUyWUNVS0FvbU5BRE5qL1ArWTQrQnJpaHhVN0FNZE0wNmdIWWlucW5pQWM3bkxsRUxQN1dIRlEzQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNTEJTeEtjTEhZa0QyNDRoM0FnRVFnQ3RIMHNsQXJ5SW0wekM2bkhGMjUvVnF4MUNhTzFUVERFTHM3VDNUQmhuZ1MyY3RHcUxWcTZta0Zqb0c6OmdQdk81NW43VmwxckgvKy84Wm1ZUVhTK3dhazF0cEZudUxPcGtrV3VwYjUzejZmcjAyY0s1ZndjRFFUMmZ4bnNTbmZKZ2g0cWxIOXF5U0RyT3kvbGdyNnlmRXZxUXFUOVloemdMUzdQdkJXZnYzY0dVV0RQNVk1V05GbjJBcTY4Y1piWGpsYisvZ21NZEpkeHdkV3FJUmw4Sk9GV3gzcz0=');
+            amazon_connect('customerChatInterfaceUrl', 'https://d9of466tpzr5e.cloudfront.net/amazon-connect-chat-interface.js');
+    </script>
   </body>
 </html>
