@@ -6,7 +6,9 @@ from typing import List
 from PIL import Image
 import boto3
 from botocore.exceptions import ClientError
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+from botocore.session import Session
 from aws_lambda_powertools import Logger
 
 s3_client = boto3.client('s3')
@@ -25,10 +27,16 @@ class LabelBox:
     similar_items: List[SimilarItem] = field(default_factory=list)
 
 class ImageAnalyzer():
-    def __init__(self, opensearch_hosts: List[dict[str,str]], opensearch_index_name: str, logger: Logger):
+    def __init__(self, opensearch_hosts: List[dict[str,str]], opensearch_index_name: str, region: str, logger: Logger):
         self.search_client = OpenSearch(
             hosts = opensearch_hosts,
-            use_ssl = True
+            http_auth=AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials()),
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection,
+            timeout=30, 
+            max_retries=10, 
+            retry_on_timeout=True
         )
         self.embedded_products_index_name = opensearch_index_name
         self.logger = logger

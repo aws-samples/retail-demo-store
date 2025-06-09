@@ -66,9 +66,13 @@ Parameters:
     Type: String
     Default: offers.retaildemostore.local
 
-  EnvOpenSearchDomainEndpoint:
+  EnvOpenSearchCollectionEndpoint:
     Type: String
     Default: none
+
+  OpenSearchCollectionArn:
+    Type: String
+    Default: ""
 
   ResourceBucket:
     Type: String
@@ -126,6 +130,9 @@ Parameters:
   
   UserPoolClientId:
     Type: String
+
+Conditions:
+  ConfigureOpenSearchAccessPolicies:  !Not [!Equals [!Ref "OpenSearchCollectionArn", ""]]
 
 Resources:
   TaskExecutionRole:
@@ -291,7 +298,7 @@ Resources:
                   - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:AmazonPaySigningLambda'
               - Effect: Allow
                 Action: cognito-idp:ListUsers
-                Resource: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}'
+                Resource: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}'              
 
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess
@@ -379,9 +386,9 @@ Resources:
               Value: !Ref ParameterIVSVideoChannelMap
             - Name: USE_DEFAULT_IVS_STREAMS
               Value: !Ref UseDefaultIVSStreams
-            - Name: OPENSEARCH_DOMAIN_HOST
-              Value: !Ref EnvOpenSearchDomainEndpoint
-            - Name: OPENSEARCH_DOMAIN_PORT
+            - Name: OPENSEARCH_COLLECTION_HOST
+              Value: !Ref EnvOpenSearchCollectionEndpoint
+            - Name: OPENSEARCH_COLLECTION_PORT
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable
@@ -425,6 +432,47 @@ Resources:
         NamespaceId: !Ref ServiceDiscoveryNamespace
       HealthCheckCustomConfig:
         FailureThreshold: 1
+
+  OpenSearchIAMPolicy:
+    Type: AWS::IAM::Policy
+    Condition: ConfigureOpenSearchAccessPolicies
+    Properties:      
+      PolicyName: OpenSearchService
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: aoss:APIAccessAll
+            Resource: !Ref OpenSearchCollectionArn 
+      Roles: 
+        - !Ref TaskRole
+  
+  DataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Condition: ConfigureOpenSearchAccessPolicies
+    Properties:
+      Name: !Sub retaildemostore-${ServiceName}
+      Type: data
+      Description: !Sub Access policy to allow the ${ServiceName} service to read the retail demo store collections
+      Policy:
+        !Sub |
+          [{
+              "Description": "Access for ${ServiceName} service",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                      "index/retaildemostore-products/*"
+                    ],
+                    "Permission": [
+                        "aoss:ReadDocument"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${TaskRole.Arn}"
+              ]
+          }]
 
 Outputs:
   FargateServiceArn:

@@ -8,7 +8,9 @@ from aws_xray_sdk.core import patch_all
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from opensearchpy import OpenSearch, NotFoundError
+from opensearchpy import OpenSearch, NotFoundError, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+from botocore.session import Session
 
 import json
 import os
@@ -19,16 +21,23 @@ patch_all()
 
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
 
-search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'https')
-search_domain_host = os.environ['OPENSEARCH_DOMAIN_HOST']
-search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
+search_collection_scheme = os.environ.get('OPENSEARCH_COLLECTION_SCHEME', 'https')
+search_collection_host = os.environ['OPENSEARCH_COLLECTION_HOST']
+search_collection_port = os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)
+region = os.environ.get('AWS_DEFAULT_REGION')
 INDEX_PRODUCTS = 'products'
 
+final_host = search_collection_host.replace("https://", "")
+awsauth = AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials())
+
 search_client = OpenSearch(
-    [search_domain_host],
-    scheme=search_domain_scheme,
-    port=search_domain_port,
-)
+        hosts=[{'host': final_host, 'port': search_collection_port}],
+        http_auth=awsauth,
+        use_ssl=True,
+        verify_certs=True,
+        connection_class=RequestsHttpConnection,
+        timeout=300
+    )
 
 # -- Logging
 class LoggingMiddleware(object):

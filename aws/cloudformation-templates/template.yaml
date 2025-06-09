@@ -223,7 +223,7 @@ Parameters:
   CreateOpenSearchServiceLinkedRole:
     Type: String
     Description: >
-      If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchService', select 'No'. Otherwise, select 'Yes' and one will be created.
+      If your account already has an IAM Role named 'AWSServiceRoleForAmazonOpenSearchServerless', select 'No'. Otherwise, select 'Yes' and one will be created.
     AllowedValues:
       - "Yes"
       - "No"
@@ -687,7 +687,8 @@ Resources:
         VpcCidr: !GetAtt Base.Outputs.VpcCidr
         ClusterName: !GetAtt Base.Outputs.ClusterName
         ServiceDiscoveryNamespace: !GetAtt Base.Outputs.ServiceDiscoveryNamespace
-        EnvOpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
+        EnvOpenSearchCollectionEndpoint: !GetAtt Base.Outputs.OpenSearchCollectionEndpoint
+        OpenSearchCollectionArn: !GetAtt Base.Outputs.OpenSearchCollectionArn
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
@@ -904,7 +905,7 @@ Resources:
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         LambdaVpcSubnets: !GetAtt Base.Outputs.Subnets
 
-  # Deployment support
+  # # Deployment support
   DeploymentSupport:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -914,12 +915,11 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         PreIndexOpenSearch: !Ref PreIndexOpenSearch
         PreCreatePersonalizeResources: !Ref PreCreatePersonalizeResources
-        Subnet1: !GetAtt Base.Outputs.Subnet1
-        Subnet2: !GetAtt Base.Outputs.Subnet2
+        Subnets: !GetAtt Base.Outputs.Subnets
         LambdaVpcSecurityGroup: !GetAtt Base.Outputs.PrivateVPCSecurityGroup
         OpenSearchSecurityGroupId: !GetAtt Base.Outputs.OpenSearchSecurityGroupId
-        OpenSearchDomainArn: !GetAtt Base.Outputs.OpenSearchDomainArn
-        OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
+        OpenSearchCollectionArn: !GetAtt Base.Outputs.OpenSearchCollectionArn
+        OpenSearchCollectionEndpoint: !GetAtt Base.Outputs.OpenSearchCollectionEndpoint
         ParameterIVSVideoChannelMap: !GetAtt Base.Outputs.ParameterIVSVideoChannelMap
         PreCreatePinpointWorkshop: !Ref PreCreatePinpointWorkshop
         Uid: !Sub ${AWS::StackName}-${AWS::Region}
@@ -980,7 +980,6 @@ Resources:
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         LoggingBucketName: !GetAtt Base.Outputs.LoggingBucketName
         CleanupBucketLambdaArn: !GetAtt CleanupBucket.Outputs.LambdaFunctionArn
-        OpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         ApiGatewayId: !GetAtt ApiGateway.Outputs.ApiGatewayId
         WebUIBucketName: !GetAtt Base.Outputs.WebUIBucketName
         WebURL: !If
@@ -1047,9 +1046,9 @@ Outputs:
     Description: Retail Demo Store Web UI URL
     Value: !GetAtt Base.Outputs.WebUICDNURL
 
-  OpenSearchDomainEndpoint:
+  OpenSearchCollectionEndpoint:
     Description: OpenSearch Endpoint
-    Value: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
+    Value: !GetAtt Base.Outputs.OpenSearchCollectionEndpoint
 
   ParameterIVSVideoChannelMap:
     Description: Retail Demo Store video file to IVS channel mapping parameter
@@ -1128,9 +1127,9 @@ Outputs:
         DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
 
         # Search service
-        OPENSEARCH_DOMAIN_SCHEME=https
-        OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchDomainEndpoint}"
-        OPENSEARCH_DOMAIN_PORT=9200
+        OPENSEARCH_COLLECTION_SCHEME=https
+        OPENSEARCH_COLLECTION_HOST="${Base.Outputs.OpenSearchCollectionEndpoint}"
+        OPENSEARCH_COLLECTION_PORT=443
 
         # Users service
         AWS_REGION=${AWS::Region}

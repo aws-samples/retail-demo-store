@@ -144,9 +144,13 @@ Parameters:
     Type: String
     Default: offers.retaildemostore.local
 
-  EnvOpenSearchDomainEndpoint:
+  EnvOpenSearchCollectionEndpoint:
     Type: String
     Default: none
+
+  OpenSearchCollectionArn:
+    Type: String
+    Default: ""
 
   ProductsTable:
     Type: String
@@ -280,7 +284,8 @@ Resources:
         EnvUsersServiceInternalUrl: !Ref EnvUsersServiceInternalUrl
         EnvSearchServiceInternalUrl: !Ref EnvSearchServiceInternalUrl
         EnvOffersServiceInternalUrl: !Ref EnvOffersServiceInternalUrl
-        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
+        EnvOpenSearchCollectionEndpoint: !Ref EnvOpenSearchCollectionEndpoint
+        OpenSearchCollectionArn: !Ref OpenSearchCollectionArn
         ResourceBucket: !Ref ResourceBucket
         ParameterIVSVideoChannelMap: !Ref ParameterIVSVideoChannelMap
         UseDefaultIVSStreams: !Ref UseDefaultIVSStreams

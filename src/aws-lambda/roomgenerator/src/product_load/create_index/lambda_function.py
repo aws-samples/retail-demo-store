@@ -1,5 +1,7 @@
 from crhelper import CfnResource
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+from botocore.session import Session
 import os
 
 mapping = {
@@ -24,9 +26,18 @@ mapping = {
 }
 
 index_name=os.environ['OPENSEARCH_INDEX_NAME']
+region = os.environ['AWS_DEFAULT_REGION']
+search_collection_endpoint = os.environ['OPENSEARCH_COLLECTION_HOST']
+final_host = search_collection_endpoint.replace("https://", "")
 search_client = OpenSearch(
-            hosts = [{'host': os.environ['OPENSEARCH_DOMAIN_HOST'], 'port': os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)}],
-            use_ssl = True
+            hosts = [{'host': final_host, 'port': os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)}],
+            http_auth=AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials()),
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection,
+            timeout=30, 
+            max_retries=10, 
+            retry_on_timeout=True
         )
 helper = CfnResource()
 

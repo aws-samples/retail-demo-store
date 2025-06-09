@@ -7,7 +7,9 @@ import yaml
 import logging
 import boto3
 from crhelper import CfnResource
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+from botocore.session import Session
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,12 +28,16 @@ def index_products(event):
     # If the products index already exists, this function does nothing.
     # Otherwise, this function will create the products index and add
     # all products from the bundled products.yaml file.
+    region = os.environ['AWS_DEFAULT_REGION']
+    search_collection_endpoint = event['ResourceProperties']['OpenSearchCollectionEndpoint']
+    logger.info('OpenSearch endpoint: %s', search_collection_endpoint)
 
-    search_domain_endpoint = event['ResourceProperties']['OpenSearchDomainEndpoint']
-    logger.info('OpenSearch endpoint: %s', search_domain_endpoint)
+    credentials = Session().get_credentials()
+    final_host = search_collection_endpoint.replace("https://", "")
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, 'aoss', session_token=credentials.token)
 
     search_host = {
-        'host' : search_domain_endpoint,
+        'host' : final_host,
         'port' : 443,
         'scheme' : 'https',
     }
@@ -39,7 +45,16 @@ def index_products(event):
     # For testing: specify 'ForceIndex' to force existing index to be deleted and products indexed.
     force_index = event['ResourceProperties'].get('ForceIndex', 'no').lower() in [ 'true', 'yes', '1' ]
 
-    search = OpenSearch(hosts = [search_host], timeout=30, max_retries=10, retry_on_timeout=True)
+    search = OpenSearch(
+        hosts = [search_host],
+        http_auth=awsauth,
+        use_ssl=True,
+        verify_certs=True,
+        connection_class=RequestsHttpConnection,
+        timeout=30, 
+        max_retries=10, 
+        retry_on_timeout=True
+    )
 
     create_index_and_bulk_load = True
 

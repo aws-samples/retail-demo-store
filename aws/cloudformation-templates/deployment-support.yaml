@@ -50,10 +50,7 @@ Parameters:
       - 'No'
     Default: 'No'
 
-  Subnet1:
-    Type: String
-
-  Subnet2:
+  Subnets:
     Type: String
 
   LambdaVpcSecurityGroup:
@@ -62,10 +59,10 @@ Parameters:
   OpenSearchSecurityGroupId:
     Type: String
 
-  OpenSearchDomainArn:
+  OpenSearchCollectionArn:
     Type: String
 
-  OpenSearchDomainEndpoint:
+  OpenSearchCollectionEndpoint:
     Type: String
 
   ParameterIVSVideoChannelMap:
@@ -172,9 +169,7 @@ Resources:
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaVpcSecurityGroup
-        SubnetIds:
-          - !Ref Subnet1
-          - !Ref Subnet2
+        SubnetIds: !Split [",", !Ref Subnets ]
       Environment:
         Variables:
           ProductsServiceUrl: !Ref ProductsServiceExternalUrl
@@ -240,9 +235,7 @@ Resources:
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaVpcSecurityGroup
-        SubnetIds:
-          - !Ref Subnet1
-          - !Ref Subnet2
+        SubnetIds: !Split [",", !Ref Subnets ]
       Environment:
         Variables:
           bucket: !Ref StackBucketName
@@ -489,52 +482,31 @@ Resources:
       VpcConfig:
         SecurityGroupIds:
           - !Ref OpenSearchSecurityGroupId
-        SubnetIds:
-          - !Ref Subnet1
-          - !Ref Subnet2
+        SubnetIds: !Split [",", !Ref Subnets ]
 
   OpenSearchPreIndexLambdaExecutionRole:
     Condition: DeployPreIndexOpenSearch
-    Type: 'AWS::IAM::Role'
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /service-role/
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
       Policies:
-        - PolicyName: root
+        - PolicyName: OpenSearchServerless
           PolicyDocument:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - ec2:CreateNetworkInterface
-                  - ec2:DeleteNetworkInterface
-                  - ec2:DescribeNetworkInterfaces
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*OpenSearch*:log-stream:*'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*OpenSearch*'
-              - Effect: Allow
-                Action:
-                  - es:ESHttpDelete
-                  - es:ESHttpGet
-                  - es:ESHttpPost
-                  - es:ESHttpPut
-                Resource: !Ref OpenSearchDomainArn
+                Action: aoss:APIAccessAll
+                Resource: !Ref OpenSearchCollectionArn
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole    
 
   # Custom resource to launch opensearch preindex function
   CustomLaunchOpenSearchPreIndexLambdaFunction:
@@ -542,9 +514,37 @@ Resources:
     Type: Custom::CustomLambdaOpenSearch
     Properties:
       ServiceToken: !GetAtt OpenSearchPreIndexLambdaFunction.Arn
-      OpenSearchDomainEndpoint: !Ref OpenSearchDomainEndpoint
+      OpenSearchCollectionEndpoint: !Ref OpenSearchCollectionEndpoint
       Bucket: !Ref ResourceBucket
       File: !Sub '${ResourceBucketRelativePath}data/products.yaml'
+
+  DataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Condition: DeployPreIndexOpenSearch
+    DependsOn: OpenSearchPreIndexLambdaExecutionRole
+    Properties:
+      Name: retaildemostore-index-lambda
+      Type: data
+      Description: !Sub Access policy to allow pre-index lambda access to retail demo store collections
+      Policy:
+        !Sub |
+          [{
+              "Description": "Access for Pre-index lambda",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                      "index/retaildemostore-products/*"
+                    ],
+                    "Permission": [
+                        "aoss:*"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${OpenSearchPreIndexLambdaExecutionRole.Arn}"
+              ]
+          }]
 
   ####################### Pre-Create Pinpoint Workshop #######################
 

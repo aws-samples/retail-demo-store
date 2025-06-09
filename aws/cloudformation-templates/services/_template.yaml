@@ -78,9 +78,13 @@ Parameters:
   ServiceDiscoveryNamespace:
     Type: String
 
-  EnvOpenSearchDomainEndpoint:
+  EnvOpenSearchCollectionEndpoint:
     Type: String
     Default: none
+
+  OpenSearchCollectionArn:
+    Type: String
+    Default: ""
 
   PinpointAppId:
     Type: String
@@ -297,7 +301,8 @@ Resources:
         VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
+        EnvOpenSearchCollectionEndpoint: !Ref EnvOpenSearchCollectionEndpoint
+        OpenSearchCollectionArn: !Ref OpenSearchCollectionArn
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -329,7 +334,7 @@ Resources:
         VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
+        EnvOpenSearchCollectionEndpoint: !Ref EnvOpenSearchCollectionEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey
@@ -361,7 +366,7 @@ Resources:
         VpcCidr: !Ref VpcCidr
         ClusterName: !Ref ClusterName
         ServiceDiscoveryNamespace: !Ref ServiceDiscoveryNamespace
-        EnvOpenSearchDomainEndpoint: !Ref EnvOpenSearchDomainEndpoint
+        EnvOpenSearchCollectionEndpoint: !Ref EnvOpenSearchCollectionEndpoint
         ParameterPersonalizeEventTrackerId: !Ref ParameterPersonalizeEventTrackerId
         ParameterAmplitudeApiKey: !Ref ParameterAmplitudeApiKey
         ParameterOptimizelySdkKey: !Ref ParameterOptimizelySdkKey

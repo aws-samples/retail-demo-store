@@ -131,9 +131,9 @@ services:
       - opensearch
     environment:
       - AWS_PROFILE
-      - OPENSEARCH_DOMAIN_SCHEME
-      - OPENSEARCH_DOMAIN_HOST
-      - OPENSEARCH_DOMAIN_PORT
+      - OPENSEARCH_COLLECTION_SCHEME
+      - OPENSEARCH_COLLECTION_HOST
+      - OPENSEARCH_COLLECTION_PORT
     volumes:
       - ~/.aws/:/root/.aws:ro
     build:

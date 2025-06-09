@@ -26,15 +26,17 @@ logger.addHandler(handler)
 INDEX_NAME = 'products'
 
 # Defaults assume you're running OpenSearch locally on port 9200
-search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'http')
-search_domain_host = os.environ.get('OPENSEARCH_DOMAIN_HOST', 'localhost')
-search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 9200)
+search_domain_scheme = os.environ.get('OPENSEARCH_COLLECTION_SCHEME', 'http')
+search_domain_host = os.environ.get('OPENSEARCH_COLLECTION_HOST', 'localhost')
+search_domain_port = os.environ.get('OPENSEARCH_COLLECTION_PORT', 9200)
+
+final_host = search_domain_host.replace("https://", "")
 
 logger.info('OpenSearch scheme: ' + search_domain_scheme)
 logger.info('OpenSearch endpoint: ' + search_domain_host)
 logger.info('OpenSearch port: ' + str(search_domain_port))
 
-url = '{}://{}:{}/{}'.format(search_domain_scheme, search_domain_host, search_domain_port, INDEX_NAME)
+url = '{}://{}:{}/{}'.format(search_domain_scheme, final_host, search_domain_port, INDEX_NAME)
 
 headers = { "Content-Type": "application/json" }
 

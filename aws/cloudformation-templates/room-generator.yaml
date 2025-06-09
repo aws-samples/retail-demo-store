@@ -20,8 +20,6 @@ Parameters:
   CleanupBucketLambdaArn:
     Type: String
     Description: Lambda Arn for cleanup function
-  OpenSearchDomainEndpoint:
-    Type: String
   OpenSearchEmbeddingIndex:
     Type: String
     Description: The index name that holds the Product embeddings
@@ -162,6 +160,79 @@ Resources:
             NonKeyAttributes: ["room_state", "room_style", "thumbnail_image_key"]
       StreamSpecification:
         StreamViewType: NEW_IMAGE
+
+  Collection:
+    Type: AWS::OpenSearchServerless::Collection
+    Properties:
+      Name: retaildemostore-embeddings
+      Type: VECTORSEARCH
+      StandbyReplicas: DISABLED
+      Description: Collection to hold product embedding data
+      Tags:
+        - Key: "Name"
+          Value: "retaildemostore"
+
+  DataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Name: retaildemostore-roommakeover
+      Type: data
+      Description: Access policy to allow the Room Makeover Lambda's access the embedding index
+      Policy:
+        !Sub |
+          [{
+              "Description": "Read Access for Lambdas",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                      "index/retaildemostore-embeddings/*"
+                    ],
+                    "Permission": [
+                        "aoss:ReadDocument"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${ImageAnalyzerLambdaExecutionRole.Arn}",
+                "${InferenceResultProcessorLambdaExecutionRole.Arn}"
+              ]
+          },
+          {
+              "Description": "Create/Delete Index for Create Index Lambda",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                      "index/retaildemostore-embeddings/*"
+                    ],
+                    "Permission": [
+                        "aoss:CreateIndex",
+                        "aoss:DeleteIndex"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${CreateEmbeddingIndexLambdaExecutionRole.Arn}"
+              ]
+          },
+          {
+              "Description": "Write documents for index products Lambda",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                      "index/retaildemostore-embeddings/*"
+                    ],
+                    "Permission": [
+                        "aoss:WriteDocument"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${IndexProductsLambdaExecutionRole.Arn}"
+              ]
+          }]
 
   BaseLambdaLayer:
     Type: AWS::Lambda::LayerVersion
@@ -342,6 +413,9 @@ Resources:
                   - bedrock:InvokeModel
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/amazon.titan-embed-image-v1'
+              - Effect: Allow
+                Action: aoss:APIAccessAll
+                Resource: !GetAtt Collection.Arn
 
   ImageAnalyzerLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -362,7 +436,7 @@ Resources:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
-          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_COLLECTION_HOST: !GetAtt Collection.CollectionEndpoint
           OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-image-analyzer
@@ -471,6 +545,9 @@ Resources:
                   - bedrock:InvokeModel
                 Resource:
                   - !Sub 'arn:${AWS::Partition}:bedrock:*::foundation-model/amazon.titan-embed-image-v1'
+              - Effect: Allow
+                Action: aoss:APIAccessAll
+                Resource: !GetAtt Collection.Arn
 
   InferenceResultProcessorLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -491,7 +568,7 @@ Resources:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref RoomGenerationTable
           INPUT_IMAGE_BUCKET: !Ref ImageBucket
-          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_COLLECTION_HOST: !GetAtt Collection.CollectionEndpoint
           OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_METRICS_NAMESPACE: retaildemostore
           POWERTOOLS_SERVICE_NAME: roomgen-inference-result-processor
@@ -1154,6 +1231,14 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: aoss:APIAccessAll
+                Resource: !GetAtt Collection.Arn
       ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
@@ -1174,7 +1259,7 @@ Resources:
       FunctionName: RoomGeneratorCreateEmbeddingIndex
       Environment:
         Variables:
-          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_COLLECTION_HOST: !GetAtt Collection.CollectionEndpoint
           OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_SERVICE_NAME: roomgen-embedding-index
       Layers:
@@ -1182,6 +1267,9 @@ Resources:
 
   CreateEmbeddingIndexLambdaTrigger:
     Type: Custom::LambdaTrigger
+    DependsOn: 
+      - Collection
+      - DataAccessPolicy
     Properties:
       ServiceToken: !GetAtt CreateEmbeddingIndexLambdaFunction.Arn
 
@@ -1332,6 +1420,9 @@ Resources:
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
                 Resource: !GetAtt IndexProductsQueue.Arn
+              - Effect: Allow
+                Action: aoss:APIAccessAll
+                Resource: !GetAtt Collection.Arn
 
   IndexProductsLambdaFunction:
     Type: AWS::Lambda::Function
@@ -1350,7 +1441,7 @@ Resources:
       FunctionName: RoomGeneratorIndexProducts
       Environment:
         Variables:
-          OPENSEARCH_DOMAIN_HOST: !Ref OpenSearchDomainEndpoint
+          OPENSEARCH_COLLECTION_HOST: !GetAtt Collection.CollectionEndpoint
           OPENSEARCH_INDEX_NAME: !Ref OpenSearchEmbeddingIndex
           POWERTOOLS_SERVICE_NAME: roomgen-index-products
       Layers:
