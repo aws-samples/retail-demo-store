@@ -8,9 +8,8 @@ from aws_xray_sdk.core import patch_all
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from opensearchpy import OpenSearch, NotFoundError, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-from botocore.session import Session
+from opensearchpy import OpenSearch, NotFoundError, RequestsHttpConnection, AWSV4SignerAuth
+import boto3
 
 import json
 import os
@@ -28,7 +27,7 @@ region = os.environ.get('AWS_DEFAULT_REGION')
 INDEX_PRODUCTS = 'products'
 
 final_host = search_collection_host.replace("https://", "")
-awsauth = AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials())
+awsauth = AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss')
 
 search_client = OpenSearch(
         hosts=[{'host': final_host, 'port': search_collection_port}],

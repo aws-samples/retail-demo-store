@@ -7,9 +7,7 @@ import yaml
 import logging
 import boto3
 from crhelper import CfnResource
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-from botocore.session import Session
+from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -32,9 +30,9 @@ def index_products(event):
     search_collection_endpoint = event['ResourceProperties']['OpenSearchCollectionEndpoint']
     logger.info('OpenSearch endpoint: %s', search_collection_endpoint)
 
-    credentials = Session().get_credentials()
+    credentials = boto3.Session().get_credentials()
     final_host = search_collection_endpoint.replace("https://", "")
-    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, 'aoss', session_token=credentials.token)
+    awsauth = AWSV4SignerAuth(credentials, region, 'aoss')
 
     search_host = {
         'host' : final_host,

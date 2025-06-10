@@ -6,9 +6,7 @@ from typing import List
 from PIL import Image
 import boto3
 from botocore.exceptions import ClientError
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-from botocore.session import Session
+from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 from aws_lambda_powertools import Logger
 
 s3_client = boto3.client('s3')
@@ -30,7 +28,7 @@ class ImageAnalyzer():
     def __init__(self, opensearch_hosts: List[dict[str,str]], opensearch_index_name: str, region: str, logger: Logger):
         self.search_client = OpenSearch(
             hosts = opensearch_hosts,
-            http_auth=AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials()),
+            http_auth=AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss'),
             use_ssl=True,
             verify_certs=True,
             connection_class=RequestsHttpConnection,
@@ -161,4 +159,4 @@ class ImageAnalyzer():
         else:
             hits = response['hits']['hits']
             # Update the box with similarItems
-            return [SimilarItem(hit['_id'], hit['_source']['caption']) for hit in hits]
+            return [SimilarItem(hit['_source']['id'], hit['_source']['caption']) for hit in hits]

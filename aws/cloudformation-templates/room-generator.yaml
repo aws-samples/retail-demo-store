@@ -208,7 +208,8 @@ Resources:
                     ],
                     "Permission": [
                         "aoss:CreateIndex",
-                        "aoss:DeleteIndex"
+                        "aoss:DeleteIndex",
+                        "aoss:DescribeIndex"
                     ]
                 }
               ],
@@ -225,7 +226,7 @@ Resources:
                       "index/retaildemostore-embeddings/*"
                     ],
                     "Permission": [
-                        "aoss:WriteDocument"
+                         "aoss:*"
                     ]
                 }
               ],
@@ -1265,11 +1266,33 @@ Resources:
       Layers:
         - !Ref SharedLambdaLayer
 
+  PolicyPropagationDelayFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt CreateEmbeddingIndexLambdaExecutionRole.Arn
+      Runtime: python3.12
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import time
+          import cfnresponse
+          
+          def handler(event, context):
+            # Wait for policy propagation (15 seconds)
+            time.sleep(15)
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+  
+  PolicyPropagationDelay:
+    Type: Custom::PolicyPropagationDelay
+    DependsOn: DataAccessPolicy
+    Properties:
+      ServiceToken: !GetAtt PolicyPropagationDelayFunction.Arn
+
+
   CreateEmbeddingIndexLambdaTrigger:
     Type: Custom::LambdaTrigger
-    DependsOn: 
-      - Collection
-      - DataAccessPolicy
+    DependsOn: PolicyPropagationDelay
     Properties:
       ServiceToken: !GetAtt CreateEmbeddingIndexLambdaFunction.Arn
 

@@ -1,7 +1,6 @@
 from crhelper import CfnResource
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-from botocore.session import Session
+from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
+import boto3
 import os
 
 mapping = {
@@ -31,7 +30,7 @@ search_collection_endpoint = os.environ['OPENSEARCH_COLLECTION_HOST']
 final_host = search_collection_endpoint.replace("https://", "")
 search_client = OpenSearch(
             hosts = [{'host': final_host, 'port': os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)}],
-            http_auth=AWS4Auth(region=region, service='aoss', refreshable_credentials=Session().get_credentials()),
+            http_auth=AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss'),
             use_ssl=True,
             verify_certs=True,
             connection_class=RequestsHttpConnection,
@@ -40,11 +39,6 @@ search_client = OpenSearch(
             retry_on_timeout=True
         )
 helper = CfnResource()
-
-@helper.delete
-def opensearch_delete(event,_):
-  if search_client.indices.exists(index_name):
-      search_client.indices.delete(index_name)
 
 @helper.create
 @helper.update
