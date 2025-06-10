@@ -1279,8 +1279,8 @@ Resources:
           import cfnresponse
           
           def handler(event, context):
-            # Wait for policy propagation (15 seconds)
-            time.sleep(15)
+            # Wait for policy propagation (60 seconds)
+            time.sleep(60)
             cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
   
   PolicyPropagationDelay:
