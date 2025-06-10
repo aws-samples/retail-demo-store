@@ -141,7 +141,7 @@ class ImageAnalyzer():
     def __get_similar_items(self, embeddings: bytes, size=3) -> List[SimilarItem]:
         query = {
             "size": size,
-            "_source": ["caption"],
+            "_source": ["caption", "id"],
             "query": {
                 "knn": {
                     "embedding": {
