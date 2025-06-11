@@ -67,7 +67,7 @@ Resources:
     Properties:
       NotebookInstanceName: !Sub ${Uid}
       InstanceType: !If [UseT3InstanceType, 'ml.t3.medium', 'ml.t2.medium']  # Ensure instance type is supported by all target regions in README before changing
-      PlatformIdentifier: "notebook-al2-v2"
+      PlatformIdentifier: "notebook-al2-v3"
       RoleArn: !GetAtt ExecutionRole.Arn
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
