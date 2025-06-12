@@ -77,7 +77,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/amazon-pay-signing.zip'
-      Runtime: nodejs12.x
+      Runtime: nodejs22.x
       Timeout: 30
       FunctionName: AmazonPaySigningLambda
       Environment:

@@ -13,8 +13,8 @@ zip -r9 ${OLDPWD}/dist/room_generator_base_layer.zip .
 cd ${OLDPWD}
 echo "Installing shared layer dependencies"
 pip install -r src/_layers/shared/requirements.txt --target ./dist/_layers/shared/python
-pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade pydantic_core
-pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade Pillow
+pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade pydantic_core==2.16.3
+pip install --platform manylinux2014_x86_64 --target ./dist/_layers/shared/python --implementation cp --python-version 3.12 --only-binary=:all: --upgrade Pillow==10.3.0
 echo "Building shared layer package"
 cp -R src/_layers/shared/src/* ./dist/_layers/shared/python/
 cd dist/_layers/shared/
