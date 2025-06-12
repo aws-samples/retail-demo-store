@@ -82,7 +82,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-resource-stack.zip'
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 900
       FunctionName: LocationNrfDemoLocationResourceStack
       Environment:
@@ -278,7 +278,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/location-geofence-event.zip'
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:
@@ -429,7 +429,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-connect.zip'
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 30
       FunctionName: LocationNrfDemoNotificationApiConnect
       Environment:
@@ -492,7 +492,7 @@ Resources:
       Code:
         S3Bucket: !Ref ResourceBucket
         S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/websocket-disconnect.zip'
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 30
       FunctionName: LocationNrfDemoNotificationApiDisconnect
       Environment:
