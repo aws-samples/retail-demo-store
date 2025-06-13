@@ -12,17 +12,13 @@ phases:
       python: 3.12
     commands:
       - echo Entered the install phase...
-      - yum -y install git python3 golang
+      - yum -y install git python3
       - yum -y update ca-certificates
       - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       - python get-pip.py
       - python -m venv retailstore/env
       - . retailstore/env/bin/activate
       - pip install pip --upgrade
-      - go get github.com/aws/aws-lambda-go/lambda
-      - go get github.com/aws/aws-lambda-go/cfn
-      - go get github.com/aws/aws-sdk-go
-      - go get gopkg.in/yaml.v2
   build:
     commands:
       - python -V
