@@ -60,6 +60,9 @@ export default {
         // first_name can be an empty string - should be validated against in the future
         if (!this.user) return null;
         if (!this.user.first_name) return this.user.username;
+
+        window['amazon_connect']['firstname'] = this.user.first_name || this.user.username;
+        window['amazon_connect']['lastname'] = this.user.last_name || "";
         return this.user.first_name;
       },
       gender() {

@@ -7,7 +7,7 @@
  */
 import AmplifyStore from '@/store/store';
 import { fetchUserAttributes } from 'aws-amplify/auth';
-import { identifyUser, record } from 'aws-amplify/analytics';
+import { identifyUser, rcord } from 'aws-amplify/analytics';
 import { record as personalizeRecord } from 'aws-amplify/analytics/personalize';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'

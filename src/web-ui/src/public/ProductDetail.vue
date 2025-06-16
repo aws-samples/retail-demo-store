@@ -53,7 +53,6 @@
             </div>
 
             <div v-if="bedrockProductPersonalizationEnabled">
-              <DemoGuideBadge :article="'personalized-product'" hideTextOnSmallScreens />
               <button class="btn-info btn btn-block" v-show="!isDescriptionPersonalized"
                 @click="personalizeDescription">
                   {{ personalizeButtonText }}
@@ -72,11 +71,6 @@
         <RecommendedProductsSection :experiment="experiment" :recommendedProducts="relatedProducts" :feature="feature">
           <template #heading>
             {{ relatedProductsSectionTitle }}
-            <DemoGuideBadge
-              v-if="demoGuideBadgeArticle"
-              :article="demoGuideBadgeArticle"
-              hideTextOnSmallScreens
-            ></DemoGuideBadge>
           </template>
         </RecommendedProductsSection>
       </div>
@@ -98,7 +92,6 @@ import ProductPrice from '@/components/ProductPrice/ProductPrice.vue';
 import FiveStars from '@/components/FiveStars/FiveStars.vue';
 import RecommendedProductsSection from '@/components/RecommendedProductsSection/RecommendedProductsSection.vue';
 import { discountProductPrice } from '@/util/discountProductPrice';
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 import LoadingFallback from '@/components/LoadingFallback/LoadingFallback.vue';
 
 import { Articles, getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
@@ -115,7 +108,6 @@ export default {
     ProductPrice,
     FiveStars,
     RecommendedProductsSection,
-    DemoGuideBadge,
     Fenixmaster,
     LoadingFallback,
   },
@@ -261,6 +253,8 @@ export default {
       }
 
       this.relatedProducts = await data.json();
+
+      window['amazon_connect']['products'] = this.relatedProducts;
 
       if (this.relatedProducts.length > 0 && 'experiment' in this.relatedProducts[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.relatedProducts[0].experiment);

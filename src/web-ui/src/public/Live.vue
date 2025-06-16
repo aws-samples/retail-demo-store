@@ -105,7 +105,7 @@
           :feature="feature"
           class="mt-5"
       >
-        <template #heading>Compare similar items <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></template>
+        <template #heading>Compare similar items </template>
       </RecommendedProductsSection>
 
     </div>
@@ -201,6 +201,8 @@ export default {
       }
 
       this.productRecommended = await data.json();
+
+      window['amazon_connect']['products'] = this.productRecommended;
 
       if (this.productRecommended.length > 0 && 'experiment' in this.productRecommended[0]) {
         AnalyticsHandler.identifyExperiment(this.user, this.productRecommended[0].experiment);

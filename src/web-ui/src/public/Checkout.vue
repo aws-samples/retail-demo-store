@@ -40,10 +40,6 @@
               </div>
             </div>
 
-            <div class="m-4">
-              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
-            </div>
-
           </div>
           <div class="col order-lg-1">
             <div class="alert text-center ml-0 not-real-warning" v-if="showCheckout == true">This storefront is not real.<br/>Your order will not be fulfilled.</div>
@@ -138,7 +134,6 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 import swal from 'sweetalert';
 
 import Layout from '@/components/Layout/Layout.vue'
-import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton.vue'
 import AmazonPayButton from "@/public/components/AmazonPayButton.vue";
 import { vMaska } from "maska"
 import FenixCheckout from '@/components/Fenix/FenixCheckout.vue';
@@ -150,7 +145,6 @@ export default {
   name: 'Checkout',
   components: {
     Layout,
-    AbandonCartButton,
     AmazonPayButton,
     FenixCheckout
   },

@@ -2,7 +2,7 @@
   <Layout :isLoading="!products.length">
       <!-- Product List -->
       <div class="container" v-if="products.length">
-        <h2 class="text-left">{{ capitalize(this.display) }} <DemoGuideBadge v-if="demoGuideBadgeArticle" :article="demoGuideBadgeArticle" hideTextOnSmallScreens></DemoGuideBadge></h2>
+        <h2 class="text-left">{{ capitalize(this.display) }} </h2>
         <div v-if="experiment" class="text-muted text-left">
           <small><em><i v-if="experiment" class="fa fa-balance-scale"></i> {{ experiment }}</em></small>
         </div>
@@ -74,7 +74,6 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler'
 
 import Product from '@/components/Product/Product.vue'
 import Layout from '@/components/Layout/Layout.vue'
-import DemoGuideBadge from '@/components/DemoGuideBadge/DemoGuideBadge.vue';
 import { getDemoGuideArticleFromPersonalizeARN } from '@/partials/AppModal/DemoGuide/config';
 import { capitalize } from '@/util/capitalize'
 
@@ -89,7 +88,6 @@ export default {
   components: {
     Product,
     Layout,
-    DemoGuideBadge
   },
   data() {
     return {

@@ -144,6 +144,7 @@ const CategoryDetail = () => import('@/public/CategoryDetail.vue')
 const Live = () => import('@/public/Live.vue')
 const Help = () => import('@/public/Help.vue')
 const Cart = () => import('@/public/Cart.vue')
+const FAQ = () => import('@/public/FAQ.vue')
 const AuthScreen = () => import('@/public/Auth.vue')
 const Checkout = () => import('@/public/Checkout.vue')
 const Location = () => import('@/public/Location.vue')
@@ -246,6 +247,16 @@ const router = createRouter({
       name: 'Collections',
       component: Collections,
       meta: { requiresAuth: true}
+    },
+    {
+      path: '/faq',
+      name: 'FAQ',
+      component: FAQ,
+      meta: { requiresAuth: false}
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/faq'  // Redirects all unmatched routes to FAQ
     }
   ],
   history: createWebHistory(),

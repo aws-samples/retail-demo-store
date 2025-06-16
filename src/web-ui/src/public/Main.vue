@@ -5,11 +5,6 @@
         <div v-if="userRecommendationsTitle" class="mb-3 text-left">
           <h2 class="recommendations-heading">
             {{ userRecommendationsTitle }}
-            <DemoGuideBadge
-              v-if="userRecommendationsDemoGuideBadgeArticle"
-              :article="userRecommendationsDemoGuideBadgeArticle"
-              hideTextOnSmallScreens
-            ></DemoGuideBadge>
           </h2>
           <div v-if="recommendationsExperiment" class="recommendation-explanation text-muted small">
             <i class="fa fa-balance-scale px-1"></i>
@@ -52,11 +47,6 @@
       >
         <template #heading>
           Featured products
-          <DemoGuideBadge
-            v-if="featuredProductsDemoGuideBadgeArticle"
-            :article="featuredProductsDemoGuideBadgeArticle"
-            hideTextOnSmallScreens
-          ></DemoGuideBadge>
         </template>
       </RecommendedProductsSection>
     </div>
@@ -203,6 +193,7 @@ export default {
           }
 
           this.userRecommendations = await data.json();
+          window['amazon_connect']['products'] = this.userRecommendations;
 
           if (this.userRecommendations.length > 0 && 'experiment' in this.userRecommendations[0]) {
             AnalyticsHandler.identifyExperiment(this.user, this.userRecommendations[0].experiment);

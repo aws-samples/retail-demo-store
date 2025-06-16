@@ -16,6 +16,11 @@ function maybeUpdateUsername (state, commit, dispatch, rootState) {
   }
 }
 
+function updateVipStates(state) {
+  const cartTotal = state.cart?.items.reduce((subtotal, item) => subtotal + item.quantity * item.price, 0) ?? 0;
+  window.top['amazon_connect']['isVipCustomer'] = cartTotal >= 500;
+}
+
 export const cart = {
   state: () => ({ cart: null }),
   getters: {
@@ -84,7 +89,7 @@ export const cart = {
       } else {
         commit({ type: 'addItemToCart', item: { product_id: product.id, product_name: product.name, price: product.price, quantity } });
       }
-
+      updateVipStates(state);
       await dispatch('updateCart');
 
       const newQuantity = product.quantity;
@@ -100,6 +105,7 @@ export const cart = {
 
       const removedItem = state.cart.items[index];
       commit({ type: 'removeItemFromCart', index });
+      updateVipStates(state);
 
       await dispatch('updateCart');
 
@@ -113,6 +119,7 @@ export const cart = {
       if (index === -1) return;
 
       commit({ type: 'addQuantityToItem', index, quantity: 1 });
+      updateVipStates(state);
 
       await dispatch('updateCart');
 
@@ -136,6 +143,7 @@ export const cart = {
         await dispatch('updateCart');
         AnalyticsHandler.productQuantityUpdatedInCart(rootState.user, state.cart, item, -1);
       }
+      updateVipStates(state);
     },
     getNewCart: ({ commit, dispatch }) => {
       commit({ type: 'setCart', cart: null });

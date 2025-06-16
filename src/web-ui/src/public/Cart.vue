@@ -32,7 +32,6 @@
               <router-link to="/checkout" class="checkout-btn mb-3 btn btn-outline-dark btn-block btn-lg"
                 >Checkout</router-link
               >
-              <AbandonCartButton class="abandon-cart"></AbandonCartButton>
             </div>
           </div>
         </div>
@@ -49,7 +48,6 @@ import { AnalyticsHandler } from '@/analytics/AnalyticsHandler';
 import CartItem from './components/CartItem.vue';
 import Layout from '@/components/Layout/Layout.vue';
 
-import AbandonCartButton from '@/partials/AbandonCartButton/AbandonCartButton.vue';
 
 import FenixCart from '@/components/Fenix/FenixCart.vue';
 
@@ -59,7 +57,6 @@ export default {
   components: {
     Layout,
     CartItem,
-    AbandonCartButton,
     FenixCart
   },
   data() {

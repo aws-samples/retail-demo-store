@@ -31,6 +31,8 @@
       <router-link class="dropdown-item" :to="`/live`">Live Streams</router-link>
       <hr />
       <router-link class="dropdown-item" :to="{name:'Collections'}">In-Store View</router-link>
+      <hr />
+      <router-link class="dropdown-item" :to="`/faq`">FAQ</router-link>
     </div>
   </div>
 </template>
