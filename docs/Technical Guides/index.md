@@ -7,7 +7,7 @@
 
 
 The Retail Demo Store
-is an open source solution which integrates Amazon Personalize, Amazon Pinpoint and Amazon Lex in a retail web
+is an open source solution which integrates Amazon Personalize, Amazon Pinpoint (**Deprecated**) and Amazon Lex in a retail web
 application demo and workshop platform. The Retail Demo Store is intended to be used as an education tool (not
 designed for production usage) for AWS customers to demonstrate how AWS can be used to build compelling customer
 experiences for eCommerce, Retail and Digital Marketing use cases.

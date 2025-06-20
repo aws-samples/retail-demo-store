@@ -2,6 +2,8 @@
   
 # Personalized Emails: Welcome and Abandoned Cart
 
+> **Warning** 
+Amazon Pinpoint is no longer accepting new customers beginning May 20, 2025 - and support will be ended effective October 30, 2026.  See https://docs.aws.amazon.com/pinpoint/latest/userguide/migrate.html for more details.  Therefore, all messaging functionality has been disabled until the code and workshops are updated.
 
 Amazon Pinpoint enables organizations to deliver messages across email, text, mobile push, voice, and custom
 channels like messenger apps and retail apps. These messages can be augmented with data output from ML services

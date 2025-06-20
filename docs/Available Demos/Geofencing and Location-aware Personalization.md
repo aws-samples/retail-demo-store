@@ -13,20 +13,20 @@ Imagine a customer is out shopping and approaches one of your retail locations. 
 
 ### How it Works
 
-The Retail Demo Store uses Amazon Location Services to set up a geofence around a sample physical store location. As customers approach the store, their location is detected, and personalized messages are delivered to them through Amazon Pinpoint.
+The Retail Demo Store uses Amazon Location Services to set up a geofence around a sample physical store location. As customers approach the store, their location is detected, and personalized messages are delivered to them through Amazon Pinpoint **(Deprecated)**.
 
 The key components are:
 
 1. **Location Service**: Defines the geofence around the physical store and tracks customer proximity.
 2. **Offers Service**: Maintains a catalog of personalized offers that can be triggered based on customer location.
-3. **Pinpoint**: Sends personalized push notifications, SMS, or email messages to customers when they enter the geofence.
+3. **Pinpoint**: Sends personalized push notifications, SMS, or email messages to customers when they enter the geofence **(Deprecated)**.
 4. **Personalize**: Integrates with Amazon Personalize to select the most relevant offer for each customer based on their profile and past behaviors.
 
 When a customer enters the geofence, the following happens:
 
 1. The Location Service detects the customer's proximity to the store.
 2. The Offers Service selects a personalized offer for the customer using Amazon Personalize.
-3. Pinpoint delivers the personalized offer to the customer via their preferred communication channel (e.g., push notification, SMS, email).
+3. Pinpoint delivers the personalized offer to the customer via their preferred communication channel (e.g., push notification, SMS, email) **(Deprecated)**..
 4. The customer can then redeem the offer by visiting the store.
 
 ### Benefits

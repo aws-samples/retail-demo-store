@@ -47,7 +47,7 @@ export default {
   directives: { maska: vMaska },
   data() {
     return {
-      isPinpointEnabled: import.meta.env.VITE_PINPOINT_APP_ID,
+      isPinpointEnabled: false,
       phoneNumber: '',
       hasConsented: false,
       demoGuideBadgeArticle: Articles.SMS_MESSAGING,

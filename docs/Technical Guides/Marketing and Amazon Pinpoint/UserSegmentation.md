@@ -2,6 +2,8 @@
   
 # Real-Time User Segmentation
 
+> **Warning** 
+Amazon Pinpoint is no longer accepting new customers beginning May 20, 2025 - and support will be ended effective October 30, 2026.  See https://docs.aws.amazon.com/pinpoint/latest/userguide/migrate.html for more details.  Therefore, all messaging and segmentation functionality has been disabled until the code and workshops are updated.
 
 Amazon Pinpoint enables organizations to create user segments - or groups of customers - based on their behavior
 across web/mobile applications, interactions over email, text, push notifications, and other channels, or based on

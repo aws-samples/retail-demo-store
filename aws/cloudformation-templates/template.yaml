@@ -296,7 +296,6 @@ Parameters:
       prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
-      - "Yes"
       - "No"
     Default: "No"
 
