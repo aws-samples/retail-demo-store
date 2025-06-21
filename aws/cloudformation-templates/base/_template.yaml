@@ -121,6 +121,11 @@ Parameters:
     Description : full url to the images.tar.gz adress
     Default: https://code.retaildemostore.retail.aws.dev/images.tar.gz
 
+  PinpointAppId:
+    Type: String
+    Description: Pinpoint is no longer available to new customers.  Defaulting until code and workshops are refactored
+    Default: ""
+
 Resources:
   # Authentication
   Authentication:
@@ -129,7 +134,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/authentication.yaml
       Parameters:
         AuthName: !Sub ${ParentStackName}-${AWS::Region}
-        PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        PinpointAppId: !Ref PinpointAppId
         LocationResourcePrefix: !Ref LocationResourcePrefix
 
   # Buckets
@@ -154,7 +159,7 @@ Resources:
         StackBucketName: !GetAtt Buckets.Outputs.StackBucketName
         Uid: !Sub ${ParentStackName}-${AWS::Region}
         UserPoolId: !GetAtt Authentication.Outputs.UserPoolId
-        PinpointAppId: !GetAtt Pinpoint.Outputs.PinpointAppId
+        PinpointAppId: !Ref PinpointAppId
         GitHubUser: !Ref GitHubUser
         GitHubBranch: !Ref GitHubBranch
 
@@ -249,10 +254,10 @@ Resources:
         GoogleAnalyticsMeasurementId: !Ref GoogleAnalyticsMeasurementId
 
   # Pinpoint Resources
-  Pinpoint:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/pinpoint.yaml
+  # Pinpoint:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: !Sub https://s3.amazonaws.com/${ResourceBucket}/${ResourceBucketRelativePath}cloudformation-templates/base/pinpoint.yaml
 
   # CloudFront CDN
   CloudFront:
@@ -366,7 +371,7 @@ Outputs:
 
   PinpointAppId:
     Description: Pinpoint App Id
-    Value: !GetAtt Pinpoint.Outputs.PinpointAppId
+    Value: !Ref PinpointAppId
 
   PinpointSMSLongCode:
     Description: Pinpoint SMS Long code for two way SMS

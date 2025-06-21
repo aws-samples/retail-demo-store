@@ -51,19 +51,6 @@ const amplifyConfig = {
   }
 }
 
-if (typeof import.meta.env.VITE_PINPOINT_APP_ID != 'undefined') {
-  amplifyConfig.Analytics.Pinpoint = {
-    appId: import.meta.env.VITE_PINPOINT_APP_ID,
-    region: import.meta.env.VITE_PINPOINT_REGION,
-     mandatorySignIn: false,
-  }
-  if (store.state.user?.id) {
-    amplifyConfig.Analytics.Pinpoint.endpoint = {
-        userId: store.state.user.id
-    }
-  }
-}
-
 
 // Only add Personalize event tracking if configured.
 if (import.meta.env.VITE_PERSONALIZE_TRACKING_ID && import.meta.env.VITE_PERSONALIZE_TRACKING_ID != 'NONE') {

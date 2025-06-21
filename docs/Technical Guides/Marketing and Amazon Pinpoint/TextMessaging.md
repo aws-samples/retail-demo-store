@@ -2,6 +2,8 @@
   
 # Text Messaging (SMS): Personalized Alerts and Promotions
 
+> **Warning** 
+Amazon Pinpoint is no longer accepting new customers beginning May 20, 2025 - and support will be ended effective October 30, 2026.  See https://docs.aws.amazon.com/pinpoint/latest/userguide/migrate.html for more details.  Therefore, all messaging functionality has been disabled until the code and workshops are updated.
 
 Amazon Pinpoint has deep configuration options for SMS (text) messaging and can deliver messages to every country
 in the world. Retail / eCommerce organizations have many use cases for text messaging - including transactional

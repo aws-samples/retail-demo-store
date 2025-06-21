@@ -19,7 +19,7 @@ The Retail Demo Store features several demo components that showcase different A
 
 1. :fontawesome-regular-envelope: **[Messaging and Engagement](./Messaging%20and%20Engagement.md)**:
     
-    Uses Amazon Pinpoint for triggered email, SMS, and in-app messages (welcome emails, abandoned cart reminders, etc.).
+    Uses Amazon Pinpoint for triggered email, SMS, and in-app messages (welcome emails, abandoned cart reminders, etc.). **(Deprecated)**
     
     Demonstrates omni-channel personalization by integrating Personalize and Pinpoint.
 
