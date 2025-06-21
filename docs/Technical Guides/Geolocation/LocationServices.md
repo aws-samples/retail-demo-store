@@ -1,6 +1,9 @@
 # Retail Geofencing and Location-aware Personalization with Amazon Location Services
 
-Amazon Location Services is an Amazon provision of maps, location indexing, geofencing, user tracking, and routing. Geofencing can be used to set off chains of events just when they need to be set off - when your customer is in the right place, at the right time. In this demo we use it together with the ecommerce platform and Amazon Pinpoint to engage customers when they approach physical stores.
+> **Warning** 
+Amazon Pinpoint is no longer accepting new customers beginning May 20, 2025 - and support will be ended effective October 30, 2026.  See https://docs.aws.amazon.com/pinpoint/latest/userguide/migrate.html for more details.  Therefore, all messaging functionality has been disabled until the code and workshops are updated.
+
+Amazon Location Services is an Amazon provision of maps, location indexing, geofencing, user tracking, and routing. Geofencing can be used to set off chains of events just when they need to be set off - when your customer is in the right place, at the right time. In this demo we use it together with the ecommerce platform and Amazon Pinpoint (**Deprecated**) to engage customers when they approach physical stores.
 
 Customers are inspired to opt in to share their location by being provided with personalized offers. These offers can be related to customer preferences, local stock levels, and more. In this demo we use Amazon Personalize to select an offer to show to a consumer that can be redeemed in-store. The consumer has the extra convenience and we have enaged with them in a targeted fashion and, moreover, attracted them into our bricks and mortar store where the experience will be, naturally, more personal than online.
 

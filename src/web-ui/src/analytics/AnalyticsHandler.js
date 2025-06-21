@@ -7,7 +7,6 @@
  */
 import AmplifyStore from '@/store/store';
 import { fetchUserAttributes } from 'aws-amplify/auth';
-import { identifyUser, record } from 'aws-amplify/analytics';
 import { record as personalizeRecord } from 'aws-amplify/analytics/personalize';
 import Amplitude from 'amplitude-js'
 import { RepositoryFactory } from '@/repositories/RepositoryFactory'
@@ -16,6 +15,10 @@ import { set, event } from "vue-gtag";
 
 const RecommendationsRepository = RepositoryFactory.get('recommendations')
 const ProductsRepository = RepositoryFactory.get('products')
+
+// Log analytics data to console, until code updated to push to Kinesis
+const record = (data) => console.debug(data)
+const identifyUser = (data) => console.debug(data);
 
 export const AnalyticsHandler = {
     clearUser() {
