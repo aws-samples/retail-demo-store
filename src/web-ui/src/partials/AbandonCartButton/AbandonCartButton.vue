@@ -32,7 +32,7 @@ export default {
   components: { DemoGuideBadge },
   data() {
     return {
-      pinpointEnabled: import.meta.env.VITE_PINPOINT_APP_ID,
+      pinpointEnabled: false,
       demoGuideBadgeArticle: Articles.PERSONALIZED_EMAILS,
       hasConsented: false,
     };

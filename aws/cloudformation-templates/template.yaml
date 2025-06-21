@@ -292,11 +292,11 @@ Parameters:
   PreCreatePinpointWorkshop:
     Type: String
     Description: >
+      This functionality is no longer supported.  See https://docs.aws.amazon.com/pinpoint/latest/userguide/migrate.html for more details.
       Automatically configure Pinpoint with messaging templates, segments, and campaigns. Otherwise, select 'No' if you would
       prefer to complete this process yourself by stepping through the Messaging workshop included in your deployment as a Jupyter notebook
       in SageMaker. Note that this option is dependent on Auto-Build Personalize Campaigns being enabled AND completed.
     AllowedValues:
-      - "Yes"
       - "No"
     Default: "No"
 
