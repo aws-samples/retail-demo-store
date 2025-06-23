@@ -1272,15 +1272,15 @@ Resources:
       Handler: index.handler
       Role: !GetAtt CreateEmbeddingIndexLambdaExecutionRole.Arn
       Runtime: python3.12
-      Timeout: 30
+      Timeout: 180
       Code:
         ZipFile: |
           import time
           import cfnresponse
           
           def handler(event, context):
-            # Wait for policy propagation (60 seconds)
-            time.sleep(60)
+            # Wait for policy propagation (120 seconds)
+            time.sleep(120)
             cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
   
   PolicyPropagationDelay:
