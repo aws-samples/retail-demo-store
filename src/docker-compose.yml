@@ -1,7 +1,6 @@
 # Docker compose file for local development.
 # Initialize your local environment variables either in your shell
 # or in the ".env" file.
-version: "3.7"
 services:
   carts:
     container_name: carts

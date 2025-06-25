@@ -386,9 +386,9 @@ Resources:
               Value: !Ref ParameterIVSVideoChannelMap
             - Name: USE_DEFAULT_IVS_STREAMS
               Value: !Ref UseDefaultIVSStreams
-            - Name: OPENSEARCH_COLLECTION_HOST
+            - Name: OPENSEARCH_DOMAIN_HOST
               Value: !Ref EnvOpenSearchCollectionEndpoint
-            - Name: OPENSEARCH_COLLECTION_PORT
+            - Name: OPENSEARCH_DOMAIN_PORT
               Value: '443'
             - Name: DDB_TABLE_PRODUCTS
               Value: !Ref ProductsTable

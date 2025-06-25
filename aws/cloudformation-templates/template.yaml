@@ -1127,9 +1127,9 @@ Outputs:
         DDB_TABLE_ORDERS=${Base.Outputs.OrdersTable}
 
         # Search service
-        OPENSEARCH_COLLECTION_SCHEME=https
-        OPENSEARCH_COLLECTION_HOST="${Base.Outputs.OpenSearchCollectionEndpoint}"
-        OPENSEARCH_COLLECTION_PORT=443
+        OPENSEARCH_DOMAIN_SCHEME=https
+        OPENSEARCH_DOMAIN_HOST="${Base.Outputs.OpenSearchCollectionEndpoint}"
+        OPENSEARCH_DOMAIN_PORT=443
 
         # Users service
         AWS_REGION=${AWS::Region}

@@ -17,26 +17,33 @@ import pprint
 
 patch_all()
 
-
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
-
-search_collection_scheme = os.environ.get('OPENSEARCH_COLLECTION_SCHEME', 'https')
-search_collection_host = os.environ['OPENSEARCH_COLLECTION_HOST']
-search_collection_port = os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)
-region = os.environ.get('AWS_DEFAULT_REGION')
 INDEX_PRODUCTS = 'products'
 
-final_host = search_collection_host.replace("https://", "")
-awsauth = AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss')
+def use_opensearch_serverless():
+    """ Determines whether OpenSearch Serverless is being used. """
+    return os.environ['OPENSEARCH_DOMAIN_HOST'].endswith("aoss.amazonaws.com")
 
-search_client = OpenSearch(
-        hosts=[{'host': final_host, 'port': search_collection_port}],
-        http_auth=awsauth,
-        use_ssl=True,
-        verify_certs=True,
+def get_opensearch_client():
+    search_host = os.environ['OPENSEARCH_DOMAIN_HOST']
+    search_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
+    
+    http_auth = None
+    if use_opensearch_serverless():
+        region = os.environ.get('AWS_DEFAULT_REGION')
+        search_host = search_host.replace("https://", "")
+        http_auth=AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss')
+
+    return OpenSearch(
+        hosts=[{'host': search_host, 'port': search_port}],
+        http_auth=http_auth,
+        use_ssl=True if use_opensearch_serverless() else False,
+        verify_certs=True if use_opensearch_serverless() else False,
         connection_class=RequestsHttpConnection,
         timeout=300
     )
+
+search_client = get_opensearch_client()
 
 # -- Logging
 class LoggingMiddleware(object):
