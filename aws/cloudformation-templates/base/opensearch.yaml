@@ -6,53 +6,13 @@ Description: >
 
 Parameters:
 
-  Subnet1:
+  PrivateSubnets:
     Type: String
 
   VpcId:
     Type: String
 
 Resources:
-
-
-  OpenSearchDomain:
-    Type: AWS::OpenSearchService::Domain
-    Properties:
-      EngineVersion: OpenSearch_2.3
-      ClusterConfig:
-        InstanceCount: 1
-        InstanceType: t3.small.search
-        ZoneAwarenessEnabled: false
-      DomainEndpointOptions:
-        EnforceHTTPS: true
-      NodeToNodeEncryptionOptions:
-        Enabled: true
-      EBSOptions:
-        EBSEnabled: true
-        Iops: 0
-        VolumeSize: 10
-        VolumeType: gp2
-      AccessPolicies:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: '*'
-            Action: 'es:*'
-            Resource: '*'
-      AdvancedOptions:
-        rest.action.multi.allow_explicit_index: 'true'
-      EncryptionAtRestOptions:
-        Enabled: true
-      VPCOptions:
-        SubnetIds:
-          - !Ref Subnet1
-        SecurityGroupIds:
-          - !GetAtt SecurityGroup.GroupId
-      Tags:
-        -
-          Key: "Name"
-          Value: "retaildemostore"
 
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -64,13 +24,77 @@ Resources:
           IpProtocol: tcp
           ToPort: 443
           CidrIp: 0.0.0.0/0
+    
+  AOSSVpcEndpoint:
+    Type: AWS::OpenSearchServerless::VpcEndpoint
+    Properties:
+      Name: aoss-retaildemostore-vpcendpoint
+      VpcId: !Ref VpcId
+      SubnetIds: !Split [",", !Ref PrivateSubnets ]
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+
+  EncryptionPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: retaildemostore-security-policy
+      Type: encryption
+      Description: Encryption policy for the retail demo store collections
+      Policy:
+        !Sub |
+          {
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": [
+                  "collection/retaildemostore*"
+                ]
+              }
+            ],
+            "AWSOwnedKey": true
+          }
+
+  NetworkPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: retaildemostore-network-policy
+      Type: network
+      Description: Network policy for the retail demo store collections
+      Policy:
+        !Sub |
+          [{
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": [
+                  "collection/retaildemostore*"
+                ]
+              }
+            ],
+            "AllowFromPublic": false,
+            "SourceVPCEs": [
+              "${AOSSVpcEndpoint}"
+            ]
+           }]       
+
+  Collection:
+    Type: AWS::OpenSearchServerless::Collection
+    DependsOn: EncryptionPolicy
+    Properties:
+      Name: retaildemostore-products
+      Type: SEARCH
+      StandbyReplicas: DISABLED
+      Description: Collection to hold product data
+      Tags:
+        - Key: "Name"
+          Value: "retaildemostore"
 
 Outputs:
-  DomainArn:
-    Value: !GetAtt OpenSearchDomain.DomainArn
+  CollectionArn:
+    Value: !GetAtt Collection.Arn
 
-  DomainEndpoint:
-    Value: !GetAtt OpenSearchDomain.DomainEndpoint
+  CollectionEndpoint:
+    Value: !GetAtt Collection.CollectionEndpoint
 
   SecurityGroupId:
     Value: !Ref SecurityGroup

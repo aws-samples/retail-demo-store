@@ -13,9 +13,12 @@ input_image_bucket = os.environ['INPUT_IMAGE_BUCKET']
 logger = Logger(utc=True)
 metrics = Metrics()
 
+search_collection_endpoint = os.environ['OPENSEARCH_COLLECTION_HOST']
+final_host = search_collection_endpoint.replace("https://", "")
 image_analyzer = ImageAnalyzer(
-                    opensearch_hosts=[{'host': os.environ['OPENSEARCH_DOMAIN_HOST'], 'port': os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)}],
+                    opensearch_hosts=[{'host': final_host, 'port': os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)}],
                     opensearch_index_name=os.environ['OPENSEARCH_INDEX_NAME'], 
+                    region=os.environ['AWS_DEFAULT_REGION'], 
                     logger=logger)
 dynamodb = boto3.resource('dynamodb')
 db = RoomGenerationRequests(dynamodb.Table(os.environ['DYNAMODB_TABLE_NAME']))

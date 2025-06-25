@@ -1,4 +1,4 @@
-FROM public.ecr.aws/s5z3t2n9/python:3.8-slim
+FROM public.ecr.aws/docker/library/python:3.11-slim-bookworm
 
 COPY /src/search-service /app
 

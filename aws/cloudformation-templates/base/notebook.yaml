@@ -44,6 +44,9 @@ Parameters:
 
   PinpointAppId:
     Type: String
+  
+  ProductsCollectionArn:
+    Type: String
 
 Conditions:
   UseDefaultGitHubUser: !Equals
@@ -146,10 +149,14 @@ Resources:
                 Effect: "Allow"
                 Action:
                   - servicediscovery:DiscoverInstances
-                  - es:ListDomainNames
-                  - es:DescribeDomain
-                  - es:ListTags
+                  - aoss:ListCollections
                 Resource: "*"
+              -
+                Effect: "Allow"
+                Action: 
+                  - aoss:APIAccessAll
+                  - aoss:BatchGetCollection
+                Resource: !Ref ProductsCollectionArn
         -
           PolicyName: "1-Personalize"
           PolicyDocument:
@@ -369,6 +376,32 @@ Resources:
                 Action:
                   - logs:CreateLogGroup
                 Resource: '*'
+
+  DataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Name: retaildemostore-notebook
+      Type: data
+      Description: Access policy to allow SageMaker Notebook access to the retail demo store collections
+      Policy:
+        !Sub |
+          [{
+              "Description": "Access for SageMaker notebook",
+              "Rules": [
+                {
+                    "ResourceType": "index",
+                    "Resource": [
+                     "index/retaildemostore-products/*"
+                    ],
+                    "Permission": [
+                        "aoss:*"
+                    ]
+                }
+              ],
+              "Principal": [
+                "${ExecutionRole.Arn}"
+              ]
+          }]
 
 Outputs:
   NotebookInstanceId:

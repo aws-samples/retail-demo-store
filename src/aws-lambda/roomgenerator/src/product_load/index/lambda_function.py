@@ -3,14 +3,27 @@ from pathlib import PurePath
 from aws_lambda_powertools.utilities.data_classes import event_source, SQSEvent
 from aws_lambda_powertools import Logger
 from opensearchpy.helpers import bulk
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
+import boto3
 import os
 
-index_name=os.environ['OPENSEARCH_INDEX_NAME']
+credentials = boto3.Session().get_credentials()
+search_collection_endpoint = os.environ['OPENSEARCH_COLLECTION_HOST']
+final_host = search_collection_endpoint.replace("https://", "")
+region = os.environ['AWS_DEFAULT_REGION']
+awsauth = AWSV4SignerAuth(credentials, region, 'aoss')
+index_name = os.environ['OPENSEARCH_INDEX_NAME']
+
 search_client = OpenSearch(
-            hosts = [{'host': os.environ['OPENSEARCH_DOMAIN_HOST'], 'port': os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)}],
-            use_ssl = True
-        )
+        hosts = [{'host': final_host, 'port': os.environ.get('OPENSEARCH_COLLECTION_PORT', 443)}],
+        http_auth=awsauth,
+        use_ssl=True,
+        verify_certs=True,
+        connection_class=RequestsHttpConnection,
+        timeout=30, 
+        max_retries=10, 
+        retry_on_timeout=True
+)
 
 logger = Logger(utc=True)
 
@@ -43,7 +56,7 @@ def create_docs(event: SQSEvent) -> List[dict[str, Any]]:
 
             doc = {}
             doc['_index'] = index_name
-            doc['_id'] = id
+            doc['id'] = id
             doc['category'] = category
             doc['embedding'] = body['data']['embedding']
             doc['caption'] = body['data']['caption']

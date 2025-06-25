@@ -8,7 +8,8 @@ from aws_xray_sdk.core import patch_all
 from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS
-from opensearchpy import OpenSearch, NotFoundError
+from opensearchpy import OpenSearch, NotFoundError, RequestsHttpConnection, AWSV4SignerAuth
+import boto3
 
 import json
 import os
@@ -16,19 +17,33 @@ import pprint
 
 patch_all()
 
-
 INDEX_DOES_NOT_EXIST = 'index_not_found_exception'
-
-search_domain_scheme = os.environ.get('OPENSEARCH_DOMAIN_SCHEME', 'https')
-search_domain_host = os.environ['OPENSEARCH_DOMAIN_HOST']
-search_domain_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
 INDEX_PRODUCTS = 'products'
 
-search_client = OpenSearch(
-    [search_domain_host],
-    scheme=search_domain_scheme,
-    port=search_domain_port,
-)
+def use_opensearch_serverless():
+    """ Determines whether OpenSearch Serverless is being used. """
+    return os.environ['OPENSEARCH_DOMAIN_HOST'].endswith("aoss.amazonaws.com")
+
+def get_opensearch_client():
+    search_host = os.environ['OPENSEARCH_DOMAIN_HOST']
+    search_port = os.environ.get('OPENSEARCH_DOMAIN_PORT', 443)
+    
+    http_auth = None
+    if use_opensearch_serverless():
+        region = os.environ.get('AWS_DEFAULT_REGION')
+        search_host = search_host.replace("https://", "")
+        http_auth=AWSV4SignerAuth(boto3.Session().get_credentials(), region, 'aoss')
+
+    return OpenSearch(
+        hosts=[{'host': search_host, 'port': search_port}],
+        http_auth=http_auth,
+        use_ssl=True if use_opensearch_serverless() else False,
+        verify_certs=True if use_opensearch_serverless() else False,
+        connection_class=RequestsHttpConnection,
+        timeout=300
+    )
+
+search_client = get_opensearch_client()
 
 # -- Logging
 class LoggingMiddleware(object):
