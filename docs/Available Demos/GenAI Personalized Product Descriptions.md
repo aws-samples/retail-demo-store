@@ -13,7 +13,7 @@ The real power of generative AI for product descriptions is the ability to dynam
 
 The Retail Demo Store integrates the product service with Amazon Bedrock to retrieve personalized product descriptions based on the logged-in user's age and interests.
 
-Amazon Bedrock makes Foundation Models (FMs) accessible via an API, and in this demo, Anthropic's Claude v2 is the underlying FM used for generating the personalized descriptions.
+Amazon Bedrock makes Foundation Models (FMs) accessible via an API, and in this demo, Anthropic's Claude 3 Haiku is the underlying FM used for generating the personalized descriptions.
 
 The prompt used to generate the personalized descriptions takes the following form:
 

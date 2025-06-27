@@ -537,7 +537,7 @@ Parameters:
 
   BedrockProductPersonalization:
     Type: String
-    Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude v2 via the Amazon Bedrock Management Console. Check README Notes for more details.
+    Description: Flag to enable product personalization in web-ui feature driven by Bedrock. Amazon Bedrock users need to request access to models before they are available for use. To demo Personalised Product Descriptions make sure to enable access to Anthropic's Claude 3 Haiku via the Amazon Bedrock Management Console. Check README Notes for more details.
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -550,7 +550,7 @@ Parameters:
 
   DeployRoomMakeoverDemo:
     Type: String
-    Description: Flag to deploy the Room Makeover demo. Amazon Bedrock users need to request access to models before they are available for use. To demo the Room Makerover functionality make sure to enable access to Anthropic's Claude v3 & Titan Embeddings via the Amazon Bedrock Management Console. Check README Notes for more details.
+    Description: Flag to deploy the Room Makeover demo. Amazon Bedrock users need to request access to models before they are available for use. To demo the Room Makerover functionality make sure to enable access to Anthropic's Claude 3 Haiku & Titan Embeddings via the Amazon Bedrock Management Console. Check README Notes for more details.
     AllowedValues:
       - 'Yes'
       - 'No'
