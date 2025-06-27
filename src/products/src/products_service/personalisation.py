@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT-0
 from abc import ABC, abstractmethod
 from flask import current_app
-from anthropic_bedrock import AnthropicBedrock
-import anthropic_bedrock
+import boto3
+import json
 
-bedrock = AnthropicBedrock()
+bedrock = boto3.client('bedrock-runtime')
 
 class Cache(ABC):
 
@@ -54,29 +54,50 @@ def generate_prompt(product, user_persona,user_age_range) -> str:
     )
     return template
 
+def create_claude_request(prompt:str) -> str:
+    return json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 300,
+        "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
+                    }
+        ],
+        "temperature": 0,
+        "top_p": 1,
+        "top_k": 250,
+    })
+
 def generate_personalised_description(product, user, cache: Cache) -> str:
     user_age_range = getAgeRange(user.get('age'))
     user_persona = user.get('persona')
 
     def get_personalised_description() -> (bool, str):
         prompt = generate_prompt(product, user_persona,user_age_range)
-        claude_prompt = f"{anthropic_bedrock.HUMAN_PROMPT} {prompt} {anthropic_bedrock.AI_PROMPT}"
-        current_app.logger.debug(f"Generated prompt:\n{claude_prompt}")
+        body = create_claude_request(prompt)
+        current_app.logger.debug(f"Generated request:\n{body}")
         
-        response = bedrock.completions.create(
-                    model="anthropic.claude-v2",
-                    max_tokens_to_sample=300,
-                    prompt=claude_prompt,
-                    top_p=1,
-                    top_k=250,
-                    temperature=0)
+        response = bedrock.invoke_model(
+            body=body, 
+            modelId="anthropic.claude-3-haiku-20240307-v1:0",
+            accept="application/json", 
+            contentType="application/json"
+        )
+        response_body = json.loads(response['body'].read())
+        response_text = response_body.get("content")[0].get("text")
         
-        if 'Sorry' in response.completion:
+        if 'Sorry' in response_text:
             current_app.logger.info(f"No personalised description can be generated for product: {product['id']}")
             return False, ''
         
-        current_app.logger.debug(f"Response:\n{response.completion}")
-        return True, response.completion
+        current_app.logger.debug(f"Response:\n{response_text}")
+        return True, response_text
     
     cache_key = generate_key(user_persona, user_age_range, product['id'])
     return with_cache(cache_key, cache, get_personalised_description)
