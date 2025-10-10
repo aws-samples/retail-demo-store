@@ -1,5 +1,5 @@
-diffusers==0.29.2
-transformers
+diffusers==0.32.2
+transformers==4.49
 accelerate
 datasets
 matplotlib
