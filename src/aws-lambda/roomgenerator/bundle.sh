@@ -4,6 +4,10 @@ set -e
 echo "Cleaning up intermediate files"
 [ -e "dist" ] && rm -rf dist
 
+echo "Creating isolated venv for bundling"
+python3 -m venv .bundle_venv
+source .bundle_venv/bin/activate
+
 echo "Installing base layer dependencies"
 pip install -r src/_layers/base/requirements.txt --target ./dist/_layers/base/python
 echo "Building base layer package"
@@ -50,3 +54,5 @@ for dir in src/product_load/*/
     done
 
 echo "Done!"
+deactivate
+rm -rf .bundle_venv
