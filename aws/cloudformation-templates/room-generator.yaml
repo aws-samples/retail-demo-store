@@ -161,8 +161,18 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_IMAGE
 
+  EncryptionSecurityPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: retaildemostore-embeddings-enc
+      Type: encryption
+      Description: Encryption policy for retaildemostore-embeddings collection
+      Policy: >-
+        {"Rules":[{"ResourceType":"collection","Resource":["collection/retaildemostore-embeddings"]}],"AWSOwnedKey":true}
+
   Collection:
     Type: AWS::OpenSearchServerless::Collection
+    DependsOn: EncryptionSecurityPolicy
     Properties:
       Name: retaildemostore-embeddings
       Type: VECTORSEARCH
@@ -1001,6 +1011,7 @@ Resources:
                   - sagemaker:DeleteEndpoint
                   - sagemaker:AddTags
                   - sagemaker:DeleteTags
+                  - sagemaker:UpdateEndpoint
                   - sagemaker:UpdateEndpointWeightsAndCapacities
                   - iam:AttachRolePolicy
                   - iam:DeleteRolePolicy

@@ -1,7 +1,7 @@
-FROM public.ecr.aws/docker/library/python:3.12-slim-bookworm
+FROM public.ecr.aws/docker/library/python:3.12-slim-trixie
 
 WORKDIR /src/
-RUN apt-get update && apt-get install -y g++
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends g++ && rm -rf /var/lib/apt/lists/*
 COPY src/carts-service/requirements.txt .
 
 RUN python3 -m pip install -r requirements.txt
