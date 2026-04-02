@@ -5,6 +5,6 @@
   "main": "mparticle-personalize.js",
   "dependencies": {
     "mparticle": "*",
-    "axios": "^1.7.4"
+    "axios": "^1.13.5"
   }
 }
